@@ -31,26 +31,25 @@ internal sealed class ItemLaunchService : IItemLaunchService
                 MessageBoxImage.Warning);
         }
 
-        var startInfo = isDirectory
-            ? new ProcessStartInfo
-            {
-                FileName = "explorer.exe",
-                Arguments = $"\"{path}\"",
-                UseShellExecute = true
-            }
-            : new ProcessStartInfo
-            {
-                FileName = path,
-                Arguments = item.Arguments,
-                UseShellExecute = true
-            };
+        var startInfo = new ProcessStartInfo { UseShellExecute = true };
+        if (isDirectory)
+        {
+            startInfo.FileName = "explorer.exe";
+            startInfo.Arguments = $"\"{path}\"";
+        }
+        else
+        {
+            startInfo.FileName = path;
+            startInfo.Arguments = item.Arguments;
+        }
 
         try
         {
             var process = _startProcess(startInfo);
-            return process is null
-                ? LaunchExecutionResult.Failed("起動に失敗しました。", MessageBoxImage.Error)
-                : LaunchExecutionResult.Success();
+            if (process is null)
+                return LaunchExecutionResult.Failed("起動に失敗しました。", MessageBoxImage.Error);
+
+            return LaunchExecutionResult.Success();
         }
         catch (Exception ex)
         {
