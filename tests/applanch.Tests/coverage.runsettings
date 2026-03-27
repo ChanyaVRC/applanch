@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <ExcludeByFile>
+            **/obj/**,
+            **/*.g.cs,
+            **/*.g.i.cs,
+            **/*.xaml,
+            **/App.xaml.cs,
+            **/MainWindow.xaml.cs,
+            **/PromptDialog.xaml.cs,
+            **/Infrastructure/I*.cs,
+            **/Infrastructure/WindowCaptionThemeHelper.cs
+          </ExcludeByFile>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

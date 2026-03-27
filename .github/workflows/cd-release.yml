@@ -1,0 +1,173 @@
+name: CD Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish (example: v1.2.3 or v1.2.3-rc1)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      release_tag: ${{ steps.meta.outputs.release_tag }}
+      app_version: ${{ steps.meta.outputs.app_version }}
+      is_prerelease: ${{ steps.meta.outputs.is_prerelease }}
+    steps:
+      - name: Derive release metadata
+        id: meta
+        uses: actions/github-script@v7
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+          REF_NAME: ${{ github.ref_name }}
+          EVENT_NAME: ${{ github.event_name }}
+        with:
+          script: |
+            const inputTag = (process.env.INPUT_TAG || '').trim();
+            const refName = (process.env.REF_NAME || '').trim();
+            const eventName = process.env.EVENT_NAME;
+
+            const tag = eventName === 'workflow_dispatch' ? inputTag : refName;
+            if (!tag) {
+              core.setFailed('Release tag is required.');
+              return;
+            }
+
+            const normalizedTag = tag.startsWith('refs/tags/') ? tag.slice('refs/tags/'.length) : tag;
+            if (!normalizedTag) {
+              core.setFailed(`Invalid release tag: '${tag}'`);
+              return;
+            }
+
+            const semverLikeTag = /^v\d+\.\d+\.\d+([-.][0-9A-Za-z.-]+)?$/;
+            if (!semverLikeTag.test(normalizedTag)) {
+              core.setFailed(`Tag must match vMAJOR.MINOR.PATCH[-suffix], got: '${normalizedTag}'`);
+              return;
+            }
+
+            if (eventName === 'workflow_dispatch') {
+              try {
+                await github.rest.git.getRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `tags/${normalizedTag}`
+                });
+              } catch {
+                core.setFailed(`Tag '${normalizedTag}' was not found in this repository.`);
+                return;
+              }
+            }
+
+            const version = normalizedTag.startsWith('v') ? normalizedTag.slice(1) : normalizedTag;
+            const isPre = String(version.includes('-'));
+
+            core.setOutput('release_tag', normalizedTag);
+            core.setOutput('app_version', version);
+            core.setOutput('is_prerelease', isPre);
+
+  verify:
+    needs: metadata
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ needs.metadata.outputs.release_tag }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+
+      - name: Restore
+        run: dotnet restore applanch.slnx
+
+      - name: Run tests
+        run: dotnet test tests/applanch.Tests/applanch.Tests.csproj --configuration Release --no-restore
+
+  publish-assets:
+    needs: [metadata, verify]
+    runs-on: windows-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime: [win-x64, win-x86]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ needs.metadata.outputs.release_tag }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+
+      - name: Restore
+        run: dotnet restore applanch.slnx
+
+      - name: Publish app
+        run: dotnet publish src/applanch/applanch.csproj --configuration Release --framework net10.0-windows --runtime ${{ matrix.runtime }} --self-contained false --no-restore -p:Version=${{ needs.metadata.outputs.app_version }} -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output publish/${{ matrix.runtime }}
+
+      - name: Archive and checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          archive_name="applanch-${{ needs.metadata.outputs.app_version }}-${{ matrix.runtime }}.zip"
+          tar -a -c -f "dist/$archive_name" -C "publish/${{ matrix.runtime }}" .
+          sha256sum "dist/$archive_name" > "dist/${archive_name}.sha256"
+
+      - name: Upload runtime artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets-${{ matrix.runtime }}
+          path: dist/*
+          retention-days: 14
+          if-no-files-found: error
+
+  release:
+    needs: [metadata, publish-assets]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-assets-*
+          merge-multiple: true
+          path: release-assets
+
+      - name: Create GitHub Release and upload artifact
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.metadata.outputs.release_tag }}
+          name: ${{ needs.metadata.outputs.release_tag }}
+          prerelease: ${{ needs.metadata.outputs.is_prerelease }}
+          files: |
+            release-assets/applanch-${{ needs.metadata.outputs.app_version }}-win-*.zip
+            release-assets/applanch-${{ needs.metadata.outputs.app_version }}-win-*.zip.sha256
+          fail_on_unmatched_files: true
+          generate_release_notes: true

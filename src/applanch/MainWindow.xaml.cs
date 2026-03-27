@@ -1,0 +1,569 @@
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+
+namespace applanch;
+
+public partial class MainWindow : Window
+{
+    private Point _dragStartPoint;
+    private LaunchItemViewModel? _draggedItem;
+    private int? _lastDragPreviewIndex;
+    private readonly IItemLaunchService _itemLaunchService;
+    private readonly IUserInteractionService _interactionService;
+    private MainWindowViewModel ViewModel { get; }
+
+    public MainWindow()
+        : this(new MainWindowViewModel(), new ItemLaunchService(), new UserInteractionService())
+    {
+    }
+
+    internal MainWindow(MainWindowViewModel viewModel, IItemLaunchService itemLaunchService, IUserInteractionService interactionService)
+    {
+        InitializeComponent();
+        ViewModel = viewModel;
+        _itemLaunchService = itemLaunchService;
+        _interactionService = interactionService;
+        SourceInitialized += (_, _) => WindowCaptionThemeHelper.Apply(this);
+        DataContext = ViewModel;
+        ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+    }
+
+    private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MainWindowViewModel.SelectedCategory))
+        {
+            ScrollLaunchListToTop();
+        }
+    }
+
+    private void ScrollLaunchListToTop()
+    {
+        if (FindVisualChild<ScrollViewer>(LaunchListBox) is ScrollViewer scrollViewer)
+        {
+            scrollViewer.ScrollToTop();
+        }
+    }
+
+    // ── Button click handlers ───────────────────────────────
+
+    private void LaunchItemButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { Tag: LaunchItemViewModel item })
+        {
+            return;
+        }
+
+        var result = _itemLaunchService.TryLaunch(item);
+        if (!result.IsSuccess)
+        {
+            _interactionService.Show(result.Message, "Applanch", result.Icon);
+            return;
+        }
+
+        Application.Current.Shutdown();
+    }
+
+    private void DeleteButton_Click(object sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+        if (sender is not FrameworkElement { Tag: LaunchItemViewModel item })
+        {
+            return;
+        }
+
+        ViewModel.RemoveItem(item);
+    }
+
+    private void QuickAddButton_Click(object sender, RoutedEventArgs e)
+    {
+        var result = ViewModel.TryAddQuickItem();
+        if (result.IsSuccess)
+        {
+            return;
+        }
+
+        var icon = result.Severity == QuickAddMessageSeverity.Warning
+            ? MessageBoxImage.Warning
+            : MessageBoxImage.Information;
+
+        _interactionService.Show(result.Message, "Applanch", icon);
+    }
+
+    // ── Context menu handlers ───────────────────────────────
+
+    private void ContextMenu_EditCategory_Click(object sender, RoutedEventArgs e)
+    {
+        var item = GetContextMenuTargetItem(sender);
+        if (item is null)
+        {
+            return;
+        }
+
+        var suggestions = ViewModel.CategoryNames
+            .Where(static name => !string.IsNullOrWhiteSpace(name))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        var newValue = _interactionService.PromptWithSuggestions("カテゴリを変更", item.Category, suggestions, this);
+        if (newValue is null)
+        {
+            return;
+        }
+
+        ViewModel.UpdateItemCategory(item, newValue);
+    }
+
+    private void ContextMenu_EditArguments_Click(object sender, RoutedEventArgs e)
+    {
+        EditItemFromContextMenu(sender, "起動引数を変更", static item => item.Arguments, ViewModel.UpdateItemArguments);
+    }
+
+    private void ContextMenu_RenameItem_Click(object sender, RoutedEventArgs e)
+    {
+        var item = GetContextMenuTargetItem(sender);
+        if (item is null)
+        {
+            return;
+        }
+
+        item.EditingName = item.DisplayName;
+        item.IsRenaming = true;
+    }
+
+    private void ContextMenu_Delete_Click(object sender, RoutedEventArgs e)
+    {
+        var item = GetContextMenuTargetItem(sender);
+        if (item is null)
+        {
+            return;
+        }
+
+        ViewModel.RemoveItem(item);
+    }
+
+    private void EditItemFromContextMenu(object sender, string title, Func<LaunchItemViewModel, string> valueSelector, Action<LaunchItemViewModel, string> applyAction)
+    {
+        var item = GetContextMenuTargetItem(sender);
+        if (item is null)
+        {
+            return;
+        }
+
+        var newValue = _interactionService.Prompt(title, valueSelector(item), this);
+        if (newValue is null)
+        {
+            return;
+        }
+
+        applyAction(item, newValue);
+    }
+
+    private static LaunchItemViewModel? GetContextMenuTargetItem(object sender)
+    {
+        if (sender is not MenuItem { Parent: ContextMenu contextMenu })
+        {
+            return null;
+        }
+
+        if (contextMenu.PlacementTarget is not FrameworkElement { DataContext: LaunchItemViewModel item })
+        {
+            return null;
+        }
+
+        return item;
+    }
+
+    // ── Inline rename ───────────────────────────────────────
+
+    private void RenameTextBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (sender is TextBox tb && tb.IsVisible)
+        {
+            tb.Focus();
+            tb.SelectAll();
+        }
+    }
+
+    private void RenameTextBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (sender is not TextBox tb)
+        {
+            return;
+        }
+
+        if (tb.DataContext is not LaunchItemViewModel item)
+        {
+            return;
+        }
+
+        if (e.Key == Key.Return)
+        {
+            e.Handled = true;
+            CommitRename(item);
+        }
+        else if (e.Key == Key.Escape)
+        {
+            e.Handled = true;
+            item.IsRenaming = false;
+        }
+    }
+
+    private void RenameTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (sender is TextBox tb && tb.DataContext is LaunchItemViewModel item && item.IsRenaming)
+        {
+            CommitRename(item);
+        }
+    }
+
+    private void CommitRename(LaunchItemViewModel item)
+    {
+        ViewModel.UpdateItemDisplayName(item, item.EditingName);
+        item.IsRenaming = false;
+    }
+
+    // ── Drag & drop ─────────────────────────────────────────
+
+    private void LaunchListBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        _dragStartPoint = e.GetPosition(null);
+        _lastDragPreviewIndex = null;
+
+        if (e.OriginalSource is not DependencyObject source)
+        {
+            _draggedItem = null;
+            return;
+        }
+
+        _draggedItem = FindAncestor<ListBoxItem>(source)?.DataContext as LaunchItemViewModel;
+    }
+
+    private void LaunchListBox_PreviewMouseMove(object sender, MouseEventArgs e)
+    {
+        if (e.LeftButton != MouseButtonState.Pressed || _draggedItem is null)
+        {
+            return;
+        }
+
+        var currentPos = e.GetPosition(null);
+        var diff = _dragStartPoint - currentPos;
+
+        if (Math.Abs(diff.X) < SystemParameters.MinimumHorizontalDragDistance &&
+            Math.Abs(diff.Y) < SystemParameters.MinimumVerticalDragDistance)
+        {
+            return;
+        }
+
+        DragDrop.DoDragDrop(LaunchListBox, _draggedItem, DragDropEffects.Move);
+        _draggedItem = null;
+        _lastDragPreviewIndex = null;
+    }
+
+    private void LaunchListBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (sender is not ListBox listBox)
+        {
+            return;
+        }
+
+        if (FindVisualChild<ScrollViewer>(listBox) is not ScrollViewer scrollViewer)
+        {
+            return;
+        }
+
+        var stepCount = Math.Max(1, Math.Abs(e.Delta) / Mouse.MouseWheelDeltaForOneLine);
+        for (var i = 0; i < stepCount; i++)
+        {
+            if (e.Delta > 0)
+            {
+                scrollViewer.LineUp();
+            }
+            else if (e.Delta < 0)
+            {
+                scrollViewer.LineDown();
+            }
+        }
+
+        e.Handled = true;
+    }
+
+    private void LaunchListBox_DragOver(object sender, DragEventArgs e)
+    {
+        if (sender is not ListBox listBox)
+        {
+            e.Effects = DragDropEffects.None;
+            e.Handled = true;
+            return;
+        }
+
+        if (!e.Data.GetDataPresent(typeof(LaunchItemViewModel)))
+        {
+            e.Effects = DragDropEffects.None;
+            e.Handled = true;
+            return;
+        }
+
+        e.Effects = DragDropEffects.Move;
+
+        if (!TryGetDraggedItemData(e.Data, out _, out var oldIndex))
+        {
+            e.Handled = true;
+            return;
+        }
+
+        ApplyDragPreviewMove(listBox, oldIndex, e.GetPosition(listBox));
+
+        e.Handled = true;
+    }
+
+    private void LaunchListBox_Drop(object sender, DragEventArgs e)
+    {
+        CommitDragReorder();
+        e.Handled = true;
+    }
+
+    private void Window_DragOver(object sender, DragEventArgs e)
+    {
+        if (!TryGetDraggedItemData(e.Data, out _, out var oldIndex))
+        {
+            return;
+        }
+
+        var listPosition = e.GetPosition(LaunchListBox);
+
+        e.Effects = DragDropEffects.Move;
+        ApplyDragPreviewMove(LaunchListBox, oldIndex, listPosition);
+        e.Handled = true;
+    }
+
+    private void Window_Drop(object sender, DragEventArgs e)
+    {
+        CommitDragReorder();
+        e.Handled = true;
+    }
+
+    private void ApplyDragPreviewMove(ListBox listBox, int oldIndex, Point listPosition)
+    {
+        var newIndex = GetDropIndex(listBox, oldIndex, listPosition);
+        if (newIndex >= 0 && newIndex != oldIndex && _lastDragPreviewIndex != newIndex)
+        {
+            var previousPositions = CaptureItemTopPositions(listBox);
+            ViewModel.PreviewMoveItem(oldIndex, newIndex);
+            AnimateReorderTransition(listBox, previousPositions);
+            _lastDragPreviewIndex = newIndex;
+        }
+    }
+
+    private void CommitDragReorder()
+    {
+        if (_lastDragPreviewIndex.HasValue)
+        {
+            ViewModel.PersistOrderNow();
+        }
+
+        _draggedItem = null;
+        _lastDragPreviewIndex = null;
+    }
+
+    private int GetDropIndex(ListBox listBox, int oldIndex, Point listPosition)
+    {
+        var count = ViewModel.LaunchItems.Count;
+        if (count <= 1)
+        {
+            return oldIndex;
+        }
+
+        int desiredInsertIndex;
+
+        if (listPosition.Y <= 0)
+        {
+            desiredInsertIndex = 0;
+        }
+        else if (listPosition.Y >= listBox.ActualHeight)
+        {
+            desiredInsertIndex = count;
+        }
+        else
+        {
+            var targetContainer = listBox.InputHitTest(listPosition) is DependencyObject hit
+                ? FindAncestor<ListBoxItem>(hit)
+                : null;
+            if (targetContainer?.DataContext is not LaunchItemViewModel targetData)
+            {
+                desiredInsertIndex = oldIndex;
+            }
+            else
+            {
+                var targetIndex = ViewModel.LaunchItems.IndexOf(targetData);
+                if (targetIndex < 0)
+                {
+                    desiredInsertIndex = oldIndex;
+                }
+                else
+                {
+                    var containerOrigin = targetContainer.TranslatePoint(new Point(0, 0), listBox);
+                    var dropOnItem = new Point(listPosition.X - containerOrigin.X, listPosition.Y - containerOrigin.Y);
+                    var insertAfter = dropOnItem.Y > targetContainer.ActualHeight / 2;
+                    desiredInsertIndex = insertAfter ? targetIndex + 1 : targetIndex;
+                }
+            }
+        }
+
+        return DragReorderIndexCalculator.Calculate(oldIndex, desiredInsertIndex, count);
+    }
+
+    private bool TryGetDraggedItemData(IDataObject data, [NotNullWhen(true)] out LaunchItemViewModel? draggedItem, out int oldIndex)
+    {
+        draggedItem = null;
+        oldIndex = -1;
+
+        if (!data.GetDataPresent(typeof(LaunchItemViewModel)) ||
+            data.GetData(typeof(LaunchItemViewModel)) is not LaunchItemViewModel item)
+        {
+            return false;
+        }
+
+        var index = ViewModel.LaunchItems.IndexOf(item);
+        if (index < 0)
+        {
+            return false;
+        }
+
+        draggedItem = item;
+        oldIndex = index;
+        return true;
+    }
+
+
+    private Dictionary<LaunchItemViewModel, double> CaptureItemTopPositions(ListBox listBox)
+    {
+        var positions = new Dictionary<LaunchItemViewModel, double>();
+
+        foreach (var item in ViewModel.LaunchItems)
+        {
+            if (listBox.ItemContainerGenerator.ContainerFromItem(item) is not ListBoxItem container)
+            {
+                continue;
+            }
+
+            positions[item] = container.TranslatePoint(new Point(0, 0), listBox).Y;
+        }
+
+        return positions;
+    }
+
+    private void AnimateReorderTransition(ListBox listBox, IReadOnlyDictionary<LaunchItemViewModel, double> previousPositions)
+    {
+        Dispatcher.BeginInvoke(() =>
+        {
+            foreach (var (item, previousTop) in previousPositions)
+            {
+                if (listBox.ItemContainerGenerator.ContainerFromItem(item) is not ListBoxItem container)
+                {
+                    continue;
+                }
+
+                var currentTop = container.TranslatePoint(new Point(0, 0), listBox).Y;
+                var delta = previousTop - currentTop;
+                if (Math.Abs(delta) < 0.5)
+                {
+                    continue;
+                }
+
+                var translate = GetOrCreateTranslateTransform(container);
+                translate.BeginAnimation(TranslateTransform.YProperty, null);
+
+                var anim = new DoubleAnimation
+                {
+                    From = delta,
+                    To = 0,
+                    Duration = TimeSpan.FromMilliseconds(170),
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+
+                translate.BeginAnimation(TranslateTransform.YProperty, anim, HandoffBehavior.SnapshotAndReplace);
+            }
+        }, System.Windows.Threading.DispatcherPriority.Loaded);
+    }
+
+    // ── Static utilities ────────────────────────────────────
+
+    private static T? FindAncestor<T>(DependencyObject current) where T : DependencyObject
+    {
+        while (current is not null)
+        {
+            if (current is T typed)
+            {
+                return typed;
+            }
+
+            current = VisualTreeHelper.GetParent(current);
+        }
+
+        return null;
+    }
+
+    private static T? FindVisualChild<T>(DependencyObject current) where T : DependencyObject
+    {
+        var childrenCount = VisualTreeHelper.GetChildrenCount(current);
+        for (var i = 0; i < childrenCount; i++)
+        {
+            var child = VisualTreeHelper.GetChild(current, i);
+            if (child is T typed)
+            {
+                return typed;
+            }
+
+            var nested = FindVisualChild<T>(child);
+            if (nested is not null)
+            {
+                return nested;
+            }
+        }
+
+        return null;
+    }
+
+    private static TranslateTransform GetOrCreateTranslateTransform(UIElement element)
+    {
+        switch (element.RenderTransform)
+        {
+            case TranslateTransform tt:
+                return tt;
+
+            case TransformGroup group:
+                {
+                    var existing = group.Children.OfType<TranslateTransform>().FirstOrDefault();
+                    if (existing is not null)
+                    {
+                        return existing;
+                    }
+
+                    var created = new TranslateTransform();
+                    group.Children.Add(created);
+                    return created;
+                }
+
+            case null:
+                {
+                    var created = new TranslateTransform();
+                    element.RenderTransform = created;
+                    return created;
+                }
+
+            default:
+                {
+                    var created = new TranslateTransform();
+                    element.RenderTransform = new TransformGroup
+                    {
+                        Children = { element.RenderTransform, created }
+                    };
+                    return created;
+                }
+        }
+    }
+}
