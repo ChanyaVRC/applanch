@@ -11,12 +11,12 @@ internal static partial class AppResolver
 
     private static readonly Dictionary<string, string[]> KnownAliases = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["vscode"]              = ["code", "code.exe"],
-        ["visual studio code"]  = ["code", "code.exe"],
-        ["code"]                = ["code", "code.exe"],
-        ["notepad"]             = ["notepad.exe"],
-        ["powershell"]          = ["powershell.exe", "pwsh.exe"],
-        ["cmd"]                 = ["cmd.exe"]
+        ["vscode"] = ["code", "code.exe"],
+        ["visual studio code"] = ["code", "code.exe"],
+        ["code"] = ["code", "code.exe"],
+        ["notepad"] = ["notepad.exe"],
+        ["powershell"] = ["powershell.exe", "pwsh.exe"],
+        ["cmd"] = ["cmd.exe"]
     };
 
     private static readonly Lazy<IReadOnlyList<ResolvedApp>> InstalledAppsCache =

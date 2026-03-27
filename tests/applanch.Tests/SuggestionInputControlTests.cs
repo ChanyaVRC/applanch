@@ -294,9 +294,9 @@ public class SuggestionInputControlTests
         RunInSta(() =>
         {
             var control = new SuggestionInputControl { Text = "initial" };
-            #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type
             control.Text = null!;
-            #pragma warning restore CS8625
+#pragma warning restore CS8625
 
             // Setting null results in null (not converted to empty)
             var result = control.Text;
