@@ -217,8 +217,10 @@ public partial class MainWindow : Window
     {
         var shouldAnimateHide = _floatingNotificationCoordinator.BeginHide(
             FloatingNotificationBanner.Visibility == Visibility.Visible);
+        var frozenProgressScale = FloatingNotificationProgressState.CaptureVisibleScale(FloatingNotificationProgressScale.ScaleX);
         _floatingNotificationTimer.Stop();
         _countdownStoryboard.Stop(this);
+        FloatingNotificationProgressScale.ScaleX = frozenProgressScale;
         if (!shouldAnimateHide)
         {
             ClearFloatingNotification();
