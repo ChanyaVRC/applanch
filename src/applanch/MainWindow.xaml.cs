@@ -5,6 +5,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using applanch.Infrastructure.Dialogs;
+using applanch.Infrastructure.Items;
 using applanch.Infrastructure.Launch;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
@@ -21,6 +22,7 @@ public partial class MainWindow : Window
     private readonly IItemLaunchService _itemLaunchService;
     private readonly IUserInteractionService _interactionService;
     private readonly LaunchItemWorkflow _launchItemWorkflow;
+    private readonly DeleteItemWorkflow _deleteItemWorkflow;
     private readonly LaunchItemContextMenuHandler _contextMenuHandler;
     private readonly InlineRenameHandler _inlineRenameHandler;
     private readonly LaunchListDragDropResolver _dragDropResolver;
@@ -46,6 +48,7 @@ public partial class MainWindow : Window
         _itemLaunchService = itemLaunchService;
         _interactionService = interactionService;
         _launchItemWorkflow = new LaunchItemWorkflow(_itemLaunchService);
+        _deleteItemWorkflow = new DeleteItemWorkflow();
         _contextMenuHandler = new LaunchItemContextMenuHandler(_interactionService, this);
         _inlineRenameHandler = new InlineRenameHandler();
         _dragDropResolver = new LaunchListDragDropResolver();
@@ -196,21 +199,25 @@ public partial class MainWindow : Window
 
     private void DeleteItemWithUndo(LaunchItemViewModel item)
     {
-        if (_settings.ConfirmBeforeDelete &&
-            !_interactionService.Confirm(
+        var workflowResult = _deleteItemWorkflow.TryDelete(
+            item,
+            _settings,
+            () => _interactionService.Confirm(
                 string.Format(Strings.Confirm_DeleteItem, item.DisplayName),
                 Strings.Confirm_Title,
-                this))
+                this),
+            ViewModel.LaunchItems,
+            ViewModel.RemoveItem);
+
+        if (workflowResult.IsCancelled)
         {
             return;
         }
 
-        var index = ViewModel.LaunchItems.IndexOf(item);
-        ViewModel.RemoveItem(item);
         ShowFloatingNotification(
             string.Format(Strings.Notification_ItemDeleted, item.DisplayName),
             MessageBoxImage.Information,
-            undoAction: () => ViewModel.InsertItem(item, index));
+            undoAction: () => ViewModel.InsertItem(item, workflowResult.DeletedIndex));
     }
 
     private void QuickAddButton_Click(object sender, RoutedEventArgs e)
