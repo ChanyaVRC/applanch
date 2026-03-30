@@ -116,6 +116,23 @@
                     <ComboBoxItem Content="{x:Static res:Resources.Theme_Light}"/>
                     <ComboBoxItem Content="{x:Static res:Resources.Theme_Dark}"/>
                 </ComboBox>
+
+                <TextBlock Grid.Column="0"
+                           Margin="0,44,0,0"
+                           Text="{x:Static res:Resources.Setting_Language}"
+                           FontSize="13"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource Brush.TextPrimary}"/>
+
+                <ComboBox Grid.Column="1"
+                          Width="170"
+                          Margin="12,44,0,0"
+                          Style="{StaticResource RoundedComboBoxStyle}"
+                          SelectedIndex="{Binding LanguageIndex}">
+                    <ComboBoxItem Content="{x:Static res:Resources.Language_System}"/>
+                    <ComboBoxItem Content="{x:Static res:Resources.Language_English}"/>
+                    <ComboBoxItem Content="{x:Static res:Resources.Language_Japanese}"/>
+                </ComboBox>
             </Grid>
         </Border>
 
@@ -131,14 +148,79 @@
                 BorderThickness="1"
                 CornerRadius="8">
             <StackPanel>
-                <CheckBox Content="{x:Static res:Resources.Setting_CloseOnLaunch}"
-                          IsChecked="{Binding CloseOnLaunch}"
+                <CheckBox Content="{x:Static res:Resources.Setting_StartMinimizedOnLaunch}"
+                          IsChecked="{Binding StartMinimizedOnLaunch}"
                           Style="{StaticResource SettingsCheckBoxStyle}"/>
-                <TextBlock Text="{x:Static res:Resources.Setting_CloseOnLaunchDesc}"
+                <TextBlock Text="{x:Static res:Resources.Setting_StartMinimizedOnLaunchDesc}"
                            Margin="0,6,0,0"
                            FontSize="11"
                            Foreground="{DynamicResource Brush.TextTertiary}"
                            TextWrapping="Wrap"/>
+
+                <CheckBox Content="{x:Static res:Resources.Setting_LaunchAtWindowsStartup}"
+                          IsChecked="{Binding LaunchAtWindowsStartup}"
+                          Margin="0,14,0,0"
+                          Style="{StaticResource SettingsCheckBoxStyle}"/>
+                <TextBlock Text="{x:Static res:Resources.Setting_LaunchAtWindowsStartupDesc}"
+                           Margin="0,6,0,0"
+                           FontSize="11"
+                           Foreground="{DynamicResource Brush.TextTertiary}"
+                           TextWrapping="Wrap"/>
+
+                <TextBlock Text="{x:Static res:Resources.Setting_PostLaunchBehavior}"
+                           Margin="0,14,0,0"
+                           FontSize="13"
+                           Foreground="{DynamicResource Brush.TextPrimary}"/>
+                <ComboBox Width="220"
+                          Margin="0,6,0,0"
+                          HorizontalAlignment="Left"
+                          Style="{StaticResource RoundedComboBoxStyle}"
+                          SelectedIndex="{Binding PostLaunchBehaviorIndex}">
+                    <ComboBoxItem Content="{x:Static res:Resources.PostLaunchBehavior_Close}"/>
+                    <ComboBoxItem Content="{x:Static res:Resources.PostLaunchBehavior_Minimize}"/>
+                    <ComboBoxItem Content="{x:Static res:Resources.PostLaunchBehavior_KeepOpen}"/>
+                </ComboBox>
+
+                <CheckBox Content="{x:Static res:Resources.Setting_ConfirmBeforeLaunch}"
+                          IsChecked="{Binding ConfirmBeforeLaunch}"
+                          Margin="0,14,0,0"
+                          Style="{StaticResource SettingsCheckBoxStyle}"/>
+                <CheckBox Content="{x:Static res:Resources.Setting_ConfirmBeforeDelete}"
+                          IsChecked="{Binding ConfirmBeforeDelete}"
+                          Margin="0,10,0,0"
+                          Style="{StaticResource SettingsCheckBoxStyle}"/>
+
+                <TextBlock Text="{x:Static res:Resources.Setting_CategorySortMode}"
+                           Margin="0,14,0,0"
+                           FontSize="13"
+                           Foreground="{DynamicResource Brush.TextPrimary}"/>
+                <ComboBox Width="220"
+                          Margin="0,6,0,0"
+                          HorizontalAlignment="Left"
+                          Style="{StaticResource RoundedComboBoxStyle}"
+                          SelectedIndex="{Binding CategorySortModeIndex}">
+                    <ComboBoxItem Content="{x:Static res:Resources.SortMode_Alphabetical}"/>
+                    <ComboBoxItem Content="{x:Static res:Resources.SortMode_AsAdded}"/>
+                </ComboBox>
+
+                <TextBlock Text="{x:Static res:Resources.Setting_AppListSortMode}"
+                           Margin="0,14,0,0"
+                           FontSize="13"
+                           Foreground="{DynamicResource Brush.TextPrimary}"/>
+                <ComboBox Width="220"
+                          Margin="0,6,0,0"
+                          HorizontalAlignment="Left"
+                          Style="{StaticResource RoundedComboBoxStyle}"
+                          SelectedIndex="{Binding AppListSortModeIndex}">
+                    <ComboBoxItem Content="{x:Static res:Resources.AppListSort_Manual}"/>
+                    <ComboBoxItem Content="{x:Static res:Resources.AppListSort_Name}"/>
+                    <ComboBoxItem Content="{x:Static res:Resources.AppListSort_CategoryThenName}"/>
+                </ComboBox>
+
+                <CheckBox Content="{x:Static res:Resources.Setting_RunAsAdministrator}"
+                          IsChecked="{Binding RunAsAdministrator}"
+                          Margin="0,14,0,0"
+                          Style="{StaticResource SettingsCheckBoxStyle}"/>
 
                 <CheckBox Content="{x:Static res:Resources.Setting_CheckForUpdates}"
                           IsChecked="{Binding CheckForUpdatesOnStartup}"

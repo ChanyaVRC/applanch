@@ -23,11 +23,15 @@ public class SettingsWindowViewModelTests
     [Fact]
     public void InitialValues_ReflectSettingsPassedIn()
     {
-        var settings = new AppSettings(
-            Theme: AppTheme.Dark,
-            CloseOnLaunch: false,
-            CheckForUpdatesOnStartup: false,
-            DebugUpdate: true);
+        var settings = new AppSettings
+        {
+            Theme = AppTheme.Dark,
+            CloseOnLaunch = false,
+            CheckForUpdatesOnStartup = false,
+            DebugUpdate = true,
+            Language = LanguageOption.Japanese,
+            CategorySortMode = CategorySortMode.AsAdded,
+        };
 
         var vm = Make(settings);
 
@@ -35,6 +39,8 @@ public class SettingsWindowViewModelTests
         Assert.False(vm.CloseOnLaunch);
         Assert.False(vm.CheckForUpdatesOnStartup);
         Assert.True(vm.DebugUpdate);
+        Assert.Equal((int)LanguageOption.Japanese, vm.LanguageIndex);
+        Assert.Equal((int)CategorySortMode.AsAdded, vm.CategorySortModeIndex);
         Assert.False(vm.SettingsChanged);
         Assert.Null(vm.SavedSettings);
     }
@@ -69,7 +75,7 @@ public class SettingsWindowViewModelTests
     public void ThemeIndex_SameValue_DoesNotSave()
     {
         var saved = new List<AppSettings>();
-        var vm = Make(settings: new AppSettings(Theme: AppTheme.Light), saved: saved);
+        var vm = Make(settings: new AppSettings { Theme = AppTheme.Light }, saved: saved);
 
         vm.ThemeIndex = (int)AppTheme.Light;
 
@@ -81,7 +87,7 @@ public class SettingsWindowViewModelTests
     [Fact]
     public void CloseOnLaunch_Change_FiresPropertyChanged()
     {
-        var vm = Make(settings: new AppSettings(CloseOnLaunch: true));
+        var vm = Make(settings: new AppSettings { CloseOnLaunch = true });
         var raised = new List<string?>();
         vm.PropertyChanged += (_, e) => raised.Add(e.PropertyName);
 
@@ -94,7 +100,7 @@ public class SettingsWindowViewModelTests
     public void CloseOnLaunch_SameValue_DoesNotSave()
     {
         var saved = new List<AppSettings>();
-        var vm = Make(settings: new AppSettings(CloseOnLaunch: true), saved: saved);
+        var vm = Make(settings: new AppSettings { CloseOnLaunch = true }, saved: saved);
 
         vm.CloseOnLaunch = true;
 
@@ -122,7 +128,7 @@ public class SettingsWindowViewModelTests
     {
         var saved = new List<AppSettings>();
         var vm = Make(
-            settings: new AppSettings(Theme: AppTheme.System, CloseOnLaunch: true, CheckForUpdatesOnStartup: true, DebugUpdate: false),
+            settings: new AppSettings { Theme = AppTheme.System, CloseOnLaunch = true, CheckForUpdatesOnStartup = true, DebugUpdate = false },
             saved: saved);
 
         vm.ThemeIndex = (int)AppTheme.Dark;
@@ -131,5 +137,29 @@ public class SettingsWindowViewModelTests
         var last = saved.Last();
         Assert.Equal(AppTheme.Dark, last.Theme);
         Assert.False(last.CloseOnLaunch);
+    }
+
+    [Fact]
+    public void PostLaunchBehaviorIndex_Change_UpdatesSavedSettings()
+    {
+        var saved = new List<AppSettings>();
+        var vm = Make(saved: saved);
+
+        vm.PostLaunchBehaviorIndex = (int)PostLaunchBehavior.MinimizeWindow;
+
+        var last = saved.Last();
+        Assert.Equal(PostLaunchBehavior.MinimizeWindow, last.PostLaunchBehavior);
+        Assert.False(last.CloseOnLaunch);
+    }
+
+    [Fact]
+    public void LanguageIndex_Change_UpdatesSavedSettings()
+    {
+        var saved = new List<AppSettings>();
+        var vm = Make(saved: saved);
+
+        vm.LanguageIndex = (int)LanguageOption.English;
+
+        Assert.Equal(LanguageOption.English, saved.Last().Language);
     }
 }

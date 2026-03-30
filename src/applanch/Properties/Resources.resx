@@ -137,8 +137,74 @@
   <data name="Theme_Dark" xml:space="preserve">
     <value>Dark</value>
   </data>
+  <data name="Setting_Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Language_System" xml:space="preserve">
+    <value>Follow system</value>
+  </data>
+  <data name="Language_English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Language_Japanese" xml:space="preserve">
+    <value>Japanese</value>
+  </data>
   <data name="Section_Behavior" xml:space="preserve">
     <value>Behavior</value>
+  </data>
+  <data name="Setting_StartMinimizedOnLaunch" xml:space="preserve">
+    <value>Start minimized</value>
+  </data>
+  <data name="Setting_StartMinimizedOnLaunchDesc" xml:space="preserve">
+    <value>Start Applanch in minimized state.</value>
+  </data>
+  <data name="Setting_LaunchAtWindowsStartup" xml:space="preserve">
+    <value>Launch at Windows startup</value>
+  </data>
+  <data name="Setting_LaunchAtWindowsStartupDesc" xml:space="preserve">
+    <value>Automatically launch Applanch after signing in.</value>
+  </data>
+  <data name="Setting_PostLaunchBehavior" xml:space="preserve">
+    <value>After launching an item</value>
+  </data>
+  <data name="PostLaunchBehavior_Close" xml:space="preserve">
+    <value>Close app</value>
+  </data>
+  <data name="PostLaunchBehavior_Minimize" xml:space="preserve">
+    <value>Minimize window</value>
+  </data>
+  <data name="PostLaunchBehavior_KeepOpen" xml:space="preserve">
+    <value>Keep open</value>
+  </data>
+  <data name="Setting_ConfirmBeforeLaunch" xml:space="preserve">
+    <value>Ask before launching</value>
+  </data>
+  <data name="Setting_ConfirmBeforeDelete" xml:space="preserve">
+    <value>Ask before deleting</value>
+  </data>
+  <data name="Setting_CategorySortMode" xml:space="preserve">
+    <value>Category order</value>
+  </data>
+  <data name="Setting_AppListSortMode" xml:space="preserve">
+    <value>Item list sort</value>
+  </data>
+  <data name="SortMode_Alphabetical" xml:space="preserve">
+    <value>Alphabetical</value>
+  </data>
+  <data name="SortMode_AsAdded" xml:space="preserve">
+    <value>As added</value>
+  </data>
+  <data name="AppListSort_Manual" xml:space="preserve">
+    <value>Manual (drag reorder)</value>
+  </data>
+  <data name="AppListSort_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="AppListSort_CategoryThenName" xml:space="preserve">
+    <value>Category then name</value>
+  </data>
+  <data name="Setting_RunAsAdministrator" xml:space="preserve">
+    <value>Run items as administrator</value>
   </data>
   <data name="Setting_CloseOnLaunch" xml:space="preserve">
     <value>Close app after launching</value>
@@ -182,6 +248,15 @@
   </data>
   <data name="Notification_ItemDeleted" xml:space="preserve">
     <value>{0} deleted.</value>
+  </data>
+  <data name="Confirm_Title" xml:space="preserve">
+    <value>Confirmation</value>
+  </data>
+  <data name="Confirm_LaunchItem" xml:space="preserve">
+    <value>Launch "{0}"?</value>
+  </data>
+  <data name="Confirm_DeleteItem" xml:space="preserve">
+    <value>Delete "{0}"?</value>
   </data>
   <data name="Error_FileNotFound" xml:space="preserve">
     <value>File or folder not found.&#xA;{0}</value>
