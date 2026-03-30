@@ -266,17 +266,20 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     private void LaunchItem_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is not nameof(LaunchItemViewModel.Category)
-                             and not nameof(LaunchItemViewModel.Arguments)
-                             and not nameof(LaunchItemViewModel.DisplayName))
+        if (e.PropertyName is nameof(LaunchItemViewModel.Category))
         {
+            RebuildCategoryLists();
+            RefreshFilteredView();
+            PersistCurrentOrder();
+            OnPropertyChanged(nameof(EmptyMessageVisibility));
             return;
         }
 
-        RebuildCategoryLists();
-        RefreshFilteredView();
-        PersistCurrentOrder();
-        OnPropertyChanged(nameof(EmptyMessageVisibility));
+        if (e.PropertyName is nameof(LaunchItemViewModel.Arguments)
+                             or nameof(LaunchItemViewModel.DisplayName))
+        {
+            PersistCurrentOrder();
+        }
     }
 
     private void RebuildCategoryLists()
@@ -351,6 +354,11 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     private static void ReplaceCollection(ObservableCollection<string> target, IEnumerable<string> values)
     {
+        if (target.SequenceEqual(values, StringComparer.Ordinal))
+        {
+            return;
+        }
+
         target.Clear();
         foreach (var value in values)
         {

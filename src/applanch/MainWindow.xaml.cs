@@ -16,6 +16,7 @@ public partial class MainWindow : Window
     private readonly IItemLaunchService _itemLaunchService;
     private readonly IUserInteractionService _interactionService;
     private IAppUpdateService _updateService;
+    private AppSettings _settings;
     private AppUpdateInfo? _pendingUpdate;
     private MainWindowViewModel ViewModel { get; }
 
@@ -31,6 +32,7 @@ public partial class MainWindow : Window
         _itemLaunchService = itemLaunchService;
         _interactionService = interactionService;
         _updateService = updateService;
+        _settings = AppSettings.Load();
         SourceInitialized += (_, _) => WindowCaptionThemeHelper.Apply(this);
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
@@ -39,7 +41,7 @@ public partial class MainWindow : Window
 
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        if (AppSettings.Load().CheckForUpdatesOnStartup)
+        if (_settings.CheckForUpdatesOnStartup)
         {
             await CheckForUpdateAsync(_updateService).ConfigureAwait(false);
         }
@@ -103,6 +105,7 @@ public partial class MainWindow : Window
         }
 
         var settings = dialog.SavedSettings ?? AppSettings.Load();
+        _settings = settings;
         if (!settings.DebugUpdate)
         {
             ApplyUpdateAvailability(null);
@@ -129,7 +132,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (AppSettings.Load().CloseOnLaunch)
+        if (_settings.CloseOnLaunch)
         {
             Application.Current.Shutdown();
         }
