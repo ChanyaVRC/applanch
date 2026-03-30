@@ -215,10 +215,10 @@ public partial class MainWindow : Window
     private void ShowFloatingNotification(string message, MessageBoxImage icon)
     {
         _floatingNotificationAnimationVersion++;
-        var style = NotificationPresentation.GetFloatingStyle(icon);
+        var styleKeys = NotificationPresentation.GetFloatingStyleKeys(icon);
         FloatingNotificationText.Text = message;
-        FloatingNotificationBanner.Background = style.Background;
-        FloatingNotificationBanner.BorderBrush = style.BorderBrush;
+        FloatingNotificationBanner.Background = ResolveBrush(styleKeys.BackgroundKey, Brushes.Transparent);
+        FloatingNotificationBanner.BorderBrush = ResolveBrush(styleKeys.BorderKey, Brushes.Transparent);
         FloatingNotificationBanner.Visibility = Visibility.Visible;
 
         FloatingNotificationTranslate.BeginAnimation(TranslateTransform.YProperty, null);
@@ -287,7 +287,8 @@ public partial class MainWindow : Window
     private void ShowQuickAddMessage(string message, QuickAddMessageSeverity severity)
     {
         QuickAddMessageText.Text = message;
-        QuickAddMessageText.Foreground = NotificationPresentation.GetQuickAddForeground(severity);
+        var key = NotificationPresentation.GetQuickAddForegroundKey(severity);
+        QuickAddMessageText.Foreground = ResolveBrush(key, Brushes.OrangeRed);
         QuickAddMessageText.Visibility = Visibility.Visible;
     }
 
@@ -295,6 +296,11 @@ public partial class MainWindow : Window
     {
         QuickAddMessageText.Visibility = Visibility.Collapsed;
         QuickAddMessageText.Text = string.Empty;
+    }
+
+    private Brush ResolveBrush(string resourceKey, Brush fallback)
+    {
+        return TryFindResource(resourceKey) as Brush ?? fallback;
     }
 
     // ── Context menu handlers ───────────────────────────────

@@ -7,24 +7,24 @@ namespace applanch.Tests.Infrastructure;
 public class NotificationPresentationTests
 {
     [Theory]
-    [InlineData(MessageBoxImage.Information, "#EE1F2937", "#FF334155")]
-    [InlineData(MessageBoxImage.Warning, "#EEF59E0B", "#FFD97706")]
-    [InlineData(MessageBoxImage.Error, "#EEB91C1C", "#FFEF4444")]
-    public void GetFloatingStyle_ReturnsExpectedBrushes(MessageBoxImage icon, string expectedBackground, string expectedBorder)
+    [InlineData(MessageBoxImage.Information, "Brush.NotificationInfoBackground", "Brush.NotificationInfoBorder")]
+    [InlineData(MessageBoxImage.Warning, "Brush.NotificationWarningBackground", "Brush.NotificationWarningBorder")]
+    [InlineData(MessageBoxImage.Error, "Brush.NotificationErrorBackground", "Brush.NotificationErrorBorder")]
+    public void GetFloatingStyleKeys_ReturnsExpectedResourceKeys(MessageBoxImage icon, string expectedBackgroundKey, string expectedBorderKey)
     {
-        var result = NotificationPresentation.GetFloatingStyle(icon);
+        var result = NotificationPresentation.GetFloatingStyleKeys(icon);
 
-        Assert.Equal(expectedBackground, result.Background.ToString());
-        Assert.Equal(expectedBorder, result.BorderBrush.ToString());
+        Assert.Equal(expectedBackgroundKey, result.BackgroundKey);
+        Assert.Equal(expectedBorderKey, result.BorderKey);
     }
 
     [Theory]
-    [InlineData(QuickAddMessageSeverity.Information, "#FFDC2626")]
-    [InlineData(QuickAddMessageSeverity.Warning, "#FFD97706")]
-    public void GetQuickAddForeground_ReturnsExpectedBrush(QuickAddMessageSeverity severity, string expectedForeground)
+    [InlineData(QuickAddMessageSeverity.Information, "Brush.QuickAddInfoText")]
+    [InlineData(QuickAddMessageSeverity.Warning, "Brush.QuickAddWarningText")]
+    public void GetQuickAddForegroundKey_ReturnsExpectedResourceKey(QuickAddMessageSeverity severity, string expectedKey)
     {
-        var result = NotificationPresentation.GetQuickAddForeground(severity);
+        var result = NotificationPresentation.GetQuickAddForegroundKey(severity);
 
-        Assert.Equal(expectedForeground, result.ToString());
+        Assert.Equal(expectedKey, result);
     }
 }

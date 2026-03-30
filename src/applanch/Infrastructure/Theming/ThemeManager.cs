@@ -19,7 +19,17 @@ internal sealed class ThemeManager(Func<AppTheme>? themeProvider = null)
         ("Brush.TextTertiary", "#64748B", "#7C93AF"),
         ("Brush.ItemBackground", "#F8FAFC", "#111C30"),
         ("Brush.ItemBorder", "#D7DEE8", "#2A3B57"),
-        ("Brush.IconBackground", "#E2E8F0", "#20304B")
+        ("Brush.IconBackground", "#E2E8F0", "#20304B"),
+        ("Brush.NotificationInfoBackground", "#FFFFFF", "#131D31"),
+        ("Brush.NotificationInfoBorder", "#D7DEE8", "#2A3B57"),
+        ("Brush.NotificationWarningBackground", "#FFF7ED", "#2B2111"),
+        ("Brush.NotificationWarningBorder", "#FDBA74", "#B45309"),
+        ("Brush.NotificationErrorBackground", "#FEF2F2", "#2A1618"),
+        ("Brush.NotificationErrorBorder", "#FCA5A5", "#B45353"),
+        ("Brush.NotificationProgressTrack", "#E2E8F0", "#2A3B57"),
+        ("Brush.NotificationProgressValue", "#94A3B8", "#7C93AF"),
+        ("Brush.QuickAddInfoText", "#B45309", "#FBBF24"),
+        ("Brush.QuickAddWarningText", "#92400E", "#F59E0B")
     ];
 
     private static readonly IReadOnlyDictionary<string, SolidColorBrush> LightBrushes = BuildBrushMap(isLight: true);

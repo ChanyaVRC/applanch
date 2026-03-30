@@ -17,6 +17,9 @@ public class ThemeManagerTests
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#0F172A")!, brush.Color);
+
+        var notificationBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationInfoBackground"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#FFFFFF")!, notificationBrush.Color);
     }
 
     [Fact]
@@ -29,6 +32,9 @@ public class ThemeManagerTests
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#E2E8F0")!, brush.Color);
+
+        var notificationBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationInfoBackground"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#131D31")!, notificationBrush.Color);
     }
 }
 
