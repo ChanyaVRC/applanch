@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Xunit;
 using applanch.Infrastructure.Launch;
 using applanch.Tests.Infrastructure.Launch.TestDoubles;

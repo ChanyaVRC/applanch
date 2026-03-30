@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;

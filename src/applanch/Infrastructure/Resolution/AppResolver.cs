@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Win32;
 using System.IO;
 using System.Security;
-using System.Text;
 
 namespace applanch.Infrastructure.Resolution;
 
