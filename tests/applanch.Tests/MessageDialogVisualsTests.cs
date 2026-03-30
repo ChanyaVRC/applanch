@@ -26,13 +26,13 @@ public class MessageDialogVisualsTests
     }
 
     [Fact]
-    public void Resolve_Information_HidesIcon()
+    public void Resolve_Information_ReturnsInfoSymbol()
     {
         var visual = MessageDialogVisuals.Resolve(MessageBoxImage.Information);
 
-        Assert.Equal(string.Empty, visual.Symbol);
+        Assert.Equal("i", visual.Symbol);
         Assert.Equal("Brush.TextSecondary", visual.BrushResourceKey);
-        Assert.False(visual.ShowIcon);
+        Assert.True(visual.ShowIcon);
     }
 
     [Fact]
