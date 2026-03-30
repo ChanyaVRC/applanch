@@ -1075,31 +1075,15 @@
 
                                         <Button Grid.Column="3"
                                                 Content="×"
+                                                Style="{StaticResource HeaderIconButtonStyle}"
                                                 Tag="{Binding}"
                                                 Click="DeleteButton_Click"
                                                 Width="26"
                                                 Height="26"
-                                                Padding="0"
-                                                Background="Transparent"
-                                                BorderBrush="Transparent"
-                                                BorderThickness="0"
-                                                Cursor="Hand"
-                                                Foreground="{DynamicResource Brush.TextSecondary}"
                                                 FontSize="13"
                                                 FontWeight="SemiBold"
                                                 VerticalAlignment="Center"
-                                                ToolTip="{x:Static res:Resources.ToolTip_Delete}">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border Background="Transparent"
-                                                            BorderBrush="Transparent"
-                                                            BorderThickness="0">
-                                                        <ContentPresenter HorizontalAlignment="Center"
-                                                                          VerticalAlignment="Center"/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
+                                                ToolTip="{x:Static res:Resources.ToolTip_Delete}"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
