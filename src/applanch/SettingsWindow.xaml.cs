@@ -21,8 +21,10 @@ public partial class SettingsWindow : Window
         CheckForUpdatesCheckBox.IsChecked = _settings.CheckForUpdatesOnStartup;
         DebugUpdateCheckBox.IsChecked = _settings.DebugUpdate;
         _isInitializing = false;
-        SourceInitialized += (_, _) => WindowCaptionThemeHelper.Apply(this);
     }
+
+    private void Window_SourceInitialized(object? sender, EventArgs e) =>
+        WindowCaptionThemeHelper.Apply(this);
 
     public bool SettingsChanged { get; private set; }
 

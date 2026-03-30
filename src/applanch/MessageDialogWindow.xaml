@@ -6,6 +6,8 @@
     MinWidth="360"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
+        SourceInitialized="Window_SourceInitialized"
+        Loaded="Window_Loaded"
         Background="{DynamicResource Brush.AppBackground}">
     <Window.Resources>
         <Style TargetType="Button" BasedOn="{StaticResource RoundedButtonStyle}">
@@ -63,7 +65,8 @@
             <Button x:Name="OkButton"
                     Content="OK"
                     IsDefault="True"
-                    IsCancel="True"/>
+                    IsCancel="True"
+                    Click="OkButton_Click"/>
         </StackPanel>
     </Grid>
 </Window>

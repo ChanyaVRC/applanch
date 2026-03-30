@@ -33,8 +33,14 @@ public partial class MessageDialogWindow : Window
             IconText.Foreground = brush;
         }
 
-        SourceInitialized += (_, _) => WindowCaptionThemeHelper.Apply(this);
-        OkButton.Click += (_, _) => DialogResult = true;
-        Loaded += (_, _) => OkButton.Focus();
     }
+
+    private void Window_SourceInitialized(object? sender, EventArgs e) =>
+        WindowCaptionThemeHelper.Apply(this);
+
+    private void Window_Loaded(object sender, RoutedEventArgs e) =>
+        OkButton.Focus();
+
+    private void OkButton_Click(object sender, RoutedEventArgs e) =>
+        DialogResult = true;
 }

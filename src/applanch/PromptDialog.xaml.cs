@@ -32,19 +32,23 @@ public partial class PromptDialog : Window
             InputTextBox.Text = initialValue;
         }
 
-        SourceInitialized += (_, _) => WindowCaptionThemeHelper.Apply(this);
+    }
 
-        OkButton.Click += (_, _) => DialogResult = true;
-        Loaded += (_, _) =>
+    private void Window_SourceInitialized(object? sender, EventArgs e) =>
+        WindowCaptionThemeHelper.Apply(this);
+
+    private void OkButton_Click(object sender, RoutedEventArgs e) =>
+        DialogResult = true;
+
+    private void Window_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (_useSuggestions)
         {
-            if (_useSuggestions)
-            {
-                InputSuggestion.FocusInputWithoutAutoOpen(selectAll: true);
-                return;
-            }
-            InputTextBox.Focus();
-            InputTextBox.SelectAll();
-        };
+            InputSuggestion.FocusInputWithoutAutoOpen(selectAll: true);
+            return;
+        }
+        InputTextBox.Focus();
+        InputTextBox.SelectAll();
     }
 
     public string InputValue => _useSuggestions

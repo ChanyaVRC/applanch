@@ -1,7 +1,9 @@
 <UserControl x:Class="applanch.Controls.SuggestionInputControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Name="Root">
+             x:Name="Root"
+             Loaded="SuggestionInputControl_Loaded"
+             Unloaded="SuggestionInputControl_Unloaded">
     <ComboBox x:Name="InputComboBox"
               Style="{Binding InputComboBoxStyle, ElementName=Root}"
               IsEditable="True"

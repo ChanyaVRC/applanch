@@ -8,6 +8,7 @@
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
         Title="{x:Static res:Resources.Window_Settings}"
+        SourceInitialized="Window_SourceInitialized"
         Background="{DynamicResource Brush.AppBackground}">
     <Window.Resources>
         <Style x:Key="SettingsCheckBoxStyle"

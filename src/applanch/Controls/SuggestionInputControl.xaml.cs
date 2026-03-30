@@ -22,8 +22,6 @@ public partial class SuggestionInputControl : UserControl
     public SuggestionInputControl()
     {
         InitializeComponent();
-        Loaded += SuggestionInputControl_Loaded;
-        Unloaded += SuggestionInputControl_Unloaded;
     }
 
     public static readonly DependencyProperty TextProperty =

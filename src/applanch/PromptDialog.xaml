@@ -8,6 +8,8 @@
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
+        SourceInitialized="Window_SourceInitialized"
+        Loaded="Window_Loaded"
         Background="{DynamicResource Brush.AppBackground}">
     <Window.Resources>
 
@@ -194,7 +196,8 @@
                     Content="OK"
                     Width="80"
                     Margin="8,0,0,0"
-                    IsDefault="True" />
+                    IsDefault="True"
+                    Click="OkButton_Click" />
         </StackPanel>
     </StackPanel>
 </Window>
