@@ -22,6 +22,7 @@ public partial class MainWindow : Window
     private readonly IItemLaunchService _itemLaunchService;
     private readonly IUserInteractionService _interactionService;
     private readonly LaunchItemContextMenuHandler _contextMenuHandler;
+    private readonly InlineRenameHandler _inlineRenameHandler;
     private readonly UpdateWorkflow _updateWorkflow;
     private readonly FloatingNotificationCoordinator _floatingNotificationCoordinator;
     private AppSettings _settings;
@@ -44,6 +45,7 @@ public partial class MainWindow : Window
         _itemLaunchService = itemLaunchService;
         _interactionService = interactionService;
         _contextMenuHandler = new LaunchItemContextMenuHandler(_interactionService, this);
+        _inlineRenameHandler = new InlineRenameHandler();
         _updateWorkflow = new UpdateWorkflow(updateService);
         _floatingNotificationCoordinator = new FloatingNotificationCoordinator();
         _settings = AppSettings.Load();
@@ -276,49 +278,17 @@ public partial class MainWindow : Window
 
     private void RenameTextBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
-        if (sender is TextBox tb && tb.IsVisible)
-        {
-            tb.Focus();
-            tb.SelectAll();
-        }
+        _inlineRenameHandler.HandleVisibleChanged(sender);
     }
 
     private void RenameTextBox_KeyDown(object sender, KeyEventArgs e)
     {
-        if (sender is not TextBox tb)
-        {
-            return;
-        }
-
-        if (tb.DataContext is not LaunchItemViewModel item)
-        {
-            return;
-        }
-
-        if (e.Key == Key.Return)
-        {
-            e.Handled = true;
-            CommitRename(item);
-        }
-        else if (e.Key == Key.Escape)
-        {
-            e.Handled = true;
-            item.IsRenaming = false;
-        }
+        e.Handled = _inlineRenameHandler.HandleKeyDown(sender, e.Key, ViewModel.UpdateItemDisplayName);
     }
 
     private void RenameTextBox_LostFocus(object sender, RoutedEventArgs e)
     {
-        if (sender is TextBox tb && tb.DataContext is LaunchItemViewModel item && item.IsRenaming)
-        {
-            CommitRename(item);
-        }
-    }
-
-    private void CommitRename(LaunchItemViewModel item)
-    {
-        ViewModel.UpdateItemDisplayName(item, item.EditingName);
-        item.IsRenaming = false;
+        _inlineRenameHandler.HandleLostFocus(sender, ViewModel.UpdateItemDisplayName);
     }
 
     // ── Drag & drop ─────────────────────────────────────────
