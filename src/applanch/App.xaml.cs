@@ -55,13 +55,18 @@ public partial class App : Application
     private void InitializeEnvironment()
     {
         _themeManager.ApplyTheme(Resources);
+        ApplyCaptionThemeToOpenWindows();
         SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
 
         LauncherStore.EnsureStorageDirectory();
         _contextMenuRegistrar.EnsureRegistered();
     }
 
-    internal void ReapplyTheme() => _themeManager.ApplyTheme(Resources);
+    internal void ReapplyTheme()
+    {
+        _themeManager.ApplyTheme(Resources);
+        ApplyCaptionThemeToOpenWindows();
+    }
 
     private void ShowMainWindow()
     {
@@ -73,7 +78,19 @@ public partial class App : Application
     {
         if (e.Category is UserPreferenceCategory.General or UserPreferenceCategory.Color)
         {
-            Dispatcher.Invoke(() => _themeManager.ApplyTheme(Resources));
+            Dispatcher.Invoke(() =>
+            {
+                _themeManager.ApplyTheme(Resources);
+                ApplyCaptionThemeToOpenWindows();
+            });
+        }
+    }
+
+    private void ApplyCaptionThemeToOpenWindows()
+    {
+        foreach (Window window in Windows)
+        {
+            WindowCaptionThemeHelper.Apply(window);
         }
     }
 
