@@ -685,47 +685,10 @@
             </Grid>
         </Border>
 
-        <Border Grid.Row="0"
-                Background="{DynamicResource Brush.ItemBackground}"
-                BorderBrush="{DynamicResource Brush.ItemBorder}"
-                BorderThickness="1"
-                CornerRadius="8"
-                Padding="14,12">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="Applanch"
-                               FontSize="22"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource Brush.TextPrimary}"/>
-                    <TextBlock Text="{x:Static res:Resources.Subtitle}"
-                               Margin="0,4,0,0"
-                               FontSize="12"
-                               Foreground="{DynamicResource Brush.TextSecondary}"/>
-                </StackPanel>
-                <StackPanel Grid.Column="1"
-                            Orientation="Horizontal"
-                            VerticalAlignment="Top">
-                        <Button
-                            Content="⭳"
-                            Click="UpdateButton_Click"
-                            Margin="0,0,8,0"
-                            Style="{StaticResource HeaderIconButtonStyle}"
-                            FontSize="14"
-                            FontWeight="SemiBold"
-                            ToolTip="{x:Static res:Resources.ToolTip_Update}"
-                            Visibility="{Binding UpdateBanner.HeaderButtonVisibility}"/>
-                    <Button Content="⚙"
-                            Click="SettingsButton_Click"
-                            Style="{StaticResource HeaderIconButtonStyle}"
-                            FontSize="16"
-                            ToolTip="{x:Static res:Resources.ToolTip_Settings}"/>
-                </StackPanel>
-            </Grid>
-        </Border>
+        <controls:HeaderBarControl Grid.Row="0"
+                                   UpdateButtonVisibility="{Binding UpdateBanner.HeaderButtonVisibility}"
+                                   UpdateRequested="UpdateButton_Click"
+                                   SettingsRequested="SettingsButton_Click"/>
 
         <controls:UpdateBannerControl Grid.Row="1"
                                       Margin="0,8,0,0"

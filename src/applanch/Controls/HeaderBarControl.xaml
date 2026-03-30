@@ -1,0 +1,61 @@
+<UserControl x:Class="applanch.Controls.HeaderBarControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="clr-namespace:applanch.Properties"
+             x:Name="Root">
+    <Border Background="{DynamicResource Brush.ItemBackground}"
+            BorderBrush="{DynamicResource Brush.ItemBorder}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="14,12">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Applanch"
+                           FontSize="22"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource Brush.TextPrimary}"/>
+                <TextBlock Text="{x:Static res:Resources.Subtitle}"
+                           Margin="0,4,0,0"
+                           FontSize="12"
+                           Foreground="{DynamicResource Brush.TextSecondary}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Top">
+                <Button Content="⭳"
+                        Click="UpdateButton_Click"
+                        Margin="0,0,8,0"
+                        Width="32"
+                        Height="32"
+                        Padding="0"
+                        VerticalAlignment="Top"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Foreground="{DynamicResource Brush.TextSecondary}"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        ToolTip="{x:Static res:Resources.ToolTip_Update}"
+                        Visibility="{Binding UpdateButtonVisibility, ElementName=Root}"/>
+                <Button Content="⚙"
+                        Click="SettingsButton_Click"
+                        Width="32"
+                        Height="32"
+                        Padding="0"
+                        VerticalAlignment="Top"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Foreground="{DynamicResource Brush.TextSecondary}"
+                        FontSize="16"
+                        ToolTip="{x:Static res:Resources.ToolTip_Settings}"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>
