@@ -21,6 +21,7 @@ public partial class MainWindow : Window
     private readonly DragReorderState _dragReorderState = new();
     private readonly IItemLaunchService _itemLaunchService;
     private readonly IUserInteractionService _interactionService;
+    private readonly LaunchItemContextMenuHandler _contextMenuHandler;
     private readonly UpdateWorkflow _updateWorkflow;
     private readonly FloatingNotificationCoordinator _floatingNotificationCoordinator;
     private AppSettings _settings;
@@ -42,6 +43,7 @@ public partial class MainWindow : Window
         ViewModel = viewModel;
         _itemLaunchService = itemLaunchService;
         _interactionService = interactionService;
+        _contextMenuHandler = new LaunchItemContextMenuHandler(_interactionService, this);
         _updateWorkflow = new UpdateWorkflow(updateService);
         _floatingNotificationCoordinator = new FloatingNotificationCoordinator();
         _settings = AppSettings.Load();
@@ -244,84 +246,30 @@ public partial class MainWindow : Window
 
     private void ContextMenu_EditCategory_Click(object sender, RoutedEventArgs e)
     {
-        var item = GetContextMenuTargetItem(sender);
-        if (item is null)
-        {
-            return;
-        }
-
-        var suggestions = ViewModel.CategoryNames
-            .Where(static name => !string.IsNullOrWhiteSpace(name))
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-
-        var newValue = _interactionService.PromptWithSuggestions(Strings.Prompt_ChangeCategory, item.Category, suggestions, this);
-        if (newValue is null)
-        {
-            return;
-        }
-
-        ViewModel.UpdateItemCategory(item, newValue);
+        _contextMenuHandler.EditCategory(
+            sender,
+            ViewModel.CategoryNames,
+            Strings.Prompt_ChangeCategory,
+            ViewModel.UpdateItemCategory);
     }
 
     private void ContextMenu_EditArguments_Click(object sender, RoutedEventArgs e)
     {
-        EditItemFromContextMenu(sender, Strings.Prompt_ChangeArguments, static item => item.Arguments, ViewModel.UpdateItemArguments);
+        _contextMenuHandler.EditValue(
+            sender,
+            Strings.Prompt_ChangeArguments,
+            static item => item.Arguments,
+            ViewModel.UpdateItemArguments);
     }
 
     private void ContextMenu_RenameItem_Click(object sender, RoutedEventArgs e)
     {
-        var item = GetContextMenuTargetItem(sender);
-        if (item is null)
-        {
-            return;
-        }
-
-        item.EditingName = item.DisplayName;
-        item.IsRenaming = true;
+        _contextMenuHandler.BeginRename(sender);
     }
 
     private void ContextMenu_Delete_Click(object sender, RoutedEventArgs e)
     {
-        var item = GetContextMenuTargetItem(sender);
-        if (item is null)
-        {
-            return;
-        }
-
-        ViewModel.RemoveItem(item);
-    }
-
-    private void EditItemFromContextMenu(object sender, string title, Func<LaunchItemViewModel, string> valueSelector, Action<LaunchItemViewModel, string> applyAction)
-    {
-        var item = GetContextMenuTargetItem(sender);
-        if (item is null)
-        {
-            return;
-        }
-
-        var newValue = _interactionService.Prompt(title, valueSelector(item), this);
-        if (newValue is null)
-        {
-            return;
-        }
-
-        applyAction(item, newValue);
-    }
-
-    private static LaunchItemViewModel? GetContextMenuTargetItem(object sender)
-    {
-        if (sender is not MenuItem { Parent: ContextMenu contextMenu })
-        {
-            return null;
-        }
-
-        if (contextMenu.PlacementTarget is not FrameworkElement { DataContext: LaunchItemViewModel item })
-        {
-            return null;
-        }
-
-        return item;
+        _contextMenuHandler.Delete(sender, ViewModel.RemoveItem);
     }
 
     // ── Inline rename ───────────────────────────────────────
