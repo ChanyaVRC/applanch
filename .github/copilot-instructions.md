@@ -7,6 +7,7 @@
 - When touching existing code, leave it better than you found it — fix nearby issues, improve naming, or simplify logic if it aids clarity.
 - Avoid over-engineering: optimal means right-sized for the problem, not maximally complex.
 - For every bug fix or behavior change, add or update tests that would fail before the change and pass after it.
+- Keep one type per file; avoid placing multiple top-level types in the same file.
 
 ## Auto Commit Policy
 
