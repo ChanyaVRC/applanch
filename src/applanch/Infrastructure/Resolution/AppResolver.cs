@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Win32;
 using System.IO;
+using System.Security;
 using System.Text;
 
 namespace applanch.Infrastructure.Resolution;
@@ -281,12 +282,13 @@ internal static partial class AppResolver
     {
         path = null;
 
-        if (appKey.GetValue("DisplayIcon") is string displayIcon && TryParseExecutablePath(displayIcon, out path))
+        if (TryGetRegistryStringValue(appKey, "DisplayIcon", out var displayIcon) &&
+            TryParseExecutablePath(displayIcon, out path))
         {
             return true;
         }
 
-        if (appKey.GetValue("InstallLocation") is string installLocation &&
+        if (TryGetRegistryStringValue(appKey, "InstallLocation", out var installLocation) &&
             !string.IsNullOrWhiteSpace(installLocation) &&
             Directory.Exists(installLocation) &&
             TryGetFirstExecutableInDirectory(installLocation, out var candidate))
@@ -296,6 +298,38 @@ internal static partial class AppResolver
         }
 
         return false;
+    }
+
+    private static bool TryGetRegistryStringValue(RegistryKey key, string valueName, [NotNullWhen(true)] out string? value)
+    {
+        value = null;
+
+        try
+        {
+            if (key.GetValue(valueName) is not string raw)
+            {
+                return false;
+            }
+
+            value = raw;
+            return true;
+        }
+        catch (ObjectDisposedException)
+        {
+            return false;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return false;
+        }
+        catch (SecurityException)
+        {
+            return false;
+        }
+        catch (IOException)
+        {
+            return false;
+        }
     }
 
     private static bool TryParseExecutablePath(string? raw, [NotNullWhen(true)] out string? path)

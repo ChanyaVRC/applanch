@@ -561,6 +561,31 @@ public class AppResolverTests
     }
 
     [Fact]
+    public void TryExtractExecutablePath_DisposedKey_ReturnsFalse()
+    {
+        var keyName = "Software\\applanch-tests\\" + Guid.NewGuid().ToString("N");
+        try
+        {
+            var key = Registry.CurrentUser.CreateSubKey(keyName);
+            Assert.NotNull(key);
+            key!.Dispose();
+
+            var method = typeof(AppResolver).GetMethod("TryExtractExecutablePath", BindingFlags.NonPublic | BindingFlags.Static);
+            Assert.NotNull(method);
+
+            object?[] args = [key, null];
+            var ok = (bool)method!.Invoke(null, args)!;
+
+            Assert.False(ok);
+            Assert.Null(args[1]);
+        }
+        finally
+        {
+            Registry.CurrentUser.DeleteSubKeyTree(keyName, false);
+        }
+    }
+
+    [Fact]
     public void LoadInstalledAppsFromUninstallRoot_WhenEntryIsValid_AddsApp()
     {
         var tempDir = CreateTempDirectory();
