@@ -104,42 +104,61 @@ public class LauncherStoreBehaviorTests
 
     private sealed class StoreIsolationScope : IDisposable
     {
-        private readonly string _storeDirectory;
-        private readonly string? _backupDirectory;
+        private readonly string? _storeBackup;
+        private readonly string? _legacyBackup;
 
         public string StoreFilePath { get; }
         public string LegacyStoreFilePath { get; }
 
         public StoreIsolationScope()
         {
-            _storeDirectory = GetPrivateStaticStringField("StoreDirectory");
             StoreFilePath = GetPrivateStaticStringField("StoreFilePath");
             LegacyStoreFilePath = GetPrivateStaticStringField("LegacyStoreFilePath");
 
-            if (Directory.Exists(_storeDirectory))
-            {
-                _backupDirectory = _storeDirectory + ".backup." + Guid.NewGuid().ToString("N");
-                Directory.Move(_storeDirectory, _backupDirectory);
-            }
+            // Back up existing files instead of moving the whole directory.
+            _storeBackup = BackupIfExists(StoreFilePath);
+            _legacyBackup = BackupIfExists(LegacyStoreFilePath);
 
-            Directory.CreateDirectory(_storeDirectory);
+            // Ensure both are removed so tests start clean.
+            DeleteIfExists(StoreFilePath);
+            DeleteIfExists(LegacyStoreFilePath);
         }
 
         public void Dispose()
         {
-            try
+            // Remove test artifacts.
+            DeleteIfExists(StoreFilePath);
+            DeleteIfExists(LegacyStoreFilePath);
+
+            // Restore originals.
+            RestoreIfBackedUp(_storeBackup, StoreFilePath);
+            RestoreIfBackedUp(_legacyBackup, LegacyStoreFilePath);
+        }
+
+        private static string? BackupIfExists(string path)
+        {
+            if (!File.Exists(path))
             {
-                if (Directory.Exists(_storeDirectory))
-                {
-                    Directory.Delete(_storeDirectory, recursive: true);
-                }
+                return null;
             }
-            finally
+            var backup = path + ".backup." + Guid.NewGuid().ToString("N");
+            File.Move(path, backup);
+            return backup;
+        }
+
+        private static void RestoreIfBackedUp(string? backup, string originalPath)
+        {
+            if (backup is not null && File.Exists(backup))
             {
-                if (!string.IsNullOrEmpty(_backupDirectory) && Directory.Exists(_backupDirectory))
-                {
-                    Directory.Move(_backupDirectory, _storeDirectory);
-                }
+                File.Move(backup, originalPath);
+            }
+        }
+
+        private static void DeleteIfExists(string path)
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
             }
         }
 

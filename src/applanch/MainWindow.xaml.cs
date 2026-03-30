@@ -14,22 +14,54 @@ public partial class MainWindow : Window
     private int? _lastDragPreviewIndex;
     private readonly IItemLaunchService _itemLaunchService;
     private readonly IUserInteractionService _interactionService;
+    private readonly IAppUpdateService _updateService;
+    private AppUpdateInfo? _pendingUpdate;
     private MainWindowViewModel ViewModel { get; }
 
     public MainWindow()
-        : this(new MainWindowViewModel(), new ItemLaunchService(), new UserInteractionService())
+        : this(new MainWindowViewModel(), new ItemLaunchService(), new UserInteractionService(), new GitHubAppUpdateService())
     {
     }
 
-    internal MainWindow(MainWindowViewModel viewModel, IItemLaunchService itemLaunchService, IUserInteractionService interactionService)
+    internal MainWindow(MainWindowViewModel viewModel, IItemLaunchService itemLaunchService, IUserInteractionService interactionService, IAppUpdateService updateService)
     {
         InitializeComponent();
         ViewModel = viewModel;
         _itemLaunchService = itemLaunchService;
         _interactionService = interactionService;
+        _updateService = updateService;
         SourceInitialized += (_, _) => WindowCaptionThemeHelper.Apply(this);
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+        Loaded += MainWindow_Loaded;
+    }
+
+    private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        await CheckForUpdateAsync(_updateService).ConfigureAwait(false);
+    }
+
+    private async Task CheckForUpdateAsync(IAppUpdateService updateService)
+    {
+        try
+        {
+            var update = await updateService.CheckForUpdateAsync().ConfigureAwait(false);
+            if (update is null)
+            {
+                return;
+            }
+
+            _pendingUpdate = update;
+            Dispatcher.Invoke(() =>
+            {
+                UpdateMessageText.Text = $"新しいバージョン v{update.NewVersion} が利用可能です（現在 v{update.CurrentVersion}）";
+                UpdateBanner.Visibility = Visibility.Visible;
+            });
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Instance.Error(ex, "Update check failed");
+        }
     }
 
     private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -46,6 +78,20 @@ public partial class MainWindow : Window
         {
             scrollViewer.ScrollToTop();
         }
+    }
+
+    // ── Settings ────────────────────────────────────────────
+
+    private async void SettingsButton_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new SettingsWindow(this);
+        if (dialog.ShowDialog() != true || !dialog.SettingsChanged)
+        {
+            return;
+        }
+
+        // Re-create update service with new settings and re-check.
+        await CheckForUpdateAsync(new GitHubAppUpdateService()).ConfigureAwait(false);
     }
 
     // ── Button click handlers ───────────────────────────────
@@ -91,6 +137,32 @@ public partial class MainWindow : Window
             : MessageBoxImage.Information;
 
         _interactionService.Show(result.Message, "Applanch", icon);
+    }
+
+    private async void UpdateButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_pendingUpdate is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await _updateService.ApplyUpdateAsync(_pendingUpdate).ConfigureAwait(false);
+            Dispatcher.Invoke(() => Application.Current.Shutdown());
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Instance.Error(ex, "Update apply failed");
+            Dispatcher.Invoke(() =>
+                _interactionService.Show($"アップデートに失敗しました。\n{ex.Message}", "Applanch", MessageBoxImage.Error));
+        }
+    }
+
+    private void DismissUpdateButton_Click(object sender, RoutedEventArgs e)
+    {
+        UpdateBanner.Visibility = Visibility.Collapsed;
+        _pendingUpdate = null;
     }
 
     // ── Context menu handlers ───────────────────────────────

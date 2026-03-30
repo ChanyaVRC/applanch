@@ -1,0 +1,70 @@
+<Window x:Class="applanch.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        SizeToContent="Height"
+        Width="420"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Title="設定"
+        Background="{DynamicResource Brush.AppBackground}">
+    <Window.Resources>
+        <Style TargetType="Button"
+               BasedOn="{StaticResource RoundedButtonStyle}">
+            <Setter Property="Height"
+                    Value="32"/>
+            <Setter Property="FontSize"
+                    Value="13"/>
+        </Style>
+
+        <Style x:Key="SettingsCheckBoxStyle"
+               TargetType="CheckBox">
+            <Setter Property="Foreground"
+                    Value="{DynamicResource Brush.TextPrimary}"/>
+            <Setter Property="FontSize"
+                    Value="13"/>
+            <Setter Property="Cursor"
+                    Value="Hand"/>
+            <Setter Property="VerticalContentAlignment"
+                    Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <StackPanel Margin="20">
+        <TextBlock Text="デバッグ"
+                   FontSize="15"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource Brush.TextPrimary}"/>
+
+        <Border Margin="0,10,0,0"
+                Padding="14,12"
+                Background="{DynamicResource Brush.ItemBackground}"
+                BorderBrush="{DynamicResource Brush.ItemBorder}"
+                BorderThickness="1"
+                CornerRadius="8">
+            <StackPanel>
+                <CheckBox x:Name="DebugUpdateCheckBox"
+                          Content="アップデートのデバッグモード"
+                          Style="{StaticResource SettingsCheckBoxStyle}"/>
+                <TextBlock Text="有効にすると、現在のバージョンに関わらず最新リリースへのアップデートを常に提示します。"
+                           Margin="0,6,0,0"
+                           FontSize="11"
+                           Foreground="{DynamicResource Brush.TextTertiary}"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,16,0,0">
+            <Button Content="キャンセル"
+                    Width="100"
+                    IsCancel="True"/>
+            <Button x:Name="SaveButton"
+                    Content="保存"
+                    Width="80"
+                    Margin="8,0,0,0"
+                    IsDefault="True"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

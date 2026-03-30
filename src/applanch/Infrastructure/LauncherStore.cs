@@ -42,8 +42,9 @@ internal static class LauncherStore
             entries = NormalizeEntries(parsedEntries);
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            AppLogger.Instance.Error(ex, "Failed to load launch items from JSON");
             entries = [];
             return false;
         }
@@ -149,8 +150,9 @@ internal static class LauncherStore
 
             return full;
         }
-        catch
+        catch (Exception ex)
         {
+            AppLogger.Instance.Warn($"Path normalization failed for '{path}': {ex.Message}");
             return path.Trim();
         }
     }

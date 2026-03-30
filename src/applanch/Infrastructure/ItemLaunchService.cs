@@ -53,6 +53,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
         }
         catch (Exception ex)
         {
+            AppLogger.Instance.Error(ex, $"Failed to launch: {path}");
             return LaunchExecutionResult.Failed($"起動に失敗しました。\n{ex.Message}", MessageBoxImage.Error);
         }
     }

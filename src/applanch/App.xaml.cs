@@ -14,6 +14,25 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        DispatcherUnhandledException += (_, args) =>
+        {
+            AppLogger.Instance.Error(args.Exception, "Unhandled UI exception");
+            args.Handled = true;
+        };
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+        {
+            if (args.ExceptionObject is Exception ex)
+            {
+                AppLogger.Instance.Error(ex, "Unhandled domain exception");
+            }
+        };
+        TaskScheduler.UnobservedTaskException += (_, args) =>
+        {
+            AppLogger.Instance.Error(args.Exception, "Unobserved task exception");
+            args.SetObserved();
+        };
+
+        AppLogger.Instance.Info("Application starting");
         InitializeEnvironment();
 
         if (TryHandleRegisterArgument(e.Args))
@@ -27,7 +46,9 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        AppLogger.Instance.Info("Application exiting");
         SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
+        AppLogger.Instance.Dispose();
         base.OnExit(e);
     }
 

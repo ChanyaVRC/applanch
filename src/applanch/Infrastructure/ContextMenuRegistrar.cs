@@ -43,17 +43,17 @@ internal sealed class ContextMenuRegistrar(Func<string?> executablePathProvider,
         {
             RegisterTarget(exePath, target);
         }
-        catch (UnauthorizedAccessException)
+        catch (UnauthorizedAccessException ex)
         {
-            // Best-effort registration only.
+            AppLogger.Instance.Warn($"Registry registration denied for {target.ClassKeyPath}: {ex.Message}");
         }
-        catch (SecurityException)
+        catch (SecurityException ex)
         {
-            // Best-effort registration only.
+            AppLogger.Instance.Warn($"Registry registration security error for {target.ClassKeyPath}: {ex.Message}");
         }
-        catch (IOException)
+        catch (IOException ex)
         {
-            // Best-effort registration only.
+            AppLogger.Instance.Warn($"Registry registration I/O error for {target.ClassKeyPath}: {ex.Message}");
         }
     }
 
