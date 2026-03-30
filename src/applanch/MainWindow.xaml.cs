@@ -90,14 +90,15 @@ public partial class MainWindow : Window
 
         if (update is null)
         {
-            UpdateBanner.Visibility = Visibility.Collapsed;
-            HeaderUpdateButton.Visibility = Visibility.Collapsed;
+            ViewModel.UpdateBanner.Message = string.Empty;
+            ViewModel.UpdateBanner.BannerVisibility = Visibility.Collapsed;
+            ViewModel.UpdateBanner.HeaderButtonVisibility = Visibility.Collapsed;
             return;
         }
 
-        UpdateMessageText.Text = string.Format(Strings.UpdateMessage, update.NewVersion, update.CurrentVersion);
-        UpdateBanner.Visibility = Visibility.Visible;
-        HeaderUpdateButton.Visibility = Visibility.Visible;
+        ViewModel.UpdateBanner.Message = string.Format(Strings.UpdateMessage, update.NewVersion, update.CurrentVersion);
+        ViewModel.UpdateBanner.BannerVisibility = Visibility.Visible;
+        ViewModel.UpdateBanner.HeaderButtonVisibility = Visibility.Visible;
     }
 
     private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -199,7 +200,7 @@ public partial class MainWindow : Window
 
     private void DismissUpdateButton_Click(object sender, RoutedEventArgs e)
     {
-        UpdateBanner.Visibility = Visibility.Collapsed;
+        ViewModel.UpdateBanner.BannerVisibility = Visibility.Collapsed;
     }
 
     private void FloatingNotificationTimer_Tick(object? sender, EventArgs e)

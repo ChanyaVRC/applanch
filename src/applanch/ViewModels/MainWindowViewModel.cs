@@ -45,6 +45,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         QuickAddSuggestions = [];
         QuickAddFeedback = new QuickAddFeedbackState();
         FloatingNotification = new FloatingNotificationState();
+        UpdateBanner = new UpdateBannerState();
 
         foreach (var item in LaunchItems)
         {
@@ -73,6 +74,8 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     public QuickAddFeedbackState QuickAddFeedback { get; }
 
     public FloatingNotificationState FloatingNotification { get; }
+
+    public UpdateBannerState UpdateBanner { get; }
 
     public ICollectionView FilteredLaunchItems { get; }
 
