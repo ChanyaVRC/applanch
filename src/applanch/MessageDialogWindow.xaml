@@ -30,14 +30,14 @@
             </Grid.ColumnDefinitions>
 
             <Border x:Name="IconBadge"
-                    Width="26"
-                    Height="26"
-                    CornerRadius="13"
+                    Width="32"
+                    Height="32"
+                    CornerRadius="16"
                     VerticalAlignment="Top"
                     Background="Transparent">
                 <TextBlock x:Name="IconText"
                            FontFamily="Segoe Fluent Icons"
-                           FontSize="14"
+                           FontSize="18"
                            FontWeight="SemiBold"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"
