@@ -49,7 +49,7 @@ internal static partial class AppResolver
         if (Directory.Exists(trimmed))
         {
             var normalizedDirectoryPath = NormalizeDirectoryPath(trimmed);
-            resolvedApp = new ResolvedApp(normalizedDirectoryPath, Path.GetFileName(normalizedDirectoryPath));
+            resolvedApp = new ResolvedApp(normalizedDirectoryPath, GetDirectoryDisplayName(normalizedDirectoryPath));
             return true;
         }
 
@@ -236,6 +236,24 @@ internal static partial class AppResolver
 
     private static string NormalizeDirectoryPath(string path) =>
         path.Length <= 3 ? path : path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+    private static string GetDirectoryDisplayName(string normalizedDirectoryPath)
+    {
+        var folderName = Path.GetFileName(normalizedDirectoryPath);
+        if (!string.IsNullOrWhiteSpace(folderName))
+        {
+            return folderName;
+        }
+
+        var root = Path.GetPathRoot(normalizedDirectoryPath);
+        if (string.IsNullOrWhiteSpace(root))
+        {
+            return normalizedDirectoryPath;
+        }
+
+        var driveName = root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        return string.IsNullOrWhiteSpace(driveName) ? root : driveName;
+    }
 
     private static int ScoreDisplayName(string displayName, string input)
     {
