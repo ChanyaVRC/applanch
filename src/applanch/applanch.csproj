@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <MinVerTagPrefix>v</MinVerTagPrefix>
+    <ApplicationIcon>Assets\applanch.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
