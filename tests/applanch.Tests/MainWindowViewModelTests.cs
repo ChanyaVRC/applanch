@@ -177,6 +177,74 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
+    public void UpdateItemArguments_DoesNotRebuildCategoryCollections()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", "-a", "A"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Ops", "-b", "B")
+        ]);
+
+        var vm = CreateViewModel(store: store);
+        var categoryChanges = 0;
+        var filterCategoryChanges = 0;
+        vm.CategoryNames.CollectionChanged += (_, _) => categoryChanges++;
+        vm.FilterCategoryNames.CollectionChanged += (_, _) => filterCategoryChanges++;
+
+        vm.UpdateItemArguments(vm.LaunchItems[0], "--new");
+
+        Assert.Equal(0, categoryChanges);
+        Assert.Equal(0, filterCategoryChanges);
+        Assert.Equal(1, store.SaveCallCount);
+    }
+
+    [Fact]
+    public void UpdateItemDisplayName_DoesNotRebuildCategoryCollections()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", "-a", "A"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Ops", "-b", "B")
+        ]);
+
+        var vm = CreateViewModel(store: store);
+        var categoryChanges = 0;
+        var filterCategoryChanges = 0;
+        vm.CategoryNames.CollectionChanged += (_, _) => categoryChanges++;
+        vm.FilterCategoryNames.CollectionChanged += (_, _) => filterCategoryChanges++;
+
+        vm.UpdateItemDisplayName(vm.LaunchItems[0], "A-Renamed");
+
+        Assert.Equal(0, categoryChanges);
+        Assert.Equal(0, filterCategoryChanges);
+        Assert.Equal(1, store.SaveCallCount);
+    }
+
+    [Fact]
+    public void UpdateItemCategory_RebuildsCategoryCollections()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", "-a", "A"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Ops", "-b", "B")
+        ]);
+
+        var vm = CreateViewModel(store: store);
+        var categoryChanges = 0;
+        var filterCategoryChanges = 0;
+        vm.CategoryNames.CollectionChanged += (_, _) => categoryChanges++;
+        vm.FilterCategoryNames.CollectionChanged += (_, _) => filterCategoryChanges++;
+
+        vm.UpdateItemCategory(vm.LaunchItems[0], "QA");
+
+        Assert.True(categoryChanges > 0);
+        Assert.True(filterCategoryChanges > 0);
+        Assert.Contains("QA", vm.CategoryNames);
+        Assert.DoesNotContain("Dev", vm.CategoryNames);
+        Assert.Equal(1, store.SaveCallCount);
+    }
+
+    [Fact]
     public void QuickAddNameOrPath_UpdatesSuggestions()
     {
         var vm = CreateViewModel();
