@@ -4,13 +4,14 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
+using applanch.Infrastructure;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Launch;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
 using applanch.Infrastructure.Updates;
 using applanch.Infrastructure.Utilities;
-using applanch.Properties;
 using Strings = applanch.Properties.Resources;
 
 namespace applanch;
@@ -25,14 +26,8 @@ public partial class MainWindow : Window
     private IAppUpdateService _updateService;
     private AppSettings _settings;
     private AppUpdateInfo? _pendingUpdate;
+    private readonly DispatcherTimer _floatingNotificationTimer;
     private MainWindowViewModel ViewModel { get; }
-
-    private static readonly Brush InlineInfoBackground = (Brush)new BrushConverter().ConvertFromString("#1A7A8A99")!;
-    private static readonly Brush InlineInfoBorder = (Brush)new BrushConverter().ConvertFromString("#7A8A99")!;
-    private static readonly Brush InlineWarningBackground = (Brush)new BrushConverter().ConvertFromString("#1AFFC857")!;
-    private static readonly Brush InlineWarningBorder = (Brush)new BrushConverter().ConvertFromString("#FFC857")!;
-    private static readonly Brush InlineErrorBackground = (Brush)new BrushConverter().ConvertFromString("#1AFF6B6B")!;
-    private static readonly Brush InlineErrorBorder = (Brush)new BrushConverter().ConvertFromString("#FF6B6B")!;
 
     public MainWindow()
         : this(new MainWindowViewModel(), new ItemLaunchService(), new UserInteractionService(), new GitHubAppUpdateService())
@@ -47,6 +42,11 @@ public partial class MainWindow : Window
         _interactionService = interactionService;
         _updateService = updateService;
         _settings = AppSettings.Load();
+        _floatingNotificationTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(4)
+        };
+        _floatingNotificationTimer.Tick += FloatingNotificationTimer_Tick;
         SourceInitialized += (_, _) => WindowCaptionThemeHelper.Apply(this);
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
@@ -142,11 +142,11 @@ public partial class MainWindow : Window
         var result = _itemLaunchService.TryLaunch(item);
         if (!result.IsSuccess)
         {
-            ShowInlineMessage(result.Message, result.Icon);
+            ShowFloatingNotification(result.Message, result.Icon);
             return;
         }
 
-        HideInlineMessage();
+        HideFloatingNotification();
 
         if (_settings.CloseOnLaunch)
         {
@@ -170,14 +170,11 @@ public partial class MainWindow : Window
         var result = ViewModel.TryAddQuickItem();
         if (result.IsSuccess)
         {
+            HideQuickAddMessage();
             return;
         }
 
-        var icon = result.Severity == QuickAddMessageSeverity.Warning
-            ? MessageBoxImage.Warning
-            : MessageBoxImage.Information;
-
-        ShowInlineMessage(result.Message, icon);
+        ShowQuickAddMessage(result.Message, result.Severity);
     }
 
     private async void UpdateButton_Click(object sender, RoutedEventArgs e)
@@ -196,7 +193,7 @@ public partial class MainWindow : Window
         {
             AppLogger.Instance.Error(ex, "Update apply failed");
             Dispatcher.Invoke(() =>
-                ShowInlineMessage(string.Format(Strings.UpdateFailed, ex.Message), MessageBoxImage.Error));
+                ShowFloatingNotification(string.Format(Strings.UpdateFailed, ex.Message), MessageBoxImage.Error));
         }
     }
 
@@ -205,38 +202,40 @@ public partial class MainWindow : Window
         UpdateBanner.Visibility = Visibility.Collapsed;
     }
 
-    private void DismissInlineMessageButton_Click(object sender, RoutedEventArgs e)
+    private void FloatingNotificationTimer_Tick(object? sender, EventArgs e)
     {
-        HideInlineMessage();
+        HideFloatingNotification();
     }
 
-    private void ShowInlineMessage(string message, MessageBoxImage icon)
+    private void ShowFloatingNotification(string message, MessageBoxImage icon)
     {
-        InlineMessageText.Text = message;
-
-        switch (icon)
-        {
-            case MessageBoxImage.Error:
-                InlineMessageBanner.Background = InlineErrorBackground;
-                InlineMessageBanner.BorderBrush = InlineErrorBorder;
-                break;
-            case MessageBoxImage.Warning:
-                InlineMessageBanner.Background = InlineWarningBackground;
-                InlineMessageBanner.BorderBrush = InlineWarningBorder;
-                break;
-            default:
-                InlineMessageBanner.Background = InlineInfoBackground;
-                InlineMessageBanner.BorderBrush = InlineInfoBorder;
-                break;
-        }
-
-        InlineMessageBanner.Visibility = Visibility.Visible;
+        var style = NotificationPresentation.GetFloatingStyle(icon);
+        FloatingNotificationText.Text = message;
+        FloatingNotificationBanner.Background = style.Background;
+        FloatingNotificationBanner.BorderBrush = style.BorderBrush;
+        FloatingNotificationBanner.Visibility = Visibility.Visible;
+        _floatingNotificationTimer.Stop();
+        _floatingNotificationTimer.Start();
     }
 
-    private void HideInlineMessage()
+    private void HideFloatingNotification()
     {
-        InlineMessageBanner.Visibility = Visibility.Collapsed;
-        InlineMessageText.Text = string.Empty;
+        _floatingNotificationTimer.Stop();
+        FloatingNotificationBanner.Visibility = Visibility.Collapsed;
+        FloatingNotificationText.Text = string.Empty;
+    }
+
+    private void ShowQuickAddMessage(string message, QuickAddMessageSeverity severity)
+    {
+        QuickAddMessageText.Text = message;
+        QuickAddMessageText.Foreground = NotificationPresentation.GetQuickAddForeground(severity);
+        QuickAddMessageText.Visibility = Visibility.Visible;
+    }
+
+    private void HideQuickAddMessage()
+    {
+        QuickAddMessageText.Visibility = Visibility.Collapsed;
+        QuickAddMessageText.Text = string.Empty;
     }
 
     // ── Context menu handlers ───────────────────────────────
