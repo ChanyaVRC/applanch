@@ -2,8 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:res="clr-namespace:applanch.Properties"
-        SizeToContent="Height"
+        SizeToContent="Manual"
         Width="420"
+        Height="500"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
@@ -81,180 +82,311 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="ModernScrollBarThumbStyle"
+               TargetType="Thumb">
+            <Setter Property="SnapsToDevicePixels"
+                    Value="True"/>
+            <Setter Property="OverridesDefaultStyle"
+                    Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border x:Name="ThumbBorder"
+                                CornerRadius="3"
+                                Background="{DynamicResource Brush.TextTertiary}"
+                                Opacity="0.45"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter TargetName="ThumbBorder"
+                                        Property="Opacity"
+                                        Value="0.75"/>
+                            </Trigger>
+                            <Trigger Property="IsDragging"
+                                     Value="True">
+                                <Setter TargetName="ThumbBorder"
+                                        Property="Opacity"
+                                        Value="1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModernScrollBarPageButtonStyle"
+               TargetType="RepeatButton">
+            <Setter Property="SnapsToDevicePixels"
+                    Value="True"/>
+            <Setter Property="OverridesDefaultStyle"
+                    Value="True"/>
+            <Setter Property="Focusable"
+                    Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton">
+                        <Border Background="Transparent"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <ControlTemplate x:Key="VerticalScrollBarTemplate"
+                         TargetType="ScrollBar">
+            <Grid Width="6"
+                  Margin="0,2">
+                <Track x:Name="PART_Track"
+                       IsDirectionReversed="True">
+                    <Track.DecreaseRepeatButton>
+                        <RepeatButton Style="{StaticResource ModernScrollBarPageButtonStyle}"
+                                      Command="ScrollBar.PageUpCommand"/>
+                    </Track.DecreaseRepeatButton>
+                    <Track.IncreaseRepeatButton>
+                        <RepeatButton Style="{StaticResource ModernScrollBarPageButtonStyle}"
+                                      Command="ScrollBar.PageDownCommand"/>
+                    </Track.IncreaseRepeatButton>
+                    <Track.Thumb>
+                        <Thumb Style="{StaticResource ModernScrollBarThumbStyle}"
+                               Margin="1,0"/>
+                    </Track.Thumb>
+                </Track>
+            </Grid>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="HorizontalScrollBarTemplate"
+                         TargetType="ScrollBar">
+            <Grid Height="6"
+                  Margin="2,0">
+                <Track x:Name="PART_Track">
+                    <Track.DecreaseRepeatButton>
+                        <RepeatButton Style="{StaticResource ModernScrollBarPageButtonStyle}"
+                                      Command="ScrollBar.PageLeftCommand"/>
+                    </Track.DecreaseRepeatButton>
+                    <Track.IncreaseRepeatButton>
+                        <RepeatButton Style="{StaticResource ModernScrollBarPageButtonStyle}"
+                                      Command="ScrollBar.PageRightCommand"/>
+                    </Track.IncreaseRepeatButton>
+                    <Track.Thumb>
+                        <Thumb Style="{StaticResource ModernScrollBarThumbStyle}"
+                               Margin="0,1"/>
+                    </Track.Thumb>
+                </Track>
+            </Grid>
+        </ControlTemplate>
+
+        <Style TargetType="ScrollBar">
+            <Setter Property="SnapsToDevicePixels"
+                    Value="True"/>
+            <Setter Property="OverridesDefaultStyle"
+                    Value="True"/>
+            <Style.Triggers>
+                <Trigger Property="Orientation"
+                         Value="Vertical">
+                    <Setter Property="Width"
+                            Value="6"/>
+                    <Setter Property="MinWidth"
+                            Value="6"/>
+                    <Setter Property="Template"
+                            Value="{StaticResource VerticalScrollBarTemplate}"/>
+                </Trigger>
+                <Trigger Property="Orientation"
+                         Value="Horizontal">
+                    <Setter Property="Height"
+                            Value="6"/>
+                    <Setter Property="MinHeight"
+                            Value="6"/>
+                    <Setter Property="Template"
+                            Value="{StaticResource HorizontalScrollBarTemplate}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
-    <StackPanel Margin="20">
-        <TextBlock Text="{x:Static res:Resources.Section_Appearance}"
-                   FontSize="15"
-                   FontWeight="SemiBold"
-                   Foreground="{DynamicResource Brush.TextPrimary}"/>
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False">
+        <StackPanel Margin="20">
+            <TextBlock Text="{x:Static res:Resources.Section_Appearance}"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.TextPrimary}"/>
 
-        <Border Margin="0,10,0,20"
-                Padding="14,12"
-                Background="{DynamicResource Brush.ItemBackground}"
-                BorderBrush="{DynamicResource Brush.ItemBorder}"
-                BorderThickness="1"
-                CornerRadius="8">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+            <Border Margin="0,10,0,20"
+                    Padding="14,12"
+                    Background="{DynamicResource Brush.ItemBackground}"
+                    BorderBrush="{DynamicResource Brush.ItemBorder}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0"
-                           Text="{x:Static res:Resources.Setting_Theme}"
-                           FontSize="13"
-                           VerticalAlignment="Center"
-                           Foreground="{DynamicResource Brush.TextPrimary}"/>
+                    <TextBlock Grid.Row="0"
+                               Grid.Column="0"
+                               Text="{x:Static res:Resources.Setting_Theme}"
+                               FontSize="13"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource Brush.TextPrimary}"/>
 
-                <ComboBox Grid.Column="1"
-                          Width="170"
-                          Margin="12,0,0,0"
-                          Style="{StaticResource RoundedComboBoxStyle}"
-                          SelectedIndex="{Binding ThemeIndex}">
-                    <ComboBoxItem Content="{x:Static res:Resources.Theme_System}"/>
-                    <ComboBoxItem Content="{x:Static res:Resources.Theme_Light}"/>
-                    <ComboBoxItem Content="{x:Static res:Resources.Theme_Dark}"/>
-                </ComboBox>
+                    <ComboBox Grid.Row="0"
+                              Grid.Column="1"
+                              Width="170"
+                              Margin="12,0,0,0"
+                              Style="{StaticResource RoundedComboBoxStyle}"
+                              SelectedIndex="{Binding ThemeIndex}">
+                        <ComboBoxItem Content="{x:Static res:Resources.Theme_System}"/>
+                        <ComboBoxItem Content="{x:Static res:Resources.Theme_Light}"/>
+                        <ComboBoxItem Content="{x:Static res:Resources.Theme_Dark}"/>
+                    </ComboBox>
 
-                <TextBlock Grid.Column="0"
-                           Margin="0,44,0,0"
-                           Text="{x:Static res:Resources.Setting_Language}"
-                           FontSize="13"
-                           VerticalAlignment="Center"
-                           Foreground="{DynamicResource Brush.TextPrimary}"/>
+                    <TextBlock Grid.Row="2"
+                               Grid.Column="0"
+                               Text="{x:Static res:Resources.Setting_Language}"
+                               FontSize="13"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource Brush.TextPrimary}"/>
 
-                <ComboBox Grid.Column="1"
-                          Width="170"
-                          Margin="12,44,0,0"
-                          Style="{StaticResource RoundedComboBoxStyle}"
-                          SelectedIndex="{Binding LanguageIndex}">
-                    <ComboBoxItem Content="{x:Static res:Resources.Language_System}"/>
-                    <ComboBoxItem Content="{x:Static res:Resources.Language_English}"/>
-                    <ComboBoxItem Content="{x:Static res:Resources.Language_Japanese}"/>
-                </ComboBox>
-            </Grid>
-        </Border>
+                    <ComboBox Grid.Row="2"
+                              Grid.Column="1"
+                              Width="170"
+                              Margin="12,0,0,0"
+                              Style="{StaticResource RoundedComboBoxStyle}"
+                              SelectedIndex="{Binding LanguageIndex}">
+                        <ComboBoxItem Content="{x:Static res:Resources.Language_System}"/>
+                        <ComboBoxItem Content="{x:Static res:Resources.Language_English}"/>
+                        <ComboBoxItem Content="{x:Static res:Resources.Language_Japanese}"/>
+                    </ComboBox>
+                </Grid>
+            </Border>
 
-        <TextBlock Text="{x:Static res:Resources.Section_Behavior}"
-                   FontSize="15"
-                   FontWeight="SemiBold"
-                   Foreground="{DynamicResource Brush.TextPrimary}"/>
+            <TextBlock Text="{x:Static res:Resources.Section_Behavior}"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.TextPrimary}"/>
 
-        <Border Margin="0,10,0,20"
-                Padding="14,12"
-                Background="{DynamicResource Brush.ItemBackground}"
-                BorderBrush="{DynamicResource Brush.ItemBorder}"
-                BorderThickness="1"
-                CornerRadius="8">
-            <StackPanel>
-                <CheckBox Content="{x:Static res:Resources.Setting_StartMinimizedOnLaunch}"
-                          IsChecked="{Binding StartMinimizedOnLaunch}"
-                          Style="{StaticResource SettingsCheckBoxStyle}"/>
-                <TextBlock Text="{x:Static res:Resources.Setting_StartMinimizedOnLaunchDesc}"
-                           Margin="0,6,0,0"
-                           FontSize="11"
-                           Foreground="{DynamicResource Brush.TextTertiary}"
-                           TextWrapping="Wrap"/>
+            <Border Margin="0,10,0,20"
+                    Padding="14,12"
+                    Background="{DynamicResource Brush.ItemBackground}"
+                    BorderBrush="{DynamicResource Brush.ItemBorder}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                <StackPanel>
+                    <CheckBox Content="{x:Static res:Resources.Setting_StartMinimizedOnLaunch}"
+                              IsChecked="{Binding StartMinimizedOnLaunch}"
+                              Style="{StaticResource SettingsCheckBoxStyle}"/>
+                    <TextBlock Text="{x:Static res:Resources.Setting_StartMinimizedOnLaunchDesc}"
+                               Margin="0,6,0,0"
+                               FontSize="11"
+                               Foreground="{DynamicResource Brush.TextTertiary}"
+                               TextWrapping="Wrap"/>
 
-                <CheckBox Content="{x:Static res:Resources.Setting_LaunchAtWindowsStartup}"
-                          IsChecked="{Binding LaunchAtWindowsStartup}"
-                          Margin="0,14,0,0"
-                          Style="{StaticResource SettingsCheckBoxStyle}"/>
-                <TextBlock Text="{x:Static res:Resources.Setting_LaunchAtWindowsStartupDesc}"
-                           Margin="0,6,0,0"
-                           FontSize="11"
-                           Foreground="{DynamicResource Brush.TextTertiary}"
-                           TextWrapping="Wrap"/>
+                    <CheckBox Content="{x:Static res:Resources.Setting_LaunchAtWindowsStartup}"
+                              IsChecked="{Binding LaunchAtWindowsStartup}"
+                              Margin="0,14,0,0"
+                              Style="{StaticResource SettingsCheckBoxStyle}"/>
+                    <TextBlock Text="{x:Static res:Resources.Setting_LaunchAtWindowsStartupDesc}"
+                               Margin="0,6,0,0"
+                               FontSize="11"
+                               Foreground="{DynamicResource Brush.TextTertiary}"
+                               TextWrapping="Wrap"/>
 
-                <TextBlock Text="{x:Static res:Resources.Setting_PostLaunchBehavior}"
-                           Margin="0,14,0,0"
-                           FontSize="13"
-                           Foreground="{DynamicResource Brush.TextPrimary}"/>
-                <ComboBox Width="220"
-                          Margin="0,6,0,0"
-                          HorizontalAlignment="Left"
-                          Style="{StaticResource RoundedComboBoxStyle}"
-                          SelectedIndex="{Binding PostLaunchBehaviorIndex}">
-                    <ComboBoxItem Content="{x:Static res:Resources.PostLaunchBehavior_Close}"/>
-                    <ComboBoxItem Content="{x:Static res:Resources.PostLaunchBehavior_Minimize}"/>
-                    <ComboBoxItem Content="{x:Static res:Resources.PostLaunchBehavior_KeepOpen}"/>
-                </ComboBox>
+                    <TextBlock Text="{x:Static res:Resources.Setting_PostLaunchBehavior}"
+                               Margin="0,14,0,0"
+                               FontSize="13"
+                               Foreground="{DynamicResource Brush.TextPrimary}"/>
+                    <ComboBox Width="220"
+                              Margin="0,6,0,0"
+                              HorizontalAlignment="Left"
+                              Style="{StaticResource RoundedComboBoxStyle}"
+                              SelectedIndex="{Binding PostLaunchBehaviorIndex}">
+                        <ComboBoxItem Content="{x:Static res:Resources.PostLaunchBehavior_Close}"/>
+                        <ComboBoxItem Content="{x:Static res:Resources.PostLaunchBehavior_Minimize}"/>
+                        <ComboBoxItem Content="{x:Static res:Resources.PostLaunchBehavior_KeepOpen}"/>
+                    </ComboBox>
 
-                <CheckBox Content="{x:Static res:Resources.Setting_ConfirmBeforeLaunch}"
-                          IsChecked="{Binding ConfirmBeforeLaunch}"
-                          Margin="0,14,0,0"
-                          Style="{StaticResource SettingsCheckBoxStyle}"/>
-                <CheckBox Content="{x:Static res:Resources.Setting_ConfirmBeforeDelete}"
-                          IsChecked="{Binding ConfirmBeforeDelete}"
-                          Margin="0,10,0,0"
-                          Style="{StaticResource SettingsCheckBoxStyle}"/>
+                    <CheckBox Content="{x:Static res:Resources.Setting_ConfirmBeforeLaunch}"
+                              IsChecked="{Binding ConfirmBeforeLaunch}"
+                              Margin="0,14,0,0"
+                              Style="{StaticResource SettingsCheckBoxStyle}"/>
+                    <CheckBox Content="{x:Static res:Resources.Setting_ConfirmBeforeDelete}"
+                              IsChecked="{Binding ConfirmBeforeDelete}"
+                              Margin="0,10,0,0"
+                              Style="{StaticResource SettingsCheckBoxStyle}"/>
 
-                <TextBlock Text="{x:Static res:Resources.Setting_CategorySortMode}"
-                           Margin="0,14,0,0"
-                           FontSize="13"
-                           Foreground="{DynamicResource Brush.TextPrimary}"/>
-                <ComboBox Width="220"
-                          Margin="0,6,0,0"
-                          HorizontalAlignment="Left"
-                          Style="{StaticResource RoundedComboBoxStyle}"
-                          SelectedIndex="{Binding CategorySortModeIndex}">
-                    <ComboBoxItem Content="{x:Static res:Resources.SortMode_Alphabetical}"/>
-                    <ComboBoxItem Content="{x:Static res:Resources.SortMode_AsAdded}"/>
-                </ComboBox>
+                    <TextBlock Text="{x:Static res:Resources.Setting_CategorySortMode}"
+                               Margin="0,14,0,0"
+                               FontSize="13"
+                               Foreground="{DynamicResource Brush.TextPrimary}"/>
+                    <ComboBox Width="220"
+                              Margin="0,6,0,0"
+                              HorizontalAlignment="Left"
+                              Style="{StaticResource RoundedComboBoxStyle}"
+                              SelectedIndex="{Binding CategorySortModeIndex}">
+                        <ComboBoxItem Content="{x:Static res:Resources.SortMode_Alphabetical}"/>
+                        <ComboBoxItem Content="{x:Static res:Resources.SortMode_AsAdded}"/>
+                    </ComboBox>
 
-                <TextBlock Text="{x:Static res:Resources.Setting_AppListSortMode}"
-                           Margin="0,14,0,0"
-                           FontSize="13"
-                           Foreground="{DynamicResource Brush.TextPrimary}"/>
-                <ComboBox Width="220"
-                          Margin="0,6,0,0"
-                          HorizontalAlignment="Left"
-                          Style="{StaticResource RoundedComboBoxStyle}"
-                          SelectedIndex="{Binding AppListSortModeIndex}">
-                    <ComboBoxItem Content="{x:Static res:Resources.AppListSort_Manual}"/>
-                    <ComboBoxItem Content="{x:Static res:Resources.AppListSort_Name}"/>
-                    <ComboBoxItem Content="{x:Static res:Resources.AppListSort_CategoryThenName}"/>
-                </ComboBox>
+                    <TextBlock Text="{x:Static res:Resources.Setting_AppListSortMode}"
+                               Margin="0,14,0,0"
+                               FontSize="13"
+                               Foreground="{DynamicResource Brush.TextPrimary}"/>
+                    <ComboBox Width="220"
+                              Margin="0,6,0,0"
+                              HorizontalAlignment="Left"
+                              Style="{StaticResource RoundedComboBoxStyle}"
+                              SelectedIndex="{Binding AppListSortModeIndex}">
+                        <ComboBoxItem Content="{x:Static res:Resources.AppListSort_Manual}"/>
+                        <ComboBoxItem Content="{x:Static res:Resources.AppListSort_Name}"/>
+                        <ComboBoxItem Content="{x:Static res:Resources.AppListSort_CategoryThenName}"/>
+                    </ComboBox>
 
-                <CheckBox Content="{x:Static res:Resources.Setting_RunAsAdministrator}"
-                          IsChecked="{Binding RunAsAdministrator}"
-                          Margin="0,14,0,0"
-                          Style="{StaticResource SettingsCheckBoxStyle}"/>
+                    <CheckBox Content="{x:Static res:Resources.Setting_RunAsAdministrator}"
+                              IsChecked="{Binding RunAsAdministrator}"
+                              Margin="0,14,0,0"
+                              Style="{StaticResource SettingsCheckBoxStyle}"/>
 
-                <CheckBox Content="{x:Static res:Resources.Setting_CheckForUpdates}"
-                          IsChecked="{Binding CheckForUpdatesOnStartup}"
-                          Margin="0,14,0,0"
-                          Style="{StaticResource SettingsCheckBoxStyle}"/>
-                <TextBlock Text="{x:Static res:Resources.Setting_CheckForUpdatesDesc}"
-                           Margin="0,6,0,0"
-                           FontSize="11"
-                           Foreground="{DynamicResource Brush.TextTertiary}"
-                           TextWrapping="Wrap"/>
-            </StackPanel>
-        </Border>
+                    <CheckBox Content="{x:Static res:Resources.Setting_CheckForUpdates}"
+                              IsChecked="{Binding CheckForUpdatesOnStartup}"
+                              Margin="0,14,0,0"
+                              Style="{StaticResource SettingsCheckBoxStyle}"/>
+                    <TextBlock Text="{x:Static res:Resources.Setting_CheckForUpdatesDesc}"
+                               Margin="0,6,0,0"
+                               FontSize="11"
+                               Foreground="{DynamicResource Brush.TextTertiary}"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
 
             <TextBlock Text="{x:Static res:Resources.Section_Debug}"
-                   FontSize="15"
-                   FontWeight="SemiBold"
-                   Foreground="{DynamicResource Brush.TextPrimary}"/>
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.TextPrimary}"/>
 
-        <Border Margin="0,10,0,0"
-                Padding="14,12"
-                Background="{DynamicResource Brush.ItemBackground}"
-                BorderBrush="{DynamicResource Brush.ItemBorder}"
-                BorderThickness="1"
-                CornerRadius="8">
-            <StackPanel>
-                <CheckBox Content="{x:Static res:Resources.Setting_DebugUpdate}"
-                          IsChecked="{Binding DebugUpdate}"
-                          Style="{StaticResource SettingsCheckBoxStyle}"/>
-                <TextBlock Text="{x:Static res:Resources.Setting_DebugUpdateDesc}"
-                           Margin="0,6,0,0"
-                           FontSize="11"
-                           Foreground="{DynamicResource Brush.TextTertiary}"
-                           TextWrapping="Wrap"/>
-            </StackPanel>
-        </Border>
-    </StackPanel>
+            <Border Margin="0,10,0,0"
+                    Padding="14,12"
+                    Background="{DynamicResource Brush.ItemBackground}"
+                    BorderBrush="{DynamicResource Brush.ItemBorder}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                <StackPanel>
+                    <CheckBox Content="{x:Static res:Resources.Setting_DebugUpdate}"
+                              IsChecked="{Binding DebugUpdate}"
+                              Style="{StaticResource SettingsCheckBoxStyle}"/>
+                    <TextBlock Text="{x:Static res:Resources.Setting_DebugUpdateDesc}"
+                               Margin="0,6,0,0"
+                               FontSize="11"
+                               Foreground="{DynamicResource Brush.TextTertiary}"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </Window>
