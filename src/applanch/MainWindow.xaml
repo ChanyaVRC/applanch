@@ -13,6 +13,8 @@
         MinHeight="480"
         MinWidth="700"
         AllowDrop="True"
+        SourceInitialized="Window_SourceInitialized"
+        Loaded="MainWindow_Loaded"
         DragOver="Window_DragOver"
         Drop="Window_Drop"
         Background="{DynamicResource Brush.AppBackground}">

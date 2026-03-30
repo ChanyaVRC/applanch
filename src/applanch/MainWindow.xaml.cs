@@ -59,10 +59,13 @@ public partial class MainWindow : Window
         _slideOutStoryboard = (Storyboard)Resources["FloatingNotificationSlideOutStoryboard"];
         _countdownStoryboard = (Storyboard)Resources["FloatingNotificationCountdownStoryboard"];
         _slideOutStoryboard.Completed += OnHideAnimationCompleted;
-        SourceInitialized += (_, _) => WindowCaptionThemeHelper.Apply(this);
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
-        Loaded += MainWindow_Loaded;
+    }
+
+    private void Window_SourceInitialized(object? sender, EventArgs e)
+    {
+        WindowCaptionThemeHelper.Apply(this);
     }
 
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
