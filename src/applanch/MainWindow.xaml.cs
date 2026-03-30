@@ -18,17 +18,14 @@ namespace applanch;
 public partial class MainWindow : Window
 {
     private static readonly TimeSpan FloatingNotificationDuration = TimeSpan.FromSeconds(4);
-    private Point _dragStartPoint;
-    private LaunchItemViewModel? _draggedItem;
-    private int? _lastDragPreviewIndex;
+    private readonly DragReorderState _dragReorderState = new();
     private readonly IItemLaunchService _itemLaunchService;
     private readonly IUserInteractionService _interactionService;
     private readonly UpdateWorkflow _updateWorkflow;
+    private readonly FloatingNotificationCoordinator _floatingNotificationCoordinator;
     private AppSettings _settings;
     private AppUpdateInfo? _pendingUpdate;
     private readonly DispatcherTimer _floatingNotificationTimer;
-    private int _floatingNotificationAnimationVersion;
-    private int _expectedHideVersion;
     private readonly Storyboard _slideInStoryboard;
     private readonly Storyboard _slideOutStoryboard;
     private readonly Storyboard _countdownStoryboard;
@@ -46,6 +43,7 @@ public partial class MainWindow : Window
         _itemLaunchService = itemLaunchService;
         _interactionService = interactionService;
         _updateWorkflow = new UpdateWorkflow(updateService);
+        _floatingNotificationCoordinator = new FloatingNotificationCoordinator();
         _settings = AppSettings.Load();
         _floatingNotificationTimer = new DispatcherTimer
         {
@@ -200,10 +198,10 @@ public partial class MainWindow : Window
 
     private void ShowFloatingNotification(string message, MessageBoxImage icon)
     {
-        _floatingNotificationAnimationVersion++;
         ViewModel.FloatingNotification.Message = message;
-        ViewModel.FloatingNotification.IconType = ToNotificationIconType(icon);
+        ViewModel.FloatingNotification.IconType = FloatingNotificationCoordinator.MapIcon(icon);
         FloatingNotificationBanner.Visibility = Visibility.Visible;
+        _floatingNotificationCoordinator.BeginShow();
         _slideInStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
         _countdownStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
         _floatingNotificationTimer.Stop();
@@ -212,11 +210,11 @@ public partial class MainWindow : Window
 
     private void HideFloatingNotification()
     {
-        _expectedHideVersion = ++_floatingNotificationAnimationVersion;
+        var shouldAnimateHide = _floatingNotificationCoordinator.BeginHide(
+            FloatingNotificationBanner.Visibility == Visibility.Visible);
         _floatingNotificationTimer.Stop();
         _countdownStoryboard.Stop(this);
-
-        if (FloatingNotificationBanner.Visibility != Visibility.Visible)
+        if (!shouldAnimateHide)
         {
             ClearFloatingNotification();
             return;
@@ -227,7 +225,7 @@ public partial class MainWindow : Window
 
     private void OnHideAnimationCompleted(object? sender, EventArgs e)
     {
-        if (_expectedHideVersion != _floatingNotificationAnimationVersion)
+        if (!_floatingNotificationCoordinator.CanCompleteHide())
         {
             return;
         }
@@ -241,14 +239,6 @@ public partial class MainWindow : Window
         ViewModel.FloatingNotification.Message = string.Empty;
         ViewModel.FloatingNotification.IconType = NotificationIconType.None;
     }
-
-    private static NotificationIconType ToNotificationIconType(MessageBoxImage icon) => icon switch
-    {
-        MessageBoxImage.Error => NotificationIconType.Error,
-        MessageBoxImage.Warning => NotificationIconType.Warning,
-        MessageBoxImage.Information => NotificationIconType.Info,
-        _ => NotificationIconType.None,
-    };
 
     // ── Context menu handlers ───────────────────────────────
 
@@ -387,27 +377,27 @@ public partial class MainWindow : Window
 
     private void LaunchListBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        _dragStartPoint = e.GetPosition(null);
-        _lastDragPreviewIndex = null;
+        _dragReorderState.DragStartPoint = e.GetPosition(null);
+        _dragReorderState.LastDragPreviewIndex = null;
 
         if (e.OriginalSource is not DependencyObject source)
         {
-            _draggedItem = null;
+            _dragReorderState.DraggedItem = null;
             return;
         }
 
-        _draggedItem = FindAncestor<ListBoxItem>(source)?.DataContext as LaunchItemViewModel;
+        _dragReorderState.DraggedItem = FindAncestor<ListBoxItem>(source)?.DataContext as LaunchItemViewModel;
     }
 
     private void LaunchListBox_PreviewMouseMove(object sender, MouseEventArgs e)
     {
-        if (e.LeftButton != MouseButtonState.Pressed || _draggedItem is null)
+        if (e.LeftButton != MouseButtonState.Pressed || _dragReorderState.DraggedItem is null)
         {
             return;
         }
 
         var currentPos = e.GetPosition(null);
-        var diff = _dragStartPoint - currentPos;
+        var diff = _dragReorderState.DragStartPoint - currentPos;
 
         if (Math.Abs(diff.X) < SystemParameters.MinimumHorizontalDragDistance &&
             Math.Abs(diff.Y) < SystemParameters.MinimumVerticalDragDistance)
@@ -415,9 +405,8 @@ public partial class MainWindow : Window
             return;
         }
 
-        DragDrop.DoDragDrop(LaunchListBox, _draggedItem, DragDropEffects.Move);
-        _draggedItem = null;
-        _lastDragPreviewIndex = null;
+        DragDrop.DoDragDrop(LaunchListBox, _dragReorderState.DraggedItem, DragDropEffects.Move);
+        _dragReorderState.Clear();
     }
 
     private void LaunchListBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
@@ -506,24 +495,21 @@ public partial class MainWindow : Window
     private void ApplyDragPreviewMove(ListBox listBox, int oldIndex, Point listPosition)
     {
         var newIndex = GetDropIndex(listBox, oldIndex, listPosition);
-        if (newIndex >= 0 && newIndex != oldIndex && _lastDragPreviewIndex != newIndex)
+        if (newIndex >= 0 && newIndex != oldIndex && _dragReorderState.LastDragPreviewIndex != newIndex)
         {
             var previousPositions = CaptureItemTopPositions(listBox);
             ViewModel.PreviewMoveItem(oldIndex, newIndex);
             AnimateReorderTransition(listBox, previousPositions);
-            _lastDragPreviewIndex = newIndex;
+            _dragReorderState.LastDragPreviewIndex = newIndex;
         }
     }
 
     private void CommitDragReorder()
     {
-        if (_lastDragPreviewIndex.HasValue)
+        if (_dragReorderState.ConsumeShouldPersistOrder())
         {
             ViewModel.PersistOrderNow();
         }
-
-        _draggedItem = null;
-        _lastDragPreviewIndex = null;
     }
 
     private int GetDropIndex(ListBox listBox, int oldIndex, Point listPosition)
