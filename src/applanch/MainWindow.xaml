@@ -591,12 +591,12 @@
                     <Setter Property="Background"
                             Value="{DynamicResource Brush.NotificationInfoBackground}"/>
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding FloatingNotificationIconType}"
+                        <DataTrigger Binding="{Binding FloatingNotification.IconType}"
                                      Value="{x:Static local:NotificationIconType.Warning}">
                             <Setter Property="Background"
                                     Value="{DynamicResource Brush.NotificationWarningBackground}"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding FloatingNotificationIconType}"
+                        <DataTrigger Binding="{Binding FloatingNotification.IconType}"
                                      Value="{x:Static local:NotificationIconType.Error}">
                             <Setter Property="Background"
                                     Value="{DynamicResource Brush.NotificationErrorBackground}"/>
@@ -635,21 +635,21 @@
                                 <Setter Property="Visibility" Value="Collapsed"/>
                                 <Setter Property="Opacity" Value="0.96"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding FloatingNotificationIconType}"
+                                    <DataTrigger Binding="{Binding FloatingNotification.IconType}"
                                                  Value="{x:Static local:NotificationIconType.Info}">
                                         <Setter Property="Visibility" Value="Visible"/>
                                         <Setter Property="Text" Value="&#xE946;"/>
                                         <Setter Property="Foreground"
                                                 Value="{DynamicResource Brush.NotificationInfoBorder}"/>
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding FloatingNotificationIconType}"
+                                    <DataTrigger Binding="{Binding FloatingNotification.IconType}"
                                                  Value="{x:Static local:NotificationIconType.Warning}">
                                         <Setter Property="Visibility" Value="Visible"/>
                                         <Setter Property="Text" Value="&#xE7BA;"/>
                                         <Setter Property="Foreground"
                                                 Value="{DynamicResource Brush.NotificationWarningBorder}"/>
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding FloatingNotificationIconType}"
+                                    <DataTrigger Binding="{Binding FloatingNotification.IconType}"
                                                  Value="{x:Static local:NotificationIconType.Error}">
                                         <Setter Property="Visibility" Value="Visible"/>
                                         <Setter Property="Text" Value="&#xEA39;"/>
@@ -664,7 +664,7 @@
                                FontSize="12"
                                Foreground="{DynamicResource Brush.TextPrimary}"
                                TextWrapping="Wrap"
-                               Text="{Binding FloatingNotificationMessage}"/>
+                               Text="{Binding FloatingNotification.Message}"/>
                 </Grid>
                 <Border Grid.Row="1"
                         BorderBrush="{DynamicResource Brush.NotificationProgressTrack}"
@@ -919,14 +919,14 @@
                                        FontSize="11"
                                        FontWeight="SemiBold"
                                        TextWrapping="Wrap"
-                                       Text="{Binding QuickAddMessage}"
-                                       Visibility="{Binding QuickAddMessageVisibility}">
+                                       Text="{Binding QuickAddFeedback.Message}"
+                                       Visibility="{Binding QuickAddFeedback.MessageVisibility}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground"
                                                 Value="{DynamicResource Brush.QuickAddInfoText}"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding QuickAddSeverity}"
+                                            <DataTrigger Binding="{Binding QuickAddFeedback.Severity}"
                                                          Value="{x:Static local:QuickAddMessageSeverity.Warning}">
                                                 <Setter Property="Foreground"
                                                         Value="{DynamicResource Brush.QuickAddWarningText}"/>

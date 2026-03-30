@@ -91,9 +91,9 @@ public class MainWindowViewModelTests
 
         vm.TryAddQuickItem();
 
-        Assert.NotEmpty(vm.QuickAddMessage);
-        Assert.Equal(QuickAddMessageSeverity.Information, vm.QuickAddSeverity);
-        Assert.Equal(Visibility.Visible, vm.QuickAddMessageVisibility);
+        Assert.NotEmpty(vm.QuickAddFeedback.Message);
+        Assert.Equal(QuickAddMessageSeverity.Information, vm.QuickAddFeedback.Severity);
+        Assert.Equal(Visibility.Visible, vm.QuickAddFeedback.MessageVisibility);
     }
 
     [Fact]
@@ -104,9 +104,9 @@ public class MainWindowViewModelTests
 
         vm.TryAddQuickItem();
 
-        Assert.NotEmpty(vm.QuickAddMessage);
-        Assert.Equal(QuickAddMessageSeverity.Warning, vm.QuickAddSeverity);
-        Assert.Equal(Visibility.Visible, vm.QuickAddMessageVisibility);
+        Assert.NotEmpty(vm.QuickAddFeedback.Message);
+        Assert.Equal(QuickAddMessageSeverity.Warning, vm.QuickAddFeedback.Severity);
+        Assert.Equal(Visibility.Visible, vm.QuickAddFeedback.MessageVisibility);
     }
 
     [Fact]
@@ -122,14 +122,14 @@ public class MainWindowViewModelTests
         // Produce a prior failure message via an empty input, then succeed.
         var vmPrime = CreateViewModel(resolver: resolver);
         vmPrime.QuickAddNameOrPath = string.Empty;
-        vmPrime.TryAddQuickItem(); // sets QuickAddMessage
-        Assert.NotEmpty(vmPrime.QuickAddMessage);
+        vmPrime.TryAddQuickItem(); // sets QuickAddFeedback.Message
+        Assert.NotEmpty(vmPrime.QuickAddFeedback.Message);
         vmPrime.QuickAddNameOrPath = "newapp";
 
         vmPrime.TryAddQuickItem();
 
-        Assert.Empty(vmPrime.QuickAddMessage);
-        Assert.Equal(Visibility.Collapsed, vmPrime.QuickAddMessageVisibility);
+        Assert.Empty(vmPrime.QuickAddFeedback.Message);
+        Assert.Equal(Visibility.Collapsed, vmPrime.QuickAddFeedback.MessageVisibility);
     }
 
     [Fact]

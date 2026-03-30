@@ -210,8 +210,8 @@ public partial class MainWindow : Window
     private void ShowFloatingNotification(string message, MessageBoxImage icon)
     {
         _floatingNotificationAnimationVersion++;
-        ViewModel.FloatingNotificationMessage = message;
-        ViewModel.FloatingNotificationIconType = ToNotificationIconType(icon);
+        ViewModel.FloatingNotification.Message = message;
+        ViewModel.FloatingNotification.IconType = ToNotificationIconType(icon);
         FloatingNotificationBanner.Visibility = Visibility.Visible;
         _slideInStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
         _countdownStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
@@ -247,8 +247,8 @@ public partial class MainWindow : Window
 
     private void ClearFloatingNotification()
     {
-        ViewModel.FloatingNotificationMessage = string.Empty;
-        ViewModel.FloatingNotificationIconType = NotificationIconType.None;
+        ViewModel.FloatingNotification.Message = string.Empty;
+        ViewModel.FloatingNotification.IconType = NotificationIconType.None;
     }
 
     private static NotificationIconType ToNotificationIconType(MessageBoxImage icon) => icon switch

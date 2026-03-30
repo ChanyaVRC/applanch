@@ -25,10 +25,6 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private string _quickAddNameOrPath = string.Empty;
     private string _quickAddCategory = LauncherStore.LauncherEntry.DefaultCategory;
     private string _quickAddArguments = string.Empty;
-    private string _quickAddMessage = string.Empty;
-    private QuickAddMessageSeverity _quickAddSeverity;
-    private string _floatingNotificationMessage = string.Empty;
-    private NotificationIconType _floatingNotificationIconType;
 
     public MainWindowViewModel()
         : this(new AppResolverAdapter(), new LauncherStoreAdapter())
@@ -47,6 +43,8 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         CategoryNames = [];
         FilterCategoryNames = [];
         QuickAddSuggestions = [];
+        QuickAddFeedback = new QuickAddFeedbackState();
+        FloatingNotification = new FloatingNotificationState();
 
         foreach (var item in LaunchItems)
         {
@@ -71,6 +69,10 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     public ObservableCollection<string> FilterCategoryNames { get; }
 
     public ObservableCollection<string> QuickAddSuggestions { get; }
+
+    public QuickAddFeedbackState QuickAddFeedback { get; }
+
+    public FloatingNotificationState FloatingNotification { get; }
 
     public ICollectionView FilteredLaunchItems { get; }
 
@@ -144,57 +146,6 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     public Visibility EmptyMessageVisibility => FilteredLaunchItems.IsEmpty ? Visibility.Visible : Visibility.Collapsed;
 
-    public string QuickAddMessage
-    {
-        get => _quickAddMessage;
-        private set
-        {
-            if (SetField(ref _quickAddMessage, value))
-            {
-                OnPropertyChanged(nameof(QuickAddMessageVisibility));
-            }
-        }
-    }
-
-    public QuickAddMessageSeverity QuickAddSeverity
-    {
-        get => _quickAddSeverity;
-        private set
-        {
-            if (_quickAddSeverity == value)
-            {
-                return;
-            }
-
-            _quickAddSeverity = value;
-            OnPropertyChanged(nameof(QuickAddSeverity));
-        }
-    }
-
-    public Visibility QuickAddMessageVisibility =>
-        string.IsNullOrEmpty(_quickAddMessage) ? Visibility.Collapsed : Visibility.Visible;
-
-    public string FloatingNotificationMessage
-    {
-        get => _floatingNotificationMessage;
-        internal set => SetField(ref _floatingNotificationMessage, value);
-    }
-
-    public NotificationIconType FloatingNotificationIconType
-    {
-        get => _floatingNotificationIconType;
-        internal set
-        {
-            if (_floatingNotificationIconType == value)
-            {
-                return;
-            }
-
-            _floatingNotificationIconType = value;
-            OnPropertyChanged(nameof(FloatingNotificationIconType));
-        }
-    }
-
     public QuickAddResult TryAddQuickItem()
     {
         var input = QuickAddNameOrPath.Trim();
@@ -221,14 +172,14 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
         LaunchItems.Add(newItem);
         ResetQuickAddFieldsAfterAdd();
-        QuickAddMessage = string.Empty;
+        QuickAddFeedback.Message = string.Empty;
         return QuickAddResult.Success();
     }
 
     private QuickAddResult Fail(string message, QuickAddMessageSeverity severity)
     {
-        QuickAddSeverity = severity;
-        QuickAddMessage = message;
+        QuickAddFeedback.Severity = severity;
+        QuickAddFeedback.Message = message;
         return QuickAddResult.Failed(message, severity);
     }
 
