@@ -1,5 +1,7 @@
 # applanch
 
+[English](README.md) | [日本語](README.ja.md)
+
 A lightweight Windows launcher for quickly starting apps, files, and folders.
 
 `applanch` is a WPF desktop app focused on fast launch workflows with category management, quick-add suggestions, and built-in update checks.
