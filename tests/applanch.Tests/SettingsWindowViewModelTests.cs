@@ -8,13 +8,13 @@ public class SettingsWindowViewModelTests
 {
     private static SettingsWindowViewModel Make(
         AppSettings? settings = null,
-        Action? reapplyTheme = null,
+        Action<AppSettings>? onCommit = null,
         List<AppSettings>? saved = null)
     {
         var captures = saved ?? [];
         return new SettingsWindowViewModel(
             settings ?? new AppSettings(),
-            reapplyTheme ?? (() => { }),
+            onCommit ?? (_ => { }),
             s => captures.Add(s));
     }
 
@@ -54,14 +54,15 @@ public class SettingsWindowViewModelTests
     }
 
     [Fact]
-    public void ThemeIndex_Change_CallsReapplyTheme()
+    public void ThemeIndex_Change_CallsOnCommitWithNewTheme()
     {
-        var called = false;
-        var vm = Make(reapplyTheme: () => called = true);
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
 
         vm.ThemeIndex = (int)AppTheme.Light;
 
-        Assert.True(called);
+        Assert.NotNull(committed);
+        Assert.Equal(AppTheme.Light, committed!.Theme);
     }
 
     [Fact]

@@ -7,7 +7,7 @@ namespace applanch;
 
 internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
 {
-    private readonly Action _reapplyTheme;
+    private readonly Action<AppSettings> _onCommit;
     private readonly Action<AppSettings> _save;
     private AppSettings _current;
     private AppTheme _theme;
@@ -15,9 +15,9 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
     private bool _checkForUpdatesOnStartup;
     private bool _debugUpdate;
 
-    internal SettingsWindowViewModel(AppSettings settings, Action reapplyTheme, Action<AppSettings>? save = null)
+    internal SettingsWindowViewModel(AppSettings settings, Action<AppSettings> onCommit, Action<AppSettings>? save = null)
     {
-        _reapplyTheme = reapplyTheme;
+        _onCommit = onCommit;
         _save = save ?? (static s => s.Save());
         _current = settings;
         _theme = settings.Theme;
@@ -39,7 +39,6 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
             _theme = (AppTheme)value;
             OnPropertyChanged();
             Commit();
-            _reapplyTheme();
         }
     }
 
@@ -107,6 +106,7 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
         _save(_current);
         SavedSettings = _current;
         SettingsChanged = true;
+        _onCommit(_current);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

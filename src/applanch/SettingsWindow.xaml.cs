@@ -14,7 +14,7 @@ public partial class SettingsWindow : Window
         Owner = owner;
         ViewModel = new SettingsWindowViewModel(
             AppSettings.Load(),
-            () => ((App)Application.Current).ReapplyTheme());
+            ((App)Application.Current).Refresh);
         DataContext = ViewModel;
     }
 

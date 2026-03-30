@@ -66,7 +66,7 @@ public partial class App : Application
         _contextMenuRegistrar.EnsureRegistered();
     }
 
-    internal void ReapplyTheme()
+    internal void Refresh(AppSettings settings)
     {
         _themeManager.ApplyTheme(Resources);
         ApplyCaptionThemeToOpenWindows();
