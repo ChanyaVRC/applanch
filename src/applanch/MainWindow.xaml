@@ -110,7 +110,8 @@
         <Storyboard x:Key="FloatingNotificationSlideInStoryboard">
             <DoubleAnimation Storyboard.TargetName="FloatingNotificationTranslate"
                              Storyboard.TargetProperty="Y"
-                             From="18" To="0"
+                             From="18"
+                    To="0"
                              Duration="0:0:0.18">
                 <DoubleAnimation.EasingFunction>
                     <CubicEase EasingMode="EaseOut"/>
@@ -121,7 +122,8 @@
         <Storyboard x:Key="FloatingNotificationCountdownStoryboard">
             <DoubleAnimation Storyboard.TargetName="FloatingNotificationProgressScale"
                              Storyboard.TargetProperty="ScaleX"
-                             From="1" To="0"
+                             From="1"
+                    To="0"
                              Duration="0:0:4"/>
         </Storyboard>
 
@@ -626,38 +628,46 @@
                         <ColumnDefinition Width="8"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
                     <TextBlock Grid.Column="0"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="16"
-                                   Margin="0,0,2,0"
-                                   VerticalAlignment="Top">
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="16"
+                               Margin="0,0,2,0"
+                               VerticalAlignment="Top">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Setter Property="Opacity" Value="0.96"/>
+                                <Setter Property="Visibility"
+                                        Value="Collapsed"/>
+                                <Setter Property="Opacity"
+                                        Value="0.96"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding FloatingNotification.IconType}"
                                                  Value="{x:Static local:NotificationIconType.Info}">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                        <Setter Property="Text" Value="&#xE946;"/>
+                                        <Setter Property="Visibility"
+                                                Value="Visible"/>
+                                        <Setter Property="Text"
+                                                Value="&#xE946;"/>
                                         <Setter Property="Foreground"
                                                 Value="{DynamicResource Brush.NotificationInfoBorder}"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding FloatingNotification.IconType}"
                                                  Value="{x:Static local:NotificationIconType.Warning}">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                        <Setter Property="Text" Value="&#xE7BA;"/>
+                                        <Setter Property="Visibility"
+                                                Value="Visible"/>
+                                        <Setter Property="Text"
+                                                Value="&#xE7BA;"/>
                                         <Setter Property="Foreground"
                                                 Value="{DynamicResource Brush.NotificationWarningBorder}"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding FloatingNotification.IconType}"
                                                  Value="{x:Static local:NotificationIconType.Error}">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                        <Setter Property="Text" Value="&#xEA39;"/>
+                                        <Setter Property="Visibility"
+                                                Value="Visible"/>
+                                        <Setter Property="Text"
+                                                Value="&#xEA39;"/>
                                         <Setter Property="Foreground"
                                                 Value="{DynamicResource Brush.NotificationErrorBorder}"/>
                                     </DataTrigger>
@@ -682,9 +692,12 @@
                             Padding="0">
                         <Button.Style>
                             <Style TargetType="Button">
-                                <Setter Property="Background" Value="Transparent"/>
-                                <Setter Property="BorderThickness" Value="0"/>
-                                <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}"/>
+                                <Setter Property="Background"
+                                        Value="Transparent"/>
+                                <Setter Property="BorderThickness"
+                                        Value="0"/>
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource Brush.TextPrimary}"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Button">
@@ -694,8 +707,10 @@
                                                        Padding="{TemplateBinding Padding}"
                                                        Cursor="Hand"/>
                                             <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Foreground" Value="{DynamicResource Brush.NotificationInfoBorder}"/>
+                                                <Trigger Property="IsMouseOver"
+                                                        Value="True">
+                                                    <Setter Property="Foreground"
+                                                            Value="{DynamicResource Brush.NotificationInfoBorder}"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -771,14 +786,16 @@
                                 <Setter Property="Padding"
                                         Value="0"/>
                                 <Setter Property="Margin"
-                                        Value="0,0,0,8"/>
+                                        Value="0,0,0,4"/>
                                 <Setter Property="HorizontalContentAlignment"
                                         Value="Stretch"/>
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource Brush.TextSecondary}"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ListBoxItem">
                                             <Border x:Name="ItemBorder"
-                                                    Padding="12,10"
+                                                    Padding="10,6"
                                                     CornerRadius="6"
                                                     Background="Transparent"
                                                     BorderThickness="1"
@@ -789,12 +806,8 @@
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver"
                                                          Value="True">
-                                                    <Setter TargetName="ItemBorder"
-                                                            Property="Background"
-                                                            Value="{DynamicResource Brush.ItemBackground}"/>
-                                                    <Setter TargetName="ItemBorder"
-                                                            Property="BorderBrush"
-                                                            Value="{DynamicResource Brush.ItemBorder}"/>
+                                                    <Setter Property="Foreground"
+                                                            Value="{DynamicResource Brush.TextPrimary}"/>
                                                 </Trigger>
                                                 <Trigger Property="IsSelected"
                                                          Value="True">
@@ -804,6 +817,8 @@
                                                     <Setter TargetName="ItemBorder"
                                                             Property="BorderBrush"
                                                             Value="{DynamicResource Brush.SurfaceBorder}"/>
+                                                    <Setter Property="Foreground"
+                                                            Value="{DynamicResource Brush.TextPrimary}"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -814,8 +829,7 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding}"
-                                           FontSize="14"
-                                           Foreground="{DynamicResource Brush.TextSecondary}"/>
+                                           FontSize="13"/>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
