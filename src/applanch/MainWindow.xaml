@@ -542,7 +542,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="12"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
@@ -641,54 +640,7 @@
             </Grid>
         </Border>
 
-        <Border x:Name="InlineMessageBanner"
-                Grid.Row="2"
-                Margin="0,8,0,0"
-                Background="#1A7A8A99"
-                BorderBrush="#7A8A99"
-                BorderThickness="1"
-                CornerRadius="8"
-                Padding="14,10"
-                Visibility="Collapsed">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="8"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock x:Name="InlineMessageText"
-                           Grid.Column="0"
-                           FontSize="13"
-                           VerticalAlignment="Center"
-                           Foreground="{DynamicResource Brush.TextPrimary}"
-                           TextWrapping="Wrap"/>
-                <Button Grid.Column="2"
-                        Content="✕"
-                        Click="DismissInlineMessageButton_Click"
-                        Width="26"
-                        Height="26"
-                        Padding="0"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        Foreground="{DynamicResource Brush.TextSecondary}"
-                        FontSize="13"
-                        FontWeight="SemiBold"
-                        VerticalAlignment="Center">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border Background="Transparent">
-                                <ContentPresenter HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
-                            </Border>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-            </Grid>
-        </Border>
-
-        <Grid Grid.Row="4">
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="172"/>
                 <ColumnDefinition Width="16"/>
@@ -824,6 +776,51 @@
                                        Margin="0,8,0,0"
                                        FontSize="11"
                                        Foreground="{DynamicResource Brush.TextTertiary}"/>
+                                                <Border x:Name="InlineMessageBanner"
+                                                        Margin="0,8,0,0"
+                                                        Background="#1A7A8A99"
+                                                        BorderBrush="#7A8A99"
+                                                        BorderThickness="1"
+                                                        CornerRadius="8"
+                                                        Padding="14,10"
+                                                        Visibility="Collapsed">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="8"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock x:Name="InlineMessageText"
+                                                                   Grid.Column="0"
+                                                                   FontSize="13"
+                                                                   VerticalAlignment="Center"
+                                                                   Foreground="{DynamicResource Brush.TextPrimary}"
+                                                                   TextWrapping="Wrap"/>
+                                                        <Button Grid.Column="2"
+                                                                Content="✕"
+                                                                Click="DismissInlineMessageButton_Click"
+                                                                Width="26"
+                                                                Height="26"
+                                                                Padding="0"
+                                                                Background="Transparent"
+                                                                BorderBrush="Transparent"
+                                                                BorderThickness="0"
+                                                                Cursor="Hand"
+                                                                Foreground="{DynamicResource Brush.TextSecondary}"
+                                                                FontSize="13"
+                                                                FontWeight="SemiBold"
+                                                                VerticalAlignment="Center">
+                                                            <Button.Template>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="Transparent">
+                                                                        <ContentPresenter HorizontalAlignment="Center"
+                                                                                          VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Button.Template>
+                                                        </Button>
+                                                    </Grid>
+                                                </Border>
                         </StackPanel>
                     </Border>
                 </Expander>
