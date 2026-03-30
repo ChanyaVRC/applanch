@@ -20,6 +20,7 @@ public partial class MainWindow : Window
     private readonly DragReorderState _dragReorderState = new();
     private readonly IItemLaunchService _itemLaunchService;
     private readonly IUserInteractionService _interactionService;
+    private readonly LaunchItemWorkflow _launchItemWorkflow;
     private readonly LaunchItemContextMenuHandler _contextMenuHandler;
     private readonly InlineRenameHandler _inlineRenameHandler;
     private readonly LaunchListDragDropResolver _dragDropResolver;
@@ -44,6 +45,7 @@ public partial class MainWindow : Window
         ViewModel = viewModel;
         _itemLaunchService = itemLaunchService;
         _interactionService = interactionService;
+        _launchItemWorkflow = new LaunchItemWorkflow(_itemLaunchService);
         _contextMenuHandler = new LaunchItemContextMenuHandler(_interactionService, this);
         _inlineRenameHandler = new InlineRenameHandler();
         _dragDropResolver = new LaunchListDragDropResolver();
@@ -149,25 +151,28 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (_settings.ConfirmBeforeLaunch &&
-            !_interactionService.Confirm(
+        var workflowResult = _launchItemWorkflow.TryLaunch(
+            item,
+            _settings,
+            () => _interactionService.Confirm(
                 string.Format(Strings.Confirm_LaunchItem, item.DisplayName),
                 Strings.Confirm_Title,
-                this))
+                this));
+
+        if (workflowResult.IsCancelled)
         {
             return;
         }
 
-        var result = _itemLaunchService.TryLaunch(item, _settings.RunAsAdministrator);
-        if (!result.IsSuccess)
+        if (!workflowResult.Execution.IsSuccess)
         {
-            ShowFloatingNotification(result.Message, result.Icon);
+            ShowFloatingNotification(workflowResult.Execution.Message, workflowResult.Execution.Icon);
             return;
         }
 
         HideFloatingNotification();
 
-        switch (_settings.ResolvePostLaunchBehavior())
+        switch (workflowResult.PostLaunchBehavior)
         {
             case PostLaunchBehavior.CloseApp:
                 Application.Current.Shutdown();
