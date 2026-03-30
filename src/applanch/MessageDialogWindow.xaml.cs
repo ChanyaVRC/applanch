@@ -20,6 +20,12 @@ public partial class MessageDialogWindow : Window
         var visual = MessageDialogVisuals.Resolve(icon);
         IconText.Text = visual.Symbol;
 
+        if (!visual.ShowIcon)
+        {
+            IconBadge.Visibility = Visibility.Collapsed;
+            IconSpacerColumn.Width = new GridLength(0);
+        }
+
         if (TryFindResource(visual.BrushResourceKey) is Brush brush)
         {
             IconText.Foreground = brush;

@@ -12,6 +12,7 @@ public class MessageDialogVisualsTests
 
         Assert.Equal("X", visual.Symbol);
         Assert.Equal("Brush.SurfaceBorder", visual.BrushResourceKey);
+        Assert.True(visual.ShowIcon);
     }
 
     [Fact]
@@ -21,6 +22,7 @@ public class MessageDialogVisualsTests
 
         Assert.Equal("!", visual.Symbol);
         Assert.Equal("Brush.SurfaceBorder", visual.BrushResourceKey);
+        Assert.True(visual.ShowIcon);
     }
 
     [Fact]
@@ -30,6 +32,7 @@ public class MessageDialogVisualsTests
 
         Assert.Equal("i", visual.Symbol);
         Assert.Equal("Brush.TextSecondary", visual.BrushResourceKey);
+        Assert.True(visual.ShowIcon);
     }
 
     [Fact]
@@ -39,6 +42,7 @@ public class MessageDialogVisualsTests
 
         Assert.Equal("?", visual.Symbol);
         Assert.Equal("Brush.TextSecondary", visual.BrushResourceKey);
+        Assert.True(visual.ShowIcon);
     }
 
     [Fact]
@@ -48,5 +52,6 @@ public class MessageDialogVisualsTests
 
         Assert.Equal(string.Empty, visual.Symbol);
         Assert.Equal("Brush.TextSecondary", visual.BrushResourceKey);
+        Assert.False(visual.ShowIcon);
     }
 }
