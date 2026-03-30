@@ -90,6 +90,9 @@
   <data name="Button_Add" xml:space="preserve">
     <value>Add</value>
   </data>
+    <data name="Button_Undo" xml:space="preserve">
+      <value>Undo</value>
+    </data>
   <data name="Hint_AddApp" xml:space="preserve">
     <value>e.g. VSCode / code / notepad / C:\path\app.exe</value>
   </data>

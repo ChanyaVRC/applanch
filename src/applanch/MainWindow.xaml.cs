@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -133,12 +133,11 @@ public partial class MainWindow : Window
             ApplyUpdateAvailability(null);
         }
 
-        // Re-create update service with new settings and re-check.
         _updateWorkflow.SetUpdateService(new GitHubAppUpdateService());
         await CheckForUpdateAsync().ConfigureAwait(false);
     }
 
-    // ── Button click handlers ───────────────────────────────
+    // -- Button click handlers ---------------------------------------
 
     private void LaunchItemButton_Click(object sender, RoutedEventArgs e)
     {
@@ -170,8 +169,17 @@ public partial class MainWindow : Window
             return;
         }
 
+        DeleteItemWithUndo(item);
+    }
+
+    private void DeleteItemWithUndo(LaunchItemViewModel item)
+    {
+        var index = ViewModel.LaunchItems.IndexOf(item);
         ViewModel.RemoveItem(item);
-        ShowFloatingNotification(string.Format(Strings.Notification_ItemDeleted, item.DisplayName), MessageBoxImage.Information);
+        ShowFloatingNotification(
+            string.Format(Strings.Notification_ItemDeleted, item.DisplayName),
+            MessageBoxImage.Information,
+            undoAction: () => ViewModel.InsertItem(item, index));
     }
 
     private void QuickAddButton_Click(object sender, RoutedEventArgs e)
@@ -205,10 +213,30 @@ public partial class MainWindow : Window
         HideFloatingNotification();
     }
 
+    private void UndoButton_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.FloatingNotification.UndoAction?.Invoke();
+        HideFloatingNotification();
+    }
+
     private void ShowFloatingNotification(string message, MessageBoxImage icon)
     {
         ViewModel.FloatingNotification.Message = message;
         ViewModel.FloatingNotification.IconType = FloatingNotificationCoordinator.MapIcon(icon);
+        ViewModel.FloatingNotification.UndoAction = null;
+        FloatingNotificationBanner.Visibility = Visibility.Visible;
+        _floatingNotificationCoordinator.BeginShow();
+        _slideInStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
+        _countdownStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
+        _floatingNotificationTimer.Stop();
+        _floatingNotificationTimer.Start();
+    }
+
+    private void ShowFloatingNotification(string message, MessageBoxImage icon, Action? undoAction)
+    {
+        ViewModel.FloatingNotification.Message = message;
+        ViewModel.FloatingNotification.IconType = FloatingNotificationCoordinator.MapIcon(icon);
+        ViewModel.FloatingNotification.UndoAction = undoAction;
         FloatingNotificationBanner.Visibility = Visibility.Visible;
         _floatingNotificationCoordinator.BeginShow();
         _slideInStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
@@ -254,6 +282,7 @@ public partial class MainWindow : Window
     {
         ViewModel.FloatingNotification.Message = string.Empty;
         ViewModel.FloatingNotification.IconType = NotificationIconType.None;
+        ViewModel.FloatingNotification.UndoAction = null;
     }
 
     // ── Context menu handlers ───────────────────────────────
@@ -288,7 +317,8 @@ public partial class MainWindow : Window
                 break;
 
             case "Delete":
-                _contextMenuHandler.Delete(sender, ViewModel.RemoveItem);
+                if (LaunchItemContextMenuHandler.GetTargetItem(sender) is { } deleteTarget)
+                    DeleteItemWithUndo(deleteTarget);
                 break;
         }
     }

@@ -182,6 +182,11 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         LaunchItems.Remove(item);
     }
 
+    public void InsertItem(LaunchItemViewModel item, int index)
+    {
+        LaunchItems.Insert(Math.Clamp(index, 0, LaunchItems.Count), item);
+    }
+
     public void UpdateItemCategory(LaunchItemViewModel item, string newCategory)
     {
         item.Category = newCategory;

@@ -194,6 +194,44 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
+    public void InsertItem_InsertsAtSpecifiedIndex_AndPersistsImmediately()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Dev", string.Empty, "C")
+        ]);
+
+        var vm = CreateViewModel(store: store);
+        var itemB = new LaunchItemViewModel(@"C:\\Tools\\B.exe", "B", "Dev", string.Empty);
+
+        vm.InsertItem(itemB, 1);
+
+        Assert.Equal(1, store.SaveCallCount);
+        Assert.Equal(["A", "B", "C"], vm.LaunchItems.Select(x => x.DisplayName));
+        Assert.Equal(["A", "B", "C"], store.LastSavedEntries.Select(x => x.DisplayName));
+    }
+
+    [Fact]
+    public void InsertItem_OutOfRangeIndex_IsClamped()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
+        ]);
+
+        var vm = CreateViewModel(store: store);
+        var itemHead = new LaunchItemViewModel(@"C:\\Tools\\Head.exe", "Head", "Dev", string.Empty);
+        var itemTail = new LaunchItemViewModel(@"C:\\Tools\\Tail.exe", "Tail", "Dev", string.Empty);
+
+        vm.InsertItem(itemHead, -100);
+        vm.InsertItem(itemTail, 999);
+
+        Assert.Equal(2, store.SaveCallCount);
+        Assert.Equal(["Head", "A", "Tail"], vm.LaunchItems.Select(x => x.DisplayName));
+    }
+
+    [Fact]
     public void UpdateItemCategory_UpdatesAndPersists()
     {
         var store = new FakeStore(

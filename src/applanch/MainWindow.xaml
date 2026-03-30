@@ -626,11 +626,15 @@
                         <ColumnDefinition Width="8"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
                     <TextBlock Grid.Column="0"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="16"
-                               Margin="0,0,2,0"
-                               VerticalAlignment="Top">
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="16"
+                                   Margin="0,0,2,0"
+                                   VerticalAlignment="Top">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -666,6 +670,40 @@
                                Foreground="{DynamicResource Brush.TextPrimary}"
                                TextWrapping="Wrap"
                                Text="{Binding FloatingNotification.Message}"/>
+                    <Button Grid.Row="1"
+                            Grid.Column="2"
+                            HorizontalAlignment="Right"
+                            Margin="0,6,0,0"
+                            Content="{x:Static res:Resources.Button_Undo}"
+                            Visibility="{Binding FloatingNotification.UndoVisibility}"
+                            Click="UndoButton_Click"
+                            Cursor="Hand"
+                            FontSize="11"
+                            Padding="0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <TextBlock Text="{TemplateBinding Content}"
+                                                       Foreground="{TemplateBinding Foreground}"
+                                                       TextDecorations="Underline"
+                                                       Padding="{TemplateBinding Padding}"
+                                                       Cursor="Hand"/>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource Brush.NotificationInfoBorder}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </Grid>
                 <Border Grid.Row="1"
                         BorderBrush="{DynamicResource Brush.NotificationProgressTrack}"
