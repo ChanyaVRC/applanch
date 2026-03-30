@@ -36,6 +36,7 @@
                     VerticalAlignment="Top"
                     Background="Transparent">
                 <TextBlock x:Name="IconText"
+                           FontFamily="Segoe Fluent Icons"
                            FontSize="14"
                            FontWeight="SemiBold"
                            HorizontalAlignment="Center"
