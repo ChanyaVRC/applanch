@@ -1,5 +1,12 @@
 # Repository Instructions for GitHub Copilot
 
+## Code Quality
+
+- Always aim for the optimal solution, not just the minimal change.
+- Prefer clean, readable, and idiomatic C#/XAML over patch-style edits.
+- When touching existing code, leave it better than you found it — fix nearby issues, improve naming, or simplify logic if it aids clarity.
+- Avoid over-engineering: optimal means right-sized for the problem, not maximally complex.
+
 ## Auto Commit Policy
 
 - When code changes are requested and completed, run build/tests to verify changes.
