@@ -14,7 +14,7 @@ public partial class MainWindow : Window
     private int? _lastDragPreviewIndex;
     private readonly IItemLaunchService _itemLaunchService;
     private readonly IUserInteractionService _interactionService;
-    private readonly IAppUpdateService _updateService;
+    private IAppUpdateService _updateService;
     private AppUpdateInfo? _pendingUpdate;
     private MainWindowViewModel ViewModel { get; }
 
@@ -46,22 +46,29 @@ public partial class MainWindow : Window
         try
         {
             var update = await updateService.CheckForUpdateAsync().ConfigureAwait(false);
-            if (update is null)
-            {
-                return;
-            }
-
-            _pendingUpdate = update;
-            Dispatcher.Invoke(() =>
-            {
-                UpdateMessageText.Text = $"新しいバージョン v{update.NewVersion} が利用可能です（現在 v{update.CurrentVersion}）";
-                UpdateBanner.Visibility = Visibility.Visible;
-            });
+            Dispatcher.Invoke(() => ApplyUpdateAvailability(update));
         }
         catch (Exception ex)
         {
             AppLogger.Instance.Error(ex, "Update check failed");
+            Dispatcher.Invoke(() => ApplyUpdateAvailability(null));
         }
+    }
+
+    private void ApplyUpdateAvailability(AppUpdateInfo? update)
+    {
+        _pendingUpdate = update;
+
+        if (update is null)
+        {
+            UpdateBanner.Visibility = Visibility.Collapsed;
+            HeaderUpdateButton.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        UpdateMessageText.Text = $"新しいバージョン v{update.NewVersion} が利用可能です（現在 v{update.CurrentVersion}）";
+        UpdateBanner.Visibility = Visibility.Visible;
+        HeaderUpdateButton.Visibility = Visibility.Visible;
     }
 
     private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -90,8 +97,15 @@ public partial class MainWindow : Window
             return;
         }
 
+        var settings = dialog.SavedSettings ?? AppSettings.Load();
+        if (!settings.DebugUpdate)
+        {
+            ApplyUpdateAvailability(null);
+        }
+
         // Re-create update service with new settings and re-check.
-        await CheckForUpdateAsync(new GitHubAppUpdateService()).ConfigureAwait(false);
+        _updateService = new GitHubAppUpdateService();
+        await CheckForUpdateAsync(_updateService).ConfigureAwait(false);
     }
 
     // ── Button click handlers ───────────────────────────────
@@ -162,7 +176,6 @@ public partial class MainWindow : Window
     private void DismissUpdateButton_Click(object sender, RoutedEventArgs e)
     {
         UpdateBanner.Visibility = Visibility.Collapsed;
-        _pendingUpdate = null;
     }
 
     // ── Context menu handlers ───────────────────────────────

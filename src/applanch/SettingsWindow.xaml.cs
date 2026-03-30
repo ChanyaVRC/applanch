@@ -18,6 +18,8 @@ public partial class SettingsWindow : Window
 
     public bool SettingsChanged { get; private set; }
 
+    internal AppSettings? SavedSettings { get; private set; }
+
     private void SaveButton_Click(object sender, RoutedEventArgs e)
     {
         var updated = _settings with
@@ -29,6 +31,7 @@ public partial class SettingsWindow : Window
         {
             updated.Save();
             SettingsChanged = true;
+            SavedSettings = updated;
         }
 
         DialogResult = true;

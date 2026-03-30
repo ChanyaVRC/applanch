@@ -27,6 +27,65 @@
                     Value="Hand"/>
             <Setter Property="VerticalContentAlignment"
                     Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="Track"
+                                    Grid.Column="0"
+                                    Width="42"
+                                    Height="24"
+                                    Background="{DynamicResource Brush.Surface}"
+                                    BorderBrush="{DynamicResource Brush.ItemBorder}"
+                                    BorderThickness="1"
+                                    CornerRadius="12">
+                                <Ellipse x:Name="Thumb"
+                                         Width="18"
+                                         Height="18"
+                                         Margin="2"
+                                         HorizontalAlignment="Left"
+                                         Fill="{DynamicResource Brush.TextTertiary}"/>
+                            </Border>
+                            <ContentPresenter Grid.Column="2"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked"
+                                     Value="True">
+                                <Setter TargetName="Track"
+                                        Property="Background"
+                                        Value="#1A6DB3F8"/>
+                                <Setter TargetName="Track"
+                                        Property="BorderBrush"
+                                        Value="#6DB3F8"/>
+                                <Setter TargetName="Thumb"
+                                        Property="HorizontalAlignment"
+                                        Value="Right"/>
+                                <Setter TargetName="Thumb"
+                                        Property="Fill"
+                                        Value="#6DB3F8"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter TargetName="Track"
+                                        Property="BorderBrush"
+                                        Value="#8DBFFB"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled"
+                                     Value="False">
+                                <Setter Property="Opacity"
+                                        Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
