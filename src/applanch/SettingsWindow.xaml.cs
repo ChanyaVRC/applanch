@@ -13,6 +13,7 @@ public partial class SettingsWindow : Window
         Owner = owner;
         _settings = AppSettings.Load();
         _isInitializing = true;
+        CloseOnLaunchCheckBox.IsChecked = _settings.CloseOnLaunch;
         DebugUpdateCheckBox.IsChecked = _settings.DebugUpdate;
         _isInitializing = false;
         SourceInitialized += (_, _) => WindowCaptionThemeHelper.Apply(this);
@@ -21,6 +22,29 @@ public partial class SettingsWindow : Window
     public bool SettingsChanged { get; private set; }
 
     internal AppSettings? SavedSettings { get; private set; }
+
+    private void CloseOnLaunchCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isInitializing)
+        {
+            return;
+        }
+
+        var updated = _settings with
+        {
+            CloseOnLaunch = CloseOnLaunchCheckBox.IsChecked == true,
+        };
+
+        if (updated == _settings)
+        {
+            return;
+        }
+
+        updated.Save();
+        _settings = updated;
+        SavedSettings = updated;
+        SettingsChanged = true;
+    }
 
     private void DebugUpdateCheckBox_Changed(object sender, RoutedEventArgs e)
     {

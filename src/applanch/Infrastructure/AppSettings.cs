@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace applanch;
 
-internal sealed record AppSettings(bool DebugUpdate = false)
+internal sealed record AppSettings(bool DebugUpdate = false, bool CloseOnLaunch = true)
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 

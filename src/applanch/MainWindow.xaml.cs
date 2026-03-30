@@ -125,7 +125,10 @@ public partial class MainWindow : Window
             return;
         }
 
-        Application.Current.Shutdown();
+        if (AppSettings.Load().CloseOnLaunch)
+        {
+            Application.Current.Shutdown();
+        }
     }
 
     private void DeleteButton_Click(object sender, RoutedEventArgs e)
