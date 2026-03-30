@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/2001/XMLSchema" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Main window -->
+  <data name="Subtitle" xml:space="preserve">
+    <value>Right-click to register items, then launch with one click. Drag &amp; drop to reorder.</value>
+  </data>
+  <data name="ToolTip_Update" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="ToolTip_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Banner_UpdateButton" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="SectionLabel_Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Expander_AddApp" xml:space="preserve">
+    <value>Add App</value>
+  </data>
+  <data name="ToolTip_NameOrPath" xml:space="preserve">
+    <value>Name or path</value>
+  </data>
+  <data name="ToolTip_Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="ToolTip_Arguments" xml:space="preserve">
+    <value>Launch arguments</value>
+  </data>
+  <data name="Button_Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Hint_AddApp" xml:space="preserve">
+    <value>e.g. VSCode / code / notepad / C:\path\app.exe</value>
+  </data>
+  <data name="Menu_Rename" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="Menu_ChangeCategory" xml:space="preserve">
+    <value>Change category...</value>
+  </data>
+  <data name="Menu_ChangeArguments" xml:space="preserve">
+    <value>Change launch arguments...</value>
+  </data>
+  <data name="Menu_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ToolTip_DragToReorder" xml:space="preserve">
+    <value>Drag to reorder</value>
+  </data>
+  <data name="ToolTip_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="EmptyMessage" xml:space="preserve">
+    <value>No items registered yet. Add from Explorer's right-click menu.</value>
+  </data>
+
+  <!-- Settings window -->
+  <data name="Window_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Section_Appearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="Setting_Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="Theme_System" xml:space="preserve">
+    <value>Follow system</value>
+  </data>
+  <data name="Theme_Light" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Theme_Dark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Section_Behavior" xml:space="preserve">
+    <value>Behavior</value>
+  </data>
+  <data name="Setting_CloseOnLaunch" xml:space="preserve">
+    <value>Close app after launching</value>
+  </data>
+  <data name="Setting_CloseOnLaunchDesc" xml:space="preserve">
+    <value>When enabled, Applanch exits after launching an item.</value>
+  </data>
+  <data name="Setting_CheckForUpdates" xml:space="preserve">
+    <value>Check for updates on startup</value>
+  </data>
+  <data name="Setting_CheckForUpdatesDesc" xml:space="preserve">
+    <value>When disabled, Applanch won't check for updates on startup.</value>
+  </data>
+  <data name="Section_Debug" xml:space="preserve">
+    <value>Debug</value>
+  </data>
+  <data name="Setting_DebugUpdate" xml:space="preserve">
+    <value>Update debug mode</value>
+  </data>
+  <data name="Setting_DebugUpdateDesc" xml:space="preserve">
+    <value>When enabled, always offers to update to the latest release regardless of current version.</value>
+  </data>
+
+  <!-- Prompt dialog -->
+  <data name="Button_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Prompt_ChangeCategory" xml:space="preserve">
+    <value>Change category</value>
+  </data>
+  <data name="Prompt_ChangeArguments" xml:space="preserve">
+    <value>Change launch arguments</value>
+  </data>
+
+  <!-- Messages (format strings use {0}, {1}) -->
+  <data name="UpdateMessage" xml:space="preserve">
+    <value>New version v{0} is available (current: v{1})</value>
+  </data>
+  <data name="UpdateFailed" xml:space="preserve">
+    <value>Update failed.&#xA;{0}</value>
+  </data>
+  <data name="Error_FileNotFound" xml:space="preserve">
+    <value>File or folder not found.&#xA;{0}</value>
+  </data>
+  <data name="Error_LaunchFailed" xml:space="preserve">
+    <value>Launch failed.</value>
+  </data>
+  <data name="Error_LaunchFailedWithMessage" xml:space="preserve">
+    <value>Launch failed.&#xA;{0}</value>
+  </data>
+  <data name="AllCategories" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="DefaultCategory" xml:space="preserve">
+    <value>Uncategorized</value>
+  </data>
+  <data name="Error_QuickAddEmpty" xml:space="preserve">
+    <value>Enter an app name or file/folder path.</value>
+  </data>
+  <data name="Error_QuickAddNotFound" xml:space="preserve">
+    <value>Could not find the app.&#xA;{0}</value>
+  </data>
+  <data name="Error_AlreadyRegistered" xml:space="preserve">
+    <value>This app is already registered.</value>
+  </data>
+  <data name="ContextMenu_Register" xml:space="preserve">
+    <value>Register with Applanch</value>
+  </data>
+</root>

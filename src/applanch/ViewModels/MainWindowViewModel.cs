@@ -5,12 +5,13 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
+using applanch.Properties;
 
 namespace applanch;
 
 public sealed class MainWindowViewModel : INotifyPropertyChanged
 {
-    private const string AllCategoriesLabel = "すべて";
+    private static string AllCategoriesLabel => Resources.AllCategories;
     private const int QuickAddSuggestionsLimit = 10;
 
     private readonly IAppResolver _appResolver;
@@ -142,17 +143,17 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         var input = QuickAddNameOrPath.Trim();
         if (string.IsNullOrWhiteSpace(input))
         {
-            return QuickAddResult.Failed("追加したいアプリ名またはファイル/フォルダパスを入力してください。", QuickAddMessageSeverity.Information);
+            return QuickAddResult.Failed(Resources.Error_QuickAddEmpty, QuickAddMessageSeverity.Information);
         }
 
         if (!_appResolver.TryResolve(input, out var resolvedApp))
         {
-            return QuickAddResult.Failed($"アプリを見つけられませんでした。\n{input}", QuickAddMessageSeverity.Warning);
+            return QuickAddResult.Failed(string.Format(Resources.Error_QuickAddNotFound, input), QuickAddMessageSeverity.Warning);
         }
 
         if (LaunchItems.Any(item => string.Equals(item.FullPath, resolvedApp.Path, StringComparison.OrdinalIgnoreCase)))
         {
-            return QuickAddResult.Failed("同じアプリはすでに登録されています。", QuickAddMessageSeverity.Information);
+            return QuickAddResult.Failed(Resources.Error_AlreadyRegistered, QuickAddMessageSeverity.Information);
         }
 
         var newItem = new LaunchItemViewModel(

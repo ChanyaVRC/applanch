@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:applanch.Controls"
         mc:Ignorable="d"
+        xmlns:res="clr-namespace:applanch.Properties"
         Title="Applanch"
         Height="560"
         Width="840"
@@ -561,7 +562,7 @@
                                FontSize="22"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource Brush.TextPrimary}"/>
-                    <TextBlock Text="右クリックで登録した項目をワンクリックで起動。並び替えはドラッグ＆ドロップ。"
+                    <TextBlock Text="{x:Static res:Resources.Subtitle}"
                                Margin="0,4,0,0"
                                FontSize="12"
                                Foreground="{DynamicResource Brush.TextSecondary}"/>
@@ -576,13 +577,13 @@
                                 Style="{StaticResource HeaderIconButtonStyle}"
                             FontSize="14"
                             FontWeight="SemiBold"
-                            ToolTip="アップデート"
+                                    ToolTip="{x:Static res:Resources.ToolTip_Update}"
                                 Visibility="Collapsed"/>
                     <Button Content="⚙"
                             Click="SettingsButton_Click"
                                 Style="{StaticResource HeaderIconButtonStyle}"
                             FontSize="16"
-                                ToolTip="設定"/>
+                                    ToolTip="{x:Static res:Resources.ToolTip_Settings}"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -609,7 +610,7 @@
                            VerticalAlignment="Center"
                            Foreground="{DynamicResource Brush.TextPrimary}"/>
                 <Button Grid.Column="1"
-                        Content="アップデート"
+                        Content="{x:Static res:Resources.Banner_UpdateButton}"
                         Click="UpdateButton_Click"
                         Height="28"
                         Style="{StaticResource RoundedSecondaryButtonStyle}"/>
@@ -659,7 +660,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Text="カテゴリー"
+                    <TextBlock Text="{x:Static res:Resources.SectionLabel_Category}"
                                FontSize="13"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource Brush.TextPrimary}"/>
@@ -734,7 +735,7 @@
                 </Grid.RowDefinitions>
 
                 <Expander Grid.Row="0"
-                          Header="アプリを追加"
+                          Header="{x:Static res:Resources.Expander_AddApp}"
                           Foreground="{DynamicResource Brush.TextPrimary}">
                     <Border Margin="0,8,0,0"
                             Padding="12"
@@ -747,7 +748,7 @@
                                 InputComboBoxStyle="{StaticResource ModernComboBoxStyle}"
                                 Suggestions="{Binding QuickAddSuggestions}"
                                 Text="{Binding QuickAddNameOrPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                ToolTip="名前またはパス"/>
+                                ToolTip="{x:Static res:Resources.ToolTip_NameOrPath}"/>
                             <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="130"/>
@@ -760,18 +761,18 @@
                                                                  InputComboBoxStyle="{StaticResource QuickAddCompactComboBoxStyle}"
                                                                  Suggestions="{Binding CategoryNames}"
                                                                  Text="{Binding QuickAddCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                 ToolTip="カテゴリ"/>
+                                                                 ToolTip="{x:Static res:Resources.ToolTip_Category}"/>
                                 <TextBox Grid.Column="2"
                                          Text="{Binding QuickAddArguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource QuickAddCompactTextBoxStyle}"
-                                         ToolTip="起動引数"/>
+                                                     ToolTip="{x:Static res:Resources.ToolTip_Arguments}"/>
                                 <Button Grid.Column="4"
-                                        Content="追加"
+                                                    Content="{x:Static res:Resources.Button_Add}"
                                         Click="QuickAddButton_Click"
                                         Height="28"
                                         Style="{StaticResource RoundedSecondaryButtonStyle}"/>
                             </Grid>
-                            <TextBlock Text="例: VSCode / code / notepad / C:\path\app.exe"
+                                                <TextBlock Text="{x:Static res:Resources.Hint_AddApp}"
                                        Margin="0,8,0,0"
                                        FontSize="11"
                                        Foreground="{DynamicResource Brush.TextTertiary}"/>
@@ -847,14 +848,14 @@
                                         SnapsToDevicePixels="True">
                                     <Border.ContextMenu>
                                         <ContextMenu>
-                                            <MenuItem Header="名称を変更"
+                                            <MenuItem Header="{x:Static res:Resources.Menu_Rename}"
                                                       Click="ContextMenu_RenameItem_Click"/>
-                                            <MenuItem Header="カテゴリを変更..."
+                                            <MenuItem Header="{x:Static res:Resources.Menu_ChangeCategory}"
                                                       Click="ContextMenu_EditCategory_Click"/>
-                                            <MenuItem Header="起動引数を変更..."
+                                            <MenuItem Header="{x:Static res:Resources.Menu_ChangeArguments}"
                                                       Click="ContextMenu_EditArguments_Click"/>
                                             <Separator/>
-                                            <MenuItem Header="削除"
+                                            <MenuItem Header="{x:Static res:Resources.Menu_Delete}"
                                                       Click="ContextMenu_Delete_Click"/>
                                         </ContextMenu>
                                     </Border.ContextMenu>
@@ -873,7 +874,7 @@
                                                    FontSize="11"
                                                    FontWeight="Bold"
                                                    Foreground="{DynamicResource Brush.TextTertiary}"
-                                                   ToolTip="ドラッグして並び替え"/>
+                                                   ToolTip="{x:Static res:Resources.ToolTip_DragToReorder}"/>
 
                                         <Button Grid.Column="2"
                                                 Click="LaunchItemButton_Click"
@@ -1007,7 +1008,7 @@
                                                 FontSize="13"
                                                 FontWeight="SemiBold"
                                                 VerticalAlignment="Center"
-                                                ToolTip="削除">
+                                                ToolTip="{x:Static res:Resources.ToolTip_Delete}">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border Background="Transparent"
@@ -1033,7 +1034,7 @@
                             BorderBrush="{DynamicResource Brush.ItemBorder}"
                             BorderThickness="1"
                             Visibility="{Binding EmptyMessageVisibility}">
-                        <TextBlock Text="登録項目がまだありません。エクスプローラーの右クリックから追加してください。"
+                        <TextBlock Text="{x:Static res:Resources.EmptyMessage}"
                                    FontSize="13"
                                    Foreground="{DynamicResource Brush.TextTertiary}"
                                    TextAlignment="Center"/>

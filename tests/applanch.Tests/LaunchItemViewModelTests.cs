@@ -42,7 +42,7 @@ public class LaunchItemViewModelTests
 
         vm.Category = "   ";
 
-        Assert.Equal("未分類", vm.Category);
+        Assert.Equal(LauncherStore.LauncherEntry.DefaultCategory, vm.Category);
     }
 
     [Fact]

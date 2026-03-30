@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using applanch.Properties;
 
 namespace applanch;
 
@@ -27,7 +28,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
         if (!isFile && !isDirectory)
         {
             return LaunchExecutionResult.Failed(
-                $"ファイルまたはフォルダが見つかりません。\n{path}",
+                string.Format(Resources.Error_FileNotFound, path),
                 MessageBoxImage.Warning);
         }
 
@@ -47,14 +48,14 @@ internal sealed class ItemLaunchService : IItemLaunchService
         {
             var process = _startProcess(startInfo);
             if (process is null)
-                return LaunchExecutionResult.Failed("起動に失敗しました。", MessageBoxImage.Error);
+                return LaunchExecutionResult.Failed(Resources.Error_LaunchFailed, MessageBoxImage.Error);
 
             return LaunchExecutionResult.Success();
         }
         catch (Exception ex)
         {
             AppLogger.Instance.Error(ex, $"Failed to launch: {path}");
-            return LaunchExecutionResult.Failed($"起動に失敗しました。\n{ex.Message}", MessageBoxImage.Error);
+            return LaunchExecutionResult.Failed(string.Format(Resources.Error_LaunchFailedWithMessage, ex.Message), MessageBoxImage.Error);
         }
     }
 }

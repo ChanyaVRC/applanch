@@ -1,6 +1,7 @@
 using Microsoft.Win32;
 using System.IO;
 using System.Security;
+using applanch.Properties;
 
 namespace applanch;
 
@@ -8,7 +9,7 @@ internal sealed class ContextMenuRegistrar(Func<string?> executablePathProvider,
 {
     private const string BasePath = @"Software\Classes";
     private const string MenuKeyName = "applanch.register";
-    private const string MenuText = "Applanch に登録";
+    private static string MenuText => Resources.ContextMenu_Register;
     private static readonly RegistrationTarget[] RegistrationTargets =
     [
         new("*", "%1"),

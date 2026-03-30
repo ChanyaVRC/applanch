@@ -1,5 +1,6 @@
 using Xunit;
 using System.Windows;
+using applanch.Properties;
 
 namespace applanch.Tests;
 
@@ -217,7 +218,7 @@ public class MainWindowViewModelTests
         var opsItem = vm.LaunchItems.Single(item => item.Category == "Ops");
         vm.RemoveItem(opsItem);
 
-        Assert.Equal("すべて", vm.SelectedCategory);
+        Assert.Equal(Resources.AllCategories, vm.SelectedCategory);
     }
 
     [Fact]
@@ -431,7 +432,7 @@ public class MainWindowViewModelTests
         Assert.Equal(2, store.SaveCallCount);
 
         // Dev category should disappear, selected category should reset to all.
-        Assert.Equal("すべて", vm.SelectedCategory);
+        Assert.Equal(Resources.AllCategories, vm.SelectedCategory);
         Assert.DoesNotContain("Dev", vm.CategoryNames);
         Assert.Contains("Ops", vm.CategoryNames);
 

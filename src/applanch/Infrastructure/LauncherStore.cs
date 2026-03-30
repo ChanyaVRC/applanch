@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using applanch.Properties;
 
 namespace applanch;
 
@@ -159,6 +160,6 @@ internal static class LauncherStore
 
     internal sealed record LauncherEntry(string Path, string Category, string Arguments, string DisplayName)
     {
-        public const string DefaultCategory = "未分類";
+        public static string DefaultCategory => Resources.DefaultCategory;
     }
 }

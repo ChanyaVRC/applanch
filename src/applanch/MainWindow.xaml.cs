@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using Strings = applanch.Properties.Resources;
 
 namespace applanch;
 
@@ -69,7 +70,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        UpdateMessageText.Text = $"新しいバージョン v{update.NewVersion} が利用可能です（現在 v{update.CurrentVersion}）";
+        UpdateMessageText.Text = string.Format(Strings.UpdateMessage, update.NewVersion, update.CurrentVersion);
         UpdateBanner.Visibility = Visibility.Visible;
         HeaderUpdateButton.Visibility = Visibility.Visible;
     }
@@ -176,7 +177,7 @@ public partial class MainWindow : Window
         {
             AppLogger.Instance.Error(ex, "Update apply failed");
             Dispatcher.Invoke(() =>
-                _interactionService.Show($"アップデートに失敗しました。\n{ex.Message}", "Applanch", MessageBoxImage.Error));
+                _interactionService.Show(string.Format(Strings.UpdateFailed, ex.Message), "Applanch", MessageBoxImage.Error));
         }
     }
 
@@ -200,7 +201,7 @@ public partial class MainWindow : Window
             .Distinct(StringComparer.Ordinal)
             .ToArray();
 
-        var newValue = _interactionService.PromptWithSuggestions("カテゴリを変更", item.Category, suggestions, this);
+        var newValue = _interactionService.PromptWithSuggestions(Strings.Prompt_ChangeCategory, item.Category, suggestions, this);
         if (newValue is null)
         {
             return;
@@ -211,7 +212,7 @@ public partial class MainWindow : Window
 
     private void ContextMenu_EditArguments_Click(object sender, RoutedEventArgs e)
     {
-        EditItemFromContextMenu(sender, "起動引数を変更", static item => item.Arguments, ViewModel.UpdateItemArguments);
+        EditItemFromContextMenu(sender, Strings.Prompt_ChangeArguments, static item => item.Arguments, ViewModel.UpdateItemArguments);
     }
 
     private void ContextMenu_RenameItem_Click(object sender, RoutedEventArgs e)
