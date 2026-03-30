@@ -216,7 +216,12 @@ public partial class MainWindow : Window
     {
         _floatingNotificationAnimationVersion++;
         var styleKeys = NotificationPresentation.GetFloatingStyleKeys(icon);
+        var iconVisual = MessageDialogVisuals.Resolve(icon);
+
         FloatingNotificationText.Text = message;
+        FloatingNotificationIcon.Text = iconVisual.Symbol;
+        FloatingNotificationIcon.Foreground = ResolveBrush(iconVisual.BrushResourceKey, Brushes.Gray);
+        FloatingNotificationIcon.Visibility = iconVisual.ShowIcon ? Visibility.Visible : Visibility.Collapsed;
         FloatingNotificationBanner.Background = ResolveBrush(styleKeys.BackgroundKey, Brushes.Transparent);
         FloatingNotificationBanner.BorderBrush = ResolveBrush(styleKeys.BorderKey, Brushes.Transparent);
         FloatingNotificationBanner.Visibility = Visibility.Visible;
@@ -257,6 +262,8 @@ public partial class MainWindow : Window
         if (FloatingNotificationBanner.Visibility != Visibility.Visible)
         {
             FloatingNotificationText.Text = string.Empty;
+            FloatingNotificationIcon.Text = string.Empty;
+            FloatingNotificationIcon.Visibility = Visibility.Collapsed;
             return;
         }
 
@@ -277,6 +284,8 @@ public partial class MainWindow : Window
 
             FloatingNotificationBanner.Visibility = Visibility.Collapsed;
             FloatingNotificationText.Text = string.Empty;
+            FloatingNotificationIcon.Text = string.Empty;
+            FloatingNotificationIcon.Visibility = Visibility.Collapsed;
             FloatingNotificationTranslate.Y = FloatingNotificationSlideOffset;
             FloatingNotificationProgressScale.ScaleX = 1;
         };
