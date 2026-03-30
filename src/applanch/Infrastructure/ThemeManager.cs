@@ -22,6 +22,9 @@ internal sealed class ThemeManager(Func<AppTheme>? themeProvider = null)
         ("Brush.IconBackground", "#E2E8F0", "#20304B")
     ];
 
+    private static readonly IReadOnlyDictionary<string, SolidColorBrush> LightBrushes = BuildBrushMap(isLight: true);
+    private static readonly IReadOnlyDictionary<string, SolidColorBrush> DarkBrushes = BuildBrushMap(isLight: false);
+
     private readonly Func<AppTheme> _themeProvider = themeProvider ?? (() => AppTheme.System);
 
     public void ApplyTheme(ResourceDictionary resources)
@@ -33,16 +36,26 @@ internal sealed class ThemeManager(Func<AppTheme>? themeProvider = null)
             _              => ReadWindowsThemePreference(),
         };
 
-        foreach (var (key, lightHex, darkHex) in Palette)
+        var brushMap = isLight ? LightBrushes : DarkBrushes;
+
+        foreach (var (key, _, _) in Palette)
         {
-            var hex = isLight ? lightHex : darkHex;
-            SetBrush(resources, key, ColorFromHex(hex));
+            resources[key] = brushMap[key];
         }
     }
 
-    private static void SetBrush(ResourceDictionary resources, string key, Color color)
+    private static IReadOnlyDictionary<string, SolidColorBrush> BuildBrushMap(bool isLight)
     {
-        resources[key] = new SolidColorBrush(color);
+        var map = new Dictionary<string, SolidColorBrush>(Palette.Length, StringComparer.Ordinal);
+        foreach (var (key, lightHex, darkHex) in Palette)
+        {
+            var color = ColorFromHex(isLight ? lightHex : darkHex);
+            var brush = new SolidColorBrush(color);
+            brush.Freeze();
+            map[key] = brush;
+        }
+
+        return map;
     }
 
     private static Color ColorFromHex(string hex)

@@ -22,6 +22,13 @@ internal static partial class AppResolver
     private static readonly Lazy<IReadOnlyList<ResolvedApp>> InstalledAppsCache =
         new(() => Platform.LoadInstalledApps(), isThreadSafe: true);
 
+    private static readonly Lazy<IReadOnlyList<string>> InstalledAppDisplayNamesCache =
+        new(() =>
+            [.. InstalledAppsCache.Value
+                .Select(static app => app.DisplayName)
+                .Distinct(StringComparer.OrdinalIgnoreCase)],
+            isThreadSafe: true);
+
     public static bool TryResolve(string input, out ResolvedApp resolvedApp)
     {
         resolvedApp = default;
@@ -73,15 +80,13 @@ internal static partial class AppResolver
         var trimmed = input?.Trim() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(trimmed))
         {
-            return [.. InstalledAppsCache.Value
-                .Select(static app => app.DisplayName)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Take(maxResults)];
+            return [.. InstalledAppDisplayNamesCache.Value.Take(maxResults)];
         }
 
-        var candidates = new List<SuggestionCandidate>();
+        var installedApps = InstalledAppsCache.Value;
+        var candidates = new List<SuggestionCandidate>(installedApps.Count + KnownAliases.Count + maxResults);
 
-        foreach (var app in InstalledAppsCache.Value)
+        foreach (var app in installedApps)
         {
             var score = ScoreDisplayName(app.DisplayName, trimmed);
             if (score <= 0)
@@ -137,13 +142,29 @@ internal static partial class AppResolver
 
     private static bool TryResolveFromInstalledPrograms(string input, out ResolvedApp resolvedApp)
     {
-        var best = InstalledAppsCache.Value
-            .Select(app => new { App = app, Score = ScoreDisplayName(app.DisplayName, input) })
-            .Where(static x => x.Score > 0)
-            .OrderByDescending(static x => x.Score)
-            .ThenBy(static x => x.App.DisplayName, StringComparer.CurrentCultureIgnoreCase)
-            .Select(static x => x.App)
-            .FirstOrDefault();
+        var bestScore = 0;
+        ResolvedApp best = default;
+        foreach (var app in InstalledAppsCache.Value)
+        {
+            var score = ScoreDisplayName(app.DisplayName, input);
+            if (score <= 0)
+            {
+                continue;
+            }
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                best = app;
+                continue;
+            }
+
+            if (score == bestScore && !string.IsNullOrWhiteSpace(best.DisplayName) &&
+                string.Compare(app.DisplayName, best.DisplayName, StringComparison.CurrentCultureIgnoreCase) < 0)
+            {
+                best = app;
+            }
+        }
 
         if (!string.IsNullOrWhiteSpace(best.Path))
         {
