@@ -215,12 +215,17 @@ public partial class MainWindow : Window
 
     private void HideFloatingNotification()
     {
-        var shouldAnimateHide = _floatingNotificationCoordinator.BeginHide(
-            FloatingNotificationBanner.Visibility == Visibility.Visible);
-        var frozenProgressScale = FloatingNotificationProgressState.CaptureVisibleScale(FloatingNotificationProgressScale.ScaleX);
+        var isBannerVisible = FloatingNotificationBanner.Visibility == Visibility.Visible;
+        var shouldAnimateHide = _floatingNotificationCoordinator.BeginHide(isBannerVisible);
         _floatingNotificationTimer.Stop();
-        _countdownStoryboard.Stop(this);
-        FloatingNotificationProgressScale.ScaleX = frozenProgressScale;
+
+        if (isBannerVisible)
+        {
+            var frozenProgressScale = FloatingNotificationProgressState.CaptureVisibleScale(FloatingNotificationProgressScale.ScaleX);
+            _countdownStoryboard.Stop(this);
+            FloatingNotificationProgressScale.ScaleX = frozenProgressScale;
+        }
+
         if (!shouldAnimateHide)
         {
             ClearFloatingNotification();
