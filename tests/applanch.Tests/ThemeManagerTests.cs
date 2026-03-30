@@ -10,7 +10,7 @@ public class ThemeManagerTests
     public void ApplyTheme_LightTheme_SetsExpectedPrimaryBrush()
     {
         var resources = new ResourceDictionary();
-        var manager = new ThemeManager(() => true);
+        var manager = new ThemeManager(() => AppTheme.Light);
 
         manager.ApplyTheme(resources);
 
@@ -22,7 +22,7 @@ public class ThemeManagerTests
     public void ApplyTheme_DarkTheme_SetsExpectedPrimaryBrush()
     {
         var resources = new ResourceDictionary();
-        var manager = new ThemeManager(() => false);
+        var manager = new ThemeManager(() => AppTheme.Dark);
 
         manager.ApplyTheme(resources);
 

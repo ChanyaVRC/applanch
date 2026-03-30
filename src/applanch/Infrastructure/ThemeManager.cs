@@ -4,7 +4,7 @@ using System.Windows.Media;
 
 namespace applanch;
 
-internal sealed class ThemeManager(Func<bool>? isLightThemeProvider = null)
+internal sealed class ThemeManager(Func<AppTheme>? themeProvider = null)
 {
     private const string PersonalizeRegistryPath = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
     private const string AppsUseLightTheme = "AppsUseLightTheme";
@@ -22,11 +22,16 @@ internal sealed class ThemeManager(Func<bool>? isLightThemeProvider = null)
         ("Brush.IconBackground", "#E2E8F0", "#20304B")
     ];
 
-    private readonly Func<bool> _isLightThemeProvider = isLightThemeProvider ?? ReadWindowsThemePreference;
+    private readonly Func<AppTheme> _themeProvider = themeProvider ?? (() => AppTheme.System);
 
     public void ApplyTheme(ResourceDictionary resources)
     {
-        var isLight = _isLightThemeProvider();
+        var isLight = _themeProvider() switch
+        {
+            AppTheme.Light => true,
+            AppTheme.Dark  => false,
+            _              => ReadWindowsThemePreference(),
+        };
 
         foreach (var (key, lightHex, darkHex) in Palette)
         {

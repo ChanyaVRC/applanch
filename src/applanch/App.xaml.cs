@@ -7,7 +7,7 @@ namespace applanch;
 public partial class App : Application
 {
     internal const string RegisterArgument = "--register";
-    private readonly ThemeManager _themeManager = new();
+    private readonly ThemeManager _themeManager = new(() => AppSettings.Load().Theme);
     private readonly ContextMenuRegistrar _contextMenuRegistrar = new();
 
     protected override void OnStartup(StartupEventArgs e)
@@ -60,6 +60,8 @@ public partial class App : Application
         LauncherStore.EnsureStorageDirectory();
         _contextMenuRegistrar.EnsureRegistered();
     }
+
+    internal void ReapplyTheme() => _themeManager.ApplyTheme(Resources);
 
     private void ShowMainWindow()
     {

@@ -3,7 +3,9 @@ using System.Text.Json;
 
 namespace applanch;
 
-internal sealed record AppSettings(bool DebugUpdate = false, bool CloseOnLaunch = true)
+internal enum AppTheme { System, Light, Dark }
+
+internal sealed record AppSettings(bool DebugUpdate = false, bool CloseOnLaunch = true, AppTheme Theme = AppTheme.System)
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 

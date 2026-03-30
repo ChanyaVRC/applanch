@@ -82,6 +82,32 @@
     </Window.Resources>
 
     <StackPanel Margin="20">
+        <TextBlock Text="外観"
+                   FontSize="15"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource Brush.TextPrimary}"/>
+
+        <Border Margin="0,10,0,20"
+                Padding="14,12"
+                Background="{DynamicResource Brush.ItemBackground}"
+                BorderBrush="{DynamicResource Brush.ItemBorder}"
+                BorderThickness="1"
+                CornerRadius="8">
+            <StackPanel>
+                <TextBlock Text="テーマ"
+                           FontSize="13"
+                           Foreground="{DynamicResource Brush.TextPrimary}"/>
+                <ComboBox x:Name="ThemeComboBox"
+                          Margin="0,8,0,0"
+                          Style="{StaticResource RoundedComboBoxStyle}"
+                          SelectionChanged="ThemeComboBox_SelectionChanged">
+                    <ComboBoxItem Content="システムに従う"/>
+                    <ComboBoxItem Content="ライト"/>
+                    <ComboBoxItem Content="ダーク"/>
+                </ComboBox>
+            </StackPanel>
+        </Border>
+
         <TextBlock Text="動作"
                    FontSize="15"
                    FontWeight="SemiBold"

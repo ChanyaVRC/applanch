@@ -78,5 +78,134 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Shared rounded ComboBox -->
+        <Style x:Key="RoundedComboBoxItemStyle"
+               TargetType="ComboBoxItem">
+            <Setter Property="Foreground"
+                    Value="{DynamicResource Brush.TextPrimary}"/>
+            <Setter Property="Background"
+                    Value="Transparent"/>
+            <Setter Property="Padding"
+                    Value="10,7"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="ItemBd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="4">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted"
+                                     Value="True">
+                                <Setter TargetName="ItemBd"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.ItemBackground}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected"
+                                     Value="True">
+                                <Setter TargetName="ItemBd"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.ItemBackground}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RoundedComboBoxStyle"
+               TargetType="ComboBox">
+            <Setter Property="Foreground"
+                    Value="{DynamicResource Brush.TextPrimary}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource Brush.Surface}"/>
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource Brush.ItemBorder}"/>
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+            <Setter Property="Padding"
+                    Value="10,6"/>
+            <Setter Property="MinHeight"
+                    Value="34"/>
+            <Setter Property="Cursor"
+                    Value="Hand"/>
+            <Setter Property="FontSize"
+                    Value="13"/>
+            <Setter Property="ItemContainerStyle"
+                    Value="{StaticResource RoundedComboBoxItemStyle}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border x:Name="Bd"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="30"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ContentPresenter Grid.Column="0"
+                                                      Margin="{TemplateBinding Padding}"
+                                                      VerticalAlignment="Center"
+                                                      Content="{TemplateBinding SelectionBoxItem}"
+                                                      ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
+                                    <Path Grid.Column="1"
+                                          Width="10"
+                                          Height="6"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Data="M 0 0 L 5 6 L 10 0"
+                                          Stroke="{DynamicResource Brush.TextTertiary}"
+                                          StrokeThickness="1.6"
+                                          StrokeStartLineCap="Round"
+                                          StrokeEndLineCap="Round"/>
+                                </Grid>
+                            </Border>
+                            <Popup x:Name="PART_Popup"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True"
+                                   Placement="Bottom"
+                                   PopupAnimation="Slide">
+                                <Border Background="{DynamicResource Brush.Surface}"
+                                        BorderBrush="{DynamicResource Brush.ItemBorder}"
+                                        BorderThickness="1"
+                                        CornerRadius="6"
+                                        Padding="4">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="12"
+                                                          ShadowDepth="2"
+                                                          Opacity="0.15"
+                                                          Color="#000000"/>
+                                    </Border.Effect>
+                                    <ScrollViewer>
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter TargetName="Bd"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource Brush.SurfaceBorder}"/>
+                            </Trigger>
+                            <Trigger Property="IsDropDownOpen"
+                                     Value="True">
+                                <Setter TargetName="Bd"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource Brush.SurfaceBorder}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Application.Resources>
 </Application>
