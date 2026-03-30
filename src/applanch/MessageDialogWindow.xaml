@@ -15,60 +15,53 @@
         </Style>
     </Window.Resources>
 
-    <Border Margin="16"
-            Padding="14"
-            Background="{DynamicResource Brush.Surface}"
-            BorderBrush="{DynamicResource Brush.ItemBorder}"
-            BorderThickness="1"
-            CornerRadius="8">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="14"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="14"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition x:Name="IconSpacerColumn" Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition x:Name="IconSpacerColumn" Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+            <Border x:Name="IconBadge"
+                    Width="26"
+                    Height="26"
+                    CornerRadius="13"
+                    VerticalAlignment="Top"
+                    Background="Transparent">
+                <TextBlock x:Name="IconText"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource Brush.TextSecondary}"/>
+            </Border>
 
-                <Border x:Name="IconBadge"
-                        Width="26"
-                        Height="26"
-                        CornerRadius="13"
-                        VerticalAlignment="Top"
-                        Background="{DynamicResource Brush.ItemBackground}">
-                    <TextBlock x:Name="IconText"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Foreground="{DynamicResource Brush.TextSecondary}"/>
-                </Border>
-
-                <ScrollViewer Grid.Column="2"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled"
-                              MaxHeight="240">
-                    <TextBlock x:Name="MessageText"
-                               TextWrapping="Wrap"
-                               FontSize="13"
-                               LineHeight="20"
-                               Foreground="{DynamicResource Brush.TextPrimary}"/>
-                </ScrollViewer>
-            </Grid>
-
-            <StackPanel Grid.Row="2"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Right">
-                <Button x:Name="OkButton"
-                        Content="OK"
-                        IsDefault="True"
-                        IsCancel="True"/>
-            </StackPanel>
+            <ScrollViewer Grid.Column="2"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          MaxHeight="240">
+                <TextBlock x:Name="MessageText"
+                           TextWrapping="Wrap"
+                           FontSize="13"
+                           LineHeight="20"
+                           Foreground="{DynamicResource Brush.TextPrimary}"/>
+            </ScrollViewer>
         </Grid>
-    </Border>
+
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button x:Name="OkButton"
+                    Content="OK"
+                    IsDefault="True"
+                    IsCancel="True"/>
+        </StackPanel>
+    </Grid>
 </Window>

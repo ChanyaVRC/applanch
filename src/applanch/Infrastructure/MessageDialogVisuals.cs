@@ -10,7 +10,7 @@ internal static class MessageDialogVisuals
     {
         MessageBoxImage.Error => new("X", "Brush.SurfaceBorder", true),
         MessageBoxImage.Warning => new("!", "Brush.SurfaceBorder", true),
-        MessageBoxImage.Information => new("i", "Brush.TextSecondary", true),
+        MessageBoxImage.Information => new(string.Empty, "Brush.TextSecondary", false),
         MessageBoxImage.Question => new("?", "Brush.TextSecondary", true),
         _ => new(string.Empty, "Brush.TextSecondary", false)
     };
