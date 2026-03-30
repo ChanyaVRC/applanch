@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace applanch;
 
@@ -12,8 +13,12 @@ internal interface IUserInteractionService
 
 internal sealed class UserInteractionService : IUserInteractionService
 {
-    public void Show(string message, string caption, MessageBoxImage icon) =>
-        MessageBox.Show(message, caption, MessageBoxButton.OK, icon);
+    public void Show(string message, string caption, MessageBoxImage icon)
+    {
+        var owner = ResolveOwnerWindow();
+        var dialog = new MessageDialogWindow(message, caption, icon, owner);
+        _ = dialog.ShowDialog();
+    }
 
     public string? Prompt(string title, string initialValue, Window owner)
     {
@@ -25,5 +30,13 @@ internal sealed class UserInteractionService : IUserInteractionService
     {
         var dialog = new PromptDialog(title, initialValue, owner, suggestions);
         return dialog.ShowDialog() == true ? dialog.InputValue : null;
+    }
+
+    private static Window? ResolveOwnerWindow()
+    {
+        return Application.Current?.Windows
+            .OfType<Window>()
+            .FirstOrDefault(static window => window.IsActive)
+            ?? Application.Current?.MainWindow;
     }
 }
