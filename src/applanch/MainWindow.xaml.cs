@@ -92,7 +92,8 @@ public partial class MainWindow : Window
     private async void SettingsButton_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new SettingsWindow(this);
-        if (dialog.ShowDialog() != true || !dialog.SettingsChanged)
+        dialog.ShowDialog();
+        if (!dialog.SettingsChanged)
         {
             return;
         }

@@ -9,14 +9,6 @@
         Title="設定"
         Background="{DynamicResource Brush.AppBackground}">
     <Window.Resources>
-        <Style TargetType="Button"
-               BasedOn="{StaticResource RoundedButtonStyle}">
-            <Setter Property="Height"
-                    Value="32"/>
-            <Setter Property="FontSize"
-                    Value="13"/>
-        </Style>
-
         <Style x:Key="SettingsCheckBoxStyle"
                TargetType="CheckBox">
             <Setter Property="Foreground"
@@ -104,6 +96,8 @@
             <StackPanel>
                 <CheckBox x:Name="DebugUpdateCheckBox"
                           Content="アップデートのデバッグモード"
+                                                  Checked="DebugUpdateCheckBox_Changed"
+                                                  Unchecked="DebugUpdateCheckBox_Changed"
                           Style="{StaticResource SettingsCheckBoxStyle}"/>
                 <TextBlock Text="有効にすると、現在のバージョンに関わらず最新リリースへのアップデートを常に提示します。"
                            Margin="0,6,0,0"
@@ -112,18 +106,5 @@
                            TextWrapping="Wrap"/>
             </StackPanel>
         </Border>
-
-        <StackPanel Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    Margin="0,16,0,0">
-            <Button Content="キャンセル"
-                    Width="100"
-                    IsCancel="True"/>
-            <Button x:Name="SaveButton"
-                    Content="保存"
-                    Width="80"
-                    Margin="8,0,0,0"
-                    IsDefault="True"/>
-        </StackPanel>
     </StackPanel>
 </Window>

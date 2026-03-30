@@ -4,36 +4,44 @@ namespace applanch;
 
 public partial class SettingsWindow : Window
 {
-    private readonly AppSettings _settings;
+    private AppSettings _settings;
+    private bool _isInitializing;
 
     public SettingsWindow(Window owner)
     {
         InitializeComponent();
         Owner = owner;
         _settings = AppSettings.Load();
+        _isInitializing = true;
         DebugUpdateCheckBox.IsChecked = _settings.DebugUpdate;
+        _isInitializing = false;
         SourceInitialized += (_, _) => WindowCaptionThemeHelper.Apply(this);
-        SaveButton.Click += SaveButton_Click;
     }
 
     public bool SettingsChanged { get; private set; }
 
     internal AppSettings? SavedSettings { get; private set; }
 
-    private void SaveButton_Click(object sender, RoutedEventArgs e)
+    private void DebugUpdateCheckBox_Changed(object sender, RoutedEventArgs e)
     {
+        if (_isInitializing)
+        {
+            return;
+        }
+
         var updated = _settings with
         {
             DebugUpdate = DebugUpdateCheckBox.IsChecked == true,
         };
 
-        if (updated != _settings)
+        if (updated == _settings)
         {
-            updated.Save();
-            SettingsChanged = true;
-            SavedSettings = updated;
+            return;
         }
 
-        DialogResult = true;
+        updated.Save();
+        _settings = updated;
+        SavedSettings = updated;
+        SettingsChanged = true;
     }
 }
