@@ -3,7 +3,7 @@ using System.IO;
 using System.Windows;
 using applanch.Properties;
 
-namespace applanch;
+namespace applanch.Infrastructure.Launch;
 
 internal sealed class ItemLaunchService : IItemLaunchService
 {
@@ -59,3 +59,4 @@ internal sealed class ItemLaunchService : IItemLaunchService
         }
     }
 }
+

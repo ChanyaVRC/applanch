@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace applanch;
+namespace applanch.Infrastructure.Updates;
 
 internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
 {
@@ -188,3 +188,4 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
         return version ?? "0.0.0";
     }
 }
+

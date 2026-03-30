@@ -1,4 +1,4 @@
-namespace applanch;
+namespace applanch.Infrastructure.Utilities;
 
 internal static class DragReorderIndexCalculator
 {
@@ -18,3 +18,4 @@ internal static class DragReorderIndexCalculator
         return Math.Clamp(newIndex, 0, count - 1);
     }
 }
+

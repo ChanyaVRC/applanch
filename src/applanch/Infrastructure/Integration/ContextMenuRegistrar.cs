@@ -3,7 +3,7 @@ using System.IO;
 using System.Security;
 using applanch.Properties;
 
-namespace applanch;
+namespace applanch.Infrastructure.Integration;
 
 internal sealed class ContextMenuRegistrar(Func<string?> executablePathProvider, Action<string, string, string, string> writeRegistryCommand)
 {
@@ -82,3 +82,4 @@ internal sealed class ContextMenuRegistrar(Func<string?> executablePathProvider,
 
     private readonly record struct RegistrationTarget(string ClassKeyPath, string ArgumentToken);
 }
+

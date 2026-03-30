@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace applanch;
+namespace applanch.Infrastructure.Dialogs;
 
 internal static class MessageDialogVisuals
 {
@@ -13,3 +13,4 @@ internal static class MessageDialogVisuals
         _ => new(string.Empty, "Brush.TextSecondary", false)
     };
 }
+

@@ -2,7 +2,7 @@ using System.IO;
 using System.Text.Json;
 using applanch.Properties;
 
-namespace applanch;
+namespace applanch.Infrastructure.Storage;
 
 internal static class LauncherStore
 {
@@ -163,3 +163,4 @@ internal static class LauncherStore
         public static string DefaultCategory => Resources.DefaultCategory;
     }
 }
+

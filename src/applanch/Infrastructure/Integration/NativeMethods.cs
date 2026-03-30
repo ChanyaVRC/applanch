@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace applanch;
+namespace applanch.Infrastructure.Integration;
 
 internal static partial class NativeMethods
 {
@@ -26,3 +26,4 @@ internal static partial class NativeMethods
     [DllImport("user32.dll")]
     public static extern bool DestroyIcon(IntPtr hIcon);
 }
+

@@ -1,4 +1,4 @@
-namespace applanch;
+namespace applanch.Infrastructure.Theming;
 
 internal enum AppTheme
 {
@@ -6,3 +6,4 @@ internal enum AppTheme
     Light,
     Dark
 }
+

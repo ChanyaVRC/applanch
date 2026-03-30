@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace applanch;
+namespace applanch.Infrastructure.Storage;
 
 internal static class LaunchItemNormalization
 {

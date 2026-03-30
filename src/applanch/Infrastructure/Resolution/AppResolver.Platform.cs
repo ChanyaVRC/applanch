@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
 
-namespace applanch;
+namespace applanch.Infrastructure.Resolution;
 
 internal static partial class AppResolver
 {
@@ -160,3 +160,4 @@ internal static partial class AppResolver
         StringBuilder lpBuffer,
         out IntPtr lpFilePart);
 }
+

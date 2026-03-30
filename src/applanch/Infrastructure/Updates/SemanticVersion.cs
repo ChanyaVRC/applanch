@@ -1,4 +1,4 @@
-namespace applanch;
+namespace applanch.Infrastructure.Updates;
 
 internal readonly record struct SemanticVersion(int Major, int Minor, int Patch, string Prerelease) : IComparable<SemanticVersion>
 {
@@ -26,3 +26,4 @@ internal readonly record struct SemanticVersion(int Major, int Minor, int Patch,
     public int CompareTo(SemanticVersion other) =>
         (Major, Minor, Patch, other.IsPrerelease).CompareTo((other.Major, other.Minor, other.Patch, IsPrerelease));
 }
+

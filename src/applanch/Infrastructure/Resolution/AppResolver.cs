@@ -3,7 +3,7 @@ using Microsoft.Win32;
 using System.IO;
 using System.Text;
 
-namespace applanch;
+namespace applanch.Infrastructure.Resolution;
 
 internal static partial class AppResolver
 {
@@ -406,3 +406,4 @@ internal static partial class AppResolver
         return -1;
     }
 }
+

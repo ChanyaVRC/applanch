@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Collections.Generic;
 
-namespace applanch;
+namespace applanch.Infrastructure.Dialogs;
 
 internal interface IUserInteractionService
 {
@@ -9,3 +9,4 @@ internal interface IUserInteractionService
     string? Prompt(string title, string initialValue, Window owner);
     string? PromptWithSuggestions(string title, string initialValue, IEnumerable<string> suggestions, Window owner);
 }
+

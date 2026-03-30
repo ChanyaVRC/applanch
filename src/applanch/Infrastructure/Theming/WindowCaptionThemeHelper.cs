@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 
-namespace applanch;
+namespace applanch.Infrastructure.Theming;
 
 internal static class WindowCaptionThemeHelper
 {

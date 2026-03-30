@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 
-namespace applanch;
+namespace applanch.Infrastructure.Dialogs;
 
 internal sealed class UserInteractionService : IUserInteractionService
 {
@@ -33,3 +33,4 @@ internal sealed class UserInteractionService : IUserInteractionService
             ?? Application.Current?.MainWindow;
     }
 }
+

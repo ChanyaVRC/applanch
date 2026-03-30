@@ -1,7 +1,7 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace applanch;
+namespace applanch.Infrastructure.Utilities;
 
 internal sealed class AppLogger : IDisposable
 {
@@ -108,3 +108,4 @@ internal sealed class AppLogger : IDisposable
         return fileName is not null ? $"{fileName}.{caller}" : caller ?? "Unknown";
     }
 }
+

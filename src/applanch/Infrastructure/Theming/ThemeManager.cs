@@ -2,7 +2,7 @@ using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Media;
 
-namespace applanch;
+namespace applanch.Infrastructure.Theming;
 
 internal sealed class ThemeManager(Func<AppTheme>? themeProvider = null)
 {
@@ -70,3 +70,4 @@ internal sealed class ThemeManager(Func<AppTheme>? themeProvider = null)
         return value is not int intValue || intValue != 0;
     }
 }
+

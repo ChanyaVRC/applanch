@@ -1,4 +1,4 @@
-namespace applanch;
+namespace applanch.Infrastructure.Storage;
 
 internal sealed class LauncherStoreAdapter : ILauncherStore
 {
@@ -7,3 +7,4 @@ internal sealed class LauncherStoreAdapter : ILauncherStore
     public void SaveAll(IEnumerable<LauncherStore.LauncherEntry> entries) =>
         LauncherStore.SaveAll(entries);
 }
+

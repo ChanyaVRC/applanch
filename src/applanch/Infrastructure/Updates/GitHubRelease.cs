@@ -1,4 +1,4 @@
-namespace applanch;
+namespace applanch.Infrastructure.Updates;
 
 internal sealed class GitHubRelease
 {
@@ -6,3 +6,4 @@ internal sealed class GitHubRelease
     public string HtmlUrl { get; init; } = string.Empty;
     public List<GitHubAsset> Assets { get; init; } = [];
 }
+

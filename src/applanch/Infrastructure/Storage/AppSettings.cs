@@ -1,7 +1,7 @@
 using System.IO;
 using System.Text.Json;
 
-namespace applanch;
+namespace applanch.Infrastructure.Storage;
 
 internal sealed record AppSettings(bool DebugUpdate = false, bool CloseOnLaunch = true, AppTheme Theme = AppTheme.System, bool CheckForUpdatesOnStartup = true)
 {
@@ -38,3 +38,4 @@ internal sealed record AppSettings(bool DebugUpdate = false, bool CloseOnLaunch 
         File.WriteAllText(FilePath, json);
     }
 }
+

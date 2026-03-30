@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace applanch;
+namespace applanch.Infrastructure.Launch;
 
 internal readonly record struct LaunchExecutionResult(bool IsSuccess, string Message, MessageBoxImage Icon)
 {
@@ -8,3 +8,4 @@ internal readonly record struct LaunchExecutionResult(bool IsSuccess, string Mes
 
     public static LaunchExecutionResult Failed(string message, MessageBoxImage icon) => new(false, message, icon);
 }
+

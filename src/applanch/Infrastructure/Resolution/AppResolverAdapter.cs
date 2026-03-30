@@ -1,4 +1,4 @@
-namespace applanch;
+namespace applanch.Infrastructure.Resolution;
 
 internal sealed class AppResolverAdapter : IAppResolver
 {
@@ -8,3 +8,4 @@ internal sealed class AppResolverAdapter : IAppResolver
     public IReadOnlyList<string> GetSuggestions(string input, int maxResults = 8) =>
         AppResolver.GetSuggestions(input, maxResults);
 }
+
