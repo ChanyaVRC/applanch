@@ -1,6 +1,8 @@
 using System.Reflection;
+using System.Globalization;
 using Xunit;
 using applanch.Infrastructure.Storage;
+using applanch.Properties;
 
 namespace applanch.Tests.Infrastructure.Storage;
 
@@ -70,6 +72,74 @@ public class LauncherStoreNormalizationTests
         Assert.Equal("Dev", normalized[0].Category);
         Assert.Equal("-a", normalized[0].Arguments);
         Assert.Equal("Tool Name", normalized[0].DisplayName);
+    }
+
+    [Fact]
+    public void NormalizeEntries_DropsJapaneseEmptyMessagePlaceholderPath()
+    {
+        var previousUi = CultureInfo.CurrentUICulture;
+        var previousCulture = CultureInfo.CurrentCulture;
+
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("ja");
+        CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("ja");
+
+        var placeholderPath = Resources.EmptyMessage;
+        Assert.False(string.IsNullOrWhiteSpace(placeholderPath));
+
+        try
+        {
+            var entries = new[]
+            {
+                new LauncherStore.LauncherEntry(placeholderPath, "Misc", string.Empty, "Placeholder"),
+                new LauncherStore.LauncherEntry(@"C:\Apps\Tool.exe", "Misc", string.Empty, "Tool"),
+            };
+
+            var normalized = InvokeNormalizeEntries(entries).ToList();
+
+            var item = Assert.Single(normalized);
+            Assert.Equal(Path.GetFullPath(@"C:\Apps\Tool.exe"), item.Path);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previousUi;
+            CultureInfo.CurrentCulture = previousCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = previousUi;
+            CultureInfo.DefaultThreadCurrentCulture = previousCulture;
+        }
+    }
+
+    [Fact]
+    public void NormalizeEntries_DropsEnglishEmptyMessagePlaceholderPath()
+    {
+        var previousUi = CultureInfo.CurrentUICulture;
+        var previousCulture = CultureInfo.CurrentCulture;
+
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en");
+        CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en");
+
+        var placeholderPath = Resources.EmptyMessage;
+        Assert.False(string.IsNullOrWhiteSpace(placeholderPath));
+
+        try
+        {
+            var entries = new[]
+            {
+                new LauncherStore.LauncherEntry(placeholderPath, "Misc", string.Empty, "Placeholder"),
+                new LauncherStore.LauncherEntry(@"C:\Apps\Tool.exe", "Misc", string.Empty, "Tool"),
+            };
+
+            var normalized = InvokeNormalizeEntries(entries).ToList();
+
+            var item = Assert.Single(normalized);
+            Assert.Equal(Path.GetFullPath(@"C:\Apps\Tool.exe"), item.Path);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previousUi;
+            CultureInfo.CurrentCulture = previousCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = previousUi;
+            CultureInfo.DefaultThreadCurrentCulture = previousCulture;
+        }
     }
 
     private static string InvokeNormalizePath(string? value)

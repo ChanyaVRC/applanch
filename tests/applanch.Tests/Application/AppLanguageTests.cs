@@ -59,4 +59,26 @@ public class AppLanguageTests
         Assert.NotNull(method);
         return method!;
     }
+
+    [Fact]
+    public void ShouldReloadMainWindow_WhenLanguageChanged_ReturnsTrue()
+    {
+        var current = new AppSettings { Language = LanguageOption.English };
+        var next = current with { Language = LanguageOption.Japanese };
+
+        var result = App.ShouldReloadMainWindow(current, next);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void ShouldReloadMainWindow_WhenLanguageUnchanged_ReturnsFalse()
+    {
+        var current = new AppSettings { Language = LanguageOption.Japanese };
+        var next = current with { ConfirmBeforeDelete = !current.ConfirmBeforeDelete };
+
+        var result = App.ShouldReloadMainWindow(current, next);
+
+        Assert.False(result);
+    }
 }
