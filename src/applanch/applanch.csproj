@@ -17,4 +17,24 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Resource designer generation is intentionally disabled in build/CI. -->
+    <!-- The checked-in Resources.Designer.cs file is compiled as-is. -->
+    <Compile Update="Properties\Resources.Designer.cs">
+      <AutoGen>false</AutoGen>
+      <DesignTime>false</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator></Generator>
+      <LastGenOutput></LastGenOutput>
+    </EmbeddedResource>
+
+    <EmbeddedResource Update="Properties\Resources.ja.resx">
+      <Generator></Generator>
+      <LastGenOutput></LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>
