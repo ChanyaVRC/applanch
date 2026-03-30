@@ -3,7 +3,7 @@ using System.Windows.Media;
 using Xunit;
 using applanch.Infrastructure.Theming;
 
-namespace applanch.Tests;
+namespace applanch.Tests.Infrastructure.Theming;
 
 public class ThemeManagerTests
 {
@@ -31,4 +31,5 @@ public class ThemeManagerTests
         Assert.Equal((Color)ColorConverter.ConvertFromString("#E2E8F0")!, brush.Color);
     }
 }
+
 

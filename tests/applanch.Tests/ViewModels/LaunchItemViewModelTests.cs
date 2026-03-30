@@ -2,7 +2,7 @@ using System.ComponentModel;
 using Xunit;
 using applanch.Infrastructure.Storage;
 
-namespace applanch.Tests;
+namespace applanch.Tests.ViewModels;
 
 public class LaunchItemViewModelTests
 {
@@ -162,4 +162,5 @@ public class LaunchItemViewModelTests
         Assert.Equal(new[] { nameof(LaunchItemViewModel.EditingName), nameof(LaunchItemViewModel.EditingName) }, changed);
     }
 }
+
 

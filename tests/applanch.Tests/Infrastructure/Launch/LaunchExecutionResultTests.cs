@@ -2,7 +2,7 @@ using System.Windows;
 using Xunit;
 using applanch.Infrastructure.Launch;
 
-namespace applanch.Tests;
+namespace applanch.Tests.Infrastructure.Launch;
 
 public class LaunchExecutionResultTests
 {
@@ -26,3 +26,4 @@ public class LaunchExecutionResultTests
         Assert.Equal(MessageBoxImage.Error, result.Icon);
     }
 }
+

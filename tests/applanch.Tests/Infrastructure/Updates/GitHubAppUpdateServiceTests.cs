@@ -7,7 +7,7 @@ using System.Text.Json;
 using Xunit;
 using applanch.Infrastructure.Updates;
 
-namespace applanch.Tests;
+namespace applanch.Tests.Infrastructure.Updates;
 
 public class GitHubAppUpdateServiceTests
 {
@@ -186,4 +186,5 @@ public class GitHubAppUpdateServiceTests
         }
     }
 }
+
 

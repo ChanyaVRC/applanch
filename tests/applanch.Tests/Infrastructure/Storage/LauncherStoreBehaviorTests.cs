@@ -2,7 +2,7 @@ using System.Reflection;
 using Xunit;
 using applanch.Infrastructure.Storage;
 
-namespace applanch.Tests;
+namespace applanch.Tests.Infrastructure.Storage;
 
 [Collection(nameof(LauncherStoreIoCollection))]
 public class LauncherStoreBehaviorTests
@@ -176,4 +176,5 @@ public class LauncherStoreBehaviorTests
 public class LauncherStoreIoCollection
 {
 }
+
 

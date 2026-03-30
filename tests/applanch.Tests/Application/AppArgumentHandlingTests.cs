@@ -1,7 +1,7 @@
 using System.Reflection;
 using Xunit;
 
-namespace applanch.Tests;
+namespace applanch.Tests.Application;
 
 public class AppArgumentHandlingTests
 {
@@ -36,3 +36,4 @@ public class AppArgumentHandlingTests
         return (bool)method!.Invoke(null, [args])!;
     }
 }
+

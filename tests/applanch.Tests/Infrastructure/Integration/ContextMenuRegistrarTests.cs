@@ -2,7 +2,7 @@ using Xunit;
 using Microsoft.Win32;
 using applanch.Infrastructure.Integration;
 
-namespace applanch.Tests;
+namespace applanch.Tests.Infrastructure.Integration;
 
 public class ContextMenuRegistrarTests
 {
@@ -172,4 +172,5 @@ public class ContextMenuRegistrarTests
         }
     }
 }
+
 

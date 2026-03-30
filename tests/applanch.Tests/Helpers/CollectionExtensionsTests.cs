@@ -1,6 +1,6 @@
 using Xunit;
 
-namespace applanch.Tests;
+namespace applanch.Tests.Helpers;
 
 public class CollectionExtensionsTests
 {
@@ -14,3 +14,4 @@ public class CollectionExtensionsTests
         Assert.Equal(source, result);
     }
 }
+

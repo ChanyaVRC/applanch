@@ -2,7 +2,7 @@ using System.Diagnostics;
 using Xunit;
 using applanch.Infrastructure.Launch;
 
-namespace applanch.Tests;
+namespace applanch.Tests.Infrastructure.Launch;
 
 public class ItemLaunchServiceTests
 {
@@ -148,4 +148,5 @@ public class ItemLaunchServiceTests
         }
     }
 }
+
 

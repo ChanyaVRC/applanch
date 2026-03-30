@@ -2,7 +2,7 @@ using System.Reflection;
 using Xunit;
 using applanch.Infrastructure.Storage;
 
-namespace applanch.Tests;
+namespace applanch.Tests.Infrastructure.Storage;
 
 public class LauncherStoreNormalizationTests
 {
@@ -86,3 +86,4 @@ public class LauncherStoreNormalizationTests
         return (IReadOnlyList<LauncherStore.LauncherEntry>)method!.Invoke(null, new object?[] { value })!;
     }
 }
+

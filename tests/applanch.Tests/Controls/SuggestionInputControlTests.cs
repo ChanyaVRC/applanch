@@ -9,7 +9,7 @@ using System.Windows.Threading;
 using applanch.Controls;
 using Xunit;
 
-namespace applanch.Tests;
+namespace applanch.Tests.Controls;
 
 public class SuggestionInputControlTests
 {
@@ -1343,3 +1343,4 @@ public class SuggestionInputControlTests
         }
     }
 }
+

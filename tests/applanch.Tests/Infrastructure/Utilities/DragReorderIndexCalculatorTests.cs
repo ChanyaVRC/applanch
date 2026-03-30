@@ -1,7 +1,7 @@
 using Xunit;
 using applanch.Infrastructure.Utilities;
 
-namespace applanch.Tests;
+namespace applanch.Tests.Infrastructure.Utilities;
 
 public class DragReorderIndexCalculatorTests
 {
@@ -44,4 +44,5 @@ public class DragReorderIndexCalculatorTests
         Assert.Equal(2, index);
     }
 }
+
 

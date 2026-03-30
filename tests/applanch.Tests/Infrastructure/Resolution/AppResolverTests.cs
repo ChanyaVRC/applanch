@@ -4,7 +4,7 @@ using System.Collections;
 using Microsoft.Win32;
 using applanch.Infrastructure.Resolution;
 
-namespace applanch.Tests;
+namespace applanch.Tests.Infrastructure.Resolution;
 
 public class AppResolverTests
 {
@@ -648,4 +648,5 @@ public class AppResolverTests
         return path;
     }
 }
+
 

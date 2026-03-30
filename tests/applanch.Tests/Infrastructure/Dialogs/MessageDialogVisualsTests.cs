@@ -2,7 +2,7 @@ using System.Windows;
 using Xunit;
 using applanch.Infrastructure.Dialogs;
 
-namespace applanch.Tests;
+namespace applanch.Tests.Infrastructure.Dialogs;
 
 public class MessageDialogVisualsTests
 {
@@ -56,4 +56,5 @@ public class MessageDialogVisualsTests
         Assert.False(visual.ShowIcon);
     }
 }
+
 

@@ -4,7 +4,7 @@ using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
 using applanch.Properties;
 
-namespace applanch.Tests;
+namespace applanch.Tests.ViewModels;
 
 public class MainWindowViewModelTests
 {
@@ -574,3 +574,4 @@ public class MainWindowViewModelTests
         }
     }
 }
+
