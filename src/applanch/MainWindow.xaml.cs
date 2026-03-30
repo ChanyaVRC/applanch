@@ -10,6 +10,7 @@ using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
 using applanch.Infrastructure.Updates;
 using applanch.Infrastructure.Utilities;
+using applanch.Properties;
 using Strings = applanch.Properties.Resources;
 
 namespace applanch;
@@ -25,6 +26,13 @@ public partial class MainWindow : Window
     private AppSettings _settings;
     private AppUpdateInfo? _pendingUpdate;
     private MainWindowViewModel ViewModel { get; }
+
+    private static readonly Brush InlineInfoBackground = (Brush)new BrushConverter().ConvertFromString("#1A7A8A99")!;
+    private static readonly Brush InlineInfoBorder = (Brush)new BrushConverter().ConvertFromString("#7A8A99")!;
+    private static readonly Brush InlineWarningBackground = (Brush)new BrushConverter().ConvertFromString("#1AFFC857")!;
+    private static readonly Brush InlineWarningBorder = (Brush)new BrushConverter().ConvertFromString("#FFC857")!;
+    private static readonly Brush InlineErrorBackground = (Brush)new BrushConverter().ConvertFromString("#1AFF6B6B")!;
+    private static readonly Brush InlineErrorBorder = (Brush)new BrushConverter().ConvertFromString("#FF6B6B")!;
 
     public MainWindow()
         : this(new MainWindowViewModel(), new ItemLaunchService(), new UserInteractionService(), new GitHubAppUpdateService())
@@ -134,9 +142,11 @@ public partial class MainWindow : Window
         var result = _itemLaunchService.TryLaunch(item);
         if (!result.IsSuccess)
         {
-            _interactionService.Show(result.Message, "Applanch", result.Icon);
+            ShowInlineMessage(result.Message, result.Icon);
             return;
         }
+
+        HideInlineMessage();
 
         if (_settings.CloseOnLaunch)
         {
@@ -167,7 +177,7 @@ public partial class MainWindow : Window
             ? MessageBoxImage.Warning
             : MessageBoxImage.Information;
 
-        _interactionService.Show(result.Message, "Applanch", icon);
+        ShowInlineMessage(result.Message, icon);
     }
 
     private async void UpdateButton_Click(object sender, RoutedEventArgs e)
@@ -186,13 +196,47 @@ public partial class MainWindow : Window
         {
             AppLogger.Instance.Error(ex, "Update apply failed");
             Dispatcher.Invoke(() =>
-                _interactionService.Show(string.Format(Strings.UpdateFailed, ex.Message), "Applanch", MessageBoxImage.Error));
+                ShowInlineMessage(string.Format(Strings.UpdateFailed, ex.Message), MessageBoxImage.Error));
         }
     }
 
     private void DismissUpdateButton_Click(object sender, RoutedEventArgs e)
     {
         UpdateBanner.Visibility = Visibility.Collapsed;
+    }
+
+    private void DismissInlineMessageButton_Click(object sender, RoutedEventArgs e)
+    {
+        HideInlineMessage();
+    }
+
+    private void ShowInlineMessage(string message, MessageBoxImage icon)
+    {
+        InlineMessageText.Text = message;
+
+        switch (icon)
+        {
+            case MessageBoxImage.Error:
+                InlineMessageBanner.Background = InlineErrorBackground;
+                InlineMessageBanner.BorderBrush = InlineErrorBorder;
+                break;
+            case MessageBoxImage.Warning:
+                InlineMessageBanner.Background = InlineWarningBackground;
+                InlineMessageBanner.BorderBrush = InlineWarningBorder;
+                break;
+            default:
+                InlineMessageBanner.Background = InlineInfoBackground;
+                InlineMessageBanner.BorderBrush = InlineInfoBorder;
+                break;
+        }
+
+        InlineMessageBanner.Visibility = Visibility.Visible;
+    }
+
+    private void HideInlineMessage()
+    {
+        InlineMessageBanner.Visibility = Visibility.Collapsed;
+        InlineMessageText.Text = string.Empty;
     }
 
     // ── Context menu handlers ───────────────────────────────
