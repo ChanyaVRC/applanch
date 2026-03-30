@@ -38,7 +38,10 @@ public partial class MainWindow : Window
 
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        await CheckForUpdateAsync(_updateService).ConfigureAwait(false);
+        if (AppSettings.Load().CheckForUpdatesOnStartup)
+        {
+            await CheckForUpdateAsync(_updateService).ConfigureAwait(false);
+        }
     }
 
     private async Task CheckForUpdateAsync(IAppUpdateService updateService)

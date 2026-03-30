@@ -130,6 +130,18 @@
                            FontSize="11"
                            Foreground="{DynamicResource Brush.TextTertiary}"
                            TextWrapping="Wrap"/>
+
+                <CheckBox x:Name="CheckForUpdatesCheckBox"
+                          Content="起動時にアップデートを確認する"
+                          Margin="0,14,0,0"
+                          Checked="CheckForUpdatesCheckBox_Changed"
+                          Unchecked="CheckForUpdatesCheckBox_Changed"
+                          Style="{StaticResource SettingsCheckBoxStyle}"/>
+                <TextBlock Text="無効にすると、起動時にアップデートの確認を行いません。"
+                           Margin="0,6,0,0"
+                           FontSize="11"
+                           Foreground="{DynamicResource Brush.TextTertiary}"
+                           TextWrapping="Wrap"/>
             </StackPanel>
         </Border>
 

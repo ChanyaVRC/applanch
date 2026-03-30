@@ -16,6 +16,7 @@ public partial class SettingsWindow : Window
         _isInitializing = true;
         ThemeComboBox.SelectedIndex = (int)_settings.Theme;
         CloseOnLaunchCheckBox.IsChecked = _settings.CloseOnLaunch;
+        CheckForUpdatesCheckBox.IsChecked = _settings.CheckForUpdatesOnStartup;
         DebugUpdateCheckBox.IsChecked = _settings.DebugUpdate;
         _isInitializing = false;
         SourceInitialized += (_, _) => WindowCaptionThemeHelper.Apply(this);
@@ -36,6 +37,12 @@ public partial class SettingsWindow : Window
     {
         if (_isInitializing) return;
         ApplySetting(s => s with { CloseOnLaunch = CloseOnLaunchCheckBox.IsChecked == true });
+    }
+
+    private void CheckForUpdatesCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isInitializing) return;
+        ApplySetting(s => s with { CheckForUpdatesOnStartup = CheckForUpdatesCheckBox.IsChecked == true });
     }
 
     private void DebugUpdateCheckBox_Changed(object sender, RoutedEventArgs e)
