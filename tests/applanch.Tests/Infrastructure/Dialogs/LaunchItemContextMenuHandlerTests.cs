@@ -123,6 +123,11 @@ public class LaunchItemContextMenuHandlerTests
         {
         }
 
+        public bool Confirm(string message, string caption, Window owner)
+        {
+            return true;
+        }
+
         public string? Prompt(string title, string initialValue, Window owner)
         {
             return PromptResult;

@@ -89,6 +89,24 @@ public class ItemLaunchServiceTests
         Assert.False(result.IsSuccess);
         Assert.Equal(System.Windows.MessageBoxImage.Error, result.Icon);
     }
+
+    [Fact]
+    public void TryLaunch_RunAsAdministrator_SetsRunAsVerb()
+    {
+        using var tempDirectory = TemporaryDirectory.Create();
+        var filePath = Path.Combine(tempDirectory.Path, "app.exe");
+        File.WriteAllText(filePath, string.Empty);
+
+        var launcher = new FakeProcessLauncher();
+        var service = new ItemLaunchService(launcher.Start);
+        var item = new LaunchItemViewModel(filePath, "Dev", string.Empty, "App");
+
+        var result = service.TryLaunch(item, runAsAdministrator: true);
+
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(launcher.LastStartInfo);
+        Assert.Equal("runas", launcher.LastStartInfo!.Verb);
+    }
 }
 
 

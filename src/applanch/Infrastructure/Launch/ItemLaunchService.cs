@@ -20,7 +20,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
         _startProcess = startProcess;
     }
 
-    public LaunchExecutionResult TryLaunch(LaunchItemViewModel item)
+    public LaunchExecutionResult TryLaunch(LaunchItemViewModel item, bool runAsAdministrator = false)
     {
         var path = item.FullPath;
         var isDirectory = Directory.Exists(path);
@@ -43,6 +43,11 @@ internal sealed class ItemLaunchService : IItemLaunchService
         {
             startInfo.FileName = path;
             startInfo.Arguments = item.Arguments;
+        }
+
+        if (runAsAdministrator)
+        {
+            startInfo.Verb = "runas";
         }
 
         try

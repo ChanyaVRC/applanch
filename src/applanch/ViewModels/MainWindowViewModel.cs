@@ -18,6 +18,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     private readonly QuickAddWorkflow _quickAddWorkflow;
     private readonly ILauncherStore _launcherStore;
+    private AppSettings _settings;
     private LaunchItemViewModel? _selectedLaunchItem;
     private string _selectedCategory = AllCategoriesLabel;
     private bool _refreshingSuggestions;
@@ -27,14 +28,15 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private string _quickAddArguments = string.Empty;
 
     public MainWindowViewModel()
-        : this(new AppResolverAdapter(), new LauncherStoreAdapter())
+        : this(new AppResolverAdapter(), new LauncherStoreAdapter(), AppSettings.Load())
     {
     }
 
-    internal MainWindowViewModel(IAppResolver appResolver, ILauncherStore launcherStore)
+    internal MainWindowViewModel(IAppResolver appResolver, ILauncherStore launcherStore, AppSettings? settings = null)
     {
         _quickAddWorkflow = new QuickAddWorkflow(appResolver);
         _launcherStore = launcherStore;
+        _settings = settings ?? new AppSettings();
 
         LaunchItems = _launcherStore.LoadAll()
             .Select(entry => new LaunchItemViewModel(entry.Path, entry.Category, entry.Arguments, entry.DisplayName))
@@ -57,6 +59,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
         LaunchItems.CollectionChanged += LaunchItems_CollectionChanged;
         RebuildCategoryLists();
+        ApplyLaunchItemSort();
         SelectedLaunchItem = LaunchItems.FirstOrDefault();
         RefreshQuickAddSuggestions();
     }
@@ -231,6 +234,14 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         PersistCurrentOrder();
     }
 
+    internal void ApplySettings(AppSettings settings)
+    {
+        _settings = settings;
+        RebuildCategoryLists();
+        ApplyLaunchItemSort();
+        RefreshFilteredView();
+    }
+
     private void RefreshQuickAddSuggestions()
     {
         _refreshingSuggestions = true;
@@ -297,12 +308,20 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     private void RebuildCategoryLists()
     {
-        var categories = LaunchItems
-            .Select(item => item.Category)
-            .Where(static category => !string.IsNullOrWhiteSpace(category))
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(static category => category, StringComparer.CurrentCulture)
-            .ToList();
+        var categories = _settings.CategorySortMode switch
+        {
+            CategorySortMode.AsAdded => LaunchItems
+                .Select(item => item.Category)
+                .Where(static category => !string.IsNullOrWhiteSpace(category))
+                .Distinct(StringComparer.Ordinal)
+                .ToList(),
+            _ => LaunchItems
+                .Select(item => item.Category)
+                .Where(static category => !string.IsNullOrWhiteSpace(category))
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(static category => category, StringComparer.CurrentCulture)
+                .ToList(),
+        };
 
         ReplaceCollection(CategoryNames, categories);
         ReplaceCollection(FilterCategoryNames, [AllCategoriesLabel, .. categories]);
@@ -361,6 +380,28 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     }
 
     private void RefreshFilteredView() => FilteredLaunchItems.Refresh();
+
+    private void ApplyLaunchItemSort()
+    {
+        using (FilteredLaunchItems.DeferRefresh())
+        {
+            FilteredLaunchItems.SortDescriptions.Clear();
+
+            switch (_settings.AppListSortMode)
+            {
+                case AppListSortMode.Name:
+                    FilteredLaunchItems.SortDescriptions.Add(new SortDescription(nameof(LaunchItemViewModel.DisplayName), ListSortDirection.Ascending));
+                    break;
+                case AppListSortMode.CategoryThenName:
+                    FilteredLaunchItems.SortDescriptions.Add(new SortDescription(nameof(LaunchItemViewModel.Category), ListSortDirection.Ascending));
+                    FilteredLaunchItems.SortDescriptions.Add(new SortDescription(nameof(LaunchItemViewModel.DisplayName), ListSortDirection.Ascending));
+                    break;
+                case AppListSortMode.Manual:
+                default:
+                    break;
+            }
+        }
+    }
 
     private void EnsureSelectedItem() =>
         SelectedLaunchItem ??= FilteredLaunchItems.Cast<LaunchItemViewModel>().FirstOrDefault();

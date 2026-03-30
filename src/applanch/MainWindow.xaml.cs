@@ -61,6 +61,7 @@ public partial class MainWindow : Window
         _slideOutStoryboard.Completed += OnHideAnimationCompleted;
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+        ViewModel.ApplySettings(_settings);
     }
 
     private void Window_SourceInitialized(object? sender, EventArgs e)
@@ -133,6 +134,8 @@ public partial class MainWindow : Window
             ApplyUpdateAvailability(null);
         }
 
+        ViewModel.ApplySettings(settings);
+
         _updateWorkflow.SetUpdateService(new GitHubAppUpdateService());
         await CheckForUpdateAsync().ConfigureAwait(false);
     }
@@ -146,7 +149,16 @@ public partial class MainWindow : Window
             return;
         }
 
-        var result = _itemLaunchService.TryLaunch(item);
+        if (_settings.ConfirmBeforeLaunch &&
+            !_interactionService.Confirm(
+                string.Format(Strings.Confirm_LaunchItem, item.DisplayName),
+                Strings.Confirm_Title,
+                this))
+        {
+            return;
+        }
+
+        var result = _itemLaunchService.TryLaunch(item, _settings.RunAsAdministrator);
         if (!result.IsSuccess)
         {
             ShowFloatingNotification(result.Message, result.Icon);
@@ -155,9 +167,14 @@ public partial class MainWindow : Window
 
         HideFloatingNotification();
 
-        if (_settings.CloseOnLaunch)
+        switch (_settings.ResolvePostLaunchBehavior())
         {
-            Application.Current.Shutdown();
+            case PostLaunchBehavior.CloseApp:
+                Application.Current.Shutdown();
+                break;
+            case PostLaunchBehavior.MinimizeWindow:
+                WindowState = WindowState.Minimized;
+                break;
         }
     }
 
@@ -174,6 +191,15 @@ public partial class MainWindow : Window
 
     private void DeleteItemWithUndo(LaunchItemViewModel item)
     {
+        if (_settings.ConfirmBeforeDelete &&
+            !_interactionService.Confirm(
+                string.Format(Strings.Confirm_DeleteItem, item.DisplayName),
+                Strings.Confirm_Title,
+                this))
+        {
+            return;
+        }
+
         var index = ViewModel.LaunchItems.IndexOf(item);
         ViewModel.RemoveItem(item);
         ShowFloatingNotification(
@@ -344,6 +370,11 @@ public partial class MainWindow : Window
 
     private void LaunchListBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        if (_settings.AppListSortMode != AppListSortMode.Manual)
+        {
+            return;
+        }
+
         _dragReorderState.DragStartPoint = e.GetPosition(null);
         _dragReorderState.LastDragPreviewIndex = null;
 
@@ -358,6 +389,11 @@ public partial class MainWindow : Window
 
     private void LaunchListBox_PreviewMouseMove(object sender, MouseEventArgs e)
     {
+        if (_settings.AppListSortMode != AppListSortMode.Manual)
+        {
+            return;
+        }
+
         if (e.LeftButton != MouseButtonState.Pressed || _dragReorderState.DraggedItem is null)
         {
             return;
@@ -406,6 +442,13 @@ public partial class MainWindow : Window
 
     private void LaunchListBox_DragOver(object sender, DragEventArgs e)
     {
+        if (_settings.AppListSortMode != AppListSortMode.Manual)
+        {
+            e.Effects = DragDropEffects.None;
+            e.Handled = true;
+            return;
+        }
+
         if (sender is not ListBox listBox)
         {
             e.Effects = DragDropEffects.None;
@@ -435,12 +478,23 @@ public partial class MainWindow : Window
 
     private void LaunchListBox_Drop(object sender, DragEventArgs e)
     {
+        if (_settings.AppListSortMode != AppListSortMode.Manual)
+        {
+            e.Handled = true;
+            return;
+        }
+
         CommitDragReorder();
         e.Handled = true;
     }
 
     private void Window_DragOver(object sender, DragEventArgs e)
     {
+        if (_settings.AppListSortMode != AppListSortMode.Manual)
+        {
+            return;
+        }
+
         if (!_dragDropResolver.TryGetDraggedItemData(e.Data, ViewModel.LaunchItems, out _, out var oldIndex))
         {
             return;
@@ -455,6 +509,12 @@ public partial class MainWindow : Window
 
     private void Window_Drop(object sender, DragEventArgs e)
     {
+        if (_settings.AppListSortMode != AppListSortMode.Manual)
+        {
+            e.Handled = true;
+            return;
+        }
+
         CommitDragReorder();
         e.Handled = true;
     }

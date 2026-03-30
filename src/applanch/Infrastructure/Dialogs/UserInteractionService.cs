@@ -11,6 +11,12 @@ internal sealed class UserInteractionService : IUserInteractionService
         _ = dialog.ShowDialog();
     }
 
+    public bool Confirm(string message, string caption, Window owner)
+    {
+        var result = MessageBox.Show(owner, message, caption, MessageBoxButton.YesNo, MessageBoxImage.Question);
+        return result == MessageBoxResult.Yes;
+    }
+
     public string? Prompt(string title, string initialValue, Window owner)
     {
         var dialog = new PromptDialog(title, initialValue, owner);

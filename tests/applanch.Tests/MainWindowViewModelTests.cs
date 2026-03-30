@@ -611,9 +611,39 @@ public class MainWindowViewModelTests
         Assert.Equal(Visibility.Collapsed, vm.SelectedLaunchItemVisibility);
     }
 
-    private static MainWindowViewModel CreateViewModel(FakeStore? store = null, FakeResolver? resolver = null)
+    [Fact]
+    public void CategorySortMode_AsAdded_PreservesFirstAppearanceOrder()
     {
-        return new MainWindowViewModel(resolver ?? new FakeResolver(), store ?? new FakeStore([]));
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Ops", string.Empty, "A"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Neko", string.Empty, "C")
+        ]);
+
+        var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.AsAdded });
+
+        Assert.Equal(["Ops", "Dev", "Neko"], vm.CategoryNames);
+    }
+
+    [Fact]
+    public void AppListSortMode_Name_SortsFilteredViewByDisplayName()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Ops", string.Empty, "Zeta"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "Alpha"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Dev", string.Empty, "Kappa")
+        ]);
+
+        var vm = CreateViewModel(store: store, settings: new AppSettings { AppListSortMode = AppListSortMode.Name });
+
+        Assert.Equal(["Alpha", "Kappa", "Zeta"], vm.FilteredLaunchItems.Cast<LaunchItemViewModel>().Select(x => x.DisplayName));
+    }
+
+    private static MainWindowViewModel CreateViewModel(FakeStore? store = null, FakeResolver? resolver = null, AppSettings? settings = null)
+    {
+        return new MainWindowViewModel(resolver ?? new FakeResolver(), store ?? new FakeStore([]), settings ?? new AppSettings());
     }
 
     private sealed class FakeResolver : IAppResolver
