@@ -641,6 +641,23 @@ public class MainWindowViewModelTests
         Assert.Equal(["Alpha", "Kappa", "Zeta"], vm.FilteredLaunchItems.Cast<LaunchItemViewModel>().Select(x => x.DisplayName));
     }
 
+    [Fact]
+    public void ApplySettings_CategorySortModeSwitch_RebuildsCategoryOrder()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Ops", string.Empty, "A"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B")
+        ]);
+
+        var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.AsAdded });
+        Assert.Equal(["Ops", "Dev"], vm.CategoryNames);
+
+        vm.ApplySettings(new AppSettings { CategorySortMode = CategorySortMode.Alphabetical });
+
+        Assert.Equal(["Dev", "Ops"], vm.CategoryNames);
+    }
+
     private static MainWindowViewModel CreateViewModel(FakeStore? store = null, FakeResolver? resolver = null, AppSettings? settings = null)
     {
         return new MainWindowViewModel(resolver ?? new FakeResolver(), store ?? new FakeStore([]), settings ?? new AppSettings());

@@ -162,4 +162,47 @@ public class SettingsWindowViewModelTests
 
         Assert.Equal(LanguageOption.English, saved.Last().Language);
     }
+
+    [Fact]
+    public void LaunchAtWindowsStartup_Change_UpdatesSavedSettings()
+    {
+        var saved = new List<AppSettings>();
+        var vm = Make(saved: saved);
+
+        vm.LaunchAtWindowsStartup = true;
+
+        Assert.True(saved.Last().LaunchAtWindowsStartup);
+    }
+
+    [Fact]
+    public void ConfirmBeforeDelete_Change_UpdatesSavedSettings()
+    {
+        var saved = new List<AppSettings>();
+        var vm = Make(saved: saved);
+
+        vm.ConfirmBeforeDelete = true;
+
+        Assert.True(saved.Last().ConfirmBeforeDelete);
+    }
+
+    [Fact]
+    public void AppListSortModeIndex_Change_UpdatesSavedSettings()
+    {
+        var saved = new List<AppSettings>();
+        var vm = Make(saved: saved);
+
+        vm.AppListSortModeIndex = (int)AppListSortMode.CategoryThenName;
+
+        Assert.Equal(AppListSortMode.CategoryThenName, saved.Last().AppListSortMode);
+    }
+
+    [Fact]
+    public void PostLaunchBehaviorIndex_CloseApp_SetsCloseOnLaunchTrue()
+    {
+        var vm = Make(settings: new AppSettings { CloseOnLaunch = false });
+
+        vm.PostLaunchBehaviorIndex = (int)PostLaunchBehavior.CloseApp;
+
+        Assert.True(vm.CloseOnLaunch);
+    }
 }
