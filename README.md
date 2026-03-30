@@ -88,7 +88,3 @@ git push origin master
 git push origin v0.3.1
 ```
 
-## Notes
-
-- Generated files are not edited manually.
-- Resource designer code is generated during build.

@@ -88,7 +88,3 @@ git push origin master
 git push origin v0.3.1
 ```
 
-## 補足
-
-- 生成ファイルは手動編集しない
-- リソース Designer はビルド時に生成される
