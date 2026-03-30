@@ -8,10 +8,14 @@ namespace applanch.ResourceGenerator;
 [Generator]
 public sealed class ResxResourcesGenerator : IIncrementalGenerator
 {
+    private const string BaseResxFileName = "Resources.resx";
+    private const string ProjectResxPathSuffix = "Properties\\Resources.resx";
+    private const string FallbackRootNamespace = "applanch";
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var resxFiles = context.AdditionalTextsProvider
-            .Where(static file => file.Path.EndsWith("Resources.resx", StringComparison.OrdinalIgnoreCase))
+            .Where(static file => file.Path.EndsWith(BaseResxFileName, StringComparison.OrdinalIgnoreCase))
             .Select(static (file, cancellationToken) => new ResxFile(file.Path, file.GetText(cancellationToken)?.ToString()));
 
         var parsedFiles = resxFiles
@@ -22,29 +26,36 @@ public sealed class ResxResourcesGenerator : IIncrementalGenerator
         {
             var compilation = source.Left;
             var files = source.Right;
-            if (files.IsDefaultOrEmpty)
+            if (!TrySelectTargetFile(files, out var targetFile))
             {
                 return;
             }
 
-            var targetFile = SelectResourcesFile(files);
-            if (targetFile.Entries.IsDefaultOrEmpty)
-            {
-                return;
-            }
-
-            var rootNamespace = string.IsNullOrWhiteSpace(compilation.AssemblyName)
-                ? "applanch"
-                : compilation.AssemblyName!;
+            var rootNamespace = ResolveRootNamespace(compilation.AssemblyName);
 
             var generated = ResourcesCodeBuilder.Build(rootNamespace, targetFile.Entries);
             productionContext.AddSource("Resources.g.cs", generated);
         });
     }
 
-    private static ParsedResxFile SelectResourcesFile(ImmutableArray<ParsedResxFile> files)
+    private static bool TrySelectTargetFile(ImmutableArray<ParsedResxFile> files, out ParsedResxFile targetFile)
     {
-        var directMatch = files.FirstOrDefault(static file => file.Path.EndsWith("Properties\\Resources.resx", StringComparison.OrdinalIgnoreCase));
-        return directMatch ?? files[0];
+        if (files.IsDefaultOrEmpty)
+        {
+            targetFile = null!;
+            return false;
+        }
+
+        var directMatch = files.FirstOrDefault(static file => file.Path.EndsWith(ProjectResxPathSuffix, StringComparison.OrdinalIgnoreCase));
+        targetFile = directMatch ?? files[0];
+
+        return !targetFile.Entries.IsDefaultOrEmpty;
+    }
+
+    private static string ResolveRootNamespace(string? assemblyName)
+    {
+        return string.IsNullOrWhiteSpace(assemblyName)
+            ? FallbackRootNamespace
+            : assemblyName!;
     }
 }
