@@ -107,12 +107,11 @@
                            VerticalAlignment="Center"
                            Foreground="{DynamicResource Brush.TextPrimary}"/>
 
-                <ComboBox x:Name="ThemeComboBox"
-                          Grid.Column="1"
+                <ComboBox Grid.Column="1"
                           Width="170"
                           Margin="12,0,0,0"
                           Style="{StaticResource RoundedComboBoxStyle}"
-                          SelectionChanged="ThemeComboBox_SelectionChanged">
+                          SelectedIndex="{Binding ThemeIndex}">
                     <ComboBoxItem Content="{x:Static res:Resources.Theme_System}"/>
                     <ComboBoxItem Content="{x:Static res:Resources.Theme_Light}"/>
                     <ComboBoxItem Content="{x:Static res:Resources.Theme_Dark}"/>
@@ -132,10 +131,8 @@
                 BorderThickness="1"
                 CornerRadius="8">
             <StackPanel>
-                <CheckBox x:Name="CloseOnLaunchCheckBox"
-                      Content="{x:Static res:Resources.Setting_CloseOnLaunch}"
-                          Checked="CloseOnLaunchCheckBox_Changed"
-                          Unchecked="CloseOnLaunchCheckBox_Changed"
+                <CheckBox Content="{x:Static res:Resources.Setting_CloseOnLaunch}"
+                          IsChecked="{Binding CloseOnLaunch}"
                           Style="{StaticResource SettingsCheckBoxStyle}"/>
                 <TextBlock Text="{x:Static res:Resources.Setting_CloseOnLaunchDesc}"
                            Margin="0,6,0,0"
@@ -143,11 +140,9 @@
                            Foreground="{DynamicResource Brush.TextTertiary}"
                            TextWrapping="Wrap"/>
 
-                <CheckBox x:Name="CheckForUpdatesCheckBox"
-                      Content="{x:Static res:Resources.Setting_CheckForUpdates}"
+                <CheckBox Content="{x:Static res:Resources.Setting_CheckForUpdates}"
+                          IsChecked="{Binding CheckForUpdatesOnStartup}"
                           Margin="0,14,0,0"
-                          Checked="CheckForUpdatesCheckBox_Changed"
-                          Unchecked="CheckForUpdatesCheckBox_Changed"
                           Style="{StaticResource SettingsCheckBoxStyle}"/>
                 <TextBlock Text="{x:Static res:Resources.Setting_CheckForUpdatesDesc}"
                            Margin="0,6,0,0"
@@ -169,10 +164,8 @@
                 BorderThickness="1"
                 CornerRadius="8">
             <StackPanel>
-                <CheckBox x:Name="DebugUpdateCheckBox"
-                          Content="{x:Static res:Resources.Setting_DebugUpdate}"
-                                                  Checked="DebugUpdateCheckBox_Changed"
-                                                  Unchecked="DebugUpdateCheckBox_Changed"
+                <CheckBox Content="{x:Static res:Resources.Setting_DebugUpdate}"
+                          IsChecked="{Binding DebugUpdate}"
                           Style="{StaticResource SettingsCheckBoxStyle}"/>
                 <TextBlock Text="{x:Static res:Resources.Setting_DebugUpdateDesc}"
                            Margin="0,6,0,0"
