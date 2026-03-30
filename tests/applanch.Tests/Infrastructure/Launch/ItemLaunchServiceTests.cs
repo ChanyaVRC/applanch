@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using Xunit;
 using applanch.Infrastructure.Launch;
+using applanch.Tests.Infrastructure.Launch.TestDoubles;
+using applanch.Tests.TestSupport;
 
 namespace applanch.Tests.Infrastructure.Launch;
 
@@ -22,130 +24,71 @@ public class ItemLaunchServiceTests
     [Fact]
     public void TryLaunch_FilePath_UsesFileAndArguments()
     {
-        var tempDir = CreateTempDirectory();
-        try
-        {
-            var filePath = Path.Combine(tempDir, "app.exe");
-            File.WriteAllText(filePath, string.Empty);
+        using var tempDirectory = TemporaryDirectory.Create();
+        var filePath = Path.Combine(tempDirectory.Path, "app.exe");
+        File.WriteAllText(filePath, string.Empty);
 
-            var launcher = new FakeProcessLauncher();
-            var service = new ItemLaunchService(launcher.Start);
-            var item = new LaunchItemViewModel(filePath, "Dev", "--flag", "App");
+        var launcher = new FakeProcessLauncher();
+        var service = new ItemLaunchService(launcher.Start);
+        var item = new LaunchItemViewModel(filePath, "Dev", "--flag", "App");
 
-            var result = service.TryLaunch(item);
+        var result = service.TryLaunch(item);
 
-            Assert.True(result.IsSuccess);
-            Assert.NotNull(launcher.LastStartInfo);
-            Assert.Equal(filePath, launcher.LastStartInfo!.FileName);
-            Assert.Equal("--flag", launcher.LastStartInfo.Arguments);
-            Assert.True(launcher.LastStartInfo.UseShellExecute);
-        }
-        finally
-        {
-            Directory.Delete(tempDir, recursive: true);
-        }
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(launcher.LastStartInfo);
+        Assert.Equal(filePath, launcher.LastStartInfo!.FileName);
+        Assert.Equal("--flag", launcher.LastStartInfo.Arguments);
+        Assert.True(launcher.LastStartInfo.UseShellExecute);
     }
 
     [Fact]
     public void TryLaunch_Directory_UsesExplorer()
     {
-        var tempDir = CreateTempDirectory();
-        try
-        {
-            var launcher = new FakeProcessLauncher();
-            var service = new ItemLaunchService(launcher.Start);
-            var item = new LaunchItemViewModel(tempDir, "Dev", string.Empty, "Dir");
+        using var tempDirectory = TemporaryDirectory.Create();
+        var launcher = new FakeProcessLauncher();
+        var service = new ItemLaunchService(launcher.Start);
+        var item = new LaunchItemViewModel(tempDirectory.Path, "Dev", string.Empty, "Dir");
 
-            var result = service.TryLaunch(item);
+        var result = service.TryLaunch(item);
 
-            Assert.True(result.IsSuccess);
-            Assert.NotNull(launcher.LastStartInfo);
-            Assert.Equal("explorer.exe", launcher.LastStartInfo!.FileName);
-            Assert.Equal($"\"{tempDir}\"", launcher.LastStartInfo.Arguments);
-        }
-        finally
-        {
-            Directory.Delete(tempDir, recursive: true);
-        }
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(launcher.LastStartInfo);
+        Assert.Equal("explorer.exe", launcher.LastStartInfo!.FileName);
+        Assert.Equal($"\"{tempDirectory.Path}\"", launcher.LastStartInfo.Arguments);
     }
 
     [Fact]
     public void TryLaunch_WhenLauncherThrows_ReturnsErrorFailure()
     {
-        var tempDir = CreateTempDirectory();
-        try
-        {
-            var filePath = Path.Combine(tempDir, "app.exe");
-            File.WriteAllText(filePath, string.Empty);
+        using var tempDirectory = TemporaryDirectory.Create();
+        var filePath = Path.Combine(tempDirectory.Path, "app.exe");
+        File.WriteAllText(filePath, string.Empty);
 
-            var launcher = new FakeProcessLauncher { ThrowOnStart = true };
-            var service = new ItemLaunchService(launcher.Start);
-            var item = new LaunchItemViewModel(filePath, "Dev", string.Empty, "App");
+        var launcher = new FakeProcessLauncher { ThrowOnStart = true };
+        var service = new ItemLaunchService(launcher.Start);
+        var item = new LaunchItemViewModel(filePath, "Dev", string.Empty, "App");
 
-            var result = service.TryLaunch(item);
+        var result = service.TryLaunch(item);
 
-            Assert.False(result.IsSuccess);
-            Assert.Equal(System.Windows.MessageBoxImage.Error, result.Icon);
-        }
-        finally
-        {
-            Directory.Delete(tempDir, recursive: true);
-        }
+        Assert.False(result.IsSuccess);
+        Assert.Equal(System.Windows.MessageBoxImage.Error, result.Icon);
     }
 
     [Fact]
     public void TryLaunch_WhenLauncherReturnsNull_ReturnsErrorFailure()
     {
-        var tempDir = CreateTempDirectory();
-        try
-        {
-            var filePath = Path.Combine(tempDir, "app.exe");
-            File.WriteAllText(filePath, string.Empty);
+        using var tempDirectory = TemporaryDirectory.Create();
+        var filePath = Path.Combine(tempDirectory.Path, "app.exe");
+        File.WriteAllText(filePath, string.Empty);
 
-            var launcher = new FakeProcessLauncher { ReturnNull = true };
-            var service = new ItemLaunchService(launcher.Start);
-            var item = new LaunchItemViewModel(filePath, "Dev", string.Empty, "App");
+        var launcher = new FakeProcessLauncher { ReturnNull = true };
+        var service = new ItemLaunchService(launcher.Start);
+        var item = new LaunchItemViewModel(filePath, "Dev", string.Empty, "App");
 
-            var result = service.TryLaunch(item);
+        var result = service.TryLaunch(item);
 
-            Assert.False(result.IsSuccess);
-            Assert.Equal(System.Windows.MessageBoxImage.Error, result.Icon);
-        }
-        finally
-        {
-            Directory.Delete(tempDir, recursive: true);
-        }
-    }
-
-    private static string CreateTempDirectory()
-    {
-        var path = Path.Combine(Path.GetTempPath(), "applanch-tests-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(path);
-        return path;
-    }
-
-    private sealed class FakeProcessLauncher
-    {
-        public bool ThrowOnStart { get; set; }
-        public bool ReturnNull { get; set; }
-        public ProcessStartInfo? LastStartInfo { get; private set; }
-
-        public Process? Start(ProcessStartInfo startInfo)
-        {
-            LastStartInfo = startInfo;
-
-            if (ThrowOnStart)
-            {
-                throw new InvalidOperationException("simulated");
-            }
-
-            if (ReturnNull)
-            {
-                return null;
-            }
-
-            return new Process();
-        }
+        Assert.False(result.IsSuccess);
+        Assert.Equal(System.Windows.MessageBoxImage.Error, result.Icon);
     }
 }
 

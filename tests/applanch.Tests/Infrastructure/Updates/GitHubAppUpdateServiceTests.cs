@@ -1,11 +1,11 @@
 using System.IO;
 using System.IO.Compression;
-using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using Xunit;
 using applanch.Infrastructure.Updates;
+using applanch.Tests.Infrastructure.Updates.TestDoubles;
+using applanch.Tests.TestSupport;
 
 namespace applanch.Tests.Infrastructure.Updates;
 
@@ -28,7 +28,7 @@ public class GitHubAppUpdateServiceTests
     [Fact]
     public async Task CheckForUpdateAsync_ReturnsNull_WhenCurrentIsLatest()
     {
-        var handler = new FakeHandler(JsonSerializer.Serialize(new
+        var handler = new JsonHttpMessageHandler(JsonSerializer.Serialize(new
         {
             tag_name = "v1.0.0",
             html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v1.0.0",
@@ -47,7 +47,7 @@ public class GitHubAppUpdateServiceTests
     public async Task CheckForUpdateAsync_ReturnsUpdate_WhenNewerVersionAvailable()
     {
         var rid = System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier;
-        var handler = new FakeHandler(JsonSerializer.Serialize(new
+        var handler = new JsonHttpMessageHandler(JsonSerializer.Serialize(new
         {
             tag_name = "v2.0.0",
             html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v2.0.0",
@@ -74,7 +74,7 @@ public class GitHubAppUpdateServiceTests
     [Fact]
     public async Task CheckForUpdateAsync_ReturnsNull_WhenNoMatchingAsset()
     {
-        var handler = new FakeHandler(JsonSerializer.Serialize(new
+        var handler = new JsonHttpMessageHandler(JsonSerializer.Serialize(new
         {
             tag_name = "v2.0.0",
             html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v2.0.0",
@@ -100,7 +100,7 @@ public class GitHubAppUpdateServiceTests
     public async Task CheckForUpdateAsync_ReturnsUpdate_WhenDebugUpdateEnabled_EvenIfSameVersion()
     {
         var rid = System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier;
-        var handler = new FakeHandler(JsonSerializer.Serialize(new
+        var handler = new JsonHttpMessageHandler(JsonSerializer.Serialize(new
         {
             tag_name = "v1.0.0",
             html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v1.0.0",
@@ -136,54 +136,20 @@ public class GitHubAppUpdateServiceTests
         }
         zipStream.Position = 0;
 
-        var handler = new ZipHandler(zipStream.ToArray());
+        var handler = new ZipHttpMessageHandler(zipStream.ToArray());
         using var client = new HttpClient(handler);
         var service = new GitHubAppUpdateService(client, "1.0.0");
 
-        var tempDir = Path.Combine(Path.GetTempPath(), $"applanch-test-{Guid.NewGuid():N}");
-        try
-        {
-            // Act
-            var extractDir = await service.DownloadAndExtractAsync("https://example.com/test.zip", tempDir);
+        using var tempDirectory = TemporaryDirectory.Create("applanch-test");
 
-            // Assert
-            Assert.True(Directory.Exists(extractDir));
-            var extractedFile = Path.Combine(extractDir, "hello.txt");
-            Assert.True(File.Exists(extractedFile));
-            Assert.Equal("hello world", File.ReadAllText(extractedFile));
-        }
-        finally
-        {
-            if (Directory.Exists(tempDir))
-            {
-                Directory.Delete(tempDir, true);
-            }
-        }
-    }
+        // Act
+        var extractDir = await service.DownloadAndExtractAsync("https://example.com/test.zip", tempDirectory.Path);
 
-    private sealed class FakeHandler(string responseJson) : HttpMessageHandler
-    {
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(responseJson, Encoding.UTF8, "application/json"),
-            };
-            return Task.FromResult(response);
-        }
-    }
-
-    private sealed class ZipHandler(byte[] zipBytes) : HttpMessageHandler
-    {
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new ByteArrayContent(zipBytes),
-            };
-            response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
-            return Task.FromResult(response);
-        }
+        // Assert
+        Assert.True(Directory.Exists(extractDir));
+        var extractedFile = Path.Combine(extractDir, "hello.txt");
+        Assert.True(File.Exists(extractedFile));
+        Assert.Equal("hello world", File.ReadAllText(extractedFile));
     }
 }
 

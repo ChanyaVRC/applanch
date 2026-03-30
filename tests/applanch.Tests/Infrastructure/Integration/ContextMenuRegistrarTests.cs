@@ -1,6 +1,7 @@
 using Xunit;
 using Microsoft.Win32;
 using applanch.Infrastructure.Integration;
+using applanch.Tests.Infrastructure.Integration.TestDoubles;
 
 namespace applanch.Tests.Infrastructure.Integration;
 
@@ -45,7 +46,7 @@ public class ContextMenuRegistrarTests
     [Fact]
     public void EnsureRegistered_WhenWriterThrows_DoesNotThrow()
     {
-        var writer = new AccessDeniedRegistryCommandWriter();
+        var writer = new ThrowingRegistryCommandWriter(new UnauthorizedAccessException("Simulated registry permission error"));
         var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand);
 
         var exception = Record.Exception(registrar.EnsureRegistered);
@@ -57,7 +58,7 @@ public class ContextMenuRegistrarTests
     [Fact]
     public void EnsureRegistered_WhenWriterThrowsSecurityException_DoesNotThrow()
     {
-        var writer = new SecurityErrorRegistryCommandWriter();
+        var writer = new ThrowingRegistryCommandWriter(new System.Security.SecurityException("Simulated security policy error"));
         var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand);
 
         var exception = Record.Exception(registrar.EnsureRegistered);
@@ -69,7 +70,7 @@ public class ContextMenuRegistrarTests
     [Fact]
     public void EnsureRegistered_WhenWriterThrowsIOException_DoesNotThrow()
     {
-        var writer = new IoErrorRegistryCommandWriter();
+        var writer = new ThrowingRegistryCommandWriter(new IOException("Simulated IO error"));
         var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand);
 
         var exception = Record.Exception(registrar.EnsureRegistered);
@@ -81,7 +82,7 @@ public class ContextMenuRegistrarTests
     [Fact]
     public void EnsureRegistered_WhenWriterThrowsUnexpected_Throws()
     {
-        var writer = new ThrowingRegistryCommandWriter();
+        var writer = new ThrowingRegistryCommandWriter(new InvalidOperationException("Simulated registry write failure"));
         var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand);
 
         Assert.Throws<InvalidOperationException>(registrar.EnsureRegistered);
@@ -118,57 +119,6 @@ public class ContextMenuRegistrarTests
         finally
         {
             Registry.CurrentUser.DeleteSubKeyTree(testKeyPath, false);
-        }
-    }
-
-    private sealed class RecordingRegistryCommandWriter
-    {
-        public List<(string KeyPath, string MenuText, string IconPath, string Command)> Calls { get; } = [];
-
-        public void WriteCommand(string keyPath, string menuText, string iconPath, string command)
-        {
-            Calls.Add((keyPath, menuText, iconPath, command));
-        }
-    }
-
-    private sealed class AccessDeniedRegistryCommandWriter
-    {
-        public int CallCount { get; private set; }
-
-        public void WriteCommand(string keyPath, string menuText, string iconPath, string command)
-        {
-            CallCount++;
-            throw new UnauthorizedAccessException("Simulated registry permission error");
-        }
-    }
-
-    private sealed class ThrowingRegistryCommandWriter
-    {
-        public void WriteCommand(string keyPath, string menuText, string iconPath, string command)
-        {
-            throw new InvalidOperationException("Simulated registry write failure");
-        }
-    }
-
-    private sealed class SecurityErrorRegistryCommandWriter
-    {
-        public int CallCount { get; private set; }
-
-        public void WriteCommand(string keyPath, string menuText, string iconPath, string command)
-        {
-            CallCount++;
-            throw new System.Security.SecurityException("Simulated security policy error");
-        }
-    }
-
-    private sealed class IoErrorRegistryCommandWriter
-    {
-        public int CallCount { get; private set; }
-
-        public void WriteCommand(string keyPath, string menuText, string iconPath, string command)
-        {
-            CallCount++;
-            throw new IOException("Simulated IO error");
         }
     }
 }

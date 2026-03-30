@@ -3,6 +3,7 @@ using System.Windows;
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
 using applanch.Properties;
+using applanch.Tests.ViewModels.TestDoubles;
 
 namespace applanch.Tests.ViewModels;
 
@@ -527,51 +528,6 @@ public class MainWindowViewModelTests
     private static MainWindowViewModel CreateViewModel(FakeStore? store = null, FakeResolver? resolver = null)
     {
         return new MainWindowViewModel(resolver ?? new FakeResolver(), store ?? new FakeStore([]));
-    }
-
-    private sealed class FakeResolver : IAppResolver
-    {
-        public bool ShouldResolve { get; set; }
-        public ResolvedApp ResolvedApp { get; set; }
-        public int SuggestionsCallCount { get; private set; }
-        public IReadOnlyList<string> SuggestionsOverride { get; set; } = [];
-
-        public IReadOnlyList<string> GetSuggestions(string input, int maxResults = 8)
-        {
-            SuggestionsCallCount++;
-
-            if (SuggestionsOverride.Count > 0)
-            {
-                return SuggestionsOverride.Take(maxResults).ToList();
-            }
-
-            return string.IsNullOrWhiteSpace(input) ? [] : [input + "-s1", input + "-s2"];
-        }
-
-        public bool TryResolve(string input, out ResolvedApp resolvedApp)
-        {
-            resolvedApp = ResolvedApp;
-            return ShouldResolve;
-        }
-    }
-
-    private sealed class FakeStore(IReadOnlyList<LauncherStore.LauncherEntry> entries) : ILauncherStore
-    {
-        private readonly List<LauncherStore.LauncherEntry> _entries = entries.ToList();
-
-        public int SaveCallCount { get; private set; }
-
-        public IReadOnlyList<LauncherStore.LauncherEntry> LastSavedEntries { get; private set; } = [];
-
-        public IReadOnlyList<LauncherStore.LauncherEntry> LoadAll() => _entries;
-
-        public void SaveAll(IEnumerable<LauncherStore.LauncherEntry> entries)
-        {
-            SaveCallCount++;
-            LastSavedEntries = entries.ToList();
-            _entries.Clear();
-            _entries.AddRange(LastSavedEntries);
-        }
     }
 }
 
