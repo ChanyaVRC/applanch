@@ -547,6 +547,8 @@
         </Grid.RowDefinitions>
 
         <Border x:Name="FloatingNotificationBanner"
+            Grid.Row="0"
+            Grid.RowSpan="4"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                 Margin="0,0,0,16"
