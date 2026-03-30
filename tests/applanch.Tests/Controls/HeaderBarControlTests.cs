@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using applanch.Controls;
 using Xunit;
 
@@ -49,6 +50,31 @@ public class HeaderBarControlTests
             InvokePrivateClick(control, "SettingsButton_Click");
 
             Assert.True(raised);
+        });
+    }
+
+    [Fact]
+    public void SettingsButtonStyle_HoverChangesForegroundWithoutBackgroundHighlight()
+    {
+        RunInSta(() =>
+        {
+            var control = new HeaderBarControl();
+
+            var style = Assert.IsType<Style>(control.Resources["HeaderFlatHoverTextButtonStyle"]);
+            var templateSetter = Assert.Single(style.Setters.OfType<Setter>(), static setter => setter.Property == Control.TemplateProperty);
+            var template = Assert.IsType<ControlTemplate>(templateSetter.Value);
+            var hoverTrigger = Assert.Single(template.Triggers.OfType<Trigger>(),
+                static trigger => trigger.Property == UIElement.IsMouseOverProperty && Equals(trigger.Value, true));
+
+            Assert.Contains(hoverTrigger.Setters.OfType<Setter>(), static setter => setter.Property == Control.ForegroundProperty);
+
+            var backgroundSetter = Assert.Single(
+                hoverTrigger.Setters.OfType<Setter>(),
+                static setter =>
+                    setter.TargetName == "Bd" &&
+                    setter.Property == Border.BackgroundProperty);
+            var brush = Assert.IsType<SolidColorBrush>(backgroundSetter.Value);
+            Assert.Equal(Colors.Transparent, brush.Color);
         });
     }
 

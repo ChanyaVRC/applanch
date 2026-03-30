@@ -3,6 +3,54 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:res="clr-namespace:applanch.Properties"
              x:Name="Root">
+            <UserControl.Resources>
+            <Style x:Key="HeaderFlatHoverTextButtonStyle"
+                   TargetType="Button">
+                <Setter Property="Width"
+                    Value="32"/>
+                <Setter Property="Height"
+                    Value="32"/>
+                <Setter Property="Padding"
+                    Value="0"/>
+                <Setter Property="VerticalAlignment"
+                    Value="Top"/>
+                <Setter Property="Background"
+                    Value="Transparent"/>
+                <Setter Property="BorderBrush"
+                    Value="Transparent"/>
+                <Setter Property="BorderThickness"
+                    Value="0"/>
+                <Setter Property="Cursor"
+                    Value="Hand"/>
+                <Setter Property="Foreground"
+                    Value="{DynamicResource Brush.TextSecondary}"/>
+                <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        BorderThickness="0"
+                        CornerRadius="6">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  RecognizesAccessKey="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver"
+                             Value="True">
+                        <Setter Property="Foreground"
+                            Value="{DynamicResource Brush.TextPrimary}"/>
+                        <Setter TargetName="Bd"
+                            Property="Background"
+                            Value="Transparent"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+                </Setter>
+            </Style>
+            </UserControl.Resources>
     <Border Background="{DynamicResource Brush.ItemBackground}"
             BorderBrush="{DynamicResource Brush.ItemBorder}"
             BorderThickness="1"
@@ -44,15 +92,7 @@
                         Visibility="{Binding UpdateButtonVisibility, ElementName=Root}"/>
                 <Button Content="⚙"
                         Click="SettingsButton_Click"
-                        Width="32"
-                        Height="32"
-                        Padding="0"
-                        VerticalAlignment="Top"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        Foreground="{DynamicResource Brush.TextSecondary}"
+                    Style="{StaticResource HeaderFlatHoverTextButtonStyle}"
                         FontSize="16"
                         ToolTip="{x:Static res:Resources.ToolTip_Settings}"/>
             </StackPanel>
