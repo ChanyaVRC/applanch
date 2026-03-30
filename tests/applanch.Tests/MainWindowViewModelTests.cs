@@ -1,5 +1,7 @@
 using Xunit;
 using System.Windows;
+using applanch.Infrastructure.Resolution;
+using applanch.Infrastructure.Storage;
 using applanch.Properties;
 
 namespace applanch.Tests;

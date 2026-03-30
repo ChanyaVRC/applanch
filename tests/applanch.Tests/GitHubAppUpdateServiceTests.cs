@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using Xunit;
+using applanch.Infrastructure.Updates;
 
 namespace applanch.Tests;
 
@@ -185,3 +186,4 @@ public class GitHubAppUpdateServiceTests
         }
     }
 }
+

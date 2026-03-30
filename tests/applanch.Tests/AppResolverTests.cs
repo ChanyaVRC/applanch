@@ -2,6 +2,7 @@ using Xunit;
 using System.Reflection;
 using System.Collections;
 using Microsoft.Win32;
+using applanch.Infrastructure.Resolution;
 
 namespace applanch.Tests;
 
@@ -647,3 +648,4 @@ public class AppResolverTests
         return path;
     }
 }
+

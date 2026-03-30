@@ -1,5 +1,6 @@
 using System.Windows;
 using Xunit;
+using applanch.Infrastructure.Launch;
 
 namespace applanch.Tests;
 

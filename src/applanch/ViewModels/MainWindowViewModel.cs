@@ -5,6 +5,8 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
+using applanch.Infrastructure.Resolution;
+using applanch.Infrastructure.Storage;
 using applanch.Properties;
 
 namespace applanch;

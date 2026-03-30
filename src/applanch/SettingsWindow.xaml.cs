@@ -1,5 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
+using applanch.Infrastructure.Storage;
+using applanch.Infrastructure.Theming;
 
 namespace applanch;
 

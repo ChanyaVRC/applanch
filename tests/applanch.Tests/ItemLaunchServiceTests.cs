@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Xunit;
+using applanch.Infrastructure.Launch;
 
 namespace applanch.Tests;
 
@@ -147,3 +148,4 @@ public class ItemLaunchServiceTests
         }
     }
 }
+

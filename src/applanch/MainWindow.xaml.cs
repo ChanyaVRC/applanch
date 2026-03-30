@@ -4,6 +4,12 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using applanch.Infrastructure.Dialogs;
+using applanch.Infrastructure.Launch;
+using applanch.Infrastructure.Storage;
+using applanch.Infrastructure.Theming;
+using applanch.Infrastructure.Updates;
+using applanch.Infrastructure.Utilities;
 using Strings = applanch.Properties.Resources;
 
 namespace applanch;

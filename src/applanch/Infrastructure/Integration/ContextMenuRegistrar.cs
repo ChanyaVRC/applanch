@@ -2,6 +2,7 @@ using Microsoft.Win32;
 using System.IO;
 using System.Security;
 using applanch.Properties;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Integration;
 

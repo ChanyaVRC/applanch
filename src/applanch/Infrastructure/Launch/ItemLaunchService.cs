@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using applanch.Properties;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Launch;
 

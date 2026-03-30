@@ -1,5 +1,7 @@
 using System.Windows;
 using System.Windows.Media;
+using applanch.Infrastructure.Dialogs;
+using applanch.Infrastructure.Theming;
 
 namespace applanch;
 

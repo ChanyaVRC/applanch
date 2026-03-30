@@ -3,6 +3,8 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using applanch.Infrastructure.Integration;
+using applanch.Infrastructure.Storage;
 
 namespace applanch;
 

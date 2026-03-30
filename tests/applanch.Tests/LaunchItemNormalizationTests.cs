@@ -1,4 +1,5 @@
 using Xunit;
+using applanch.Infrastructure.Storage;
 
 namespace applanch.Tests;
 
@@ -51,3 +52,4 @@ public class LaunchItemNormalizationTests
         Assert.Equal("Custom Name", result);
     }
 }
+
