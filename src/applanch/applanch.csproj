@@ -18,13 +18,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Resource designer generation is intentionally disabled in build/CI. -->
-    <!-- The checked-in Resources.Designer.cs file is compiled as-is. -->
-    <Compile Update="Properties\Resources.Designer.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTime>false</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
+    <ProjectReference Include="..\applanch.ResourceGenerator\applanch.ResourceGenerator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+    <AdditionalFiles Include="Properties\Resources.resx" />
+
+    <Compile Remove="Properties\Resources.Designer.cs" />
 
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator></Generator>
