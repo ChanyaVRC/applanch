@@ -1,5 +1,6 @@
 using Microsoft.Win32;
 using System.IO;
+using System.Globalization;
 using System.Windows;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Storage;
@@ -11,8 +12,10 @@ namespace applanch;
 public partial class App : Application
 {
     internal const string RegisterArgument = "--register";
+    private AppSettings _settings = new();
     private readonly ThemeManager _themeManager = new(() => AppSettings.Load().Theme);
     private readonly ContextMenuRegistrar _contextMenuRegistrar = new();
+    private readonly StartupRegistrationService _startupRegistrationService = new();
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -38,6 +41,10 @@ public partial class App : Application
 
         AppLogger.Instance.Info("Application starting");
         InitializeEnvironment();
+
+        _settings = AppSettings.Load();
+        ApplyLanguage(_settings.Language);
+        ApplyStartupRegistration(_settings);
 
         if (TryHandleRegisterArgument(e.Args))
         {
@@ -68,6 +75,9 @@ public partial class App : Application
 
     internal void Refresh(AppSettings settings)
     {
+        _settings = settings;
+        ApplyLanguage(settings.Language);
+        ApplyStartupRegistration(settings);
         _themeManager.ApplyTheme(Resources);
         ApplyCaptionThemeToOpenWindows();
     }
@@ -75,7 +85,46 @@ public partial class App : Application
     private void ShowMainWindow()
     {
         MainWindow = new MainWindow();
+        if (_settings.StartMinimizedOnLaunch)
+        {
+            MainWindow.WindowState = WindowState.Minimized;
+        }
+
         MainWindow.Show();
+    }
+
+    private static void ApplyLanguage(LanguageOption language)
+    {
+        var cultureName = language switch
+        {
+            LanguageOption.English => "en",
+            LanguageOption.Japanese => "ja",
+            _ => CultureInfo.InstalledUICulture.Name,
+        };
+
+        var culture = new CultureInfo(cultureName);
+        CultureInfo.CurrentUICulture = culture;
+        CultureInfo.CurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+    }
+
+    private void ApplyStartupRegistration(AppSettings settings)
+    {
+        try
+        {
+            var executablePath = Environment.ProcessPath;
+            if (string.IsNullOrWhiteSpace(executablePath))
+            {
+                return;
+            }
+
+            _startupRegistrationService.Apply(settings.LaunchAtWindowsStartup, executablePath);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Instance.Error(ex, "Failed to apply startup registration setting");
+        }
     }
 
     private void OnUserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
