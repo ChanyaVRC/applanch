@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -23,6 +22,7 @@ public partial class MainWindow : Window
     private readonly IUserInteractionService _interactionService;
     private readonly LaunchItemContextMenuHandler _contextMenuHandler;
     private readonly InlineRenameHandler _inlineRenameHandler;
+    private readonly LaunchListDragDropResolver _dragDropResolver;
     private readonly UpdateWorkflow _updateWorkflow;
     private readonly FloatingNotificationCoordinator _floatingNotificationCoordinator;
     private AppSettings _settings;
@@ -46,6 +46,7 @@ public partial class MainWindow : Window
         _interactionService = interactionService;
         _contextMenuHandler = new LaunchItemContextMenuHandler(_interactionService, this);
         _inlineRenameHandler = new InlineRenameHandler();
+        _dragDropResolver = new LaunchListDragDropResolver();
         _updateWorkflow = new UpdateWorkflow(updateService);
         _floatingNotificationCoordinator = new FloatingNotificationCoordinator();
         _settings = AppSettings.Load();
@@ -246,32 +247,39 @@ public partial class MainWindow : Window
 
     // ── Context menu handlers ───────────────────────────────
 
-    private void ContextMenu_EditCategory_Click(object sender, RoutedEventArgs e)
+    private void ContextMenu_Item_Click(object sender, RoutedEventArgs e)
     {
-        _contextMenuHandler.EditCategory(
-            sender,
-            ViewModel.CategoryNames,
-            Strings.Prompt_ChangeCategory,
-            ViewModel.UpdateItemCategory);
-    }
+        if (sender is not MenuItem { Tag: string action })
+        {
+            return;
+        }
 
-    private void ContextMenu_EditArguments_Click(object sender, RoutedEventArgs e)
-    {
-        _contextMenuHandler.EditValue(
-            sender,
-            Strings.Prompt_ChangeArguments,
-            static item => item.Arguments,
-            ViewModel.UpdateItemArguments);
-    }
+        switch (action)
+        {
+            case "Rename":
+                _contextMenuHandler.BeginRename(sender);
+                break;
 
-    private void ContextMenu_RenameItem_Click(object sender, RoutedEventArgs e)
-    {
-        _contextMenuHandler.BeginRename(sender);
-    }
+            case "EditCategory":
+                _contextMenuHandler.EditCategory(
+                    sender,
+                    ViewModel.CategoryNames,
+                    Strings.Prompt_ChangeCategory,
+                    ViewModel.UpdateItemCategory);
+                break;
 
-    private void ContextMenu_Delete_Click(object sender, RoutedEventArgs e)
-    {
-        _contextMenuHandler.Delete(sender, ViewModel.RemoveItem);
+            case "EditArguments":
+                _contextMenuHandler.EditValue(
+                    sender,
+                    Strings.Prompt_ChangeArguments,
+                    static item => item.Arguments,
+                    ViewModel.UpdateItemArguments);
+                break;
+
+            case "Delete":
+                _contextMenuHandler.Delete(sender, ViewModel.RemoveItem);
+                break;
+        }
     }
 
     // ── Inline rename ───────────────────────────────────────
@@ -373,7 +381,7 @@ public partial class MainWindow : Window
 
         e.Effects = DragDropEffects.Move;
 
-        if (!TryGetDraggedItemData(e.Data, out _, out var oldIndex))
+        if (!_dragDropResolver.TryGetDraggedItemData(e.Data, ViewModel.LaunchItems, out _, out var oldIndex))
         {
             e.Handled = true;
             return;
@@ -392,7 +400,7 @@ public partial class MainWindow : Window
 
     private void Window_DragOver(object sender, DragEventArgs e)
     {
-        if (!TryGetDraggedItemData(e.Data, out _, out var oldIndex))
+        if (!_dragDropResolver.TryGetDraggedItemData(e.Data, ViewModel.LaunchItems, out _, out var oldIndex))
         {
             return;
         }
@@ -412,7 +420,7 @@ public partial class MainWindow : Window
 
     private void ApplyDragPreviewMove(ListBox listBox, int oldIndex, Point listPosition)
     {
-        var newIndex = GetDropIndex(listBox, oldIndex, listPosition);
+        var newIndex = _dragDropResolver.GetDropIndex(listBox, ViewModel.LaunchItems, oldIndex, listPosition);
         if (newIndex >= 0 && newIndex != oldIndex && _dragReorderState.LastDragPreviewIndex != newIndex)
         {
             var previousPositions = CaptureItemTopPositions(listBox);
@@ -429,76 +437,6 @@ public partial class MainWindow : Window
             ViewModel.PersistOrderNow();
         }
     }
-
-    private int GetDropIndex(ListBox listBox, int oldIndex, Point listPosition)
-    {
-        var count = ViewModel.LaunchItems.Count;
-        if (count <= 1)
-        {
-            return oldIndex;
-        }
-
-        int desiredInsertIndex;
-
-        if (listPosition.Y <= 0)
-        {
-            desiredInsertIndex = 0;
-        }
-        else if (listPosition.Y >= listBox.ActualHeight)
-        {
-            desiredInsertIndex = count;
-        }
-        else
-        {
-            var targetContainer = listBox.InputHitTest(listPosition) is DependencyObject hit
-                ? FindAncestor<ListBoxItem>(hit)
-                : null;
-            if (targetContainer?.DataContext is not LaunchItemViewModel targetData)
-            {
-                desiredInsertIndex = oldIndex;
-            }
-            else
-            {
-                var targetIndex = ViewModel.LaunchItems.IndexOf(targetData);
-                if (targetIndex < 0)
-                {
-                    desiredInsertIndex = oldIndex;
-                }
-                else
-                {
-                    var containerOrigin = targetContainer.TranslatePoint(new Point(0, 0), listBox);
-                    var dropOnItem = new Point(listPosition.X - containerOrigin.X, listPosition.Y - containerOrigin.Y);
-                    var insertAfter = dropOnItem.Y > targetContainer.ActualHeight / 2;
-                    desiredInsertIndex = insertAfter ? targetIndex + 1 : targetIndex;
-                }
-            }
-        }
-
-        return DragReorderIndexCalculator.Calculate(oldIndex, desiredInsertIndex, count);
-    }
-
-    private bool TryGetDraggedItemData(IDataObject data, [NotNullWhen(true)] out LaunchItemViewModel? draggedItem, out int oldIndex)
-    {
-        draggedItem = null;
-        oldIndex = -1;
-
-        if (!data.GetDataPresent(typeof(LaunchItemViewModel)) ||
-            data.GetData(typeof(LaunchItemViewModel)) is not LaunchItemViewModel item)
-        {
-            return false;
-        }
-
-        var index = ViewModel.LaunchItems.IndexOf(item);
-        if (index < 0)
-        {
-            return false;
-        }
-
-        draggedItem = item;
-        oldIndex = index;
-        return true;
-    }
-
 
     private Dictionary<LaunchItemViewModel, double> CaptureItemTopPositions(ListBox listBox)
     {

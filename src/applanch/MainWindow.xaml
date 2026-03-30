@@ -926,14 +926,18 @@
                                     <Border.ContextMenu>
                                         <ContextMenu>
                                             <MenuItem Header="{x:Static res:Resources.Menu_Rename}"
-                                                      Click="ContextMenu_RenameItem_Click"/>
+                                                      Tag="Rename"
+                                                      Click="ContextMenu_Item_Click"/>
                                             <MenuItem Header="{x:Static res:Resources.Menu_ChangeCategory}"
-                                                      Click="ContextMenu_EditCategory_Click"/>
+                                                      Tag="EditCategory"
+                                                      Click="ContextMenu_Item_Click"/>
                                             <MenuItem Header="{x:Static res:Resources.Menu_ChangeArguments}"
-                                                      Click="ContextMenu_EditArguments_Click"/>
+                                                      Tag="EditArguments"
+                                                      Click="ContextMenu_Item_Click"/>
                                             <Separator/>
                                             <MenuItem Header="{x:Static res:Resources.Menu_Delete}"
-                                                      Click="ContextMenu_Delete_Click"/>
+                                                      Tag="Delete"
+                                                      Click="ContextMenu_Item_Click"/>
                                         </ContextMenu>
                                     </Border.ContextMenu>
                                     <Grid>
