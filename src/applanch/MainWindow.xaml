@@ -727,58 +727,12 @@
             </Grid>
         </Border>
 
-        <Border
-                Grid.Row="1"
-                Margin="0,8,0,0"
-                Background="#1A6DB3F8"
-                BorderBrush="#6DB3F8"
-                BorderThickness="1"
-                CornerRadius="8"
-                Padding="14,10"
-                Visibility="{Binding UpdateBanner.BannerVisibility}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="8"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock
-                           Grid.Column="0"
-                           FontSize="13"
-                           VerticalAlignment="Center"
-                           Foreground="{DynamicResource Brush.TextPrimary}"
-                           Text="{Binding UpdateBanner.Message}"/>
-                <Button Grid.Column="1"
-                        Content="{x:Static res:Resources.Banner_UpdateButton}"
-                        Click="UpdateButton_Click"
-                        Height="28"
-                        Style="{StaticResource RoundedSecondaryButtonStyle}"/>
-                <Button Grid.Column="3"
-                        Content="✕"
-                        Click="DismissUpdateButton_Click"
-                        Width="26"
-                        Height="26"
-                        Padding="0"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        Foreground="{DynamicResource Brush.TextSecondary}"
-                        FontSize="13"
-                        FontWeight="SemiBold"
-                        VerticalAlignment="Center">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border Background="Transparent">
-                                <ContentPresenter HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
-                            </Border>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-            </Grid>
-        </Border>
+        <controls:UpdateBannerControl Grid.Row="1"
+                                      Margin="0,8,0,0"
+                                      Message="{Binding UpdateBanner.Message}"
+                                      Visibility="{Binding UpdateBanner.BannerVisibility}"
+                                      UpdateRequested="UpdateButton_Click"
+                                      DismissRequested="DismissUpdateButton_Click"/>
 
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>

@@ -1,0 +1,52 @@
+<UserControl x:Class="applanch.Controls.UpdateBannerControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="clr-namespace:applanch.Properties"
+             x:Name="Root">
+    <Border Background="#1A6DB3F8"
+            BorderBrush="#6DB3F8"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="14,10">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0"
+                       FontSize="13"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource Brush.TextPrimary}"
+                       Text="{Binding Message, ElementName=Root}"/>
+            <Button Grid.Column="1"
+                    Content="{x:Static res:Resources.Banner_UpdateButton}"
+                    Click="UpdateButton_Click"
+                    Height="28"/>
+            <Button Grid.Column="3"
+                    Content="✕"
+                    Click="DismissButton_Click"
+                    Width="26"
+                    Height="26"
+                    Padding="0"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Foreground="{DynamicResource Brush.TextSecondary}"
+                    FontSize="13"
+                    FontWeight="SemiBold"
+                    VerticalAlignment="Center">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Grid>
+    </Border>
+</UserControl>
