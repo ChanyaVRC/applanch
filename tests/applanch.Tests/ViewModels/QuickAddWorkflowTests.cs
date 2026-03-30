@@ -70,6 +70,46 @@ public class QuickAddWorkflowTests
     }
 
     [Fact]
+    public void TryCreateLaunchItem_DuplicatePathWithDifferentDriveLetterCase_ReturnsInformationFailure()
+    {
+        var existingPath = @"C:\\Tools\\App.exe";
+        var resolver = new FakeResolver
+        {
+            ShouldResolve = true,
+            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(@"c:\\Tools\\App.exe", "App"),
+        };
+        var workflow = new QuickAddWorkflow(resolver);
+        var existingItems =
+            new[] { new LaunchItemViewModel(existingPath, "Dev", string.Empty, "App") };
+
+        var result = workflow.TryCreateLaunchItem("app", "Dev", string.Empty, existingItems, out var newItem);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(QuickAddMessageSeverity.Information, result.Severity);
+        Assert.Null(newItem);
+    }
+
+    [Fact]
+    public void TryCreateLaunchItem_DuplicateDirectoryPathWithTrailingSeparator_ReturnsInformationFailure()
+    {
+        var existingPath = @"C:\\Tools\\Folder";
+        var resolver = new FakeResolver
+        {
+            ShouldResolve = true,
+            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(@"C:\\Tools\\Folder\\", "Folder"),
+        };
+        var workflow = new QuickAddWorkflow(resolver);
+        var existingItems =
+            new[] { new LaunchItemViewModel(existingPath, "Dev", string.Empty, "Folder") };
+
+        var result = workflow.TryCreateLaunchItem("folder", "Dev", string.Empty, existingItems, out var newItem);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(QuickAddMessageSeverity.Information, result.Severity);
+        Assert.Null(newItem);
+    }
+
+    [Fact]
     public void TryCreateLaunchItem_Success_ReturnsCreatedItem()
     {
         var resolver = new FakeResolver
