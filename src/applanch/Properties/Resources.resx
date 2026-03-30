@@ -177,6 +177,9 @@
   <data name="UpdateFailed" xml:space="preserve">
     <value>Update failed.&#xA;{0}</value>
   </data>
+  <data name="Notification_ItemDeleted" xml:space="preserve">
+    <value>{0} deleted.</value>
+  </data>
   <data name="Error_FileNotFound" xml:space="preserve">
     <value>File or folder not found.&#xA;{0}</value>
   </data>

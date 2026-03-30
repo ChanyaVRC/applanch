@@ -171,6 +171,7 @@ public partial class MainWindow : Window
         }
 
         ViewModel.RemoveItem(item);
+        ShowFloatingNotification(string.Format(Strings.Notification_ItemDeleted, item.DisplayName), MessageBoxImage.Information);
     }
 
     private void QuickAddButton_Click(object sender, RoutedEventArgs e)

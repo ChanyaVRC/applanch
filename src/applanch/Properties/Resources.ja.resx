@@ -177,6 +177,9 @@
   <data name="UpdateFailed" xml:space="preserve">
     <value>アップデートに失敗しました。&#xA;{0}</value>
   </data>
+  <data name="Notification_ItemDeleted" xml:space="preserve">
+    <value>{0} を削除しました。</value>
+  </data>
   <data name="Error_FileNotFound" xml:space="preserve">
     <value>ファイルまたはフォルダが見つかりません。&#xA;{0}</value>
   </data>
