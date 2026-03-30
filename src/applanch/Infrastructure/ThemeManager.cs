@@ -32,8 +32,8 @@ internal sealed class ThemeManager(Func<AppTheme>? themeProvider = null)
         var isLight = _themeProvider() switch
         {
             AppTheme.Light => true,
-            AppTheme.Dark  => false,
-            _              => ReadWindowsThemePreference(),
+            AppTheme.Dark => false,
+            _ => ReadWindowsThemePreference(),
         };
 
         var brushMap = isLight ? LightBrushes : DarkBrushes;

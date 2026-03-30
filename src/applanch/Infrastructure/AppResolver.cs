@@ -355,8 +355,6 @@ internal static partial class AppResolver
         return cleaned.Trim().Trim('"');
     }
 
-    private readonly record struct SuggestionCandidate(string Text, int Score, int SourcePriority);
-
     private static int IndexOfFirstUnquoted(string text, char target)
     {
         var inQuotes = false;
@@ -408,5 +406,3 @@ internal static partial class AppResolver
         return -1;
     }
 }
-
-internal readonly record struct ResolvedApp(string Path, string DisplayName);

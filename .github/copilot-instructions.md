@@ -12,6 +12,8 @@
 ## Auto Commit Policy
 
 - When code changes are requested and completed, run build/tests to verify changes.
+- Always run `dotnet format applanch.slnx --verify-no-changes --no-restore --verbosity minimal` before committing.
+- If formatting verification fails, run `dotnet format applanch.slnx --no-restore --verbosity minimal` and re-verify.
 - If verification passes, create a commit in the same turn.
 - Do not wait for explicit commit confirmation unless the user says not to commit.
 - Commit each logical feature or fix separately — do not bundle unrelated changes into a single commit.
