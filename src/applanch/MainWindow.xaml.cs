@@ -23,7 +23,7 @@ public partial class MainWindow : Window
     private int? _lastDragPreviewIndex;
     private readonly IItemLaunchService _itemLaunchService;
     private readonly IUserInteractionService _interactionService;
-    private IAppUpdateService _updateService;
+    private readonly UpdateWorkflow _updateWorkflow;
     private AppSettings _settings;
     private AppUpdateInfo? _pendingUpdate;
     private readonly DispatcherTimer _floatingNotificationTimer;
@@ -45,7 +45,7 @@ public partial class MainWindow : Window
         ViewModel = viewModel;
         _itemLaunchService = itemLaunchService;
         _interactionService = interactionService;
-        _updateService = updateService;
+        _updateWorkflow = new UpdateWorkflow(updateService);
         _settings = AppSettings.Load();
         _floatingNotificationTimer = new DispatcherTimer
         {
@@ -66,22 +66,14 @@ public partial class MainWindow : Window
     {
         if (_settings.CheckForUpdatesOnStartup)
         {
-            await CheckForUpdateAsync(_updateService).ConfigureAwait(false);
+            await CheckForUpdateAsync().ConfigureAwait(false);
         }
     }
 
-    private async Task CheckForUpdateAsync(IAppUpdateService updateService)
+    private async Task CheckForUpdateAsync()
     {
-        try
-        {
-            var update = await updateService.CheckForUpdateAsync().ConfigureAwait(false);
-            Dispatcher.Invoke(() => ApplyUpdateAvailability(update));
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Instance.Error(ex, "Update check failed");
-            Dispatcher.Invoke(() => ApplyUpdateAvailability(null));
-        }
+        var update = await _updateWorkflow.CheckForUpdateSafeAsync().ConfigureAwait(false);
+        Dispatcher.Invoke(() => ApplyUpdateAvailability(update));
     }
 
     private void ApplyUpdateAvailability(AppUpdateInfo? update)
@@ -136,8 +128,8 @@ public partial class MainWindow : Window
         }
 
         // Re-create update service with new settings and re-check.
-        _updateService = new GitHubAppUpdateService();
-        await CheckForUpdateAsync(_updateService).ConfigureAwait(false);
+        _updateWorkflow.SetUpdateService(new GitHubAppUpdateService());
+        await CheckForUpdateAsync().ConfigureAwait(false);
     }
 
     // ── Button click handlers ───────────────────────────────
@@ -185,17 +177,15 @@ public partial class MainWindow : Window
             return;
         }
 
-        try
+        var result = await _updateWorkflow.ApplyUpdateSafeAsync(_pendingUpdate).ConfigureAwait(false);
+        if (result.IsSuccess)
         {
-            await _updateService.ApplyUpdateAsync(_pendingUpdate).ConfigureAwait(false);
             Dispatcher.Invoke(() => Application.Current.Shutdown());
+            return;
         }
-        catch (Exception ex)
-        {
-            AppLogger.Instance.Error(ex, "Update apply failed");
-            Dispatcher.Invoke(() =>
-                ShowFloatingNotification(string.Format(Strings.UpdateFailed, ex.Message), MessageBoxImage.Error));
-        }
+
+        Dispatcher.Invoke(() =>
+            ShowFloatingNotification(string.Format(Strings.UpdateFailed, result.ErrorMessage), MessageBoxImage.Error));
     }
 
     private void DismissUpdateButton_Click(object sender, RoutedEventArgs e)
