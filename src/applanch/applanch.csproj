@@ -16,4 +16,20 @@
     </PackageReference>
   </ItemGroup>
 
+  <Target Name="GenerateResourcesDesigner"
+          BeforeTargets="CoreCompile"
+          Inputs="Properties\Resources.resx"
+          Outputs="Properties\Resources.Designer.cs">
+    <GenerateResource Sources="Properties\Resources.resx"
+                      StronglyTypedLanguage="C#"
+                      StronglyTypedNamespace="applanch.Properties"
+                      StronglyTypedClassName="Resources"
+                      StronglyTypedFileName="Properties\Resources.Designer.cs"
+                      PublicClass="true"
+                      UseSourcePath="true" />
+    <ItemGroup>
+      <FileWrites Include="Properties\Resources.Designer.cs" />
+    </ItemGroup>
+  </Target>
+
 </Project>
