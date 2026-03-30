@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:applanch.Controls"
+        xmlns:local="clr-namespace:applanch"
         mc:Ignorable="d"
         xmlns:res="clr-namespace:applanch.Properties"
         Title="Applanch"
@@ -103,6 +104,35 @@
 
         <Style TargetType="Separator"
                BasedOn="{StaticResource {x:Static MenuItem.SeparatorStyleKey}}"/>
+
+        <Storyboard x:Key="FloatingNotificationSlideInStoryboard">
+            <DoubleAnimation Storyboard.TargetName="FloatingNotificationTranslate"
+                             Storyboard.TargetProperty="Y"
+                             From="18" To="0"
+                             Duration="0:0:0.18">
+                <DoubleAnimation.EasingFunction>
+                    <CubicEase EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+
+        <Storyboard x:Key="FloatingNotificationCountdownStoryboard">
+            <DoubleAnimation Storyboard.TargetName="FloatingNotificationProgressScale"
+                             Storyboard.TargetProperty="ScaleX"
+                             From="1" To="0"
+                             Duration="0:0:4"/>
+        </Storyboard>
+
+        <Storyboard x:Key="FloatingNotificationSlideOutStoryboard">
+            <DoubleAnimation Storyboard.TargetName="FloatingNotificationTranslate"
+                             Storyboard.TargetProperty="Y"
+                             To="18"
+                             Duration="0:0:0.18">
+                <DoubleAnimation.EasingFunction>
+                    <CubicEase EasingMode="EaseIn"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
 
         <Style x:Key="RoundedSecondaryButtonStyle"
                TargetType="Button"
@@ -551,14 +581,29 @@
                 Grid.RowSpan="4"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Margin="0,0,0,0"
                 MaxWidth="320"
-                Background="{DynamicResource Brush.NotificationInfoBackground}"
-                BorderBrush="Transparent"
                 BorderThickness="0"
                 CornerRadius="0"
                 Visibility="Collapsed"
                 Panel.ZIndex="20">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background"
+                            Value="{DynamicResource Brush.NotificationInfoBackground}"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding FloatingNotificationIconType}"
+                                     Value="{x:Static local:NotificationIconType.Warning}">
+                            <Setter Property="Background"
+                                    Value="{DynamicResource Brush.NotificationWarningBackground}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding FloatingNotificationIconType}"
+                                     Value="{x:Static local:NotificationIconType.Error}">
+                            <Setter Property="Background"
+                                    Value="{DynamicResource Brush.NotificationErrorBackground}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <Border.Effect>
                 <DropShadowEffect BlurRadius="18"
                                   ShadowDepth="5"
@@ -580,17 +625,46 @@
                         <ColumnDefinition Width="8"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock x:Name="FloatingNotificationIcon"
-                               Grid.Column="0"
+                    <TextBlock Grid.Column="0"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="14"
-                               VerticalAlignment="Top"
-                               Visibility="Collapsed"/>
-                    <TextBlock x:Name="FloatingNotificationText"
-                               Grid.Column="2"
+                               FontSize="16"
+                               Margin="0,0,2,0"
+                               VerticalAlignment="Top">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Setter Property="Opacity" Value="0.96"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding FloatingNotificationIconType}"
+                                                 Value="{x:Static local:NotificationIconType.Info}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Setter Property="Text" Value="&#xE946;"/>
+                                        <Setter Property="Foreground"
+                                                Value="{DynamicResource Brush.NotificationInfoBorder}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding FloatingNotificationIconType}"
+                                                 Value="{x:Static local:NotificationIconType.Warning}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Setter Property="Text" Value="&#xE7BA;"/>
+                                        <Setter Property="Foreground"
+                                                Value="{DynamicResource Brush.NotificationWarningBorder}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding FloatingNotificationIconType}"
+                                                 Value="{x:Static local:NotificationIconType.Error}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Setter Property="Text" Value="&#xEA39;"/>
+                                        <Setter Property="Foreground"
+                                                Value="{DynamicResource Brush.NotificationErrorBorder}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Grid.Column="2"
                                FontSize="12"
                                Foreground="{DynamicResource Brush.TextPrimary}"
-                               TextWrapping="Wrap"/>
+                               TextWrapping="Wrap"
+                               Text="{Binding FloatingNotificationMessage}"/>
                 </Grid>
                 <Border Grid.Row="1"
                         BorderBrush="{DynamicResource Brush.NotificationProgressTrack}"
@@ -841,13 +915,26 @@
                                        Margin="0,8,0,0"
                                        FontSize="11"
                                        Foreground="{DynamicResource Brush.TextTertiary}"/>
-                            <TextBlock x:Name="QuickAddMessageText"
-                                       Margin="0,6,0,0"
+                            <TextBlock Margin="0,6,0,0"
                                        FontSize="11"
                                        FontWeight="SemiBold"
-                                       Foreground="{DynamicResource Brush.QuickAddInfoText}"
                                        TextWrapping="Wrap"
-                                       Visibility="Collapsed"/>
+                                       Text="{Binding QuickAddMessage}"
+                                       Visibility="{Binding QuickAddMessageVisibility}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground"
+                                                Value="{DynamicResource Brush.QuickAddInfoText}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding QuickAddSeverity}"
+                                                         Value="{x:Static local:QuickAddMessageSeverity.Warning}">
+                                                <Setter Property="Foreground"
+                                                        Value="{DynamicResource Brush.QuickAddWarningText}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </StackPanel>
                     </Border>
                 </Expander>

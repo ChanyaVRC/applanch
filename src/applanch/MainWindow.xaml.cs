@@ -19,9 +19,6 @@ namespace applanch;
 public partial class MainWindow : Window
 {
     private static readonly TimeSpan FloatingNotificationDuration = TimeSpan.FromSeconds(4);
-    private static readonly Duration FloatingNotificationAnimationDuration = new(TimeSpan.FromMilliseconds(180));
-    private const double FloatingNotificationSlideOffset = 18;
-
     private Point _dragStartPoint;
     private LaunchItemViewModel? _draggedItem;
     private int? _lastDragPreviewIndex;
@@ -32,6 +29,10 @@ public partial class MainWindow : Window
     private AppUpdateInfo? _pendingUpdate;
     private readonly DispatcherTimer _floatingNotificationTimer;
     private int _floatingNotificationAnimationVersion;
+    private int _expectedHideVersion;
+    private readonly Storyboard _slideInStoryboard;
+    private readonly Storyboard _slideOutStoryboard;
+    private readonly Storyboard _countdownStoryboard;
     private MainWindowViewModel ViewModel { get; }
 
     public MainWindow()
@@ -52,6 +53,10 @@ public partial class MainWindow : Window
             Interval = FloatingNotificationDuration
         };
         _floatingNotificationTimer.Tick += FloatingNotificationTimer_Tick;
+        _slideInStoryboard = (Storyboard)Resources["FloatingNotificationSlideInStoryboard"];
+        _slideOutStoryboard = (Storyboard)Resources["FloatingNotificationSlideOutStoryboard"];
+        _countdownStoryboard = (Storyboard)Resources["FloatingNotificationCountdownStoryboard"];
+        _slideOutStoryboard.Completed += OnHideAnimationCompleted;
         SourceInitialized += (_, _) => WindowCaptionThemeHelper.Apply(this);
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
@@ -171,16 +176,7 @@ public partial class MainWindow : Window
     }
 
     private void QuickAddButton_Click(object sender, RoutedEventArgs e)
-    {
-        var result = ViewModel.TryAddQuickItem();
-        if (result.IsSuccess)
-        {
-            HideQuickAddMessage();
-            return;
-        }
-
-        ShowQuickAddMessage(result.Message, result.Severity);
-    }
+        => ViewModel.TryAddQuickItem();
 
     private async void UpdateButton_Click(object sender, RoutedEventArgs e)
     {
@@ -215,102 +211,54 @@ public partial class MainWindow : Window
     private void ShowFloatingNotification(string message, MessageBoxImage icon)
     {
         _floatingNotificationAnimationVersion++;
-        var styleKeys = NotificationPresentation.GetFloatingStyleKeys(icon);
-        var iconVisual = MessageDialogVisuals.Resolve(icon);
-
-        FloatingNotificationText.Text = message;
-        FloatingNotificationIcon.Text = iconVisual.Symbol;
-        FloatingNotificationIcon.Foreground = ResolveBrush(iconVisual.BrushResourceKey, Brushes.Gray);
-        FloatingNotificationIcon.Visibility = iconVisual.ShowIcon ? Visibility.Visible : Visibility.Collapsed;
-        FloatingNotificationBanner.Background = ResolveBrush(styleKeys.BackgroundKey, Brushes.Transparent);
-        FloatingNotificationBanner.BorderBrush = ResolveBrush(styleKeys.BorderKey, Brushes.Transparent);
+        ViewModel.FloatingNotificationMessage = message;
+        ViewModel.FloatingNotificationIconType = ToNotificationIconType(icon);
         FloatingNotificationBanner.Visibility = Visibility.Visible;
-
-        FloatingNotificationTranslate.BeginAnimation(TranslateTransform.YProperty, null);
-        FloatingNotificationProgressScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
-        FloatingNotificationTranslate.Y = FloatingNotificationSlideOffset;
-        FloatingNotificationProgressScale.ScaleX = 1;
-
-        var showAnimation = new DoubleAnimation
-        {
-            From = FloatingNotificationSlideOffset,
-            To = 0,
-            Duration = FloatingNotificationAnimationDuration,
-            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
-        };
-
-        var progressAnimation = new DoubleAnimation
-        {
-            From = 1,
-            To = 0,
-            Duration = new Duration(FloatingNotificationDuration)
-        };
-
-        FloatingNotificationTranslate.BeginAnimation(TranslateTransform.YProperty, showAnimation, HandoffBehavior.SnapshotAndReplace);
-        FloatingNotificationProgressScale.BeginAnimation(ScaleTransform.ScaleXProperty, progressAnimation, HandoffBehavior.SnapshotAndReplace);
-
+        _slideInStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
+        _countdownStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
         _floatingNotificationTimer.Stop();
         _floatingNotificationTimer.Start();
     }
 
     private void HideFloatingNotification()
     {
-        var animationVersion = ++_floatingNotificationAnimationVersion;
+        _expectedHideVersion = ++_floatingNotificationAnimationVersion;
         _floatingNotificationTimer.Stop();
-        FloatingNotificationProgressScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+        _countdownStoryboard.Stop(this);
 
         if (FloatingNotificationBanner.Visibility != Visibility.Visible)
         {
-            FloatingNotificationText.Text = string.Empty;
-            FloatingNotificationIcon.Text = string.Empty;
-            FloatingNotificationIcon.Visibility = Visibility.Collapsed;
+            ClearFloatingNotification();
             return;
         }
 
-        var hideAnimation = new DoubleAnimation
+        _slideOutStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
+    }
+
+    private void OnHideAnimationCompleted(object? sender, EventArgs e)
+    {
+        if (_expectedHideVersion != _floatingNotificationAnimationVersion)
         {
-            From = FloatingNotificationTranslate.Y,
-            To = FloatingNotificationSlideOffset,
-            Duration = FloatingNotificationAnimationDuration,
-            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
-        };
+            return;
+        }
 
-        hideAnimation.Completed += (_, _) =>
-        {
-            if (animationVersion != _floatingNotificationAnimationVersion)
-            {
-                return;
-            }
-
-            FloatingNotificationBanner.Visibility = Visibility.Collapsed;
-            FloatingNotificationText.Text = string.Empty;
-            FloatingNotificationIcon.Text = string.Empty;
-            FloatingNotificationIcon.Visibility = Visibility.Collapsed;
-            FloatingNotificationTranslate.Y = FloatingNotificationSlideOffset;
-            FloatingNotificationProgressScale.ScaleX = 1;
-        };
-
-        FloatingNotificationTranslate.BeginAnimation(TranslateTransform.YProperty, hideAnimation, HandoffBehavior.SnapshotAndReplace);
+        FloatingNotificationBanner.Visibility = Visibility.Collapsed;
+        ClearFloatingNotification();
     }
 
-    private void ShowQuickAddMessage(string message, QuickAddMessageSeverity severity)
+    private void ClearFloatingNotification()
     {
-        QuickAddMessageText.Text = message;
-        var key = NotificationPresentation.GetQuickAddForegroundKey(severity);
-        QuickAddMessageText.Foreground = ResolveBrush(key, Brushes.OrangeRed);
-        QuickAddMessageText.Visibility = Visibility.Visible;
+        ViewModel.FloatingNotificationMessage = string.Empty;
+        ViewModel.FloatingNotificationIconType = NotificationIconType.None;
     }
 
-    private void HideQuickAddMessage()
+    private static NotificationIconType ToNotificationIconType(MessageBoxImage icon) => icon switch
     {
-        QuickAddMessageText.Visibility = Visibility.Collapsed;
-        QuickAddMessageText.Text = string.Empty;
-    }
-
-    private Brush ResolveBrush(string resourceKey, Brush fallback)
-    {
-        return TryFindResource(resourceKey) as Brush ?? fallback;
-    }
+        MessageBoxImage.Error => NotificationIconType.Error,
+        MessageBoxImage.Warning => NotificationIconType.Warning,
+        MessageBoxImage.Information => NotificationIconType.Info,
+        _ => NotificationIconType.None,
+    };
 
     // ── Context menu handlers ───────────────────────────────
 
