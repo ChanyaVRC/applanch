@@ -18,6 +18,10 @@ namespace applanch;
 
 public partial class MainWindow : Window
 {
+    private static readonly TimeSpan FloatingNotificationDuration = TimeSpan.FromSeconds(4);
+    private static readonly Duration FloatingNotificationAnimationDuration = new(TimeSpan.FromMilliseconds(180));
+    private const double FloatingNotificationSlideOffset = 18;
+
     private Point _dragStartPoint;
     private LaunchItemViewModel? _draggedItem;
     private int? _lastDragPreviewIndex;
@@ -27,6 +31,7 @@ public partial class MainWindow : Window
     private AppSettings _settings;
     private AppUpdateInfo? _pendingUpdate;
     private readonly DispatcherTimer _floatingNotificationTimer;
+    private int _floatingNotificationAnimationVersion;
     private MainWindowViewModel ViewModel { get; }
 
     public MainWindow()
@@ -44,7 +49,7 @@ public partial class MainWindow : Window
         _settings = AppSettings.Load();
         _floatingNotificationTimer = new DispatcherTimer
         {
-            Interval = TimeSpan.FromSeconds(4)
+            Interval = FloatingNotificationDuration
         };
         _floatingNotificationTimer.Tick += FloatingNotificationTimer_Tick;
         SourceInitialized += (_, _) => WindowCaptionThemeHelper.Apply(this);
@@ -209,20 +214,74 @@ public partial class MainWindow : Window
 
     private void ShowFloatingNotification(string message, MessageBoxImage icon)
     {
+        _floatingNotificationAnimationVersion++;
         var style = NotificationPresentation.GetFloatingStyle(icon);
         FloatingNotificationText.Text = message;
         FloatingNotificationBanner.Background = style.Background;
         FloatingNotificationBanner.BorderBrush = style.BorderBrush;
         FloatingNotificationBanner.Visibility = Visibility.Visible;
+
+        FloatingNotificationTranslate.BeginAnimation(TranslateTransform.YProperty, null);
+        FloatingNotificationProgressScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+        FloatingNotificationTranslate.Y = FloatingNotificationSlideOffset;
+        FloatingNotificationProgressScale.ScaleX = 1;
+
+        var showAnimation = new DoubleAnimation
+        {
+            From = FloatingNotificationSlideOffset,
+            To = 0,
+            Duration = FloatingNotificationAnimationDuration,
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+        };
+
+        var progressAnimation = new DoubleAnimation
+        {
+            From = 1,
+            To = 0,
+            Duration = new Duration(FloatingNotificationDuration)
+        };
+
+        FloatingNotificationTranslate.BeginAnimation(TranslateTransform.YProperty, showAnimation, HandoffBehavior.SnapshotAndReplace);
+        FloatingNotificationProgressScale.BeginAnimation(ScaleTransform.ScaleXProperty, progressAnimation, HandoffBehavior.SnapshotAndReplace);
+
         _floatingNotificationTimer.Stop();
         _floatingNotificationTimer.Start();
     }
 
     private void HideFloatingNotification()
     {
+        var animationVersion = ++_floatingNotificationAnimationVersion;
         _floatingNotificationTimer.Stop();
-        FloatingNotificationBanner.Visibility = Visibility.Collapsed;
-        FloatingNotificationText.Text = string.Empty;
+        FloatingNotificationProgressScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+
+        if (FloatingNotificationBanner.Visibility != Visibility.Visible)
+        {
+            FloatingNotificationText.Text = string.Empty;
+            return;
+        }
+
+        var hideAnimation = new DoubleAnimation
+        {
+            From = FloatingNotificationTranslate.Y,
+            To = FloatingNotificationSlideOffset,
+            Duration = FloatingNotificationAnimationDuration,
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
+        };
+
+        hideAnimation.Completed += (_, _) =>
+        {
+            if (animationVersion != _floatingNotificationAnimationVersion)
+            {
+                return;
+            }
+
+            FloatingNotificationBanner.Visibility = Visibility.Collapsed;
+            FloatingNotificationText.Text = string.Empty;
+            FloatingNotificationTranslate.Y = FloatingNotificationSlideOffset;
+            FloatingNotificationProgressScale.ScaleX = 1;
+        };
+
+        FloatingNotificationTranslate.BeginAnimation(TranslateTransform.YProperty, hideAnimation, HandoffBehavior.SnapshotAndReplace);
     }
 
     private void ShowQuickAddMessage(string message, QuickAddMessageSeverity severity)

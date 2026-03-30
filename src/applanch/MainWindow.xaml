@@ -111,42 +111,42 @@
         <Style x:Key="HeaderIconButtonStyle"
                TargetType="Button">
             <Setter Property="Width"
-                Value="32"/>
+                    Value="32"/>
             <Setter Property="Height"
-                Value="32"/>
+                    Value="32"/>
             <Setter Property="Padding"
-                Value="0"/>
+                    Value="0"/>
             <Setter Property="VerticalAlignment"
-                Value="Top"/>
+                    Value="Top"/>
             <Setter Property="Background"
-                Value="Transparent"/>
+                    Value="Transparent"/>
             <Setter Property="BorderBrush"
-                Value="Transparent"/>
+                    Value="Transparent"/>
             <Setter Property="BorderThickness"
-                Value="0"/>
+                    Value="0"/>
             <Setter Property="Cursor"
-                Value="Hand"/>
+                    Value="Hand"/>
             <Setter Property="Foreground"
-                Value="{DynamicResource Brush.TextSecondary}"/>
+                    Value="{DynamicResource Brush.TextSecondary}"/>
             <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                <Border x:Name="Bd"
-                    Background="Transparent"
-                    CornerRadius="6">
-                    <ContentPresenter HorizontalAlignment="Center"
-                              VerticalAlignment="Center"/>
-                </Border>
-                <ControlTemplate.Triggers>
-                    <Trigger Property="IsMouseOver"
-                         Value="True">
-                    <Setter TargetName="Bd"
-                        Property="Background"
-                        Value="{DynamicResource Brush.Surface}"/>
-                    </Trigger>
-                </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="Transparent"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter TargetName="Bd"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.Surface}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
             </Setter>
         </Style>
 
@@ -276,15 +276,15 @@
             <Setter Property="MinHeight"
                     Value="34"/>
             <Setter Property="HorizontalContentAlignment"
-                Value="Stretch"/>
+                    Value="Stretch"/>
             <Setter Property="VerticalContentAlignment"
-                Value="Center"/>
+                    Value="Center"/>
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility"
                     Value="Disabled"/>
             <Setter Property="ScrollViewer.VerticalScrollBarVisibility"
                     Value="Auto"/>
             <Setter Property="ItemContainerStyle"
-                Value="{StaticResource ModernComboBoxItemStyle}"/>
+                    Value="{StaticResource ModernComboBoxItemStyle}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
@@ -547,11 +547,11 @@
         </Grid.RowDefinitions>
 
         <Border x:Name="FloatingNotificationBanner"
-            Grid.Row="0"
-            Grid.RowSpan="4"
+                Grid.Row="0"
+                Grid.RowSpan="4"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Margin="0,0,0,16"
+                Margin="0,0,0,0"
                 Padding="14,10"
                 MaxWidth="320"
                 Background="#EE1F2937"
@@ -560,10 +560,35 @@
                 CornerRadius="10"
                 Visibility="Collapsed"
                 Panel.ZIndex="20">
-            <TextBlock x:Name="FloatingNotificationText"
-                       FontSize="12"
-                       Foreground="#F8FAFC"
-                       TextWrapping="Wrap"/>
+            <Border.RenderTransform>
+                <TranslateTransform x:Name="FloatingNotificationTranslate"
+                                    Y="18"/>
+            </Border.RenderTransform>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="8"/>
+                    <RowDefinition Height="3"/>
+                </Grid.RowDefinitions>
+                <TextBlock x:Name="FloatingNotificationText"
+                           FontSize="12"
+                           Foreground="#F8FAFC"
+                           TextWrapping="Wrap"/>
+                <Border Grid.Row="2"
+                        Background="#40FFFFFF"
+                        CornerRadius="2">
+                    <Border x:Name="FloatingNotificationProgressBar"
+                            HorizontalAlignment="Stretch"
+                            Background="#CCFFFFFF"
+                            CornerRadius="2"
+                            RenderTransformOrigin="0,0.5">
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="FloatingNotificationProgressScale"
+                                            ScaleX="1"/>
+                        </Border.RenderTransform>
+                    </Border>
+                </Border>
+            </Grid>
         </Border>
 
         <Border Grid.Row="0"
@@ -590,20 +615,20 @@
                 <StackPanel Grid.Column="1"
                             Orientation="Horizontal"
                             VerticalAlignment="Top">
-                        <Button x:Name="HeaderUpdateButton"
+                    <Button x:Name="HeaderUpdateButton"
                             Content="⭳"
                             Click="UpdateButton_Click"
                             Margin="0,0,8,0"
-                                Style="{StaticResource HeaderIconButtonStyle}"
+                            Style="{StaticResource HeaderIconButtonStyle}"
                             FontSize="14"
                             FontWeight="SemiBold"
-                                    ToolTip="{x:Static res:Resources.ToolTip_Update}"
-                                Visibility="Collapsed"/>
+                            ToolTip="{x:Static res:Resources.ToolTip_Update}"
+                            Visibility="Collapsed"/>
                     <Button Content="⚙"
                             Click="SettingsButton_Click"
-                                Style="{StaticResource HeaderIconButtonStyle}"
+                            Style="{StaticResource HeaderIconButtonStyle}"
                             FontSize="16"
-                                    ToolTip="{x:Static res:Resources.ToolTip_Settings}"/>
+                            ToolTip="{x:Static res:Resources.ToolTip_Settings}"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -785,24 +810,24 @@
                                 <TextBox Grid.Column="2"
                                          Text="{Binding QuickAddArguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource QuickAddCompactTextBoxStyle}"
-                                                     ToolTip="{x:Static res:Resources.ToolTip_Arguments}"/>
+                                         ToolTip="{x:Static res:Resources.ToolTip_Arguments}"/>
                                 <Button Grid.Column="4"
-                                                    Content="{x:Static res:Resources.Button_Add}"
+                                        Content="{x:Static res:Resources.Button_Add}"
                                         Click="QuickAddButton_Click"
                                         Height="28"
                                         Style="{StaticResource RoundedSecondaryButtonStyle}"/>
                             </Grid>
-                                                <TextBlock Text="{x:Static res:Resources.Hint_AddApp}"
+                            <TextBlock Text="{x:Static res:Resources.Hint_AddApp}"
                                        Margin="0,8,0,0"
                                        FontSize="11"
                                        Foreground="{DynamicResource Brush.TextTertiary}"/>
-                                                <TextBlock x:Name="QuickAddMessageText"
-                                                           Margin="0,6,0,0"
-                                                           FontSize="11"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="#DC2626"
-                                                           TextWrapping="Wrap"
-                                                           Visibility="Collapsed"/>
+                            <TextBlock x:Name="QuickAddMessageText"
+                                       Margin="0,6,0,0"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Foreground="#DC2626"
+                                       TextWrapping="Wrap"
+                                       Visibility="Collapsed"/>
                         </StackPanel>
                     </Border>
                 </Expander>
