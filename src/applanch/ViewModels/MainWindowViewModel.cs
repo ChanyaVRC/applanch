@@ -16,7 +16,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private static string AllCategoriesLabel => Resources.AllCategories;
     private const int QuickAddSuggestionsLimit = 10;
 
-    private readonly IAppResolver _appResolver;
+    private readonly QuickAddWorkflow _quickAddWorkflow;
     private readonly ILauncherStore _launcherStore;
     private LaunchItemViewModel? _selectedLaunchItem;
     private string _selectedCategory = AllCategoriesLabel;
@@ -33,7 +33,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     internal MainWindowViewModel(IAppResolver appResolver, ILauncherStore launcherStore)
     {
-        _appResolver = appResolver;
+        _quickAddWorkflow = new QuickAddWorkflow(appResolver);
         _launcherStore = launcherStore;
 
         LaunchItems = _launcherStore.LoadAll()
@@ -151,28 +151,19 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     public QuickAddResult TryAddQuickItem()
     {
-        var input = QuickAddNameOrPath.Trim();
-        if (string.IsNullOrWhiteSpace(input))
-        {
-            return Fail(Resources.Error_QuickAddEmpty, QuickAddMessageSeverity.Information);
-        }
-
-        if (!_appResolver.TryResolve(input, out var resolvedApp))
-        {
-            return Fail(string.Format(Resources.Error_QuickAddNotFound, input), QuickAddMessageSeverity.Warning);
-        }
-
-        if (LaunchItems.Any(item => string.Equals(item.FullPath, resolvedApp.Path, StringComparison.OrdinalIgnoreCase)))
-        {
-            return Fail(Resources.Error_AlreadyRegistered, QuickAddMessageSeverity.Information);
-        }
-
-        var newItem = new LaunchItemViewModel(
-            resolvedApp.Path,
+        var result = _quickAddWorkflow.TryCreateLaunchItem(
+            QuickAddNameOrPath,
             QuickAddCategory,
             QuickAddArguments,
-            resolvedApp.DisplayName);
+            LaunchItems,
+            out var newItem);
 
+        if (!result.IsSuccess)
+        {
+            return Fail(result.Message, result.Severity);
+        }
+
+        ArgumentNullException.ThrowIfNull(newItem);
         LaunchItems.Add(newItem);
         ResetQuickAddFieldsAfterAdd();
         QuickAddFeedback.Message = string.Empty;
@@ -240,7 +231,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         _refreshingSuggestions = true;
         try
         {
-            var suggestions = _appResolver.GetSuggestions(QuickAddNameOrPath, QuickAddSuggestionsLimit);
+            var suggestions = _quickAddWorkflow.GetSuggestions(QuickAddNameOrPath, QuickAddSuggestionsLimit);
             ReplaceCollection(QuickAddSuggestions, suggestions);
         }
         finally
