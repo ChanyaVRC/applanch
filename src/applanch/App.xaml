@@ -148,31 +148,54 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="32"/>
                                     </Grid.ColumnDefinitions>
                                     <ContentPresenter Grid.Column="0"
                                                       Margin="{TemplateBinding Padding}"
                                                       VerticalAlignment="Center"
+                                                      HorizontalAlignment="Left"
                                                       Content="{TemplateBinding SelectionBoxItem}"
-                                                      ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
-                                    <Path Grid.Column="1"
-                                          Width="10"
-                                          Height="6"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
-                                          Data="M 0 0 L 5 6 L 10 0"
-                                          Stroke="{DynamicResource Brush.TextTertiary}"
-                                          StrokeThickness="1.6"
-                                          StrokeStartLineCap="Round"
-                                          StrokeEndLineCap="Round"/>
+                                                      ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                      ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                                      IsHitTestVisible="False"/>
+
+                                    <TextBox x:Name="PART_EditableTextBox"
+                                             Grid.Column="0"
+                                             Margin="{TemplateBinding Padding}"
+                                             VerticalAlignment="Center"
+                                             HorizontalAlignment="Stretch"
+                                             Background="Transparent"
+                                             BorderThickness="0"
+                                             Foreground="{TemplateBinding Foreground}"
+                                             CaretBrush="{DynamicResource Brush.TextPrimary}"
+                                             Visibility="Hidden"/>
+
+                                    <ToggleButton Grid.Column="1"
+                                                  Focusable="False"
+                                                  ClickMode="Press"
+                                                  IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                                        <Path Width="10"
+                                              Height="6"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Data="M 0 0 L 5 6 L 10 0"
+                                              Stroke="{DynamicResource Brush.TextTertiary}"
+                                              StrokeThickness="1.6"
+                                              StrokeStartLineCap="Round"
+                                              StrokeEndLineCap="Round"/>
+                                    </ToggleButton>
                                 </Grid>
                             </Border>
                             <Popup x:Name="PART_Popup"
-                                   IsOpen="{TemplateBinding IsDropDownOpen}"
-                                   AllowsTransparency="True"
                                    Placement="Bottom"
-                                   PopupAnimation="Slide">
-                                <Border Background="{DynamicResource Brush.Surface}"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   PopupAnimation="Fade">
+                                <Border Margin="0,6,0,0"
+                                        MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                        MaxHeight="240"
+                                        Background="{DynamicResource Brush.Surface}"
                                         BorderBrush="{DynamicResource Brush.ItemBorder}"
                                         BorderThickness="1"
                                         CornerRadius="6"
@@ -183,8 +206,9 @@
                                                           Opacity="0.15"
                                                           Color="#000000"/>
                                     </Border.Effect>
-                                    <ScrollViewer>
-                                        <ItemsPresenter/>
+                                    <ScrollViewer SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True"
+                                                    KeyboardNavigation.DirectionalNavigation="Contained"/>
                                     </ScrollViewer>
                                 </Border>
                             </Popup>
@@ -201,6 +225,21 @@
                                 <Setter TargetName="Bd"
                                         Property="BorderBrush"
                                         Value="{DynamicResource Brush.SurfaceBorder}"/>
+                                <Setter TargetName="Bd"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.ItemBackground}"/>
+                            </Trigger>
+                            <Trigger Property="IsEditable"
+                                     Value="True">
+                                <Setter TargetName="PART_EditableTextBox"
+                                        Property="Visibility"
+                                        Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled"
+                                     Value="False">
+                                <Setter TargetName="Bd"
+                                        Property="Opacity"
+                                        Value="0.6"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
