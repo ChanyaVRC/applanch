@@ -2,7 +2,7 @@ using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Updates;
 using Xunit;
 
-namespace applanch.Tests;
+namespace applanch.Tests.Application;
 
 public class AppEventTests
 {

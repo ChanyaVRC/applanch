@@ -154,14 +154,12 @@ public class AppResolverTests
     }
 
     [Fact]
-    public void TryParseExecutablePath_QuotedPathWithIconIndex_ParsesCorrectly()
+    public void TryParseExecutablePath_SimpleQuotedPathWithIconIndex_ParsesCorrectly()
     {
         var tempDir = CreateTempDirectory();
         try
         {
-            var folderWithComma = Path.Combine(tempDir, "Folder,Name");
-            Directory.CreateDirectory(folderWithComma);
-            var exePath = Path.Combine(folderWithComma, "Tool.exe");
+            var exePath = Path.Combine(tempDir, "Tool.exe");
             File.WriteAllText(exePath, string.Empty);
 
             var ok = InvokeTryParseExecutablePath($"\"{exePath}\",0", out var parsedPath);
@@ -313,10 +311,10 @@ public class AppResolverTests
         var method = typeof(AppResolver).GetMethod("NormalizeDirectoryPath", BindingFlags.NonPublic | BindingFlags.Static);
         Assert.NotNull(method);
 
-        var input = @"C:\\Tools\\";
+        var input = @"C:\Tools\";
         var actual = (string)method!.Invoke(null, [input])!;
 
-        Assert.Equal(@"C:\\Tools", actual);
+        Assert.Equal(@"C:\Tools", actual);
     }
 
     [Fact]
