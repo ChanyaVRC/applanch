@@ -12,9 +12,25 @@ internal static partial class AppResolver
     private sealed class WindowsAppResolverPlatform
     {
         private static readonly RegistryKey[] SearchHives = [Registry.CurrentUser, Registry.LocalMachine];
+        private readonly Dictionary<string, ResolvedApp> _appPathsCache = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Lock _appPathsCacheLock = new();
 
         public bool TryResolveFromAppPaths(string candidate, out ResolvedApp resolvedApp)
         {
+            lock (_appPathsCacheLock)
+            {
+                if (_appPathsCache.TryGetValue(candidate, out var cached))
+                {
+                    if (File.Exists(cached.Path))
+                    {
+                        resolvedApp = cached;
+                        return true;
+                    }
+
+                    _appPathsCache.Remove(candidate);
+                }
+            }
+
             foreach (var hive in SearchHives)
             {
                 using var key = hive.OpenSubKey($"Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\{candidate}");
@@ -23,6 +39,12 @@ internal static partial class AppResolver
                     File.Exists(resolvedPath))
                 {
                     resolvedApp = new ResolvedApp(resolvedPath, Path.GetFileNameWithoutExtension(resolvedPath));
+
+                    lock (_appPathsCacheLock)
+                    {
+                        _appPathsCache[candidate] = resolvedApp;
+                    }
+
                     return true;
                 }
             }

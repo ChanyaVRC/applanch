@@ -713,10 +713,12 @@ public partial class MainWindow : Window
 
             case TransformGroup group:
                 {
-                    var existing = group.Children.OfType<TranslateTransform>().FirstOrDefault();
-                    if (existing is not null)
+                    foreach (var transform in group.Children)
                     {
-                        return existing;
+                        if (transform is TranslateTransform existing)
+                        {
+                            return existing;
+                        }
                     }
 
                     var created = new TranslateTransform();

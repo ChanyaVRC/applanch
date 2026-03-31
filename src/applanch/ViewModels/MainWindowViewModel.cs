@@ -363,20 +363,11 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private void RebuildCategoryLists()
     {
         var defaultCategory = LauncherStore.LauncherEntry.DefaultCategory;
-        var categories = _settings.CategorySortMode switch
+        var categories = CollectDistinctNonEmptyCategories();
+        if (_settings.CategorySortMode != CategorySortMode.AsAdded)
         {
-            CategorySortMode.AsAdded => LaunchItems
-                .Select(item => item.Category)
-                .Where(static category => !string.IsNullOrWhiteSpace(category))
-                .Distinct(StringComparer.Ordinal)
-                .ToList(),
-            _ => LaunchItems
-                .Select(item => item.Category)
-                .Where(static category => !string.IsNullOrWhiteSpace(category))
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(static category => category, StringComparer.CurrentCulture)
-                .ToList(),
-        };
+            categories.Sort(StringComparer.CurrentCulture);
+        }
 
         if (categories.Remove(defaultCategory))
             categories.Add(defaultCategory);
@@ -388,6 +379,24 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         {
             SelectedCategory = AllCategoriesLabel;
         }
+    }
+
+    private List<string> CollectDistinctNonEmptyCategories()
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var categories = new List<string>();
+
+        foreach (var item in LaunchItems)
+        {
+            if (string.IsNullOrWhiteSpace(item.Category) || !seen.Add(item.Category))
+            {
+                continue;
+            }
+
+            categories.Add(item.Category);
+        }
+
+        return categories;
     }
 
     private static bool IsAllCategoriesLabel(string category) =>

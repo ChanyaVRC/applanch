@@ -136,12 +136,25 @@ internal static class LauncherStore
                 continue;
             }
 
+            var normalizedCategory = LaunchItemNormalization.NormalizeCategory(entry.Category);
+            var normalizedArguments = LaunchItemNormalization.NormalizeArguments(entry.Arguments);
+            var normalizedDisplayName = LaunchItemNormalization.NormalizeDisplayName(entry.DisplayName, normalizedPath);
+
+            if (string.Equals(entry.Path, normalizedPath, StringComparison.Ordinal) &&
+                string.Equals(entry.Category, normalizedCategory, StringComparison.Ordinal) &&
+                string.Equals(entry.Arguments, normalizedArguments, StringComparison.Ordinal) &&
+                string.Equals(entry.DisplayName, normalizedDisplayName, StringComparison.Ordinal))
+            {
+                result.Add(entry);
+                continue;
+            }
+
             result.Add(entry with
             {
                 Path = normalizedPath,
-                Category = LaunchItemNormalization.NormalizeCategory(entry.Category),
-                Arguments = LaunchItemNormalization.NormalizeArguments(entry.Arguments),
-                DisplayName = LaunchItemNormalization.NormalizeDisplayName(entry.DisplayName, normalizedPath)
+                Category = normalizedCategory,
+                Arguments = normalizedArguments,
+                DisplayName = normalizedDisplayName
             });
         }
 

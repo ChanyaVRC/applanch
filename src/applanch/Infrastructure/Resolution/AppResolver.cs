@@ -113,13 +113,37 @@ internal static partial class AppResolver
             candidates.Add(pathSuggestion);
         }
 
-        return [.. candidates
+        var bestByText = new Dictionary<string, SuggestionCandidate>(StringComparer.OrdinalIgnoreCase);
+        foreach (var candidate in candidates)
+        {
+            if (!bestByText.TryGetValue(candidate.Text, out var existing) ||
+                IsHigherRank(candidate, existing))
+            {
+                bestByText[candidate.Text] = candidate;
+            }
+        }
+
+        return [.. bestByText.Values
             .OrderByDescending(static x => x.Score)
             .ThenByDescending(static x => x.SourcePriority)
             .ThenBy(static x => x.Text, StringComparer.CurrentCultureIgnoreCase)
-            .DistinctBy(static x => x.Text, StringComparer.OrdinalIgnoreCase)
             .Take(maxResults)
             .Select(static x => x.Text)];
+    }
+
+    private static bool IsHigherRank(in SuggestionCandidate left, in SuggestionCandidate right)
+    {
+        if (left.Score != right.Score)
+        {
+            return left.Score > right.Score;
+        }
+
+        if (left.SourcePriority != right.SourcePriority)
+        {
+            return left.SourcePriority > right.SourcePriority;
+        }
+
+        return string.Compare(left.Text, right.Text, StringComparison.CurrentCultureIgnoreCase) < 0;
     }
 
     private static IEnumerable<string> ExpandCandidates(string input)
