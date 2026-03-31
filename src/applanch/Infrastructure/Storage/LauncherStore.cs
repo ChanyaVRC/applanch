@@ -16,10 +16,7 @@ internal static class LauncherStore
     private static readonly string StoreFilePath = Path.Combine(StoreDirectory, "launch-items.json");
     private static readonly string LegacyStoreFilePath = Path.Combine(StoreDirectory, "launch-items.txt");
 
-    public static void EnsureStorageDirectory()
-    {
-        Directory.CreateDirectory(StoreDirectory);
-    }
+    public static void EnsureStorageDirectory() => Directory.CreateDirectory(StoreDirectory);
 
     public static IReadOnlyList<LauncherEntry> LoadAll()
     {
@@ -67,7 +64,8 @@ internal static class LauncherStore
         }
 
         var existing = LoadAll().ToList();
-        if (ContainsPath(existing, normalizedPath))
+        var seenPaths = new HashSet<string>(existing.Select(static x => x.Path), StringComparer.OrdinalIgnoreCase);
+        if (!seenPaths.Add(normalizedPath))
         {
             return;
         }
@@ -88,9 +86,6 @@ internal static class LauncherStore
         var json = JsonSerializer.Serialize(NormalizeEntries(entries), JsonOptions);
         File.WriteAllText(StoreFilePath, json);
     }
-
-    private static bool ContainsPath(IEnumerable<LauncherEntry> entries, string path) =>
-        entries.Any(item => string.Equals(item.Path, path, StringComparison.OrdinalIgnoreCase));
 
     private static IReadOnlyList<LauncherEntry> LoadLegacyEntries()
     {
@@ -116,39 +111,53 @@ internal static class LauncherStore
 
         foreach (var entry in entries)
         {
-            if (!TryNormalizePersistablePath(entry.Path, out var normalizedPath))
+            if (!TryNormalizeEntry(entry, out var normalizedEntry))
             {
                 continue;
             }
 
-            if (!seenPaths.Add(normalizedPath))
+            if (!seenPaths.Add(normalizedEntry.Path))
             {
                 continue;
             }
 
-            var normalizedCategory = LaunchItemNormalization.NormalizeCategory(entry.Category);
-            var normalizedArguments = LaunchItemNormalization.NormalizeArguments(entry.Arguments);
-            var normalizedDisplayName = LaunchItemNormalization.NormalizeDisplayName(entry.DisplayName, normalizedPath);
-
-            if (string.Equals(entry.Path, normalizedPath, StringComparison.Ordinal) &&
-                string.Equals(entry.Category, normalizedCategory, StringComparison.Ordinal) &&
-                string.Equals(entry.Arguments, normalizedArguments, StringComparison.Ordinal) &&
-                string.Equals(entry.DisplayName, normalizedDisplayName, StringComparison.Ordinal))
-            {
-                result.Add(entry);
-                continue;
-            }
-
-            result.Add(entry with
-            {
-                Path = normalizedPath,
-                Category = normalizedCategory,
-                Arguments = normalizedArguments,
-                DisplayName = normalizedDisplayName
-            });
+            result.Add(normalizedEntry);
         }
 
         return result;
+    }
+
+    private static bool TryNormalizeEntry(LauncherEntry entry, out LauncherEntry normalizedEntry)
+    {
+        normalizedEntry = default!;
+
+        if (!TryNormalizePersistablePath(entry.Path, out var normalizedPath))
+        {
+            return false;
+        }
+
+        var normalizedCategory = LaunchItemNormalization.NormalizeCategory(entry.Category);
+        var normalizedArguments = LaunchItemNormalization.NormalizeArguments(entry.Arguments);
+        var normalizedDisplayName = LaunchItemNormalization.NormalizeDisplayName(entry.DisplayName, normalizedPath);
+
+        if (string.Equals(entry.Path, normalizedPath, StringComparison.Ordinal) &&
+            string.Equals(entry.Category, normalizedCategory, StringComparison.Ordinal) &&
+            string.Equals(entry.Arguments, normalizedArguments, StringComparison.Ordinal) &&
+            string.Equals(entry.DisplayName, normalizedDisplayName, StringComparison.Ordinal))
+        {
+            normalizedEntry = entry;
+            return true;
+        }
+
+        normalizedEntry = entry with
+        {
+            Path = normalizedPath,
+            Category = normalizedCategory,
+            Arguments = normalizedArguments,
+            DisplayName = normalizedDisplayName
+        };
+
+        return true;
     }
 
     private static bool TryNormalizePersistablePath(string path, out string normalizedPath)
