@@ -166,13 +166,12 @@ internal static class LauncherStore
     {
         normalizedPath = string.Empty;
 
-        var rawPath = NormalizeDriveLetterSpecifier(path.Trim());
-        if (string.IsNullOrWhiteSpace(rawPath) || !Path.IsPathFullyQualified(rawPath))
+        var trimmedPath = path.Trim();
+        if (!Path.IsPathRooted(trimmedPath))
         {
             return false;
         }
-
-        normalizedPath = NormalizePath(rawPath);
+        normalizedPath = NormalizePath(trimmedPath);
         return !string.IsNullOrWhiteSpace(normalizedPath);
     }
 
@@ -186,7 +185,22 @@ internal static class LauncherStore
         var trimmedPath = path.Trim();
         try
         {
+            var root = Path.GetPathRoot(trimmedPath);
+            if (trimmedPath == root && !Path.EndsInDirectorySeparator(trimmedPath))
+            {
+                return trimmedPath + Path.DirectorySeparatorChar;
+            }
+
             var full = Path.GetFullPath(trimmedPath);
+            if (Directory.Exists(full))
+            {
+                if (!Path.EndsInDirectorySeparator(full))
+                {
+                    full += Path.DirectorySeparatorChar;
+                }
+
+                return full;
+            }
             full = Path.TrimEndingDirectorySeparator(full);
 
             return full;

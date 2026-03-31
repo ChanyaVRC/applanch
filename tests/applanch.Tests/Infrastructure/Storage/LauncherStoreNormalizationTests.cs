@@ -16,7 +16,7 @@ public class LauncherStoreNormalizationTests
     }
 
     [Fact]
-    public void NormalizePath_TrimsTrailingSeparator_ForNonRootPath()
+    public void NormalizePath_PreservesTrailingSeparator_ForDirectoryPath()
     {
         var tempDir = Path.Combine(Path.GetTempPath(), "applanch-tests-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDir);
@@ -27,7 +27,7 @@ public class LauncherStoreNormalizationTests
 
             var normalized = InvokeNormalizePath(withTrailing);
 
-            Assert.Equal(tempDir, normalized);
+            Assert.Equal(withTrailing, normalized);
         }
         finally
         {
@@ -164,14 +164,14 @@ public class LauncherStoreNormalizationTests
     {
         var method = typeof(LauncherStore).GetMethod("NormalizePath", BindingFlags.NonPublic | BindingFlags.Static);
         Assert.NotNull(method);
-        return (string)method!.Invoke(null, new object?[] { value })!;
+        return (string)method!.Invoke(null, [value])!;
     }
 
     private static IReadOnlyList<LauncherStore.LauncherEntry> InvokeNormalizeEntries(IEnumerable<LauncherStore.LauncherEntry> value)
     {
         var method = typeof(LauncherStore).GetMethod("NormalizeEntries", BindingFlags.NonPublic | BindingFlags.Static);
         Assert.NotNull(method);
-        return (IReadOnlyList<LauncherStore.LauncherEntry>)method!.Invoke(null, new object?[] { value })!;
+        return (IReadOnlyList<LauncherStore.LauncherEntry>)method!.Invoke(null, [value])!;
     }
 }
 
