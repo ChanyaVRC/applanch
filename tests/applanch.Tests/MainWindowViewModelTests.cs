@@ -627,6 +627,38 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
+    public void CategorySortMode_AsAdded_DefaultCategoryPinnedLast()
+    {
+        var defaultCategory = LauncherStore.LauncherEntry.DefaultCategory;
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", defaultCategory, string.Empty, "A"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Ops", string.Empty, "C")
+        ]);
+
+        var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.AsAdded });
+
+        Assert.Equal(defaultCategory, vm.CategoryNames.Last());
+    }
+
+    [Fact]
+    public void CategorySortMode_Alphabetical_DefaultCategoryPinnedLast()
+    {
+        var defaultCategory = LauncherStore.LauncherEntry.DefaultCategory;
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", defaultCategory, string.Empty, "A"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Ops", string.Empty, "C")
+        ]);
+
+        var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.Alphabetical });
+
+        Assert.Equal(defaultCategory, vm.CategoryNames.Last());
+    }
+
+    [Fact]
     public void AppListSortMode_Name_SortsFilteredViewByDisplayName()
     {
         var store = new FakeStore(

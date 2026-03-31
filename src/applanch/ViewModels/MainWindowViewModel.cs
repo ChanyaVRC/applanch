@@ -362,6 +362,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     private void RebuildCategoryLists()
     {
+        var defaultCategory = LauncherStore.LauncherEntry.DefaultCategory;
         var categories = _settings.CategorySortMode switch
         {
             CategorySortMode.AsAdded => LaunchItems
@@ -376,6 +377,9 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
                 .OrderBy(static category => category, StringComparer.CurrentCulture)
                 .ToList(),
         };
+
+        if (categories.Remove(defaultCategory))
+            categories.Add(defaultCategory);
 
         ReplaceCollection(CategoryNames, categories);
         ReplaceCollection(FilterCategoryNames, [AllCategoriesLabel, .. categories]);
