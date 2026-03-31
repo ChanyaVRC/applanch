@@ -562,6 +562,42 @@ public class MainWindowViewModelTests
         }
     }
 
+    [Fact]
+    public void ApplySettings_WhenCultureChangesFromJapaneseToEnglish_NormalizesDefaultCategoryLabels()
+    {
+        var previousUi = CultureInfo.CurrentUICulture;
+        var previousCulture = CultureInfo.CurrentCulture;
+
+        try
+        {
+            var ja = new CultureInfo("ja");
+            CultureInfo.CurrentUICulture = ja;
+            CultureInfo.CurrentCulture = ja;
+
+            var store = new FakeStore(
+            [
+                new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", Resources.DefaultCategory, string.Empty, "A")
+            ]);
+
+            var vm = CreateViewModel(store: store);
+            vm.QuickAddCategory = Resources.DefaultCategory;
+
+            var en = new CultureInfo("en");
+            CultureInfo.CurrentUICulture = en;
+            CultureInfo.CurrentCulture = en;
+
+            vm.ApplySettings(new AppSettings { Language = LanguageOption.English });
+
+            Assert.Equal(Resources.DefaultCategory, vm.LaunchItems[0].Category);
+            Assert.Equal(Resources.DefaultCategory, vm.QuickAddCategory);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previousUi;
+            CultureInfo.CurrentCulture = previousCulture;
+        }
+    }
+
     private static MainWindowViewModel CreateViewModel(FakeStore? store = null, FakeResolver? resolver = null)
     {
         return new MainWindowViewModel(resolver ?? new FakeResolver(), store ?? new FakeStore([]));

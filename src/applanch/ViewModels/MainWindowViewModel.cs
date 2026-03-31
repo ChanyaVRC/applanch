@@ -239,7 +239,14 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     internal void ApplySettings(AppSettings settings)
     {
+        var languageChanged = _settings.Language != settings.Language;
         _settings = settings;
+
+        if (languageChanged)
+        {
+            NormalizeLocalizedDefaultCategories();
+        }
+
         RebuildCategoryLists();
         ApplyLaunchItemSort();
         RefreshFilteredView();
@@ -298,13 +305,56 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         {
             RebuildCategoryLists();
             RefreshFilteredView();
-            PersistCurrentOrder();
+            if (!_suspendPersistence)
+            {
+                PersistCurrentOrder();
+            }
+
             OnPropertyChanged(nameof(EmptyMessageVisibility));
             return;
         }
 
         if (e.PropertyName is nameof(LaunchItemViewModel.Arguments)
                              or nameof(LaunchItemViewModel.DisplayName))
+        {
+            if (!_suspendPersistence)
+            {
+                PersistCurrentOrder();
+            }
+        }
+    }
+
+    private void NormalizeLocalizedDefaultCategories()
+    {
+        var categoryUpdated = false;
+        _suspendPersistence = true;
+        try
+        {
+            foreach (var item in LaunchItems)
+            {
+                var normalizedCategory = LaunchItemNormalization.NormalizeCategory(item.Category);
+                if (string.Equals(item.Category, normalizedCategory, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                item.Category = normalizedCategory;
+                categoryUpdated = true;
+            }
+        }
+        finally
+        {
+            _suspendPersistence = false;
+        }
+
+        var normalizedQuickAddCategory = LaunchItemNormalization.NormalizeCategory(QuickAddCategory);
+        if (!string.Equals(_quickAddCategory, normalizedQuickAddCategory, StringComparison.Ordinal))
+        {
+            _quickAddCategory = normalizedQuickAddCategory;
+            OnPropertyChanged(nameof(QuickAddCategory));
+        }
+
+        if (categoryUpdated)
         {
             PersistCurrentOrder();
         }
