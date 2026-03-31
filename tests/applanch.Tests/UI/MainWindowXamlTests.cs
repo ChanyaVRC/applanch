@@ -17,4 +17,16 @@ public class MainWindowXamlTests
         Assert.Contains("TextOptions.TextFormattingMode=\"Display\"", xaml);
         Assert.Contains("TextOptions.TextRenderingMode=\"Auto\"", xaml);
     }
+
+    [Fact]
+    public void LaunchItemTemplate_ShowsMissingPathWarningBadge()
+    {
+        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        var xamlPath = Path.Combine(projectRoot, "src", "applanch", "MainWindow.xaml");
+        var xaml = File.ReadAllText(xamlPath);
+
+        Assert.Contains("ToolTip_MissingPath", xaml);
+        Assert.Contains("Binding=\"{Binding IsPathMissing}\"", xaml);
+        Assert.Contains("&#xE7BA;", xaml);
+    }
 }

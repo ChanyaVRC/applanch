@@ -297,4 +297,7 @@
   <data name="ContextMenu_Register" xml:space="preserve">
     <value>Register with Applanch</value>
   </data>
+  <data name="ToolTip_MissingPath" xml:space="preserve">
+    <value>The file or folder path is missing.</value>
+  </data>
 </root>

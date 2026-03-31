@@ -1047,11 +1047,35 @@
                                                         CornerRadius="5"
                                                         Background="{DynamicResource Brush.IconBackground}"
                                                         VerticalAlignment="Center">
-                                                    <Image Source="{Binding IconSource}"
-                                                           Width="16"
-                                                           Height="16"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Center"/>
+                                                    <Grid>
+                                                        <Image Source="{Binding IconSource}"
+                                                               Width="16"
+                                                               Height="16"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                        <TextBlock Text="&#xE7BA;"
+                                                                   FontFamily="Segoe MDL2 Assets"
+                                                                   FontSize="10"
+                                                                   HorizontalAlignment="Right"
+                                                                   VerticalAlignment="Bottom"
+                                                                   Margin="0,0,-1,-1"
+                                                                   Foreground="{DynamicResource Brush.NotificationWarningBorder}"
+                                                                   ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Visibility"
+                                                                            Value="Collapsed"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsPathMissing}"
+                                                                                     Value="True">
+                                                                            <Setter Property="Visibility"
+                                                                                    Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Grid>
                                                 </Border>
 
                                                 <TextBlock Grid.Column="2"
@@ -1102,11 +1126,35 @@
                                                     CornerRadius="5"
                                                     Background="{DynamicResource Brush.IconBackground}"
                                                     VerticalAlignment="Center">
-                                                <Image Source="{Binding IconSource}"
-                                                       Width="16"
-                                                       Height="16"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"/>
+                                                <Grid>
+                                                    <Image Source="{Binding IconSource}"
+                                                           Width="16"
+                                                           Height="16"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                                    <TextBlock Text="&#xE7BA;"
+                                                               FontFamily="Segoe MDL2 Assets"
+                                                               FontSize="10"
+                                                               HorizontalAlignment="Right"
+                                                               VerticalAlignment="Bottom"
+                                                               Margin="0,0,-1,-1"
+                                                               Foreground="{DynamicResource Brush.NotificationWarningBorder}"
+                                                               ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Visibility"
+                                                                        Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsPathMissing}"
+                                                                                 Value="True">
+                                                                        <Setter Property="Visibility"
+                                                                                Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Grid>
                                             </Border>
 
                                             <TextBox Grid.Column="2"

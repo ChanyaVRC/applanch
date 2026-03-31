@@ -160,6 +160,39 @@ public class LaunchItemViewModelTests
         Assert.Equal("Tool Final", vm.EditingName);
         Assert.Equal(new[] { nameof(LaunchItemViewModel.EditingName), nameof(LaunchItemViewModel.EditingName) }, changed);
     }
+
+    [Fact]
+    public void IsPathMissing_WhenPathDoesNotExist_ReturnsTrue()
+    {
+        var missingPath = Path.Combine(Path.GetTempPath(), $"applanch-missing-{Guid.NewGuid():N}.exe");
+        var vm = new LaunchItemViewModel(
+            fullPath: missingPath,
+            category: "Dev",
+            arguments: string.Empty,
+            displayName: "Missing");
+
+        Assert.True(vm.IsPathMissing);
+    }
+
+    [Fact]
+    public void IsPathMissing_WhenFileExists_ReturnsFalse()
+    {
+        var existingPath = Path.GetTempFileName();
+        try
+        {
+            var vm = new LaunchItemViewModel(
+                fullPath: existingPath,
+                category: "Dev",
+                arguments: string.Empty,
+                displayName: "Existing");
+
+            Assert.False(vm.IsPathMissing);
+        }
+        finally
+        {
+            File.Delete(existingPath);
+        }
+    }
 }
 
 

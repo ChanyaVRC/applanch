@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
@@ -75,6 +76,7 @@ public sealed class LaunchItemViewModel : INotifyPropertyChanged
 
     public string FullPath { get; }
     public BitmapSource? IconSource { get; }
+    public bool IsPathMissing => !Path.Exists(FullPath);
 
     public string Arguments
     {
