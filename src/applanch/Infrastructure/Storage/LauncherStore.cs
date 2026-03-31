@@ -166,59 +166,59 @@ internal static class LauncherStore
     {
         normalizedPath = string.Empty;
 
-        var trimmedPath = path.Trim();
-        if (!Path.IsPathRooted(trimmedPath))
+        var trimmedPathSpan = path.AsSpan().Trim();
+        if (trimmedPathSpan.IsEmpty)
         {
             return false;
         }
-        normalizedPath = NormalizePath(trimmedPath);
+
+        ReadOnlySpan<char> candidatePath = trimmedPathSpan;
+        string? driveRootPath = null;
+        if (IsDriveLetterSpecifier(trimmedPathSpan))
+        {
+            driveRootPath = string.Concat(trimmedPathSpan.ToString(), Path.DirectorySeparatorChar);
+            candidatePath = driveRootPath.AsSpan();
+        }
+
+        if (!Path.IsPathFullyQualified(candidatePath))
+        {
+            return false;
+        }
+
+        normalizedPath = NormalizePathCore(candidatePath);
         return !string.IsNullOrWhiteSpace(normalizedPath);
     }
 
-    private static string NormalizePath(string? path)
+    private static string NormalizePathCore(ReadOnlySpan<char> path)
     {
-        if (string.IsNullOrWhiteSpace(path))
+        var trimmedPathSpan = path.Trim();
+        if (trimmedPathSpan.IsEmpty)
         {
             return string.Empty;
         }
 
-        var trimmedPath = path.Trim();
+        var trimmedPath = trimmedPathSpan.ToString();
         try
         {
-            var root = Path.GetPathRoot(trimmedPath);
-            if (trimmedPath == root && !Path.EndsInDirectorySeparator(trimmedPath))
-            {
-                return trimmedPath + Path.DirectorySeparatorChar;
-            }
-
             var full = Path.GetFullPath(trimmedPath);
-            if (Directory.Exists(full))
-            {
-                if (!Path.EndsInDirectorySeparator(full))
-                {
-                    full += Path.DirectorySeparatorChar;
-                }
-
-                return full;
-            }
-            full = Path.TrimEndingDirectorySeparator(full);
-
-            return full;
+            return Directory.Exists(full)
+                ? EnsureTrailingDirectorySeparator(full)
+                : Path.TrimEndingDirectorySeparator(full);
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Path normalization failed for '{path}': {ex.Message}");
+            AppLogger.Instance.Warn($"Path normalization failed for '{trimmedPath}': {ex.Message}");
             return trimmedPath;
         }
     }
 
-    private static string NormalizeDriveLetterSpecifier(string path)
-    {
-        var root = Path.GetPathRoot(path);
-        return root == path && !Path.EndsInDirectorySeparator(path)
-            ? path + Path.DirectorySeparatorChar
-            : path;
-    }
+    private static bool IsDriveLetterSpecifier(ReadOnlySpan<char> path) =>
+        path.Length == 2 && char.IsLetter(path[0]) && path[1] == ':';
+
+    private static string EnsureTrailingDirectorySeparator(string path) =>
+        Path.EndsInDirectorySeparator(path)
+            ? path
+            : path + Path.DirectorySeparatorChar;
 
     internal sealed record LauncherEntry(string Path, string Category, string Arguments, string DisplayName)
     {

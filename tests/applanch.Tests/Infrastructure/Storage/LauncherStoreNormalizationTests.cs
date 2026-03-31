@@ -9,14 +9,17 @@ namespace applanch.Tests.Infrastructure.Storage;
 public class LauncherStoreNormalizationTests
 {
     [Fact]
-    public void NormalizePath_NullOrWhitespace_ReturnsEmpty()
+    public void TryNormalizePersistablePath_NullOrWhitespace_ReturnsFalse()
     {
-        Assert.Equal(string.Empty, InvokeNormalizePath(null));
-        Assert.Equal(string.Empty, InvokeNormalizePath("   "));
+        Assert.False(InvokeTryNormalizePersistablePath("", out var normalizedEmpty));
+        Assert.Equal(string.Empty, normalizedEmpty);
+
+        Assert.False(InvokeTryNormalizePersistablePath("   ", out var normalizedWhitespace));
+        Assert.Equal(string.Empty, normalizedWhitespace);
     }
 
     [Fact]
-    public void NormalizePath_PreservesTrailingSeparator_ForDirectoryPath()
+    public void TryNormalizePersistablePath_PreservesTrailingSeparator_ForDirectoryPath()
     {
         var tempDir = Path.Combine(Path.GetTempPath(), "applanch-tests-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDir);
@@ -25,8 +28,9 @@ public class LauncherStoreNormalizationTests
         {
             var withTrailing = tempDir + Path.DirectorySeparatorChar;
 
-            var normalized = InvokeNormalizePath(withTrailing);
+            var ok = InvokeTryNormalizePersistablePath(withTrailing, out var normalized);
 
+            Assert.True(ok);
             Assert.Equal(withTrailing, normalized);
         }
         finally
@@ -36,13 +40,14 @@ public class LauncherStoreNormalizationTests
     }
 
     [Fact]
-    public void NormalizePath_InvalidPath_ReturnsTrimmedOriginal()
+    public void TryNormalizePersistablePath_InvalidPath_ReturnsFalse()
     {
         var invalid = "  invalid\0path  ";
 
-        var normalized = InvokeNormalizePath(invalid);
+        var ok = InvokeTryNormalizePersistablePath(invalid, out var normalized);
 
-        Assert.Equal("invalid\0path", normalized);
+        Assert.False(ok);
+        Assert.Equal(string.Empty, normalized);
     }
 
     [Fact]
@@ -64,13 +69,27 @@ public class LauncherStoreNormalizationTests
     }
 
     [Fact]
-    public void NormalizePath_ReservedDeviceLikePath_ReturnsTrimmedOriginal()
+    public void NormalizeEntries_RootedButNotFullyQualifiedPath_IsDropped()
+    {
+        var entries = new[]
+        {
+            new LauncherStore.LauncherEntry("\\Temp\\Tool.exe", "Misc", string.Empty, "Tool")
+        };
+
+        var normalized = InvokeNormalizeEntries(entries);
+
+        Assert.Empty(normalized);
+    }
+
+    [Fact]
+    public void TryNormalizePersistablePath_ReservedDeviceLikePath_ReturnsFalse()
     {
         var reserved = "  CON:  ";
 
-        var normalized = InvokeNormalizePath(reserved);
+        var ok = InvokeTryNormalizePersistablePath(reserved, out var normalized);
 
-        Assert.Equal(@"\\.\CON", normalized);
+        Assert.False(ok);
+        Assert.Equal(string.Empty, normalized);
     }
 
     [Fact]
@@ -160,11 +179,15 @@ public class LauncherStoreNormalizationTests
         }
     }
 
-    private static string InvokeNormalizePath(string? value)
+    private static bool InvokeTryNormalizePersistablePath(string value, out string normalized)
     {
-        var method = typeof(LauncherStore).GetMethod("NormalizePath", BindingFlags.NonPublic | BindingFlags.Static);
+        var method = typeof(LauncherStore).GetMethod("TryNormalizePersistablePath", BindingFlags.NonPublic | BindingFlags.Static);
         Assert.NotNull(method);
-        return (string)method!.Invoke(null, [value])!;
+
+        object?[] args = [value, null];
+        var success = (bool)method!.Invoke(null, args)!;
+        normalized = args[1] as string ?? string.Empty;
+        return success;
     }
 
     private static IReadOnlyList<LauncherStore.LauncherEntry> InvokeNormalizeEntries(IEnumerable<LauncherStore.LauncherEntry> value)

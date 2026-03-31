@@ -36,6 +36,7 @@ internal static class LaunchItemNormalization
         }
 
         var trimmed = category.Trim();
+
         return KnownDefaultCategories.Contains(trimmed)
             ? LauncherStore.LauncherEntry.DefaultCategory
             : trimmed;
