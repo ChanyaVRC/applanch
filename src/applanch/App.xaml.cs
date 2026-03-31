@@ -78,7 +78,14 @@ public partial class App : Application
         _settings = settings;
         ApplyLanguage(settings.Language);
         ApplyStartupRegistration(settings);
+        LocalizedStrings.Instance.NotifyLanguageChanged();
         _themeManager.ApplyTheme(Resources);
+
+        if (MainWindow is MainWindow mainWindow)
+        {
+            mainWindow.ApplySettingsFromAppRefresh(settings);
+        }
+
         ApplyCaptionThemeToOpenWindows();
     }
 

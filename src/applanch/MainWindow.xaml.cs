@@ -106,6 +106,18 @@ public partial class MainWindow : Window
         ViewModel.UpdateBanner.HeaderButtonVisibility = Visibility.Visible;
     }
 
+    internal void ApplySettingsFromAppRefresh(AppSettings settings)
+    {
+        _settings = settings;
+
+        if (!settings.DebugUpdate)
+        {
+            ApplyUpdateAvailability(null);
+        }
+
+        ViewModel.ApplySettings(settings);
+    }
+
     private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(MainWindowViewModel.SelectedCategory))

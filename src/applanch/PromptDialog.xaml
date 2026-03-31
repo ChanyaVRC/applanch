@@ -1,8 +1,9 @@
-﻿<Window x:Class="applanch.PromptDialog"
+<Window x:Class="applanch.PromptDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:applanch.Controls"
         xmlns:res="clr-namespace:applanch.Properties"
+        xmlns:local="clr-namespace:applanch"
         SizeToContent="Height"
         Width="420"
         ResizeMode="NoResize"
@@ -189,7 +190,7 @@
                     HorizontalAlignment="Right"
                     Margin="0,14,0,0">
             <Button x:Name="CancelButton"
-                        Content="{x:Static res:Resources.Button_Cancel}"
+                        Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_Cancel]}"
                     Width="100"
                     IsCancel="True" />
             <Button x:Name="OkButton"
