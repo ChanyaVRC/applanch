@@ -202,7 +202,7 @@ public partial class SuggestionInputControl : UserControl
             return;
         }
 
-        if (!string.Equals(Text, textBox.Text, StringComparison.Ordinal))
+        if (Text != textBox.Text)
         {
             Text = textBox.Text;
             return;

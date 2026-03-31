@@ -113,7 +113,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
                 return;
             }
 
-            if (string.Equals(_quickAddNameOrPath, value, StringComparison.Ordinal))
+            if (_quickAddNameOrPath == value)
             {
                 return;
             }
@@ -141,7 +141,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         get => _selectedCategory;
         set
         {
-            if (string.Equals(_selectedCategory, value, StringComparison.Ordinal))
+            if (_selectedCategory == value)
             {
                 return;
             }
@@ -275,7 +275,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         }
 
         return IsAllCategoriesLabel(SelectedCategory)
-            || string.Equals(launchItem.Category, SelectedCategory, StringComparison.Ordinal);
+            || launchItem.Category == SelectedCategory;
     }
 
     private void PersistCurrentOrder()
@@ -333,7 +333,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
             foreach (var item in LaunchItems)
             {
                 var normalizedCategory = LaunchItemNormalization.NormalizeCategory(item.Category);
-                if (string.Equals(item.Category, normalizedCategory, StringComparison.Ordinal))
+                if (item.Category == normalizedCategory)
                 {
                     continue;
                 }
@@ -348,7 +348,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         }
 
         var normalizedQuickAddCategory = LaunchItemNormalization.NormalizeCategory(QuickAddCategory);
-        if (!string.Equals(_quickAddCategory, normalizedQuickAddCategory, StringComparison.Ordinal))
+        if (_quickAddCategory != normalizedQuickAddCategory)
         {
             _quickAddCategory = normalizedQuickAddCategory;
             OnPropertyChanged(nameof(QuickAddCategory));
@@ -428,7 +428,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     }
 
     private bool IsAllCategorySelected =>
-        string.Equals(SelectedCategory, AllCategoriesLabel, StringComparison.Ordinal);
+        SelectedCategory == AllCategoriesLabel;
 
     private static LauncherStore.LauncherEntry ToLauncherEntry(LaunchItemViewModel item) =>
         new(item.FullPath, item.Category, item.Arguments, item.DisplayName);
@@ -507,7 +507,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     private bool SetField(ref string field, string value, [CallerMemberName] string propertyName = "")
     {
-        if (string.Equals(field, value, StringComparison.Ordinal))
+        if (field == value)
         {
             return false;
         }

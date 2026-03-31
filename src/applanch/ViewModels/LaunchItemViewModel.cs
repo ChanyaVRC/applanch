@@ -34,7 +34,7 @@ public sealed class LaunchItemViewModel : INotifyPropertyChanged
         set
         {
             var normalized = LaunchItemNormalization.NormalizeDisplayName(value, FullPath);
-            if (string.Equals(_displayName, normalized, StringComparison.Ordinal))
+            if (_displayName == normalized)
             {
                 return;
             }
@@ -64,7 +64,7 @@ public sealed class LaunchItemViewModel : INotifyPropertyChanged
         get => _editingName;
         set
         {
-            if (string.Equals(_editingName, value, StringComparison.Ordinal))
+            if (_editingName == value)
             {
                 return;
             }
@@ -84,7 +84,7 @@ public sealed class LaunchItemViewModel : INotifyPropertyChanged
         set
         {
             var normalized = LaunchItemNormalization.NormalizeArguments(value);
-            if (string.Equals(_arguments, normalized, StringComparison.Ordinal))
+            if (_arguments == normalized)
             {
                 return;
             }
@@ -100,7 +100,7 @@ public sealed class LaunchItemViewModel : INotifyPropertyChanged
         set
         {
             var normalized = LaunchItemNormalization.NormalizeCategory(value);
-            if (string.Equals(_category, normalized, StringComparison.Ordinal))
+            if (_category == normalized)
             {
                 return;
             }
