@@ -167,6 +167,14 @@ public partial class App : Application
         var nextMainWindow = new MainWindow();
         MainWindow = nextMainWindow;
         nextMainWindow.Show();
+
+        // Keep any modeless windows (e.g. settings) alive by re-parenting them
+        // to the new main window before the old one is closed.
+        foreach (Window window in currentMainWindow.OwnedWindows.Cast<Window>().ToList())
+        {
+            window.Owner = nextMainWindow;
+        }
+
         currentMainWindow.Close();
     }
 

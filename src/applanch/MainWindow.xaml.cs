@@ -30,6 +30,7 @@ public partial class MainWindow : Window
     private readonly FloatingNotificationCoordinator _floatingNotificationCoordinator;
     private AppSettings _settings;
     private AppUpdateInfo? _pendingUpdate;
+    private SettingsWindow? _settingsWindow;
     private readonly DispatcherTimer _floatingNotificationTimer;
     private readonly Storyboard _slideInStoryboard;
     private readonly Storyboard _slideOutStoryboard;
@@ -123,16 +124,36 @@ public partial class MainWindow : Window
 
     // ── Settings ────────────────────────────────────────────
 
-    private async void SettingsButton_Click(object sender, RoutedEventArgs e)
+    private void SettingsButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new SettingsWindow(this);
-        dialog.ShowDialog();
-        if (!dialog.SettingsChanged)
+        if (_settingsWindow is { IsLoaded: true })
+        {
+            _settingsWindow.Activate();
+            return;
+        }
+
+        _settingsWindow = new SettingsWindow(this);
+        _settingsWindow.Closed += OnSettingsWindowClosed;
+        _settingsWindow.Show();
+    }
+
+    private async void OnSettingsWindowClosed(object? sender, EventArgs e)
+    {
+        _settingsWindow = null;
+
+        // When a language change reloaded the main window, this instance is already
+        // closed.  The new window handles its own initialization.
+        if (!IsLoaded)
         {
             return;
         }
 
-        var settings = dialog.SavedSettings ?? AppSettings.Load();
+        if (sender is not SettingsWindow { SettingsChanged: true })
+        {
+            return;
+        }
+
+        var settings = AppSettings.Load();
         _settings = settings;
         if (!settings.DebugUpdate)
         {
