@@ -29,6 +29,11 @@ public class LaunchFallbackConfigTests
             rule.GetProperty("matchFileNames").EnumerateArray().Any(value => value.GetString() == "League of Legends.exe"));
 
         Assert.Contains(rules.EnumerateArray(), rule =>
+            rule.GetProperty("name").GetString() == "Steam library executable" &&
+            rule.GetProperty("kind").GetString() == "uri-template" &&
+            rule.GetProperty("appIdSource").GetString() == "steam-manifest");
+
+        Assert.Contains(rules.EnumerateArray(), rule =>
             rule.GetProperty("name").GetString() == "Epic Games sample" &&
             rule.GetProperty("kind").GetString() == "uri-template");
 

@@ -153,12 +153,10 @@ public class ItemLaunchServiceTests
         var steamApps = Path.Combine(steamRoot, "steamapps");
         var gameDirectory = Path.Combine(steamApps, "common", "CoolGame");
         var gamePath = Path.Combine(gameDirectory, "coolgame.exe");
-        var steamExe = Path.Combine(steamRoot, "steam.exe");
         var manifest = Path.Combine(steamApps, "appmanifest_12345.acf");
 
         Directory.CreateDirectory(gameDirectory);
         File.WriteAllText(gamePath, string.Empty);
-        File.WriteAllText(steamExe, string.Empty);
         File.WriteAllText(manifest,
             "\"AppState\"\n" +
             "{\n" +
@@ -186,8 +184,8 @@ public class ItemLaunchServiceTests
         Assert.True(result.IsSuccess);
         Assert.Equal(2, attempts.Count);
         Assert.Equal(gamePath, attempts[0].FileName);
-        Assert.Equal(steamExe, attempts[1].FileName);
-        Assert.Equal("steam://rungameid/12345", attempts[1].Arguments);
+        Assert.Equal("steam://rungameid/12345", attempts[1].FileName);
+        Assert.Equal(string.Empty, attempts[1].Arguments);
     }
 }
 

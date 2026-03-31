@@ -102,4 +102,47 @@ public class LaunchFallbackResolverTests
             Environment.SetEnvironmentVariable("APPLANCH_TEST_LAUNCHER", originalTemp);
         }
     }
+
+    [Fact]
+    public void TryCreate_UriTemplateRule_WithSteamManifestAppIdSource_ResolvesAppIdFromManifest()
+    {
+        using var tempDirectory = TemporaryDirectory.Create();
+        var steamApps = Path.Combine(tempDirectory.Path, "Steam", "steamapps");
+        var gameDirectory = Path.Combine(steamApps, "common", "CoolGame");
+        var gamePath = Path.Combine(gameDirectory, "coolgame.exe");
+        var manifest = Path.Combine(steamApps, "appmanifest_12345.acf");
+
+        Directory.CreateDirectory(gameDirectory);
+        File.WriteAllText(gamePath, string.Empty);
+        File.WriteAllText(manifest,
+            "\"AppState\"\n" +
+            "{\n" +
+            "  \"appid\"  \"12345\"\n" +
+            "  \"installdir\"  \"CoolGame\"\n" +
+            "}\n");
+
+        var configuration = new LaunchFallbackConfiguration
+        {
+            Rules =
+            [
+                new LaunchFallbackRuleConfiguration
+                {
+                    Name = "Steam generic",
+                    Kind = "uri-template",
+                    PathContains = "steamapps/common/",
+                    UriTemplate = "steam://rungameid/{appId}",
+                    AppIdSource = "steam-manifest",
+                },
+            ],
+        };
+
+        var resolver = new LaunchFallbackResolver(configuration);
+
+        var matched = resolver.TryCreate(gamePath, runAsAdministrator: false, out var fallback, out var fallbackName);
+
+        Assert.True(matched);
+        Assert.Equal("Steam generic", fallbackName);
+        Assert.Equal("steam://rungameid/12345", fallback.FileName);
+        Assert.Equal(string.Empty, fallback.Arguments);
+    }
 }

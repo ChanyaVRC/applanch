@@ -18,9 +18,11 @@
     },
     {
       "name": "Steam library executable",
-      "kind": "steam-rungameid",
+      "kind": "uri-template",
       "enabled": true,
-      "pathContains": "steamapps/common/"
+      "pathContains": "steamapps/common/",
+      "uriTemplate": "steam://rungameid/{appId}",
+      "appIdSource": "steam-manifest"
     },
     {
       "name": "Epic Games sample",

@@ -82,7 +82,7 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
             case "riot-client":
                 return TryCreateRiotClientFallback(rule, launchPath, runAsAdministrator, out fallback);
             case "steam-rungameid":
-                return TryCreateSteamFallback(launchPath, runAsAdministrator, out fallback);
+                return TryCreateLegacySteamFallback(launchPath, runAsAdministrator, out fallback);
             case "uri-template":
                 return TryCreateUriTemplateFallback(rule, launchPath, runAsAdministrator, out fallback);
             case "command-template":
@@ -105,7 +105,13 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
             return false;
         }
 
-        var launchTarget = ExpandTemplate(rule.UriTemplate, rule, launchPath);
+        var values = BuildTemplateValues(rule, launchPath);
+        if (values is null)
+        {
+            return false;
+        }
+
+        var launchTarget = ExpandTemplate(rule.UriTemplate, values);
         if (string.IsNullOrWhiteSpace(launchTarget))
         {
             return false;
@@ -139,7 +145,13 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
             return false;
         }
 
-        var fileName = ExpandTemplate(rule.FileNameTemplate, rule, launchPath);
+        var values = BuildTemplateValues(rule, launchPath);
+        if (values is null)
+        {
+            return false;
+        }
+
+        var fileName = ExpandTemplate(rule.FileNameTemplate, values);
         if (string.IsNullOrWhiteSpace(fileName))
         {
             return false;
@@ -150,7 +162,7 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
             return false;
         }
 
-        var arguments = ExpandTemplate(rule.ArgumentsTemplate, rule, launchPath);
+        var arguments = ExpandTemplate(rule.ArgumentsTemplate, values);
         fallback = new ProcessStartInfo
         {
             UseShellExecute = true,
@@ -206,45 +218,17 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
         return true;
     }
 
-    private static bool TryCreateSteamFallback(string launchPath, bool runAsAdministrator, out ProcessStartInfo fallback)
+    private static bool TryCreateLegacySteamFallback(string launchPath, bool runAsAdministrator, out ProcessStartInfo fallback)
     {
-        fallback = default!;
-
-        if (!TryFindContainingDirectory(launchPath, "steamapps", out var steamAppsRoot))
+        var compatibilityRule = new LaunchFallbackRuleConfiguration
         {
-            return false;
-        }
-
-        var steamRoot = Directory.GetParent(steamAppsRoot)?.FullName;
-        if (string.IsNullOrWhiteSpace(steamRoot))
-        {
-            return false;
-        }
-
-        var steamExe = Path.Combine(steamRoot, "steam.exe");
-        if (!File.Exists(steamExe))
-        {
-            return false;
-        }
-
-        if (!TryResolveSteamAppId(launchPath, steamAppsRoot, out var appId))
-        {
-            return false;
-        }
-
-        fallback = new ProcessStartInfo
-        {
-            UseShellExecute = true,
-            FileName = steamExe,
-            Arguments = $"steam://rungameid/{appId}",
+            Kind = "uri-template",
+            PathContains = "steamapps/common/",
+            UriTemplate = "steam://rungameid/{appId}",
+            AppIdSource = "steam-manifest",
         };
 
-        if (runAsAdministrator)
-        {
-            fallback.Verb = "runas";
-        }
-
-        return true;
+        return TryCreateUriTemplateFallback(compatibilityRule, launchPath, runAsAdministrator, out fallback);
     }
 
     private static bool TryResolveSteamAppId(string launchPath, string steamAppsRoot, out string appId)
@@ -323,19 +307,20 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
         return false;
     }
 
-    private static string ExpandTemplate(string template, LaunchFallbackRuleConfiguration rule, string launchPath)
+    private static Dictionary<string, string>? BuildTemplateValues(LaunchFallbackRuleConfiguration rule, string launchPath)
     {
-        if (string.IsNullOrWhiteSpace(template))
+        var appId = ResolveAppId(rule, launchPath);
+        if (appId is null)
         {
-            return string.Empty;
+            return null;
         }
 
         var launchDirectory = Path.GetDirectoryName(launchPath) ?? string.Empty;
         var launchFileName = Path.GetFileName(launchPath);
         var launchFileStem = Path.GetFileNameWithoutExtension(launchPath);
-        var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            ["appId"] = rule.AppId,
+            ["appId"] = appId,
             ["product"] = rule.Product,
             ["patchline"] = rule.Patchline,
             ["launchPath"] = launchPath,
@@ -345,6 +330,41 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
             ["launchPathQuoted"] = Quote(launchPath),
             ["launchDirectoryQuoted"] = Quote(launchDirectory),
         };
+    }
+
+    private static string? ResolveAppId(LaunchFallbackRuleConfiguration rule, string launchPath)
+    {
+        if (!string.IsNullOrWhiteSpace(rule.AppId))
+        {
+            return rule.AppId;
+        }
+
+        return rule.AppIdSource.ToLowerInvariant() switch
+        {
+            "" => string.Empty,
+            "steam-manifest" => TryResolveSteamAppIdFromLaunchPath(launchPath, out var appId) ? appId : null,
+            _ => null,
+        };
+    }
+
+    private static bool TryResolveSteamAppIdFromLaunchPath(string launchPath, out string appId)
+    {
+        appId = string.Empty;
+
+        if (!TryFindContainingDirectory(launchPath, "steamapps", out var steamAppsRoot))
+        {
+            return false;
+        }
+
+        return TryResolveSteamAppId(launchPath, steamAppsRoot, out appId);
+    }
+
+    private static string ExpandTemplate(string template, IReadOnlyDictionary<string, string> values)
+    {
+        if (string.IsNullOrWhiteSpace(template))
+        {
+            return string.Empty;
+        }
 
         var builder = new StringBuilder(template);
         foreach (var pair in values)
