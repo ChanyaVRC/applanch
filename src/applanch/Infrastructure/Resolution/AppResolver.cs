@@ -123,27 +123,69 @@ internal static partial class AppResolver
             }
         }
 
-        return [.. bestByText.Values
-            .OrderByDescending(static x => x.Score)
-            .ThenByDescending(static x => x.SourcePriority)
-            .ThenBy(static x => x.Text, StringComparer.CurrentCultureIgnoreCase)
-            .Take(maxResults)
-            .Select(static x => x.Text)];
+        return SelectTopSuggestions(bestByText.Values, maxResults);
     }
 
     private static bool IsHigherRank(in SuggestionCandidate left, in SuggestionCandidate right)
     {
+        return CompareSuggestionRank(left, right) > 0;
+    }
+
+    private static int CompareSuggestionRank(in SuggestionCandidate left, in SuggestionCandidate right)
+    {
         if (left.Score != right.Score)
         {
-            return left.Score > right.Score;
+            return left.Score.CompareTo(right.Score);
         }
 
         if (left.SourcePriority != right.SourcePriority)
         {
-            return left.SourcePriority > right.SourcePriority;
+            return left.SourcePriority.CompareTo(right.SourcePriority);
         }
 
-        return string.Compare(left.Text, right.Text, StringComparison.CurrentCultureIgnoreCase) < 0;
+        return -string.Compare(left.Text, right.Text, StringComparison.CurrentCultureIgnoreCase);
+    }
+
+    private static IReadOnlyList<string> SelectTopSuggestions(ICollection<SuggestionCandidate> candidates, int maxResults)
+    {
+        if (candidates.Count <= maxResults)
+        {
+            return [.. candidates
+                .OrderByDescending(static x => x.Score)
+                .ThenByDescending(static x => x.SourcePriority)
+                .ThenBy(static x => x.Text, StringComparer.CurrentCultureIgnoreCase)
+                .Select(static x => x.Text)];
+        }
+
+        var selected = new List<SuggestionCandidate>(maxResults);
+        foreach (var candidate in candidates)
+        {
+            if (selected.Count < maxResults)
+            {
+                selected.Add(candidate);
+                continue;
+            }
+
+            var lowestRankIndex = 0;
+            for (var i = 1; i < selected.Count; i++)
+            {
+                if (CompareSuggestionRank(selected[i], selected[lowestRankIndex]) < 0)
+                {
+                    lowestRankIndex = i;
+                }
+            }
+
+            if (CompareSuggestionRank(candidate, selected[lowestRankIndex]) > 0)
+            {
+                selected[lowestRankIndex] = candidate;
+            }
+        }
+
+        return [.. selected
+            .OrderByDescending(static x => x.Score)
+            .ThenByDescending(static x => x.SourcePriority)
+            .ThenBy(static x => x.Text, StringComparer.CurrentCultureIgnoreCase)
+            .Select(static x => x.Text)];
     }
 
     private static IEnumerable<string> ExpandCandidates(string input)
@@ -318,7 +360,13 @@ internal static partial class AppResolver
     {
         try
         {
-            var label = new DriveInfo(root).VolumeLabel.Trim();
+            var driveInfo = new DriveInfo(root);
+            if (!driveInfo.IsReady)
+            {
+                return string.Empty;
+            }
+
+            var label = driveInfo.VolumeLabel.Trim();
             if (!string.IsNullOrWhiteSpace(label))
             {
                 return $"{label} ({driveName})";

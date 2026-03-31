@@ -61,14 +61,7 @@ internal static class LauncherStore
     {
         EnsureStorageDirectory();
 
-        var rawPath = NormalizeDriveLetterSpecifier(path.Trim());
-        if (!IsPersistablePath(rawPath))
-        {
-            return;
-        }
-
-        var normalizedPath = NormalizePath(rawPath);
-        if (string.IsNullOrWhiteSpace(normalizedPath) || !IsPersistablePath(normalizedPath))
+        if (!TryNormalizePersistablePath(path, out var normalizedPath))
         {
             return;
         }
@@ -123,16 +116,12 @@ internal static class LauncherStore
 
         foreach (var entry in entries)
         {
-            var rawPath = NormalizeDriveLetterSpecifier(entry.Path.Trim());
-            if (!IsPersistablePath(rawPath))
+            if (!TryNormalizePersistablePath(entry.Path, out var normalizedPath))
             {
                 continue;
             }
 
-            var normalizedPath = NormalizePath(rawPath);
-            if (string.IsNullOrWhiteSpace(normalizedPath) ||
-                !IsPersistablePath(normalizedPath) ||
-                !seenPaths.Add(normalizedPath))
+            if (!seenPaths.Add(normalizedPath))
             {
                 continue;
             }
@@ -160,6 +149,20 @@ internal static class LauncherStore
         }
 
         return result;
+    }
+
+    private static bool TryNormalizePersistablePath(string path, out string normalizedPath)
+    {
+        normalizedPath = string.Empty;
+
+        var rawPath = NormalizeDriveLetterSpecifier(path.Trim());
+        if (!IsPersistablePath(rawPath))
+        {
+            return false;
+        }
+
+        normalizedPath = NormalizePath(rawPath);
+        return !string.IsNullOrWhiteSpace(normalizedPath);
     }
 
     private static string NormalizePath(string? path)

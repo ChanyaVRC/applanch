@@ -9,6 +9,8 @@ namespace applanch.Infrastructure.Launch;
 
 internal sealed class ItemLaunchService : IItemLaunchService
 {
+    private static readonly string[] AccessDeniedMessageTokens = ["access is denied", "アクセスが拒否"];
+
     private readonly Func<ProcessStartInfo, Process?> _startProcess;
     private readonly ILaunchFallbackResolver _fallbackResolver;
 
@@ -127,8 +129,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
             return true;
         }
 
-        return new[] { "access is denied", "アクセスが拒否" }
-            .Any(token => ex.Message.Contains(token, StringComparison.OrdinalIgnoreCase));
+        return AccessDeniedMessageTokens.Any(token => ex.Message.Contains(token, StringComparison.OrdinalIgnoreCase));
     }
 }
 
