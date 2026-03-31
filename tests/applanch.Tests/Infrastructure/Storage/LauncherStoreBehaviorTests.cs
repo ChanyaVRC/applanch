@@ -103,6 +103,23 @@ public class LauncherStoreBehaviorTests
         Assert.Equal("Tool Name", entry.DisplayName);
     }
 
+    [Fact]
+    public void SaveAll_PlaceholderMessagePath_IsFilteredOut()
+    {
+        using var scope = new StoreIsolationScope();
+
+        LauncherStore.SaveAll(
+        [
+            new LauncherStore.LauncherEntry("No items registered yet. Add from Explorer's right-click menu.", "Misc", string.Empty, "Placeholder"),
+            new LauncherStore.LauncherEntry(@"C:\Apps\RealApp.exe", "Misc", string.Empty, "Real App")
+        ]);
+
+        var entries = LauncherStore.LoadAll();
+        var entry = Assert.Single(entries);
+        Assert.Equal(Path.GetFullPath(@"C:\Apps\RealApp.exe"), entry.Path);
+        Assert.Equal("Real App", entry.DisplayName);
+    }
+
     private sealed class StoreIsolationScope : IDisposable
     {
         private readonly string? _storeBackup;

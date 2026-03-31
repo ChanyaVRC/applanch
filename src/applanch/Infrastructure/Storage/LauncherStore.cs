@@ -8,8 +8,6 @@ namespace applanch.Infrastructure.Storage;
 internal static class LauncherStore
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
-    private const string EmptyMessageEn = "No items registered yet. Add from Explorer's right-click menu.";
-    private const string EmptyMessageJa = "\u767b\u9332\u9805\u76ee\u304c\u307e\u3060\u3042\u308a\u307e\u305b\u3093\u3002\u30a8\u30af\u30b9\u30d7\u30ed\u30fc\u30e9\u30fc\u306e\u53f3\u30af\u30ea\u30c3\u30af\u304b\u3089\u8ffd\u52a0\u3057\u3066\u304f\u3060\u3055\u3044\u3002";
 
     private static readonly string StoreDirectory = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -63,7 +61,13 @@ internal static class LauncherStore
     {
         EnsureStorageDirectory();
 
-        var normalizedPath = NormalizePath(path);
+        var rawPath = path.Trim();
+        if (!IsPersistablePath(rawPath))
+        {
+            return;
+        }
+
+        var normalizedPath = NormalizePath(rawPath);
         if (string.IsNullOrWhiteSpace(normalizedPath))
         {
             return;
@@ -119,9 +123,14 @@ internal static class LauncherStore
 
         foreach (var entry in entries)
         {
-            var normalizedPath = NormalizePath(entry.Path);
+            var rawPath = entry.Path.Trim();
+            if (!IsPersistablePath(rawPath))
+            {
+                continue;
+            }
+
+            var normalizedPath = NormalizePath(rawPath);
             if (string.IsNullOrWhiteSpace(normalizedPath) ||
-                IsPlaceholderMessage(normalizedPath) ||
                 !seenPaths.Add(normalizedPath))
             {
                 continue;
@@ -163,23 +172,8 @@ internal static class LauncherStore
         }
     }
 
-    private static bool IsPlaceholderMessage(string path)
-    {
-        if (IsKnownPlaceholder(path))
-        {
-            return true;
-        }
-
-        var fileName = Path.GetFileName(path);
-        return IsKnownPlaceholder(fileName);
-    }
-
-    private static bool IsKnownPlaceholder(string value) =>
-        string.Equals(NormalizePlaceholderValue(value), NormalizePlaceholderValue(EmptyMessageEn), StringComparison.Ordinal) ||
-        string.Equals(NormalizePlaceholderValue(value), NormalizePlaceholderValue(EmptyMessageJa), StringComparison.Ordinal);
-
-    private static string NormalizePlaceholderValue(string value) =>
-        value.Trim().TrimEnd('.');
+    private static bool IsPersistablePath(string path) =>
+        !string.IsNullOrWhiteSpace(path) && Path.IsPathFullyQualified(path);
 
     internal sealed record LauncherEntry(string Path, string Category, string Arguments, string DisplayName)
     {
