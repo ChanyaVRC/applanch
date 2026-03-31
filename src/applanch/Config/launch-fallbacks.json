@@ -4,7 +4,7 @@
       "name": "Riot VALORANT",
       "kind": "riot-client",
       "enabled": true,
-      "matchFileNames": ["VALORANT.exe"],
+      "matchFileNames": ["VALORANT.exe", "VALORANT-Win64-Shipping.exe"],
       "product": "valorant",
       "patchline": "live"
     },
@@ -12,7 +12,7 @@
       "name": "Riot League of Legends",
       "kind": "riot-client",
       "enabled": true,
-      "matchFileNames": ["LeagueClient.exe"],
+      "matchFileNames": ["LeagueClient.exe", "LeagueClientUx.exe", "League of Legends.exe"],
       "product": "league_of_legends",
       "patchline": "live"
     },
@@ -22,5 +22,8 @@
       "enabled": true,
       "pathContains": "steamapps/common/"
     }
+    // Other launchers such as Epic, Ubisoft, EA, and Battle.net usually need
+    // game-specific identifiers in addition to the .exe path, so they are best
+    // added here as explicit per-title custom rules once their IDs are known.
   ]
 }
