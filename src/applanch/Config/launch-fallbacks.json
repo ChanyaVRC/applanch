@@ -2,17 +2,21 @@
   "rules": [
     {
       "name": "Riot VALORANT",
-      "kind": "riot-client",
+      "kind": "command-template",
       "enabled": true,
       "matchFileNames": ["VALORANT.exe", "VALORANT-Win64-Shipping.exe"],
+      "fileNameTemplate": "{ancestorPath:Riot Games}\\Riot Client\\RiotClientServices.exe",
+      "argumentsTemplate": "--launch-product={product} --launch-patchline={patchline}",
       "product": "valorant",
       "patchline": "live"
     },
     {
       "name": "Riot League of Legends",
-      "kind": "riot-client",
+      "kind": "command-template",
       "enabled": true,
       "matchFileNames": ["LeagueClient.exe", "LeagueClientUx.exe", "League of Legends.exe"],
+      "fileNameTemplate": "{ancestorPath:Riot Games}\\Riot Client\\RiotClientServices.exe",
+      "argumentsTemplate": "--launch-product={product} --launch-patchline={patchline}",
       "product": "league_of_legends",
       "patchline": "live"
     },

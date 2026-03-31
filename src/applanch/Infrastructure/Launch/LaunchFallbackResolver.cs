@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Text;
 
 namespace applanch.Infrastructure.Launch;
@@ -372,7 +373,29 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
             builder.Replace($"{{{pair.Key}}}", pair.Value ?? string.Empty);
         }
 
-        return Environment.ExpandEnvironmentVariables(builder.ToString());
+        var expanded = ExpandAncestorTokens(builder.ToString(), values["launchPath"]);
+        return Environment.ExpandEnvironmentVariables(expanded);
+    }
+
+    private static string ExpandAncestorTokens(string template, string launchPath)
+    {
+        return Regex.Replace(
+            template,
+            "\\{(ancestorPath|ancestorPathQuoted):([^}]+)\\}",
+            match =>
+            {
+                var tokenKind = match.Groups[1].Value;
+                var targetDirectoryName = match.Groups[2].Value;
+                if (!TryFindContainingDirectory(launchPath, targetDirectoryName, out var directoryPath))
+                {
+                    return string.Empty;
+                }
+
+                return string.Equals(tokenKind, "ancestorPathQuoted", StringComparison.OrdinalIgnoreCase)
+                    ? Quote(directoryPath)
+                    : directoryPath;
+            },
+            RegexOptions.IgnoreCase);
     }
 
     private static string Quote(string value)

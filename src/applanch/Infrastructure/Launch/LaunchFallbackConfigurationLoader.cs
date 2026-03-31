@@ -63,18 +63,22 @@ internal static class LaunchFallbackConfigurationLoader
                 new LaunchFallbackRuleConfiguration
                 {
                     Name = "Riot VALORANT",
-                    Kind = "riot-client",
+                    Kind = "command-template",
                     MatchFileNames = ["VALORANT.exe"],
                     Product = "valorant",
                     Patchline = "live",
+                    FileNameTemplate = "{ancestorPath:Riot Games}\\Riot Client\\RiotClientServices.exe",
+                    ArgumentsTemplate = "--launch-product={product} --launch-patchline={patchline}",
                 },
                 new LaunchFallbackRuleConfiguration
                 {
                     Name = "Riot League of Legends",
-                    Kind = "riot-client",
+                    Kind = "command-template",
                     MatchFileNames = ["LeagueClient.exe"],
                     Product = "league_of_legends",
                     Patchline = "live",
+                    FileNameTemplate = "{ancestorPath:Riot Games}\\Riot Client\\RiotClientServices.exe",
+                    ArgumentsTemplate = "--launch-product={product} --launch-patchline={patchline}",
                 },
                 new LaunchFallbackRuleConfiguration
                 {

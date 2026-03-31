@@ -104,6 +104,46 @@ public class LaunchFallbackResolverTests
     }
 
     [Fact]
+    public void TryCreate_CommandTemplateRule_ExpandsAncestorPathTokens()
+    {
+        using var tempDirectory = TemporaryDirectory.Create();
+        var riotRoot = Path.Combine(tempDirectory.Path, "Riot Games");
+        var gamePath = Path.Combine(riotRoot, "VALORANT", "live", "VALORANT.exe");
+        var riotClientPath = Path.Combine(riotRoot, "Riot Client", "RiotClientServices.exe");
+
+        Directory.CreateDirectory(Path.GetDirectoryName(gamePath)!);
+        Directory.CreateDirectory(Path.GetDirectoryName(riotClientPath)!);
+        File.WriteAllText(gamePath, string.Empty);
+        File.WriteAllText(riotClientPath, string.Empty);
+
+        var configuration = new LaunchFallbackConfiguration
+        {
+            Rules =
+            [
+                new LaunchFallbackRuleConfiguration
+                {
+                    Name = "Riot generic",
+                    Kind = "command-template",
+                    MatchFileNames = ["VALORANT.exe"],
+                    FileNameTemplate = "{ancestorPath:Riot Games}\\Riot Client\\RiotClientServices.exe",
+                    ArgumentsTemplate = "--launch-product={product} --launch-patchline={patchline}",
+                    Product = "valorant",
+                    Patchline = "live",
+                },
+            ],
+        };
+
+        var resolver = new LaunchFallbackResolver(configuration);
+
+        var matched = resolver.TryCreate(gamePath, runAsAdministrator: false, out var fallback, out var fallbackName);
+
+        Assert.True(matched);
+        Assert.Equal("Riot generic", fallbackName);
+        Assert.Equal(riotClientPath, fallback.FileName);
+        Assert.Equal("--launch-product=valorant --launch-patchline=live", fallback.Arguments);
+    }
+
+    [Fact]
     public void TryCreate_UriTemplateRule_WithSteamManifestAppIdSource_ResolvesAppIdFromManifest()
     {
         using var tempDirectory = TemporaryDirectory.Create();
