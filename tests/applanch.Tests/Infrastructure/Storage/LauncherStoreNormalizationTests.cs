@@ -46,15 +46,21 @@ public class LauncherStoreNormalizationTests
     }
 
     [Fact]
-    public void NormalizePath_DriveLetterSpecifier_ReturnsDriveRoot()
+    public void NormalizeEntries_DriveLetterSpecifier_PromotesToDriveRoot()
     {
         var driveRoot = Path.GetPathRoot(Path.GetTempPath());
         Assert.False(string.IsNullOrWhiteSpace(driveRoot));
         var driveSpecifier = driveRoot!.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 
-        var normalized = InvokeNormalizePath(driveSpecifier);
+        var entries = new[]
+        {
+            new LauncherStore.LauncherEntry(driveSpecifier, "Misc", string.Empty, "Drive")
+        };
 
-        Assert.Equal(driveRoot, normalized);
+        var normalized = InvokeNormalizeEntries(entries).ToList();
+
+        var item = Assert.Single(normalized);
+        Assert.Equal(driveRoot, item.Path);
     }
 
     [Fact]

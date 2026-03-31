@@ -61,8 +61,8 @@ internal static class LauncherStore
     {
         EnsureStorageDirectory();
 
-        var rawPath = path.Trim();
-        if (!IsPersistablePath(rawPath) && !IsDriveLetterSpecifier(rawPath))
+        var rawPath = NormalizeDriveLetterSpecifier(path.Trim());
+        if (!IsPersistablePath(rawPath))
         {
             return;
         }
@@ -123,8 +123,8 @@ internal static class LauncherStore
 
         foreach (var entry in entries)
         {
-            var rawPath = entry.Path.Trim();
-            if (!IsPersistablePath(rawPath) && !IsDriveLetterSpecifier(rawPath))
+            var rawPath = NormalizeDriveLetterSpecifier(entry.Path.Trim());
+            if (!IsPersistablePath(rawPath))
             {
                 continue;
             }
@@ -170,11 +170,6 @@ internal static class LauncherStore
         }
 
         var trimmedPath = path.Trim();
-        if (IsDriveLetterSpecifier(trimmedPath))
-        {
-            return trimmedPath + Path.DirectorySeparatorChar;
-        }
-
         try
         {
             var full = Path.GetFullPath(trimmedPath);
@@ -188,6 +183,11 @@ internal static class LauncherStore
             return trimmedPath;
         }
     }
+
+    private static string NormalizeDriveLetterSpecifier(string path) =>
+        IsDriveLetterSpecifier(path)
+            ? path + Path.DirectorySeparatorChar
+            : path;
 
     private static bool IsDriveLetterSpecifier(string path) =>
         path.Length == 2 && char.IsLetter(path[0]) && path[1] == ':';
