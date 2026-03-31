@@ -1,5 +1,6 @@
 using Xunit;
 using System.Windows;
+using System.Globalization;
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
 using applanch.Properties;
@@ -523,6 +524,42 @@ public class MainWindowViewModelTests
         Assert.True(vm.FilteredLaunchItems.IsEmpty);
         Assert.Equal(Visibility.Visible, vm.EmptyMessageVisibility);
         Assert.Equal(Visibility.Collapsed, vm.SelectedLaunchItemVisibility);
+    }
+
+    [Fact]
+    public void ApplySettings_WhenCultureChangesFromJapaneseToEnglish_KeepsAllFilterAndItemsVisible()
+    {
+        var previousUi = CultureInfo.CurrentUICulture;
+        var previousCulture = CultureInfo.CurrentCulture;
+
+        try
+        {
+            var ja = new CultureInfo("ja");
+            CultureInfo.CurrentUICulture = ja;
+            CultureInfo.CurrentCulture = ja;
+
+            var store = new FakeStore(
+            [
+                new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
+            ]);
+
+            var vm = CreateViewModel(store: store);
+
+            var en = new CultureInfo("en");
+            CultureInfo.CurrentUICulture = en;
+            CultureInfo.CurrentCulture = en;
+
+            vm.ApplySettings(new AppSettings { Language = LanguageOption.English });
+
+            Assert.Equal(Resources.AllCategories, vm.SelectedCategory);
+            Assert.False(vm.FilteredLaunchItems.IsEmpty);
+            Assert.Equal(Visibility.Collapsed, vm.EmptyMessageVisibility);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previousUi;
+            CultureInfo.CurrentCulture = previousCulture;
+        }
     }
 
     private static MainWindowViewModel CreateViewModel(FakeStore? store = null, FakeResolver? resolver = null)

@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Resources;
 using System.Windows;
 using System.Windows.Data;
 using applanch.Infrastructure.Resolution;
@@ -14,6 +16,7 @@ namespace applanch;
 public sealed class MainWindowViewModel : INotifyPropertyChanged
 {
     private static string AllCategoriesLabel => Resources.AllCategories;
+    private static readonly IReadOnlySet<string> KnownAllCategoriesLabels = BuildKnownAllCategoriesLabels();
     private const int QuickAddSuggestionsLimit = 10;
 
     private readonly QuickAddWorkflow _quickAddWorkflow;
@@ -240,6 +243,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         RebuildCategoryLists();
         ApplyLaunchItemSort();
         RefreshFilteredView();
+        OnPropertyChanged(nameof(EmptyMessageVisibility));
     }
 
     private void RefreshQuickAddSuggestions()
@@ -263,7 +267,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
             return false;
         }
 
-        return string.Equals(SelectedCategory, AllCategoriesLabel, StringComparison.Ordinal)
+        return IsAllCategoriesLabel(SelectedCategory)
             || string.Equals(launchItem.Category, SelectedCategory, StringComparison.Ordinal);
     }
 
@@ -328,9 +332,27 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
         if (!FilterCategoryNames.Contains(SelectedCategory))
         {
-            _selectedCategory = AllCategoriesLabel;
-            OnPropertyChanged(nameof(SelectedCategory));
+            SelectedCategory = AllCategoriesLabel;
         }
+    }
+
+    private static bool IsAllCategoriesLabel(string category) =>
+        KnownAllCategoriesLabels.Contains(category);
+
+    private static IReadOnlySet<string> BuildKnownAllCategoriesLabels()
+    {
+        var resourceManager = new ResourceManager(typeof(Resources).FullName!, typeof(Resources).Assembly);
+        var labels = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new("en"), new("ja") })
+        {
+            var value = resourceManager.GetString(nameof(Resources.AllCategories), culture);
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                labels.Add(value);
+            }
+        }
+
+        return labels;
     }
 
     private void ResetQuickAddFieldsAfterAdd()
