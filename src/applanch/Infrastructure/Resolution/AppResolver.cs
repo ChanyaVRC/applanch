@@ -48,7 +48,7 @@ internal static partial class AppResolver
 
         if (Directory.Exists(trimmed))
         {
-            var normalizedDirectoryPath = NormalizeDirectoryPath(trimmed);
+            var normalizedDirectoryPath = Path.TrimEndingDirectorySeparator(trimmed);
             resolvedApp = new ResolvedApp(normalizedDirectoryPath, GetDirectoryDisplayName(normalizedDirectoryPath));
             return true;
         }
@@ -178,26 +178,7 @@ internal static partial class AppResolver
 
     private static IEnumerable<SuggestionCandidate> GetPathSuggestions(string input, int maxResults)
     {
-        if (!LooksLikePath(input))
-        {
-            yield break;
-        }
-
-        string directory;
-        string prefix;
-
-        if (Directory.Exists(input))
-        {
-            directory = input;
-            prefix = string.Empty;
-        }
-        else
-        {
-            directory = Path.GetDirectoryName(input) ?? string.Empty;
-            prefix = Path.GetFileName(input);
-        }
-
-        if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory))
+        if (!TryResolvePathSuggestionInput(input, out var directory, out var prefix))
         {
             yield break;
         }
@@ -207,35 +188,67 @@ internal static partial class AppResolver
             yield break;
         }
 
-        var count = 0;
+        var producedCount = 0;
         foreach (var entry in entries)
         {
-            var name = Path.GetFileName(entry);
-            if (string.IsNullOrEmpty(name))
+            if (!TryCreatePathSuggestion(entry, prefix, out var suggestion))
             {
                 continue;
             }
 
-            var score = ScoreDisplayName(name, prefix);
-            if (score <= 0)
-            {
-                continue;
-            }
+            yield return suggestion;
 
-            yield return new(entry, score + 10, 0);
-
-            count++;
-            if (count >= maxResults)
+            producedCount++;
+            if (producedCount >= maxResults)
             {
                 yield break;
             }
         }
     }
 
-    private static bool LooksLikePath(string input) => input.IndexOfAny(['\\', '/', ':']) >= 0;
+    private static bool TryResolvePathSuggestionInput(string input, out string directory, out string prefix)
+    {
+        directory = string.Empty;
+        prefix = string.Empty;
 
-    private static string NormalizeDirectoryPath(string path) =>
-        path.Length <= 3 ? path : path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        if (!LooksLikePath(input))
+        {
+            return false;
+        }
+
+        if (Directory.Exists(input))
+        {
+            directory = input;
+            return true;
+        }
+
+        directory = Path.GetDirectoryName(input) ?? string.Empty;
+        prefix = Path.GetFileName(input);
+
+        return !string.IsNullOrWhiteSpace(directory) && Directory.Exists(directory);
+    }
+
+    private static bool TryCreatePathSuggestion(string entry, string prefix, out SuggestionCandidate suggestion)
+    {
+        suggestion = default;
+
+        var name = Path.GetFileName(entry);
+        if (string.IsNullOrEmpty(name))
+        {
+            return false;
+        }
+
+        var score = ScoreDisplayName(name, prefix);
+        if (score <= 0)
+        {
+            return false;
+        }
+
+        suggestion = new SuggestionCandidate(entry, score + 10, 0);
+        return true;
+    }
+
+    private static bool LooksLikePath(string input) => input.IndexOfAny(['\\', '/', ':']) >= 0;
 
     private static string GetDirectoryDisplayName(string normalizedDirectoryPath)
     {
@@ -391,7 +404,7 @@ internal static partial class AppResolver
             return cleaned[..(exeIndex + 4)].Trim().Trim('"');
         }
 
-        var commaIndex = IndexOfFirstUnquoted(cleaned, ',');
+        var commaIndex = cleaned.IndexOf(',');
         if (commaIndex >= 0)
         {
             cleaned = cleaned[..commaIndex];
@@ -404,28 +417,6 @@ internal static partial class AppResolver
         }
 
         return cleaned.Trim().Trim('"');
-    }
-
-    private static int IndexOfFirstUnquoted(string text, char target)
-    {
-        var inQuotes = false;
-
-        for (var i = 0; i < text.Length; i++)
-        {
-            var ch = text[i];
-            if (ch == '"')
-            {
-                inQuotes = !inQuotes;
-                continue;
-            }
-
-            if (!inQuotes && ch == target)
-            {
-                return i;
-            }
-        }
-
-        return -1;
     }
 
     private static int FindExecutableExtensionIndex(string value)

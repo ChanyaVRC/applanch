@@ -68,14 +68,7 @@ internal sealed class QuickAddWorkflow(IAppResolver appResolver)
         try
         {
             var fullPath = Path.GetFullPath(path);
-            var root = Path.GetPathRoot(fullPath);
-            if (!string.IsNullOrWhiteSpace(root) &&
-                string.Equals(fullPath, root, StringComparison.OrdinalIgnoreCase))
-            {
-                return fullPath;
-            }
-
-            return fullPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return Path.TrimEndingDirectorySeparator(fullPath);
         }
         catch (Exception)
         {

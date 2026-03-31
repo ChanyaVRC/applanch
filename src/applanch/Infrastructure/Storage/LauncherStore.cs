@@ -158,10 +158,7 @@ internal static class LauncherStore
         try
         {
             var full = Path.GetFullPath(path.Trim());
-            if (full.Length > 3)
-            {
-                full = full.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            }
+            full = Path.TrimEndingDirectorySeparator(full);
 
             return full;
         }

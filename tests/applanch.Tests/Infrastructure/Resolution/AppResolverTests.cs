@@ -306,30 +306,6 @@ public class AppResolverTests
     }
 
     [Fact]
-    public void NormalizeDirectoryPath_NonRoot_TrimsTrailingSeparators()
-    {
-        var method = typeof(AppResolver).GetMethod("NormalizeDirectoryPath", BindingFlags.NonPublic | BindingFlags.Static);
-        Assert.NotNull(method);
-
-        var input = @"C:\Tools\";
-        var actual = (string)method!.Invoke(null, [input])!;
-
-        Assert.Equal(@"C:\Tools", actual);
-    }
-
-    [Fact]
-    public void NormalizeDirectoryPath_Root_PreservesPath()
-    {
-        var method = typeof(AppResolver).GetMethod("NormalizeDirectoryPath", BindingFlags.NonPublic | BindingFlags.Static);
-        Assert.NotNull(method);
-
-        var input = @"C:\";
-        var actual = (string)method!.Invoke(null, [input])!;
-
-        Assert.Equal(@"C:\", actual);
-    }
-
-    [Fact]
     public void ExtractExecutablePathCandidate_QuotedWithArguments_ReturnsExePath()
     {
         var method = typeof(AppResolver).GetMethod("ExtractExecutablePathCandidate", BindingFlags.NonPublic | BindingFlags.Static);

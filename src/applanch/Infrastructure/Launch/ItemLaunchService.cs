@@ -127,8 +127,8 @@ internal sealed class ItemLaunchService : IItemLaunchService
             return true;
         }
 
-        return ex.Message.Contains("access is denied", StringComparison.OrdinalIgnoreCase) ||
-               ex.Message.Contains("アクセスが拒否", StringComparison.Ordinal);
+        return new[] { "access is denied", "アクセスが拒否" }
+            .Any(token => ex.Message.Contains(token, StringComparison.OrdinalIgnoreCase));
     }
 }
 
