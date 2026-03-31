@@ -9,12 +9,24 @@ public class SettingsWindowViewModelTests
     private static SettingsWindowViewModel Make(
         AppSettings? settings = null,
         Action<AppSettings>? onCommit = null,
+        Action<AppSettings>? onRefresh = null,
         List<AppSettings>? saved = null)
     {
         var captures = saved ?? [];
+        var appEvent = new AppEvent();
+        if (onCommit is not null)
+        {
+            appEvent.Register(AppEvents.Commit, onCommit);
+        }
+
+        if (onRefresh is not null)
+        {
+            appEvent.Register(AppEvents.Refresh, onRefresh);
+        }
+
         return new SettingsWindowViewModel(
             settings ?? new AppSettings(),
-            onCommit ?? (_ => { }),
+            appEvent,
             s => captures.Add(s));
     }
 
@@ -42,7 +54,6 @@ public class SettingsWindowViewModelTests
         Assert.Equal((int)LanguageOption.Japanese, vm.LanguageIndex);
         Assert.Equal((int)CategorySortMode.AsAdded, vm.CategorySortModeIndex);
         Assert.False(vm.SettingsChanged);
-        Assert.Null(vm.SavedSettings);
     }
 
     // ── ThemeIndex ─────────────────────────────────────────
@@ -69,6 +80,18 @@ public class SettingsWindowViewModelTests
 
         Assert.NotNull(committed);
         Assert.Equal(AppTheme.Light, committed!.Theme);
+    }
+
+    [Fact]
+    public void ThemeIndex_Change_CallsOnRefreshWithNewTheme()
+    {
+        AppSettings? refreshed = null;
+        var vm = Make(onRefresh: s => refreshed = s);
+
+        vm.ThemeIndex = (int)AppTheme.Light;
+
+        Assert.NotNull(refreshed);
+        Assert.Equal(AppTheme.Light, refreshed!.Theme);
     }
 
     [Fact]
@@ -110,7 +133,7 @@ public class SettingsWindowViewModelTests
     // ── Commit ─────────────────────────────────────────────
 
     [Fact]
-    public void Commit_SetsSettingsChangedAndSavedSettings()
+    public void Commit_SetsSettingsChanged()
     {
         var saved = new List<AppSettings>();
         var vm = Make(saved: saved);
@@ -118,8 +141,6 @@ public class SettingsWindowViewModelTests
         vm.DebugUpdate = true;
 
         Assert.True(vm.SettingsChanged);
-        Assert.NotNull(vm.SavedSettings);
-        Assert.True(vm.SavedSettings!.DebugUpdate);
         Assert.Single(saved);
     }
 
@@ -261,5 +282,29 @@ public class SettingsWindowViewModelTests
         Assert.Equal(AppTheme.System, committed!.Theme);
         Assert.Contains(nameof(vm.ThemeIndex), raised);
         Assert.Contains(nameof(vm.LanguageIndex), raised);
+    }
+
+    [Fact]
+    public void ApplyExternalSettings_UpdatesValuesWithoutSaving()
+    {
+        var saved = new List<AppSettings>();
+        var vm = Make(saved: saved);
+        var refreshed = new AppSettings
+        {
+            Theme = AppTheme.Dark,
+            PostLaunchBehavior = PostLaunchBehavior.MinimizeWindow,
+            CloseOnLaunch = false,
+            CheckForUpdatesOnStartup = false,
+            Language = LanguageOption.Japanese,
+        };
+
+        vm.ApplyExternalSettings(refreshed);
+
+        Assert.Equal((int)AppTheme.Dark, vm.ThemeIndex);
+        Assert.Equal((int)PostLaunchBehavior.MinimizeWindow, vm.PostLaunchBehaviorIndex);
+        Assert.False(vm.CloseOnLaunch);
+        Assert.False(vm.CheckForUpdatesOnStartup);
+        Assert.Equal((int)LanguageOption.Japanese, vm.LanguageIndex);
+        Assert.Empty(saved);
     }
 }

@@ -54,6 +54,16 @@ internal sealed class ThemeManager(Func<AppTheme>? themeProvider = null)
         }
     }
 
+    public void ApplyTheme(ResourceDictionary resources, IEnumerable<Window> windows)
+    {
+        ApplyTheme(resources);
+
+        foreach (var window in windows)
+        {
+            WindowCaptionThemeHelper.Apply(window);
+        }
+    }
+
     private static IReadOnlyDictionary<string, SolidColorBrush> BuildBrushMap(bool isLight)
     {
         var map = new Dictionary<string, SolidColorBrush>(Palette.Length, StringComparer.Ordinal);

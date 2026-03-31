@@ -7,7 +7,7 @@ namespace applanch;
 
 internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
 {
-    private readonly Action<AppSettings> _onCommit;
+    private readonly AppEvent _appEvent;
     private readonly Action<AppSettings> _save;
     private AppSettings _current;
     private AppTheme _theme;
@@ -24,9 +24,9 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
     private bool _runAsAdministrator;
     private LanguageOption _language;
 
-    internal SettingsWindowViewModel(AppSettings settings, Action<AppSettings> onCommit, Action<AppSettings>? save = null)
+    internal SettingsWindowViewModel(AppSettings settings, AppEvent appEvent, Action<AppSettings>? save = null)
     {
-        _onCommit = onCommit;
+        _appEvent = appEvent;
         _save = save ?? (static s => s.Save());
         _current = settings;
         _theme = settings.Theme;
@@ -257,7 +257,37 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
 
     public bool SettingsChanged { get; private set; }
 
-    public AppSettings? SavedSettings { get; private set; }
+    internal void ApplyExternalSettings(AppSettings settings)
+    {
+        _current = settings;
+        _theme = settings.Theme;
+        _postLaunchBehavior = settings.ResolvePostLaunchBehavior();
+        _closeOnLaunch = settings.CloseOnLaunch;
+        _checkForUpdatesOnStartup = settings.CheckForUpdatesOnStartup;
+        _debugUpdate = settings.DebugUpdate;
+        _startMinimizedOnLaunch = settings.StartMinimizedOnLaunch;
+        _launchAtWindowsStartup = settings.LaunchAtWindowsStartup;
+        _confirmBeforeLaunch = settings.ConfirmBeforeLaunch;
+        _confirmBeforeDelete = settings.ConfirmBeforeDelete;
+        _categorySortMode = settings.CategorySortMode;
+        _appListSortMode = settings.AppListSortMode;
+        _runAsAdministrator = settings.RunAsAdministrator;
+        _language = settings.Language;
+
+        OnPropertyChanged(nameof(ThemeIndex));
+        OnPropertyChanged(nameof(PostLaunchBehaviorIndex));
+        OnPropertyChanged(nameof(CloseOnLaunch));
+        OnPropertyChanged(nameof(CheckForUpdatesOnStartup));
+        OnPropertyChanged(nameof(DebugUpdate));
+        OnPropertyChanged(nameof(StartMinimizedOnLaunch));
+        OnPropertyChanged(nameof(LaunchAtWindowsStartup));
+        OnPropertyChanged(nameof(ConfirmBeforeLaunch));
+        OnPropertyChanged(nameof(ConfirmBeforeDelete));
+        OnPropertyChanged(nameof(CategorySortModeIndex));
+        OnPropertyChanged(nameof(AppListSortModeIndex));
+        OnPropertyChanged(nameof(RunAsAdministrator));
+        OnPropertyChanged(nameof(LanguageIndex));
+    }
 
     internal void ResetToDefaults()
     {
@@ -310,9 +340,9 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
             Language = _language,
         };
         _save(_current);
-        SavedSettings = _current;
         SettingsChanged = true;
-        _onCommit(_current);
+        _appEvent.Invoke(AppEvents.Commit, _current);
+        _appEvent.Invoke(AppEvents.Refresh, _current);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

@@ -6,16 +6,25 @@ namespace applanch;
 
 public partial class SettingsWindow : Window
 {
+    private readonly AppEvent _appEvent;
     private SettingsWindowViewModel ViewModel { get; }
 
     public SettingsWindow(Window owner)
     {
         InitializeComponent();
         Owner = owner;
+        _appEvent = ((App)Application.Current).Events;
         ViewModel = new SettingsWindowViewModel(
             AppSettings.Load(),
-            ((App)Application.Current).Refresh);
+            _appEvent);
+        _appEvent.Register(AppEvents.Refresh, OnAppRefreshRequested);
         DataContext = ViewModel;
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        _appEvent.Unregister(AppEvents.Refresh, OnAppRefreshRequested);
+        base.OnClosed(e);
     }
 
     private void Window_SourceInitialized(object? sender, EventArgs e) =>
@@ -24,7 +33,16 @@ public partial class SettingsWindow : Window
     private void ResetToDefaults_Click(object sender, RoutedEventArgs e) =>
         ViewModel.ResetToDefaults();
 
-    public bool SettingsChanged => ViewModel.SettingsChanged;
+    private void OnAppRefreshRequested(AppSettings settings)
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.Invoke(() => ViewModel.ApplyExternalSettings(settings));
+            return;
+        }
 
-    internal AppSettings? SavedSettings => ViewModel.SavedSettings;
+        ViewModel.ApplyExternalSettings(settings);
+    }
+
+    public bool SettingsChanged => ViewModel.SettingsChanged;
 }

@@ -12,6 +12,7 @@ namespace applanch;
 public partial class App : Application
 {
     internal const string RegisterArgument = "--register";
+    internal AppEvent Events { get; } = new();
     private AppSettings _settings = new();
     private readonly ThemeManager _themeManager = new(() => AppSettings.Load().Theme);
     private readonly ContextMenuRegistrar _contextMenuRegistrar = new();
@@ -20,6 +21,8 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        Events.Register(AppEvents.Refresh, Refresh);
 
         DispatcherUnhandledException += (_, args) =>
         {
@@ -58,6 +61,7 @@ public partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         AppLogger.Instance.Info("Application exiting");
+        Events.Unregister(AppEvents.Refresh, Refresh);
         SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
         AppLogger.Instance.Dispose();
         base.OnExit(e);
@@ -65,8 +69,7 @@ public partial class App : Application
 
     private void InitializeEnvironment()
     {
-        _themeManager.ApplyTheme(Resources);
-        ApplyCaptionThemeToOpenWindows();
+        _themeManager.ApplyTheme(Resources, Windows.Cast<Window>());
         SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
 
         LauncherStore.EnsureStorageDirectory();
@@ -79,14 +82,7 @@ public partial class App : Application
         ApplyLanguage(settings.Language);
         ApplyStartupRegistration(settings);
         LocalizedStrings.Instance.NotifyLanguageChanged();
-        _themeManager.ApplyTheme(Resources);
-
-        if (MainWindow is MainWindow mainWindow)
-        {
-            mainWindow.ApplySettingsFromAppRefresh(settings);
-        }
-
-        ApplyCaptionThemeToOpenWindows();
+        _themeManager.ApplyTheme(Resources, Windows.Cast<Window>());
     }
 
     private void ShowMainWindow()
@@ -140,17 +136,8 @@ public partial class App : Application
         {
             Dispatcher.Invoke(() =>
             {
-                _themeManager.ApplyTheme(Resources);
-                ApplyCaptionThemeToOpenWindows();
+                _themeManager.ApplyTheme(Resources, Windows.Cast<Window>());
             });
-        }
-    }
-
-    private void ApplyCaptionThemeToOpenWindows()
-    {
-        foreach (Window window in Windows)
-        {
-            WindowCaptionThemeHelper.Apply(window);
         }
     }
 

@@ -36,6 +36,18 @@ public class ThemeManagerTests
         var notificationBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationInfoBackground"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#131D31")!, notificationBrush.Color);
     }
+
+    [Fact]
+    public void ApplyTheme_WithWindows_StillUpdatesBrushes()
+    {
+        var resources = new ResourceDictionary();
+        var manager = new ThemeManager(() => AppTheme.Light);
+
+        manager.ApplyTheme(resources, []);
+
+        var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#0F172A")!, brush.Color);
+    }
 }
 
 

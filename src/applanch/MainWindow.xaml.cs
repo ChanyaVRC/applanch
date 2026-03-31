@@ -35,6 +35,7 @@ public partial class MainWindow : Window
     private readonly Storyboard _slideInStoryboard;
     private readonly Storyboard _slideOutStoryboard;
     private readonly Storyboard _countdownStoryboard;
+    private readonly AppEvent? _appEvent;
     private MainWindowViewModel ViewModel { get; }
 
     public MainWindow()
@@ -67,7 +68,19 @@ public partial class MainWindow : Window
         _slideOutStoryboard.Completed += OnHideAnimationCompleted;
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+        _appEvent = (Application.Current as App)?.Events;
+        _appEvent?.Register(AppEvents.Refresh, OnAppRefreshRequested);
+        _appEvent?.Register(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
+        _appEvent?.Register(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
         ViewModel.ApplySettings(_settings);
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        _appEvent?.Unregister(AppEvents.Refresh, OnAppRefreshRequested);
+        _appEvent?.Unregister(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
+        _appEvent?.Unregister(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
+        base.OnClosed(e);
     }
 
     private void Window_SourceInitialized(object? sender, EventArgs e)
@@ -75,18 +88,34 @@ public partial class MainWindow : Window
         WindowCaptionThemeHelper.Apply(this);
     }
 
-    private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
         if (_settings.CheckForUpdatesOnStartup)
         {
-            await CheckForUpdateAsync().ConfigureAwait(false);
+            _appEvent?.Invoke(AppEvents.UpdateCheckRequested);
         }
     }
 
-    private async Task CheckForUpdateAsync()
+    private async Task RunUpdateCheckAsync()
     {
         var update = await _updateWorkflow.CheckForUpdateSafeAsync().ConfigureAwait(false);
-        Dispatcher.Invoke(() => ApplyUpdateAvailability(update));
+        _appEvent?.Invoke(AppEvents.UpdateAvailabilityChanged, update);
+    }
+
+    private void OnUpdateCheckRequested()
+    {
+        _ = RunUpdateCheckAsync();
+    }
+
+    private void OnUpdateAvailabilityChanged(AppUpdateInfo? update)
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.Invoke(() => ApplyUpdateAvailability(update));
+            return;
+        }
+
+        ApplyUpdateAvailability(update);
     }
 
     private void ApplyUpdateAvailability(AppUpdateInfo? update)
@@ -116,6 +145,17 @@ public partial class MainWindow : Window
         }
 
         ViewModel.ApplySettings(settings);
+    }
+
+    private void OnAppRefreshRequested(AppSettings settings)
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.Invoke(() => ApplySettingsFromAppRefresh(settings));
+            return;
+        }
+
+        ApplySettingsFromAppRefresh(settings);
     }
 
     private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -149,12 +189,12 @@ public partial class MainWindow : Window
         _settingsWindow.Show();
     }
 
-    private async void OnSettingsWindowClosed(object? sender, EventArgs e)
+    private void OnSettingsWindowClosed(object? sender, EventArgs e)
     {
         _settingsWindow = null;
 
         // When a language change reloaded the main window, this instance is already
-        // closed.  The new window handles its own initialization.
+        // closed. The new window handles its own initialization.
         if (!IsLoaded)
         {
             return;
@@ -165,17 +205,8 @@ public partial class MainWindow : Window
             return;
         }
 
-        var settings = AppSettings.Load();
-        _settings = settings;
-        if (!settings.DebugUpdate)
-        {
-            ApplyUpdateAvailability(null);
-        }
-
-        ViewModel.ApplySettings(settings);
-
         _updateWorkflow.SetUpdateService(new GitHubAppUpdateService());
-        await CheckForUpdateAsync().ConfigureAwait(false);
+        _appEvent?.Invoke(AppEvents.UpdateCheckRequested);
     }
 
     // -- Button click handlers ---------------------------------------
