@@ -43,6 +43,26 @@ internal sealed class ItemLaunchService : IItemLaunchService
                 MessageBoxImage.Warning);
         }
 
+        if (_fallbackResolver.TryCreatePreferred(path, runAsAdministrator, out var preferredFallback, out var preferredFallbackName))
+        {
+            try
+            {
+                AppLogger.Instance.Info($"Using preferred fallback for '{path}' via {preferredFallbackName}.");
+                var preferredProcess = _startProcess(preferredFallback);
+                if (preferredProcess is null)
+                {
+                    return LaunchExecutionResult.Failed(Resources.Error_LaunchFailed, MessageBoxImage.Error);
+                }
+
+                return LaunchExecutionResult.Success();
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Instance.Error(ex, $"Preferred fallback launch failed for '{path}' via {preferredFallbackName}");
+                return LaunchExecutionResult.Failed(string.Format(Resources.Error_LaunchFailedWithMessage, ex.Message), MessageBoxImage.Error);
+            }
+        }
+
         var startInfo = new ProcessStartInfo { UseShellExecute = true };
         if (isDirectory)
         {

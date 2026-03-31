@@ -9,6 +9,7 @@ internal sealed class LaunchFallbackRuleConfiguration
     public string Product { get; init; } = string.Empty;
     public string Patchline { get; init; } = "live";
     public string PathContains { get; init; } = string.Empty;
+    public string FallbackTrigger { get; init; } = "access-denied";
     public string UriTemplate { get; init; } = string.Empty;
     public string AppId { get; init; } = string.Empty;
     public string AppIdSource { get; init; } = string.Empty;

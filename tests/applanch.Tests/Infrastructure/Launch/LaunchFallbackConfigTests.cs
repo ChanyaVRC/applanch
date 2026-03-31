@@ -22,18 +22,21 @@ public class LaunchFallbackConfigTests
         Assert.Contains(rules.EnumerateArray(), rule =>
             rule.GetProperty("name").GetString() == "Riot VALORANT" &&
             rule.GetProperty("kind").GetString() == "command-template" &&
+            rule.GetProperty("fallbackTrigger").GetString() == "always" &&
             rule.GetProperty("fileNameTemplate").GetString()!.Contains("{ancestorPath:Riot Games}", StringComparison.Ordinal) &&
             rule.GetProperty("matchFileNames").EnumerateArray().Any(value => value.GetString() == "VALORANT-Win64-Shipping.exe"));
 
         Assert.Contains(rules.EnumerateArray(), rule =>
             rule.GetProperty("name").GetString() == "Riot League of Legends" &&
             rule.GetProperty("kind").GetString() == "command-template" &&
+            rule.GetProperty("fallbackTrigger").GetString() == "always" &&
             rule.GetProperty("matchFileNames").EnumerateArray().Any(value => value.GetString() == "LeagueClientUx.exe") &&
             rule.GetProperty("matchFileNames").EnumerateArray().Any(value => value.GetString() == "League of Legends.exe"));
 
         Assert.Contains(rules.EnumerateArray(), rule =>
             rule.GetProperty("name").GetString() == "Steam library executable" &&
             rule.GetProperty("kind").GetString() == "uri-template" &&
+            rule.GetProperty("fallbackTrigger").GetString() == "always" &&
             rule.GetProperty("appIdSource").GetString() == "steam-manifest");
 
         Assert.Contains(rules.EnumerateArray(), rule =>

@@ -4,6 +4,7 @@
       "name": "Riot VALORANT",
       "kind": "command-template",
       "enabled": true,
+      "fallbackTrigger": "always",
       "matchFileNames": ["VALORANT.exe", "VALORANT-Win64-Shipping.exe"],
       "fileNameTemplate": "{ancestorPath:Riot Games}\\Riot Client\\RiotClientServices.exe",
       "argumentsTemplate": "--launch-product={product} --launch-patchline={patchline}",
@@ -14,6 +15,7 @@
       "name": "Riot League of Legends",
       "kind": "command-template",
       "enabled": true,
+      "fallbackTrigger": "always",
       "matchFileNames": ["LeagueClient.exe", "LeagueClientUx.exe", "League of Legends.exe"],
       "fileNameTemplate": "{ancestorPath:Riot Games}\\Riot Client\\RiotClientServices.exe",
       "argumentsTemplate": "--launch-product={product} --launch-patchline={patchline}",
@@ -24,6 +26,7 @@
       "name": "Steam library executable",
       "kind": "uri-template",
       "enabled": true,
+      "fallbackTrigger": "always",
       "pathContains": "steamapps/common/",
       "uriTemplate": "steam://rungameid/{appId}",
       "appIdSource": "steam-manifest"

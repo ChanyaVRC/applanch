@@ -111,7 +111,7 @@ public class ItemLaunchServiceTests
     }
 
     [Fact]
-    public void TryLaunch_ValorantAccessDenied_FallsBackToRiotClient()
+    public void TryLaunch_ValorantPreferredFallback_UsesRiotClientWithoutDirectLaunchAttempt()
     {
         using var tempDirectory = TemporaryDirectory.Create();
         var valorantPath = Path.Combine(tempDirectory.Path, "Riot Games", "VALORANT", "live", "VALORANT.exe");
@@ -125,11 +125,6 @@ public class ItemLaunchServiceTests
         Process? Launcher(ProcessStartInfo startInfo)
         {
             attempts.Add(startInfo);
-            if (attempts.Count == 1)
-            {
-                throw new Win32Exception(5, "Access is denied");
-            }
-
             return new Process();
         }
 
@@ -139,10 +134,9 @@ public class ItemLaunchServiceTests
         var result = service.TryLaunch(item);
 
         Assert.True(result.IsSuccess);
-        Assert.Equal(2, attempts.Count);
-        Assert.Equal(valorantPath, attempts[0].FileName);
-        Assert.Equal(riotClientPath, attempts[1].FileName);
-        Assert.Equal("--launch-product=valorant --launch-patchline=live", attempts[1].Arguments);
+        Assert.Single(attempts);
+        Assert.Equal(riotClientPath, attempts[0].FileName);
+        Assert.Equal("--launch-product=valorant --launch-patchline=live", attempts[0].Arguments);
     }
 
     [Fact]
@@ -176,7 +170,23 @@ public class ItemLaunchServiceTests
             return new Process();
         }
 
-        var service = new ItemLaunchService(Launcher);
+        var configuration = new LaunchFallbackConfiguration
+        {
+            Rules =
+            [
+                new LaunchFallbackRuleConfiguration
+                {
+                    Name = "Steam access denied",
+                    Kind = "uri-template",
+                    FallbackTrigger = "access-denied",
+                    PathContains = "steamapps/common/",
+                    UriTemplate = "steam://rungameid/{appId}",
+                    AppIdSource = "steam-manifest",
+                },
+            ],
+        };
+
+        var service = new ItemLaunchService(Launcher, new LaunchFallbackResolver(configuration));
         var item = new LaunchItemViewModel(gamePath, "Games", string.Empty, "CoolGame");
 
         var result = service.TryLaunch(item);
@@ -186,6 +196,57 @@ public class ItemLaunchServiceTests
         Assert.Equal(gamePath, attempts[0].FileName);
         Assert.Equal("steam://rungameid/12345", attempts[1].FileName);
         Assert.Equal(string.Empty, attempts[1].Arguments);
+    }
+
+    [Fact]
+    public void TryLaunch_SteamLibraryPreferredFallback_UsesSteamUriWithoutDirectLaunchAttempt()
+    {
+        using var tempDirectory = TemporaryDirectory.Create();
+        var steamApps = Path.Combine(tempDirectory.Path, "Steam", "steamapps");
+        var gameDirectory = Path.Combine(steamApps, "common", "CoolGame");
+        var gamePath = Path.Combine(gameDirectory, "coolgame.exe");
+        var manifest = Path.Combine(steamApps, "appmanifest_12345.acf");
+
+        Directory.CreateDirectory(gameDirectory);
+        File.WriteAllText(gamePath, string.Empty);
+        File.WriteAllText(manifest,
+            "\"AppState\"\n" +
+            "{\n" +
+            "  \"appid\"  \"12345\"\n" +
+            "  \"installdir\"  \"CoolGame\"\n" +
+            "}\n");
+
+        var configuration = new LaunchFallbackConfiguration
+        {
+            Rules =
+            [
+                new LaunchFallbackRuleConfiguration
+                {
+                    Name = "Steam library executable",
+                    Kind = "uri-template",
+                    FallbackTrigger = "always",
+                    PathContains = "steamapps/common/",
+                    UriTemplate = "steam://rungameid/{appId}",
+                    AppIdSource = "steam-manifest",
+                },
+            ],
+        };
+
+        var attempts = new List<ProcessStartInfo>();
+        Process? Launcher(ProcessStartInfo startInfo)
+        {
+            attempts.Add(startInfo);
+            return new Process();
+        }
+
+        var service = new ItemLaunchService(Launcher, new LaunchFallbackResolver(configuration));
+        var item = new LaunchItemViewModel(gamePath, "Games", string.Empty, "CoolGame");
+
+        var result = service.TryLaunch(item);
+
+        Assert.True(result.IsSuccess);
+        Assert.Single(attempts);
+        Assert.Equal("steam://rungameid/12345", attempts[0].FileName);
     }
 }
 

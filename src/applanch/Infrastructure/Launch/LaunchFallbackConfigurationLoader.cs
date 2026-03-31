@@ -64,6 +64,7 @@ internal static class LaunchFallbackConfigurationLoader
                 {
                     Name = "Riot VALORANT",
                     Kind = "command-template",
+                    FallbackTrigger = "always",
                     MatchFileNames = ["VALORANT.exe"],
                     Product = "valorant",
                     Patchline = "live",
@@ -74,6 +75,7 @@ internal static class LaunchFallbackConfigurationLoader
                 {
                     Name = "Riot League of Legends",
                     Kind = "command-template",
+                    FallbackTrigger = "always",
                     MatchFileNames = ["LeagueClient.exe"],
                     Product = "league_of_legends",
                     Patchline = "live",
@@ -84,6 +86,7 @@ internal static class LaunchFallbackConfigurationLoader
                 {
                     Name = "Steam library executable",
                     Kind = "steam-rungameid",
+                    FallbackTrigger = "always",
                     PathContains = "steamapps/common/",
                 },
             ],

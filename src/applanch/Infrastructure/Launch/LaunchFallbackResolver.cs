@@ -20,11 +20,31 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
         return new LaunchFallbackResolver(configuration);
     }
 
+    public bool TryCreatePreferred(string launchPath, bool runAsAdministrator, out ProcessStartInfo fallback, out string fallbackName)
+    {
+        return TryCreateCore(launchPath, runAsAdministrator, "always", out fallback, out fallbackName);
+    }
+
     public bool TryCreate(string launchPath, bool runAsAdministrator, out ProcessStartInfo fallback, out string fallbackName)
+    {
+        return TryCreateCore(launchPath, runAsAdministrator, "access-denied", out fallback, out fallbackName);
+    }
+
+    private bool TryCreateCore(
+        string launchPath,
+        bool runAsAdministrator,
+        string requiredTrigger,
+        out ProcessStartInfo fallback,
+        out string fallbackName)
     {
         foreach (var rule in _rules)
         {
             if (!rule.Enabled)
+            {
+                continue;
+            }
+
+            if (!string.Equals(NormalizeTrigger(rule.FallbackTrigger), requiredTrigger, StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
@@ -401,5 +421,10 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
     private static string Quote(string value)
     {
         return string.IsNullOrWhiteSpace(value) ? string.Empty : $"\"{value}\"";
+    }
+
+    private static string NormalizeTrigger(string trigger)
+    {
+        return string.IsNullOrWhiteSpace(trigger) ? "access-denied" : trigger.Trim();
     }
 }
