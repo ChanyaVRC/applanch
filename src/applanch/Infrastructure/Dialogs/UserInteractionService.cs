@@ -4,6 +4,18 @@ namespace applanch.Infrastructure.Dialogs;
 
 internal sealed class UserInteractionService : IUserInteractionService
 {
+    private readonly Func<string, string, Window, bool?> _confirmDialogInvoker;
+
+    public UserInteractionService()
+        : this((message, caption, owner) => new ConfirmationDialogWindow(message, caption, owner).ShowDialog())
+    {
+    }
+
+    internal UserInteractionService(Func<string, string, Window, bool?> confirmDialogInvoker)
+    {
+        _confirmDialogInvoker = confirmDialogInvoker;
+    }
+
     public void Show(string message, string caption, MessageBoxImage icon)
     {
         var owner = ResolveOwnerWindow();
@@ -13,8 +25,7 @@ internal sealed class UserInteractionService : IUserInteractionService
 
     public bool Confirm(string message, string caption, Window owner)
     {
-        var result = MessageBox.Show(owner, message, caption, MessageBoxButton.YesNo, MessageBoxImage.Question);
-        return result == MessageBoxResult.Yes;
+        return _confirmDialogInvoker(message, caption, owner) == true;
     }
 
     public string? Prompt(string title, string initialValue, Window owner)

@@ -258,6 +258,12 @@
   <data name="Confirm_DeleteItem" xml:space="preserve">
     <value>「{0}」を削除しますか？</value>
   </data>
+  <data name="Confirm_Yes" xml:space="preserve">
+    <value>はい</value>
+  </data>
+  <data name="Confirm_No" xml:space="preserve">
+    <value>いいえ</value>
+  </data>
   <data name="Error_FileNotFound" xml:space="preserve">
     <value>ファイルまたはフォルダが見つかりません。&#xA;{0}</value>
   </data>
