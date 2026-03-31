@@ -167,7 +167,7 @@ internal static class LauncherStore
         normalizedPath = string.Empty;
 
         var rawPath = NormalizeDriveLetterSpecifier(path.Trim());
-        if (!IsPersistablePath(rawPath))
+        if (string.IsNullOrWhiteSpace(rawPath) || !Path.IsPathFullyQualified(rawPath))
         {
             return false;
         }
@@ -198,16 +198,14 @@ internal static class LauncherStore
         }
     }
 
-    private static string NormalizeDriveLetterSpecifier(string path) =>
-        IsDriveLetterSpecifier(path)
+    private static string NormalizeDriveLetterSpecifier(string path)
+    {
+        var root = Path.GetPathRoot(path);
+        return string.Equals(root, path, StringComparison.Ordinal) &&
+               path.EndsWith(':')
             ? path + Path.DirectorySeparatorChar
             : path;
-
-    private static bool IsDriveLetterSpecifier(string path) =>
-        path.Length == 2 && char.IsLetter(path[0]) && path[1] == ':';
-
-    private static bool IsPersistablePath(string path) =>
-        !string.IsNullOrWhiteSpace(path) && Path.IsPathFullyQualified(path);
+    }
 
     internal sealed record LauncherEntry(string Path, string Category, string Arguments, string DisplayName)
     {
