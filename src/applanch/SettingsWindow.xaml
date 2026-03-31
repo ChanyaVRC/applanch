@@ -4,7 +4,7 @@
         xmlns:res="clr-namespace:applanch.Properties"
         xmlns:local="clr-namespace:applanch"
         SizeToContent="Manual"
-        Width="420"
+        Width="480"
         Height="500"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
@@ -239,7 +239,7 @@
 
                     <ComboBox Grid.Row="0"
                               Grid.Column="1"
-                              Width="170"
+                              Width="200"
                               Margin="12,0,0,0"
                               Style="{StaticResource RoundedComboBoxStyle}"
                               SelectedIndex="{Binding ThemeIndex}">
@@ -257,7 +257,7 @@
 
                     <ComboBox Grid.Row="2"
                               Grid.Column="1"
-                              Width="170"
+                              Width="200"
                               Margin="12,0,0,0"
                               Style="{StaticResource RoundedComboBoxStyle}"
                               SelectedIndex="{Binding LanguageIndex}">
@@ -310,7 +310,7 @@
                                    VerticalAlignment="Center"
                                    Foreground="{DynamicResource Brush.TextPrimary}"/>
                         <ComboBox Grid.Column="1"
-                                  Width="170"
+                                  Width="200"
                                   Margin="12,0,0,0"
                                   HorizontalAlignment="Left"
                                   Style="{StaticResource RoundedComboBoxStyle}"
@@ -341,7 +341,7 @@
                                    VerticalAlignment="Center"
                                    Foreground="{DynamicResource Brush.TextPrimary}"/>
                         <ComboBox Grid.Column="1"
-                                  Width="170"
+                                  Width="200"
                                   Margin="12,0,0,0"
                                   HorizontalAlignment="Left"
                                   Style="{StaticResource RoundedComboBoxStyle}"
@@ -362,7 +362,7 @@
                                    VerticalAlignment="Center"
                                    Foreground="{DynamicResource Brush.TextPrimary}"/>
                         <ComboBox Grid.Column="1"
-                                  Width="170"
+                                  Width="200"
                                   Margin="12,0,0,0"
                                   HorizontalAlignment="Left"
                                   Style="{StaticResource RoundedComboBoxStyle}"
