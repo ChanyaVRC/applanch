@@ -100,10 +100,6 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
 
         switch (rule.Kind.ToLowerInvariant())
         {
-            case "riot-client":
-                return TryCreateRiotClientFallback(rule, launchPath, runAsAdministrator, out fallback);
-            case "steam-rungameid":
-                return TryCreateLegacySteamFallback(launchPath, runAsAdministrator, out fallback);
             case "uri-template":
                 return TryCreateUriTemplateFallback(rule, launchPath, runAsAdministrator, out fallback);
             case "command-template":
@@ -199,58 +195,7 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
         return true;
     }
 
-    private static bool TryCreateRiotClientFallback(
-        LaunchFallbackRuleConfiguration rule,
-        string launchPath,
-        bool runAsAdministrator,
-        out ProcessStartInfo fallback)
-    {
-        fallback = default!;
 
-        if (string.IsNullOrWhiteSpace(rule.Product))
-        {
-            return false;
-        }
-
-        if (!TryFindContainingDirectory(launchPath, "Riot Games", out var riotGamesRoot))
-        {
-            return false;
-        }
-
-        var riotClientPath = Path.Combine(riotGamesRoot, "Riot Client", "RiotClientServices.exe");
-        if (!File.Exists(riotClientPath))
-        {
-            return false;
-        }
-
-        var patchline = string.IsNullOrWhiteSpace(rule.Patchline) ? "live" : rule.Patchline;
-        fallback = new ProcessStartInfo
-        {
-            UseShellExecute = true,
-            FileName = riotClientPath,
-            Arguments = $"--launch-product={rule.Product} --launch-patchline={patchline}",
-        };
-
-        if (runAsAdministrator)
-        {
-            fallback.Verb = "runas";
-        }
-
-        return true;
-    }
-
-    private static bool TryCreateLegacySteamFallback(string launchPath, bool runAsAdministrator, out ProcessStartInfo fallback)
-    {
-        var compatibilityRule = new LaunchFallbackRuleConfiguration
-        {
-            Kind = "uri-template",
-            PathContains = "steamapps/common/",
-            UriTemplate = "steam://rungameid/{appId}",
-            AppIdSource = "steam-manifest",
-        };
-
-        return TryCreateUriTemplateFallback(compatibilityRule, launchPath, runAsAdministrator, out fallback);
-    }
 
     private static bool TryResolveSteamAppId(string launchPath, string steamAppsRoot, out string appId)
     {

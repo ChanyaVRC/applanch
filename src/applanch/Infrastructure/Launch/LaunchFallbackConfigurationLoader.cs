@@ -37,8 +37,8 @@ internal static class LaunchFallbackConfigurationLoader
             }
         }
 
-        AppLogger.Instance.Warn("Launch fallback config not found. Using built-in defaults.");
-        return CreateBuiltInDefaults();
+        AppLogger.Instance.Warn("Launch fallback config not found.");
+        return new LaunchFallbackConfiguration { Rules = [] };
     }
 
     private static IEnumerable<string> GetCandidatePaths()
@@ -52,44 +52,5 @@ internal static class LaunchFallbackConfigurationLoader
 
         yield return localOverride;
         yield return bundled;
-    }
-
-    private static LaunchFallbackConfiguration CreateBuiltInDefaults()
-    {
-        return new LaunchFallbackConfiguration
-        {
-            Rules =
-            [
-                new LaunchFallbackRuleConfiguration
-                {
-                    Name = "Riot VALORANT",
-                    Kind = "command-template",
-                    FallbackTrigger = "always",
-                    MatchFileNames = ["VALORANT.exe"],
-                    Product = "valorant",
-                    Patchline = "live",
-                    FileNameTemplate = "{ancestorPath:Riot Games}\\Riot Client\\RiotClientServices.exe",
-                    ArgumentsTemplate = "--launch-product={product} --launch-patchline={patchline}",
-                },
-                new LaunchFallbackRuleConfiguration
-                {
-                    Name = "Riot League of Legends",
-                    Kind = "command-template",
-                    FallbackTrigger = "always",
-                    MatchFileNames = ["LeagueClient.exe"],
-                    Product = "league_of_legends",
-                    Patchline = "live",
-                    FileNameTemplate = "{ancestorPath:Riot Games}\\Riot Client\\RiotClientServices.exe",
-                    ArgumentsTemplate = "--launch-product={product} --launch-patchline={patchline}",
-                },
-                new LaunchFallbackRuleConfiguration
-                {
-                    Name = "Steam library executable",
-                    Kind = "steam-rungameid",
-                    FallbackTrigger = "always",
-                    PathContains = "steamapps/common/",
-                },
-            ],
-        };
     }
 }
