@@ -299,19 +299,27 @@
                                Foreground="{DynamicResource Brush.TextTertiary}"
                                TextWrapping="Wrap"/>
 
-                    <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_PostLaunchBehavior]}"
-                               Margin="0,14,0,0"
-                               FontSize="13"
-                               Foreground="{DynamicResource Brush.TextPrimary}"/>
-                    <ComboBox Width="220"
-                              Margin="0,6,0,0"
-                              HorizontalAlignment="Left"
-                              Style="{StaticResource RoundedComboBoxStyle}"
-                              SelectedIndex="{Binding PostLaunchBehaviorIndex}">
-                        <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[PostLaunchBehavior_Close]}"/>
-                        <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[PostLaunchBehavior_Minimize]}"/>
-                        <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[PostLaunchBehavior_KeepOpen]}"/>
-                    </ComboBox>
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_PostLaunchBehavior]}"
+                                   FontSize="13"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource Brush.TextPrimary}"/>
+                        <ComboBox Grid.Column="1"
+                                  Width="220"
+                                  Margin="12,0,0,0"
+                                  HorizontalAlignment="Left"
+                                  Style="{StaticResource RoundedComboBoxStyle}"
+                                  SelectedIndex="{Binding PostLaunchBehaviorIndex}">
+                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[PostLaunchBehavior_Close]}"/>
+                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[PostLaunchBehavior_Minimize]}"/>
+                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[PostLaunchBehavior_KeepOpen]}"/>
+                        </ComboBox>
+                    </Grid>
 
                     <CheckBox Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_ConfirmBeforeLaunch]}"
                               IsChecked="{Binding ConfirmBeforeLaunch}"
@@ -322,32 +330,48 @@
                               Margin="0,10,0,0"
                               Style="{StaticResource SettingsCheckBoxStyle}"/>
 
-                    <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_CategorySortMode]}"
-                               Margin="0,14,0,0"
-                               FontSize="13"
-                               Foreground="{DynamicResource Brush.TextPrimary}"/>
-                    <ComboBox Width="220"
-                              Margin="0,6,0,0"
-                              HorizontalAlignment="Left"
-                              Style="{StaticResource RoundedComboBoxStyle}"
-                              SelectedIndex="{Binding CategorySortModeIndex}">
-                        <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[SortMode_Alphabetical]}"/>
-                        <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[SortMode_AsAdded]}"/>
-                    </ComboBox>
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_CategorySortMode]}"
+                                   FontSize="13"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource Brush.TextPrimary}"/>
+                        <ComboBox Grid.Column="1"
+                                  Width="220"
+                                  Margin="12,0,0,0"
+                                  HorizontalAlignment="Left"
+                                  Style="{StaticResource RoundedComboBoxStyle}"
+                                  SelectedIndex="{Binding CategorySortModeIndex}">
+                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[SortMode_Alphabetical]}"/>
+                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[SortMode_AsAdded]}"/>
+                        </ComboBox>
+                    </Grid>
 
-                    <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_AppListSortMode]}"
-                               Margin="0,14,0,0"
-                               FontSize="13"
-                               Foreground="{DynamicResource Brush.TextPrimary}"/>
-                    <ComboBox Width="220"
-                              Margin="0,6,0,0"
-                              HorizontalAlignment="Left"
-                              Style="{StaticResource RoundedComboBoxStyle}"
-                              SelectedIndex="{Binding AppListSortModeIndex}">
-                        <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[AppListSort_Manual]}"/>
-                        <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[AppListSort_Name]}"/>
-                        <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[AppListSort_CategoryThenName]}"/>
-                    </ComboBox>
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_AppListSortMode]}"
+                                   FontSize="13"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource Brush.TextPrimary}"/>
+                        <ComboBox Grid.Column="1"
+                                  Width="220"
+                                  Margin="12,0,0,0"
+                                  HorizontalAlignment="Left"
+                                  Style="{StaticResource RoundedComboBoxStyle}"
+                                  SelectedIndex="{Binding AppListSortModeIndex}">
+                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[AppListSort_Manual]}"/>
+                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[AppListSort_Name]}"/>
+                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[AppListSort_CategoryThenName]}"/>
+                        </ComboBox>
+                    </Grid>
 
                     <CheckBox Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_RunAsAdministrator]}"
                               IsChecked="{Binding RunAsAdministrator}"
