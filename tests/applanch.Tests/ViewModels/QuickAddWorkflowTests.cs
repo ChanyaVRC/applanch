@@ -29,6 +29,21 @@ public class QuickAddWorkflowTests
         Assert.Null(newItem);
     }
 
+    [Theory]
+    [InlineData(@"C:/Tools/App.exe")]
+    [InlineData(@"c:/tools/app.exe")]
+    [InlineData(@"D:/")]
+    public void TryCreateLaunchItem_ForwardSlashAbsolutePath_ReturnsWarningFailure(string input)
+    {
+        var workflow = new QuickAddWorkflow(new FakeResolver());
+
+        var result = workflow.TryCreateLaunchItem(input, "Dev", string.Empty, [], out var newItem);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(QuickAddMessageSeverity.Warning, result.Severity);
+        Assert.Null(newItem);
+    }
+
     [Fact]
     public void TryCreateLaunchItem_DuplicatePath_ReturnsInformationFailure()
     {

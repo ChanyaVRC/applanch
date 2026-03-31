@@ -291,6 +291,9 @@
   <data name="Error_AlreadyRegistered" xml:space="preserve">
     <value>同じアプリはすでに登録されています。</value>
   </data>
+  <data name="Error_InvalidPathSeparator" xml:space="preserve">
+    <value>パスにはバックスラッシュ (\) を使用してください。</value>
+  </data>
   <data name="ContextMenu_Register" xml:space="preserve">
     <value>Applanch に登録</value>
   </data>

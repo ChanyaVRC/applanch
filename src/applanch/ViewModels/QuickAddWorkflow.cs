@@ -25,6 +25,11 @@ internal sealed class QuickAddWorkflow(IAppResolver appResolver)
             return QuickAddResult.Failed(Properties.Resources.Error_QuickAddEmpty, QuickAddMessageSeverity.Information);
         }
 
+        if (input.Length >= 3 && char.IsLetter(input[0]) && input[1] == ':' && input[2] == '/')
+        {
+            return QuickAddResult.Failed(Properties.Resources.Error_InvalidPathSeparator, QuickAddMessageSeverity.Warning);
+        }
+
         if (!appResolver.TryResolve(input, out var resolvedApp))
         {
             return QuickAddResult.Failed(

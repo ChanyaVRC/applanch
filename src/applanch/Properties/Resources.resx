@@ -291,6 +291,9 @@
   <data name="Error_AlreadyRegistered" xml:space="preserve">
     <value>This app is already registered.</value>
   </data>
+  <data name="Error_InvalidPathSeparator" xml:space="preserve">
+    <value>Path must use backslashes (\), not forward slashes (/).</value>
+  </data>
   <data name="ContextMenu_Register" xml:space="preserve">
     <value>Register with Applanch</value>
   </data>
