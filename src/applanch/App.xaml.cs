@@ -75,22 +75,12 @@ public partial class App : Application
 
     internal void Refresh(AppSettings settings)
     {
-        var shouldReloadMainWindow = ShouldReloadMainWindow(_settings, settings);
-
         _settings = settings;
         ApplyLanguage(settings.Language);
         ApplyStartupRegistration(settings);
         _themeManager.ApplyTheme(Resources);
         ApplyCaptionThemeToOpenWindows();
-
-        if (shouldReloadMainWindow)
-        {
-            ReloadMainWindowForLanguageChange();
-        }
     }
-
-    internal static bool ShouldReloadMainWindow(AppSettings currentSettings, AppSettings newSettings) =>
-        currentSettings.Language != newSettings.Language;
 
     private void ShowMainWindow()
     {
@@ -155,27 +145,6 @@ public partial class App : Application
         {
             WindowCaptionThemeHelper.Apply(window);
         }
-    }
-
-    private void ReloadMainWindowForLanguageChange()
-    {
-        if (MainWindow is not MainWindow currentMainWindow)
-        {
-            return;
-        }
-
-        var nextMainWindow = new MainWindow();
-        MainWindow = nextMainWindow;
-        nextMainWindow.Show();
-
-        // Keep any modeless windows (e.g. settings) alive by re-parenting them
-        // to the new main window before the old one is closed.
-        foreach (Window window in currentMainWindow.OwnedWindows.Cast<Window>().ToList())
-        {
-            window.Owner = nextMainWindow;
-        }
-
-        currentMainWindow.Close();
     }
 
     private static bool TryHandleRegisterArgument(string[] args)
