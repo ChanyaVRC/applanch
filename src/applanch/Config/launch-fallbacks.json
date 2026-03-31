@@ -37,7 +37,7 @@
       "enabled": false,
       "matchFileNames": ["GameExecutable.exe"],
       "uriTemplate": "com.epicgames.launcher://apps/{appId}?action=launch&silent=true",
-      "appId": "REPLACE_WITH_EPIC_APP_ID"
+      "appIdSource": "registry:HKEY_LOCAL_MACHINE:SOFTWARE\\WOW6432Node\\Epic Games\\EpicGamesLauncher\\Apps\\REPLACE_WITH_GAME_KEY:AppName"
     },
     {
       "name": "Ubisoft Connect sample",
@@ -45,7 +45,7 @@
       "enabled": false,
       "matchFileNames": ["GameExecutable.exe"],
       "uriTemplate": "uplay://launch/{appId}/0",
-      "appId": "REPLACE_WITH_UPLAY_GAME_ID"
+      "appIdSource": "registry:HKEY_LOCAL_MACHINE:SOFTWARE\\WOW6432Node\\Ubisoft\\Launcher\\Installs\\REPLACE_WITH_GAME_KEY:UplayId"
     },
     {
       "name": "EA app sample",
@@ -53,7 +53,7 @@
       "enabled": false,
       "matchFileNames": ["GameExecutable.exe"],
       "uriTemplate": "ea://launchgame/{appId}",
-      "appId": "REPLACE_WITH_EA_APP_ID"
+      "appIdSource": "registry:HKEY_LOCAL_MACHINE:SOFTWARE\\Electronic Arts\\EA Desktop\\Apps\\REPLACE_WITH_GAME_KEY:OfferId"
     },
     {
       "name": "Battle.net sample",
@@ -61,7 +61,7 @@
       "enabled": false,
       "matchFileNames": ["GameExecutable.exe"],
       "uriTemplate": "battlenet://{appId}",
-      "appId": "REPLACE_WITH_BATTLENET_GAME_ID"
+      "appIdSource": "registry:HKEY_LOCAL_MACHINE:SOFTWARE\\WOW6432Node\\Blizzard Entertainment\\Battle.net\\Launch Options\\REPLACE_WITH_GAME_KEY:Program"
     },
     {
       "name": "Generic launcher executable sample",
@@ -70,7 +70,7 @@
       "matchFileNames": ["GameExecutable.exe"],
       "fileNameTemplate": "%ProgramFiles(x86)%\\Example Launcher\\launcher.exe",
       "argumentsTemplate": "launch --game {appId} --path {launchPathQuoted}",
-      "appId": "REPLACE_WITH_GAME_ID"
+      "appIdSource": "static:REPLACE_WITH_GAME_ID"
     },
     {
       "name": "Custom URI sample",
@@ -78,7 +78,7 @@
       "enabled": false,
       "matchFileNames": ["GameExecutable.exe"],
       "uriTemplate": "example-launcher://launch/{appId}?exe={launchFileName}",
-      "appId": "REPLACE_WITH_GAME_ID"
+      "appIdSource": "static:REPLACE_WITH_GAME_ID"
     }
   ]
 }

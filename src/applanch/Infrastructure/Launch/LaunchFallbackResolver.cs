@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Text;
+using applanch.Infrastructure.Launch.AppIdResolvers;
 
 namespace applanch.Infrastructure.Launch;
 
@@ -196,64 +197,6 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
     }
 
 
-
-    private static bool TryResolveSteamAppId(string launchPath, string steamAppsRoot, out string appId)
-    {
-        appId = string.Empty;
-
-        var commonRoot = Path.Combine(steamAppsRoot, "common") + Path.DirectorySeparatorChar;
-        if (!launchPath.StartsWith(commonRoot, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        var relative = launchPath[commonRoot.Length..];
-        var gameDirectory = relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)[0];
-        if (string.IsNullOrWhiteSpace(gameDirectory))
-        {
-            return false;
-        }
-
-        foreach (var manifestPath in Directory.EnumerateFiles(steamAppsRoot, "appmanifest_*.acf", SearchOption.TopDirectoryOnly))
-        {
-            if (TryReadSteamManifest(manifestPath, out var manifestAppId, out var installDir) &&
-                string.Equals(installDir, gameDirectory, StringComparison.OrdinalIgnoreCase))
-            {
-                appId = manifestAppId;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static bool TryReadSteamManifest(string manifestPath, out string appId, out string installDir)
-    {
-        appId = string.Empty;
-        installDir = string.Empty;
-
-        foreach (var line in File.ReadLines(manifestPath))
-        {
-            var trimmed = line.Trim();
-            if (trimmed.StartsWith("\"appid\"", StringComparison.OrdinalIgnoreCase))
-            {
-                appId = ExtractQuotedValue(trimmed);
-            }
-            else if (trimmed.StartsWith("\"installdir\"", StringComparison.OrdinalIgnoreCase))
-            {
-                installDir = ExtractQuotedValue(trimmed);
-            }
-        }
-
-        return !string.IsNullOrWhiteSpace(appId) && !string.IsNullOrWhiteSpace(installDir);
-    }
-
-    private static string ExtractQuotedValue(string line)
-    {
-        var parts = line.Split('"', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        return parts.Length >= 2 ? parts[^1] : string.Empty;
-    }
-
     private static bool TryFindContainingDirectory(string filePath, string targetDirectoryName, out string directoryPath)
     {
         directoryPath = string.Empty;
@@ -300,29 +243,25 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
 
     private static string? ResolveAppId(LaunchFallbackRuleConfiguration rule, string launchPath)
     {
+        // Try static appId first
         if (!string.IsNullOrWhiteSpace(rule.AppId))
         {
             return rule.AppId;
         }
 
-        return rule.AppIdSource.ToLowerInvariant() switch
+        // Try AppIdSource
+        if (string.IsNullOrWhiteSpace(rule.AppIdSource))
         {
-            "" => string.Empty,
-            "steam-manifest" => TryResolveSteamAppIdFromLaunchPath(launchPath, out var appId) ? appId : null,
-            _ => null,
-        };
-    }
-
-    private static bool TryResolveSteamAppIdFromLaunchPath(string launchPath, out string appId)
-    {
-        appId = string.Empty;
-
-        if (!TryFindContainingDirectory(launchPath, "steamapps", out var steamAppsRoot))
-        {
-            return false;
+            return string.Empty;
         }
 
-        return TryResolveSteamAppId(launchPath, steamAppsRoot, out appId);
+        var resolver = AppIdResolverFactory.CreateResolver(rule.AppIdSource);
+        if (resolver is null)
+        {
+            return null;
+        }
+
+        return resolver.TryResolve(launchPath, out var appId) ? appId : null;
     }
 
     private static string ExpandTemplate(string template, IReadOnlyDictionary<string, string> values)
