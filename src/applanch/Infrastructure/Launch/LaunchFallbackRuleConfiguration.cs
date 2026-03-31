@@ -11,4 +11,6 @@ internal sealed class LaunchFallbackRuleConfiguration
     public string PathContains { get; init; } = string.Empty;
     public string UriTemplate { get; init; } = string.Empty;
     public string AppId { get; init; } = string.Empty;
+    public string FileNameTemplate { get; init; } = string.Empty;
+    public string ArgumentsTemplate { get; init; } = string.Empty;
 }

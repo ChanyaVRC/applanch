@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace applanch.Infrastructure.Launch;
 
@@ -83,7 +84,9 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
             case "steam-rungameid":
                 return TryCreateSteamFallback(launchPath, runAsAdministrator, out fallback);
             case "uri-template":
-                return TryCreateUriTemplateFallback(rule, runAsAdministrator, out fallback);
+                return TryCreateUriTemplateFallback(rule, launchPath, runAsAdministrator, out fallback);
+            case "command-template":
+                return TryCreateCommandTemplateFallback(rule, launchPath, runAsAdministrator, out fallback);
             default:
                 return false;
         }
@@ -91,22 +94,68 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
 
     private static bool TryCreateUriTemplateFallback(
         LaunchFallbackRuleConfiguration rule,
+        string launchPath,
         bool runAsAdministrator,
         out ProcessStartInfo fallback)
     {
         fallback = default!;
 
-        if (string.IsNullOrWhiteSpace(rule.UriTemplate) || string.IsNullOrWhiteSpace(rule.AppId))
+        if (string.IsNullOrWhiteSpace(rule.UriTemplate))
         {
             return false;
         }
 
-        var launchTarget = rule.UriTemplate.Replace("{appId}", rule.AppId, StringComparison.Ordinal);
+        var launchTarget = ExpandTemplate(rule.UriTemplate, rule, launchPath);
+        if (string.IsNullOrWhiteSpace(launchTarget))
+        {
+            return false;
+        }
+
         fallback = new ProcessStartInfo
         {
             UseShellExecute = true,
             FileName = launchTarget,
             Arguments = string.Empty,
+        };
+
+        if (runAsAdministrator)
+        {
+            fallback.Verb = "runas";
+        }
+
+        return true;
+    }
+
+    private static bool TryCreateCommandTemplateFallback(
+        LaunchFallbackRuleConfiguration rule,
+        string launchPath,
+        bool runAsAdministrator,
+        out ProcessStartInfo fallback)
+    {
+        fallback = default!;
+
+        if (string.IsNullOrWhiteSpace(rule.FileNameTemplate))
+        {
+            return false;
+        }
+
+        var fileName = ExpandTemplate(rule.FileNameTemplate, rule, launchPath);
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return false;
+        }
+
+        if (Path.IsPathFullyQualified(fileName) && !Path.Exists(fileName))
+        {
+            return false;
+        }
+
+        var arguments = ExpandTemplate(rule.ArgumentsTemplate, rule, launchPath);
+        fallback = new ProcessStartInfo
+        {
+            UseShellExecute = true,
+            FileName = fileName,
+            Arguments = arguments,
         };
 
         if (runAsAdministrator)
@@ -272,5 +321,42 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
         }
 
         return false;
+    }
+
+    private static string ExpandTemplate(string template, LaunchFallbackRuleConfiguration rule, string launchPath)
+    {
+        if (string.IsNullOrWhiteSpace(template))
+        {
+            return string.Empty;
+        }
+
+        var launchDirectory = Path.GetDirectoryName(launchPath) ?? string.Empty;
+        var launchFileName = Path.GetFileName(launchPath);
+        var launchFileStem = Path.GetFileNameWithoutExtension(launchPath);
+        var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["appId"] = rule.AppId,
+            ["product"] = rule.Product,
+            ["patchline"] = rule.Patchline,
+            ["launchPath"] = launchPath,
+            ["launchDirectory"] = launchDirectory,
+            ["launchFileName"] = launchFileName,
+            ["launchFileStem"] = launchFileStem,
+            ["launchPathQuoted"] = Quote(launchPath),
+            ["launchDirectoryQuoted"] = Quote(launchDirectory),
+        };
+
+        var builder = new StringBuilder(template);
+        foreach (var pair in values)
+        {
+            builder.Replace($"{{{pair.Key}}}", pair.Value ?? string.Empty);
+        }
+
+        return Environment.ExpandEnvironmentVariables(builder.ToString());
+    }
+
+    private static string Quote(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? string.Empty : $"\"{value}\"";
     }
 }

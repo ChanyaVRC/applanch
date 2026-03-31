@@ -1,4 +1,5 @@
 using applanch.Infrastructure.Launch;
+using applanch.Tests.TestSupport;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Launch;
@@ -58,5 +59,47 @@ public class LaunchFallbackResolverTests
 
         Assert.True(matched);
         Assert.Equal("runas", fallback.Verb);
+    }
+
+    [Fact]
+    public void TryCreate_CommandTemplateRule_ExpandsTokensAndEnvironmentVariables()
+    {
+        using var tempDirectory = TemporaryDirectory.Create();
+        var launcherPath = Path.Combine(tempDirectory.Path, "launcher.exe");
+        File.WriteAllText(launcherPath, string.Empty);
+
+        var originalTemp = Environment.GetEnvironmentVariable("APPLANCH_TEST_LAUNCHER");
+        Environment.SetEnvironmentVariable("APPLANCH_TEST_LAUNCHER", launcherPath);
+        try
+        {
+            var configuration = new LaunchFallbackConfiguration
+            {
+                Rules =
+                [
+                    new LaunchFallbackRuleConfiguration
+                    {
+                        Name = "Generic launcher",
+                        Kind = "command-template",
+                        MatchFileNames = ["Game.exe"],
+                        FileNameTemplate = "%APPLANCH_TEST_LAUNCHER%",
+                        ArgumentsTemplate = "launch --id {appId} --path {launchPathQuoted} --dir {launchDirectoryQuoted}",
+                        AppId = "game-123",
+                    },
+                ],
+            };
+
+            var resolver = new LaunchFallbackResolver(configuration);
+
+            var matched = resolver.TryCreate(@"C:\Games\Space Game\Game.exe", runAsAdministrator: false, out var fallback, out var fallbackName);
+
+            Assert.True(matched);
+            Assert.Equal("Generic launcher", fallbackName);
+            Assert.Equal(launcherPath, fallback.FileName);
+            Assert.Equal("launch --id game-123 --path \"C:\\Games\\Space Game\\Game.exe\" --dir \"C:\\Games\\Space Game\"", fallback.Arguments);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("APPLANCH_TEST_LAUNCHER", originalTemp);
+        }
     }
 }

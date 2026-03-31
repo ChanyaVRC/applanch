@@ -53,6 +53,23 @@
       "matchFileNames": ["GameExecutable.exe"],
       "uriTemplate": "battlenet://{appId}",
       "appId": "REPLACE_WITH_BATTLENET_GAME_ID"
+    },
+    {
+      "name": "Generic launcher executable sample",
+      "kind": "command-template",
+      "enabled": false,
+      "matchFileNames": ["GameExecutable.exe"],
+      "fileNameTemplate": "%ProgramFiles(x86)%\\Example Launcher\\launcher.exe",
+      "argumentsTemplate": "launch --game {appId} --path {launchPathQuoted}",
+      "appId": "REPLACE_WITH_GAME_ID"
+    },
+    {
+      "name": "Custom URI sample",
+      "kind": "uri-template",
+      "enabled": false,
+      "matchFileNames": ["GameExecutable.exe"],
+      "uriTemplate": "example-launcher://launch/{appId}?exe={launchFileName}",
+      "appId": "REPLACE_WITH_GAME_ID"
     }
   ]
 }
