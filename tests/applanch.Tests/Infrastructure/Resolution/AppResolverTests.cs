@@ -127,6 +127,27 @@ public class AppResolverTests
     }
 
     [Fact]
+    public void TryResolve_DriveLetterSpecifier_ResolvesToDriveRootPath()
+    {
+        var tempDir = CreateTempDirectory();
+        try
+        {
+            var driveRoot = Path.GetPathRoot(tempDir);
+            Assert.False(string.IsNullOrWhiteSpace(driveRoot));
+            var driveSpecifier = driveRoot!.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+            var ok = AppResolver.TryResolve(driveSpecifier, out var resolved);
+
+            Assert.True(ok);
+            Assert.Equal(driveRoot, resolved.Path);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, recursive: true);
+        }
+    }
+
+    [Fact]
     public void GetSuggestions_PathPrefix_ContainsMatchingEntry()
     {
         var tempDir = CreateTempDirectory();

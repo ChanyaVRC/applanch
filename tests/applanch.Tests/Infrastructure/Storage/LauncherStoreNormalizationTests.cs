@@ -46,6 +46,18 @@ public class LauncherStoreNormalizationTests
     }
 
     [Fact]
+    public void NormalizePath_DriveLetterSpecifier_ReturnsDriveRoot()
+    {
+        var driveRoot = Path.GetPathRoot(Path.GetTempPath());
+        Assert.False(string.IsNullOrWhiteSpace(driveRoot));
+        var driveSpecifier = driveRoot!.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        var normalized = InvokeNormalizePath(driveSpecifier);
+
+        Assert.Equal(driveRoot, normalized);
+    }
+
+    [Fact]
     public void NormalizePath_ReservedDeviceLikePath_ReturnsTrimmedOriginal()
     {
         var reserved = "  CON:  ";

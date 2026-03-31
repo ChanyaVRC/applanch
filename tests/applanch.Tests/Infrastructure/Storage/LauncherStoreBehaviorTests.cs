@@ -59,6 +59,22 @@ public class LauncherStoreBehaviorTests
     }
 
     [Fact]
+    public void Add_DriveLetterSpecifier_PersistsAsDriveRoot()
+    {
+        using var scope = new StoreIsolationScope();
+
+        var driveRoot = Path.GetPathRoot(Path.GetTempPath());
+        Assert.False(string.IsNullOrWhiteSpace(driveRoot));
+        var driveSpecifier = driveRoot!.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        LauncherStore.Add(driveSpecifier);
+
+        var entries = LauncherStore.LoadAll();
+        var entry = Assert.Single(entries);
+        Assert.Equal(driveRoot, entry.Path);
+    }
+
+    [Fact]
     public void LoadAll_InvalidJson_FallsBackToLegacyEntries()
     {
         using var scope = new StoreIsolationScope();

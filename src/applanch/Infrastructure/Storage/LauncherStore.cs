@@ -62,13 +62,13 @@ internal static class LauncherStore
         EnsureStorageDirectory();
 
         var rawPath = path.Trim();
-        if (!IsPersistablePath(rawPath))
+        if (!IsPersistablePath(rawPath) && !IsDriveLetterSpecifier(rawPath))
         {
             return;
         }
 
         var normalizedPath = NormalizePath(rawPath);
-        if (string.IsNullOrWhiteSpace(normalizedPath))
+        if (string.IsNullOrWhiteSpace(normalizedPath) || !IsPersistablePath(normalizedPath))
         {
             return;
         }
@@ -124,13 +124,14 @@ internal static class LauncherStore
         foreach (var entry in entries)
         {
             var rawPath = entry.Path.Trim();
-            if (!IsPersistablePath(rawPath))
+            if (!IsPersistablePath(rawPath) && !IsDriveLetterSpecifier(rawPath))
             {
                 continue;
             }
 
             var normalizedPath = NormalizePath(rawPath);
             if (string.IsNullOrWhiteSpace(normalizedPath) ||
+                !IsPersistablePath(normalizedPath) ||
                 !seenPaths.Add(normalizedPath))
             {
                 continue;
@@ -168,9 +169,15 @@ internal static class LauncherStore
             return string.Empty;
         }
 
+        var trimmedPath = path.Trim();
+        if (IsDriveLetterSpecifier(trimmedPath))
+        {
+            return trimmedPath + Path.DirectorySeparatorChar;
+        }
+
         try
         {
-            var full = Path.GetFullPath(path.Trim());
+            var full = Path.GetFullPath(trimmedPath);
             full = Path.TrimEndingDirectorySeparator(full);
 
             return full;
@@ -178,9 +185,12 @@ internal static class LauncherStore
         catch (Exception ex)
         {
             AppLogger.Instance.Warn($"Path normalization failed for '{path}': {ex.Message}");
-            return path.Trim();
+            return trimmedPath;
         }
     }
+
+    private static bool IsDriveLetterSpecifier(string path) =>
+        path.Length == 2 && char.IsLetter(path[0]) && path[1] == ':';
 
     private static bool IsPersistablePath(string path) =>
         !string.IsNullOrWhiteSpace(path) && Path.IsPathFullyQualified(path);
