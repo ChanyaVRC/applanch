@@ -5,7 +5,7 @@
         xmlns:local="clr-namespace:applanch"
         SizeToContent="Manual"
         Width="480"
-        Height="500"
+        Height="560"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
@@ -204,9 +204,20 @@
         </Style>
     </Window.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
-                  CanContentScroll="False">
+    <DockPanel>
+        <Border DockPanel.Dock="Bottom"
+                BorderBrush="{DynamicResource Brush.ItemBorder}"
+                BorderThickness="0,1,0,0"
+                Padding="20,12">
+            <Button HorizontalAlignment="Left"
+                    Style="{StaticResource RoundedButtonStyle}"
+                    Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_ResetToDefaults]}"
+                    Click="ResetToDefaults_Click"/>
+        </Border>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False">
         <StackPanel Margin="20">
             <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Section_Appearance]}"
                        FontSize="15"
@@ -413,5 +424,6 @@
                 </StackPanel>
             </Border>
         </StackPanel>
-    </ScrollViewer>
+        </ScrollViewer>
+    </DockPanel>
 </Window>

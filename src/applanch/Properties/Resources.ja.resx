@@ -232,6 +232,9 @@
   <data name="Button_Cancel" xml:space="preserve">
     <value>キャンセル</value>
   </data>
+  <data name="Button_ResetToDefaults" xml:space="preserve">
+    <value>デフォルト設定に戻す</value>
+  </data>
   <data name="Prompt_ChangeCategory" xml:space="preserve">
     <value>カテゴリを変更</value>
   </data>

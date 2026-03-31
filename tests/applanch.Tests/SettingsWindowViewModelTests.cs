@@ -205,4 +205,61 @@ public class SettingsWindowViewModelTests
 
         Assert.True(vm.CloseOnLaunch);
     }
+
+    // ── ResetToDefaults ────────────────────────────────────
+
+    [Fact]
+    public void ResetToDefaults_RestoresAllDefaultValues()
+    {
+        var defaults = new AppSettings();
+        var settings = new AppSettings
+        {
+            Theme = AppTheme.Dark,
+            Language = LanguageOption.Japanese,
+            CloseOnLaunch = false,
+            CheckForUpdatesOnStartup = false,
+            DebugUpdate = true,
+            StartMinimizedOnLaunch = true,
+            LaunchAtWindowsStartup = true,
+            ConfirmBeforeLaunch = true,
+            ConfirmBeforeDelete = true,
+            CategorySortMode = CategorySortMode.AsAdded,
+            AppListSortMode = AppListSortMode.Name,
+            RunAsAdministrator = true,
+        };
+        var vm = Make(settings: settings);
+
+        vm.ResetToDefaults();
+
+        Assert.Equal((int)defaults.Theme, vm.ThemeIndex);
+        Assert.Equal((int)defaults.Language, vm.LanguageIndex);
+        Assert.Equal(defaults.CloseOnLaunch, vm.CloseOnLaunch);
+        Assert.Equal(defaults.CheckForUpdatesOnStartup, vm.CheckForUpdatesOnStartup);
+        Assert.Equal(defaults.DebugUpdate, vm.DebugUpdate);
+        Assert.Equal(defaults.StartMinimizedOnLaunch, vm.StartMinimizedOnLaunch);
+        Assert.Equal(defaults.LaunchAtWindowsStartup, vm.LaunchAtWindowsStartup);
+        Assert.Equal(defaults.ConfirmBeforeLaunch, vm.ConfirmBeforeLaunch);
+        Assert.Equal(defaults.ConfirmBeforeDelete, vm.ConfirmBeforeDelete);
+        Assert.Equal((int)defaults.CategorySortMode, vm.CategorySortModeIndex);
+        Assert.Equal((int)defaults.AppListSortMode, vm.AppListSortModeIndex);
+        Assert.Equal(defaults.RunAsAdministrator, vm.RunAsAdministrator);
+    }
+
+    [Fact]
+    public void ResetToDefaults_CommitsAndFiresPropertyChanged()
+    {
+        AppSettings? committed = null;
+        var raised = new List<string?>();
+        var vm = Make(
+            settings: new AppSettings { Theme = AppTheme.Dark },
+            onCommit: s => committed = s);
+        vm.PropertyChanged += (_, e) => raised.Add(e.PropertyName);
+
+        vm.ResetToDefaults();
+
+        Assert.NotNull(committed);
+        Assert.Equal(AppTheme.System, committed!.Theme);
+        Assert.Contains(nameof(vm.ThemeIndex), raised);
+        Assert.Contains(nameof(vm.LanguageIndex), raised);
+    }
 }

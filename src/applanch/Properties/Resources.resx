@@ -232,6 +232,9 @@
   <data name="Button_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="Button_ResetToDefaults" xml:space="preserve">
+    <value>Reset to defaults</value>
+  </data>
   <data name="Prompt_ChangeCategory" xml:space="preserve">
     <value>Change category</value>
   </data>

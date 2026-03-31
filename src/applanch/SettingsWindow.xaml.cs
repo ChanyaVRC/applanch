@@ -21,6 +21,9 @@ public partial class SettingsWindow : Window
     private void Window_SourceInitialized(object? sender, EventArgs e) =>
         WindowCaptionThemeHelper.Apply(this);
 
+    private void ResetToDefaults_Click(object sender, RoutedEventArgs e) =>
+        ViewModel.ResetToDefaults();
+
     public bool SettingsChanged => ViewModel.SettingsChanged;
 
     internal AppSettings? SavedSettings => ViewModel.SavedSettings;
