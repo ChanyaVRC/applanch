@@ -289,7 +289,37 @@ internal static partial class AppResolver
         }
 
         var driveName = root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        if (IsDriveLetterSpecifier(driveName))
+        {
+            var volumeDisplayName = TryGetDriveVolumeDisplayName(root, driveName);
+            if (!string.IsNullOrWhiteSpace(volumeDisplayName))
+            {
+                return volumeDisplayName;
+            }
+        }
+
         return string.IsNullOrWhiteSpace(driveName) ? root : driveName;
+    }
+
+    private static bool IsDriveLetterSpecifier(string driveName) =>
+        driveName.Length == 2 && char.IsLetter(driveName[0]) && driveName[1] == ':';
+
+    private static string TryGetDriveVolumeDisplayName(string root, string driveName)
+    {
+        try
+        {
+            var label = new DriveInfo(root).VolumeLabel.Trim();
+            if (!string.IsNullOrWhiteSpace(label))
+            {
+                return $"{label} ({driveName})";
+            }
+        }
+        catch (Exception)
+        {
+            // Fallback to drive letter only when drive metadata isn't accessible.
+        }
+
+        return string.Empty;
     }
 
     private static int ScoreDisplayName(string displayName, string input)

@@ -102,7 +102,23 @@ public class AppResolverTests
 
             Assert.True(ok);
             Assert.Equal(driveRoot, resolved.Path);
-            Assert.Equal(driveRoot!.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), resolved.DisplayName);
+            var driveName = driveRoot!.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var expectedDisplayName = driveName;
+
+            try
+            {
+                var label = new DriveInfo(driveRoot).VolumeLabel.Trim();
+                if (!string.IsNullOrWhiteSpace(label))
+                {
+                    expectedDisplayName = $"{label} ({driveName})";
+                }
+            }
+            catch (Exception)
+            {
+                // If metadata access fails in test environment, fall back to drive letter assertion.
+            }
+
+            Assert.Equal(expectedDisplayName, resolved.DisplayName);
         }
         finally
         {
