@@ -201,7 +201,7 @@ internal static class LauncherStore
     private static string NormalizeDriveLetterSpecifier(string path)
     {
         var root = Path.GetPathRoot(path);
-        return root == path
+        return root == path && !Path.EndsInDirectorySeparator(path)
             ? path + Path.DirectorySeparatorChar
             : path;
     }
