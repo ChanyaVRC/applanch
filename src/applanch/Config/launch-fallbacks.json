@@ -21,9 +21,38 @@
       "kind": "steam-rungameid",
       "enabled": true,
       "pathContains": "steamapps/common/"
+    },
+    {
+      "name": "Epic Games sample",
+      "kind": "uri-template",
+      "enabled": false,
+      "matchFileNames": ["GameExecutable.exe"],
+      "uriTemplate": "com.epicgames.launcher://apps/{appId}?action=launch&silent=true",
+      "appId": "REPLACE_WITH_EPIC_APP_ID"
+    },
+    {
+      "name": "Ubisoft Connect sample",
+      "kind": "uri-template",
+      "enabled": false,
+      "matchFileNames": ["GameExecutable.exe"],
+      "uriTemplate": "uplay://launch/{appId}/0",
+      "appId": "REPLACE_WITH_UPLAY_GAME_ID"
+    },
+    {
+      "name": "EA app sample",
+      "kind": "uri-template",
+      "enabled": false,
+      "matchFileNames": ["GameExecutable.exe"],
+      "uriTemplate": "ea://launchgame/{appId}",
+      "appId": "REPLACE_WITH_EA_APP_ID"
+    },
+    {
+      "name": "Battle.net sample",
+      "kind": "uri-template",
+      "enabled": false,
+      "matchFileNames": ["GameExecutable.exe"],
+      "uriTemplate": "battlenet://{appId}",
+      "appId": "REPLACE_WITH_BATTLENET_GAME_ID"
     }
-    // Other launchers such as Epic, Ubisoft, EA, and Battle.net usually need
-    // game-specific identifiers in addition to the .exe path, so they are best
-    // added here as explicit per-title custom rules once their IDs are known.
   ]
 }

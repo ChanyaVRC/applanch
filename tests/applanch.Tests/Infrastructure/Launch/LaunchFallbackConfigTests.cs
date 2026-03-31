@@ -27,5 +27,21 @@ public class LaunchFallbackConfigTests
             rule.GetProperty("name").GetString() == "Riot League of Legends" &&
             rule.GetProperty("matchFileNames").EnumerateArray().Any(value => value.GetString() == "LeagueClientUx.exe") &&
             rule.GetProperty("matchFileNames").EnumerateArray().Any(value => value.GetString() == "League of Legends.exe"));
+
+        Assert.Contains(rules.EnumerateArray(), rule =>
+            rule.GetProperty("name").GetString() == "Epic Games sample" &&
+            rule.GetProperty("kind").GetString() == "uri-template");
+
+        Assert.Contains(rules.EnumerateArray(), rule =>
+            rule.GetProperty("name").GetString() == "Ubisoft Connect sample" &&
+            rule.GetProperty("kind").GetString() == "uri-template");
+
+        Assert.Contains(rules.EnumerateArray(), rule =>
+            rule.GetProperty("name").GetString() == "EA app sample" &&
+            rule.GetProperty("kind").GetString() == "uri-template");
+
+        Assert.Contains(rules.EnumerateArray(), rule =>
+            rule.GetProperty("name").GetString() == "Battle.net sample" &&
+            rule.GetProperty("kind").GetString() == "uri-template");
     }
 }

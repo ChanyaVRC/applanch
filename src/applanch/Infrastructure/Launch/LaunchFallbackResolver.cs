@@ -82,9 +82,39 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
                 return TryCreateRiotClientFallback(rule, launchPath, runAsAdministrator, out fallback);
             case "steam-rungameid":
                 return TryCreateSteamFallback(launchPath, runAsAdministrator, out fallback);
+            case "uri-template":
+                return TryCreateUriTemplateFallback(rule, runAsAdministrator, out fallback);
             default:
                 return false;
         }
+    }
+
+    private static bool TryCreateUriTemplateFallback(
+        LaunchFallbackRuleConfiguration rule,
+        bool runAsAdministrator,
+        out ProcessStartInfo fallback)
+    {
+        fallback = default!;
+
+        if (string.IsNullOrWhiteSpace(rule.UriTemplate) || string.IsNullOrWhiteSpace(rule.AppId))
+        {
+            return false;
+        }
+
+        var launchTarget = rule.UriTemplate.Replace("{appId}", rule.AppId, StringComparison.Ordinal);
+        fallback = new ProcessStartInfo
+        {
+            UseShellExecute = true,
+            FileName = launchTarget,
+            Arguments = string.Empty,
+        };
+
+        if (runAsAdministrator)
+        {
+            fallback.Verb = "runas";
+        }
+
+        return true;
     }
 
     private static bool TryCreateRiotClientFallback(

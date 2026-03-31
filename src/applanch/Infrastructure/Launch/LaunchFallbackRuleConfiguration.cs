@@ -9,4 +9,6 @@ internal sealed class LaunchFallbackRuleConfiguration
     public string Product { get; init; } = string.Empty;
     public string Patchline { get; init; } = "live";
     public string PathContains { get; init; } = string.Empty;
+    public string UriTemplate { get; init; } = string.Empty;
+    public string AppId { get; init; } = string.Empty;
 }
