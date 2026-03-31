@@ -22,6 +22,9 @@
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false" />
     <AdditionalFiles Include="Properties\Resources.resx" />
+    <Content Include="Config\launch-fallbacks.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
 
     <Compile Remove="Properties\Resources.Designer.cs" />
 

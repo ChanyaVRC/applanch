@@ -1,0 +1,26 @@
+{
+  "rules": [
+    {
+      "name": "Riot VALORANT",
+      "kind": "riot-client",
+      "enabled": true,
+      "matchFileNames": ["VALORANT.exe"],
+      "product": "valorant",
+      "patchline": "live"
+    },
+    {
+      "name": "Riot League of Legends",
+      "kind": "riot-client",
+      "enabled": true,
+      "matchFileNames": ["LeagueClient.exe"],
+      "product": "league_of_legends",
+      "patchline": "live"
+    },
+    {
+      "name": "Steam library executable",
+      "kind": "steam-rungameid",
+      "enabled": true,
+      "pathContains": "steamapps/common/"
+    }
+  ]
+}
