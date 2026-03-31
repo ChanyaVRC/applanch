@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using applanch.Properties;
 using applanch.Infrastructure.Utilities;
 
@@ -74,7 +75,10 @@ internal static class LauncherStore
             normalizedPath,
             LaunchItemNormalization.NormalizeCategory(category),
             LaunchItemNormalization.NormalizeArguments(arguments),
-            LaunchItemNormalization.NormalizeDisplayName(displayName, normalizedPath)));
+            LaunchItemNormalization.NormalizeDisplayName(displayName, normalizedPath))
+        {
+            IsNormalized = true
+        });
 
         SaveAll(existing);
     }
@@ -131,6 +135,12 @@ internal static class LauncherStore
     {
         normalizedEntry = default!;
 
+        if (entry.IsNormalized)
+        {
+            normalizedEntry = entry;
+            return true;
+        }
+
         if (!TryNormalizePersistablePath(entry.Path, out var normalizedPath))
         {
             return false;
@@ -140,21 +150,13 @@ internal static class LauncherStore
         var normalizedArguments = LaunchItemNormalization.NormalizeArguments(entry.Arguments);
         var normalizedDisplayName = LaunchItemNormalization.NormalizeDisplayName(entry.DisplayName, normalizedPath);
 
-        if (string.Equals(entry.Path, normalizedPath, StringComparison.Ordinal) &&
-            string.Equals(entry.Category, normalizedCategory, StringComparison.Ordinal) &&
-            string.Equals(entry.Arguments, normalizedArguments, StringComparison.Ordinal) &&
-            string.Equals(entry.DisplayName, normalizedDisplayName, StringComparison.Ordinal))
-        {
-            normalizedEntry = entry;
-            return true;
-        }
-
         normalizedEntry = entry with
         {
             Path = normalizedPath,
             Category = normalizedCategory,
             Arguments = normalizedArguments,
-            DisplayName = normalizedDisplayName
+            DisplayName = normalizedDisplayName,
+            IsNormalized = true
         };
 
         return true;
@@ -210,6 +212,9 @@ internal static class LauncherStore
     internal sealed record LauncherEntry(string Path, string Category, string Arguments, string DisplayName)
     {
         public static string DefaultCategory => Resources.DefaultCategory;
+
+        [JsonIgnore]
+        public bool IsNormalized { get; init; }
     }
 }
 
