@@ -55,12 +55,10 @@ public class LaunchFallbackConfigTests
             rule.GetProperty("name").GetString() == "Battle.net sample" &&
             rule.GetProperty("kind").GetString() == "uri-template");
 
-        Assert.Contains(rules.EnumerateArray(), rule =>
-            rule.GetProperty("name").GetString() == "Generic launcher executable sample" &&
-            rule.GetProperty("kind").GetString() == "command-template");
+        Assert.DoesNotContain(rules.EnumerateArray(), rule =>
+            rule.GetProperty("name").GetString() == "Generic launcher executable sample");
 
-        Assert.Contains(rules.EnumerateArray(), rule =>
-            rule.GetProperty("name").GetString() == "Custom URI sample" &&
-            rule.GetProperty("uriTemplate").GetString()!.Contains("{launchFileName}", StringComparison.Ordinal));
+        Assert.DoesNotContain(rules.EnumerateArray(), rule =>
+            rule.GetProperty("name").GetString() == "Custom URI sample");
     }
 }

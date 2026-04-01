@@ -1,0 +1,21 @@
+{
+  "rules": [
+    {
+      "name": "Custom sample",
+      "kind": "uri-template",
+      "enabled": false,
+      "matchFileNames": ["GameExecutable.exe"],
+      "uriTemplate": "example-launcher://launch/{appId}",
+      "appIdSource": "static:REPLACE_WITH_GAME_ID"
+    },
+    {
+      "name": "Custom command sample",
+      "kind": "command-template",
+      "enabled": false,
+      "matchFileNames": ["GameExecutable.exe"],
+      "fileNameTemplate": "%ProgramFiles(x86)%\\Example Launcher\\launcher.exe",
+      "argumentsTemplate": "launch --game {appId} --path {launchPathQuoted}",
+      "appIdSource": "static:REPLACE_WITH_GAME_ID"
+    }
+  ]
+}
