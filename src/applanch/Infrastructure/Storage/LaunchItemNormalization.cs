@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.IO;
 using System.Resources;
-using applanch.Properties;
 
 namespace applanch.Infrastructure.Storage;
 
@@ -14,7 +13,7 @@ internal static class LaunchItemNormalization
 
     private static HashSet<string> BuildKnownDefaultCategories()
     {
-        var rm = new ResourceManager(typeof(Resources).FullName!, typeof(Resources).Assembly);
+        var rm = new ResourceManager(typeof(global::applanch.Properties.Resources).FullName!, typeof(global::applanch.Properties.Resources).Assembly);
         var set = new HashSet<string>(StringComparer.Ordinal);
         foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new("en"), new("ja") })
         {

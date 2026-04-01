@@ -1,5 +1,4 @@
 using System.Globalization;
-using applanch.Properties;
 using Xunit;
 
 namespace applanch.Tests.Helpers;
@@ -16,7 +15,7 @@ public class ResourcesSourceGenerationTests
 
             Assert.Equal(
                 "Right-click to register items, then launch with one click. Drag & drop to reorder.",
-                Resources.Subtitle);
+                global::applanch.Properties.Resources.Subtitle);
         }
         finally
         {
@@ -34,7 +33,7 @@ public class ResourcesSourceGenerationTests
 
             Assert.Equal(
                 "右クリックで登録した項目をワンクリックで起動。並び替えはドラッグ＆ドロップ。",
-                Resources.Subtitle);
+                global::applanch.Properties.Resources.Subtitle);
         }
         finally
         {

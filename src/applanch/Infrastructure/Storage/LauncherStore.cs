@@ -1,7 +1,6 @@
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using applanch.Properties;
 using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Storage;
@@ -222,7 +221,7 @@ internal static class LauncherStore
 
     internal sealed record LauncherEntry(string Path, string Category, string Arguments, string DisplayName)
     {
-        public static string DefaultCategory => Resources.DefaultCategory;
+        public static string DefaultCategory => global::applanch.Properties.Resources.DefaultCategory;
 
         [JsonIgnore]
         public bool IsNormalized { get; init; }

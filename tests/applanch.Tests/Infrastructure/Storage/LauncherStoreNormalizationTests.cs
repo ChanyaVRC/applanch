@@ -2,7 +2,6 @@ using System.Reflection;
 using System.Globalization;
 using Xunit;
 using applanch.Infrastructure.Storage;
-using applanch.Properties;
 
 namespace applanch.Tests.Infrastructure.Storage;
 
@@ -120,7 +119,7 @@ public class LauncherStoreNormalizationTests
         CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("ja");
         CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("ja");
 
-        var placeholderPath = Resources.EmptyMessage;
+        var placeholderPath = global::applanch.Properties.Resources.EmptyMessage;
         Assert.False(string.IsNullOrWhiteSpace(placeholderPath));
 
         try
@@ -154,7 +153,7 @@ public class LauncherStoreNormalizationTests
         CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en");
         CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en");
 
-        var placeholderPath = Resources.EmptyMessage;
+        var placeholderPath = global::applanch.Properties.Resources.EmptyMessage;
         Assert.False(string.IsNullOrWhiteSpace(placeholderPath));
 
         try

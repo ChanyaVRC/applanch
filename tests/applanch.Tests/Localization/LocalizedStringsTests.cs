@@ -1,5 +1,4 @@
 using System.Globalization;
-using applanch.Properties;
 using Xunit;
 
 namespace applanch.Tests.Localization;
@@ -31,7 +30,7 @@ public class LocalizedStringsTests
             CultureInfo.CurrentUICulture = culture;
             CultureInfo.CurrentCulture = culture;
 
-            var value = LocalizedStrings.Instance[nameof(Resources.DefaultCategory)];
+            var value = LocalizedStrings.Instance[nameof(global::applanch.Properties.Resources.DefaultCategory)];
 
             Assert.Equal(expected, value);
         }

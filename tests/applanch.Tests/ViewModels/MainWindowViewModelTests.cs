@@ -3,7 +3,6 @@ using System.Windows;
 using System.Globalization;
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
-using applanch.Properties;
 using applanch.Tests.ViewModels.TestDoubles;
 
 namespace applanch.Tests.ViewModels;
@@ -290,7 +289,7 @@ public class MainWindowViewModelTests
         var opsItem = vm.LaunchItems.Single(item => item.Category == "Ops");
         vm.RemoveItem(opsItem);
 
-        Assert.Equal(Resources.AllCategories, vm.SelectedCategory);
+        Assert.Equal(global::applanch.Properties.Resources.AllCategories, vm.SelectedCategory);
     }
 
     [Fact]
@@ -504,7 +503,7 @@ public class MainWindowViewModelTests
         Assert.Equal(2, store.SaveCallCount);
 
         // Dev category should disappear, selected category should reset to all.
-        Assert.Equal(Resources.AllCategories, vm.SelectedCategory);
+        Assert.Equal(global::applanch.Properties.Resources.AllCategories, vm.SelectedCategory);
         Assert.DoesNotContain("Dev", vm.CategoryNames);
         Assert.Contains("Ops", vm.CategoryNames);
 
@@ -551,7 +550,7 @@ public class MainWindowViewModelTests
 
             vm.ApplySettings(new AppSettings { Language = LanguageOption.English });
 
-            Assert.Equal(Resources.AllCategories, vm.SelectedCategory);
+            Assert.Equal(global::applanch.Properties.Resources.AllCategories, vm.SelectedCategory);
             Assert.False(vm.FilteredLaunchItems.IsEmpty);
             Assert.Equal(Visibility.Collapsed, vm.EmptyMessageVisibility);
         }
@@ -576,11 +575,11 @@ public class MainWindowViewModelTests
 
             var store = new FakeStore(
             [
-                new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", Resources.DefaultCategory, string.Empty, "A")
+                new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", global::applanch.Properties.Resources.DefaultCategory, string.Empty, "A")
             ]);
 
             var vm = CreateViewModel(store: store);
-            vm.QuickAddCategory = Resources.DefaultCategory;
+            vm.QuickAddCategory = global::applanch.Properties.Resources.DefaultCategory;
 
             var en = new CultureInfo("en");
             CultureInfo.CurrentUICulture = en;
@@ -588,8 +587,8 @@ public class MainWindowViewModelTests
 
             vm.ApplySettings(new AppSettings { Language = LanguageOption.English });
 
-            Assert.Equal(Resources.DefaultCategory, vm.LaunchItems[0].Category);
-            Assert.Equal(Resources.DefaultCategory, vm.QuickAddCategory);
+            Assert.Equal(global::applanch.Properties.Resources.DefaultCategory, vm.LaunchItems[0].Category);
+            Assert.Equal(global::applanch.Properties.Resources.DefaultCategory, vm.QuickAddCategory);
         }
         finally
         {

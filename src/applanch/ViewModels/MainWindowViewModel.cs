@@ -9,13 +9,12 @@ using System.Windows;
 using System.Windows.Data;
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
-using applanch.Properties;
 
 namespace applanch;
 
 public sealed class MainWindowViewModel : INotifyPropertyChanged
 {
-    private static string AllCategoriesLabel => Resources.AllCategories;
+    private static string AllCategoriesLabel => global::applanch.Properties.Resources.AllCategories;
     private static readonly IReadOnlySet<string> KnownAllCategoriesLabels = BuildKnownAllCategoriesLabels();
     private const int QuickAddSuggestionsLimit = 10;
 
@@ -404,11 +403,11 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
 
     private static IReadOnlySet<string> BuildKnownAllCategoriesLabels()
     {
-        var resourceManager = new ResourceManager(typeof(Resources).FullName!, typeof(Resources).Assembly);
+        var resourceManager = new ResourceManager(typeof(global::applanch.Properties.Resources).FullName!, typeof(global::applanch.Properties.Resources).Assembly);
         var labels = new HashSet<string>(StringComparer.Ordinal);
         foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new("en"), new("ja") })
         {
-            var value = resourceManager.GetString(nameof(Resources.AllCategories), culture);
+            var value = resourceManager.GetString(nameof(global::applanch.Properties.Resources.AllCategories), culture);
             if (!string.IsNullOrWhiteSpace(value))
             {
                 labels.Add(value);
