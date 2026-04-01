@@ -34,37 +34,30 @@ internal static class PathNormalization
 
     internal static bool TryNormalizePersistablePath(string path, out string normalizedPath)
     {
-        normalizedPath = string.Empty;
-
         var candidatePath = NormalizeDriveSpecifier(path.Trim());
         if (string.IsNullOrWhiteSpace(candidatePath) || !Path.IsPathFullyQualified(candidatePath))
         {
+            normalizedPath = string.Empty;
             return false;
         }
 
         normalizedPath = NormalizePersistablePathCore(candidatePath);
-        return !string.IsNullOrWhiteSpace(normalizedPath);
+        return true;
     }
 
     private static string NormalizePersistablePathCore(string path)
     {
-        var trimmedPath = path.Trim();
-        if (trimmedPath.Length == 0)
-        {
-            return string.Empty;
-        }
-
         try
         {
-            var full = Path.GetFullPath(trimmedPath);
+            var full = Path.GetFullPath(path);
             return Directory.Exists(full)
                 ? EnsureTrailingDirectorySeparator(full)
                 : Path.TrimEndingDirectorySeparator(full);
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Path normalization failed for '{trimmedPath}': {ex.Message}");
-            return trimmedPath;
+            AppLogger.Instance.Warn($"Path normalization failed for '{path}': {ex.Message}");
+            return path;
         }
     }
 
