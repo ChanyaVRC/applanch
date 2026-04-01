@@ -9,10 +9,10 @@ internal static class LaunchItemNormalization
 {
     // Collect every localized form of "DefaultCategory" so that a category stored
     // under one language is correctly re-mapped when the app runs under another.
-    private static readonly IReadOnlySet<string> KnownDefaultCategories =
+    private static readonly HashSet<string> KnownDefaultCategories =
         BuildKnownDefaultCategories();
 
-    private static IReadOnlySet<string> BuildKnownDefaultCategories()
+    private static HashSet<string> BuildKnownDefaultCategories()
     {
         var rm = new ResourceManager(typeof(Resources).FullName!, typeof(Resources).Assembly);
         var set = new HashSet<string>(StringComparer.Ordinal);
