@@ -24,7 +24,6 @@ public class ItemLaunchServiceTests
 
     [Theory]
     [InlineData("https://example.com")]
-    [InlineData("steam://rungameid/12345")]
     public void TryLaunch_Url_LaunchesDirectlyWithShellExecute(string url)
     {
         var launcher = new FakeProcessLauncher();

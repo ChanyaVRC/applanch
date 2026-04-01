@@ -28,7 +28,6 @@ public class AppResolverTests
     [Theory]
     [InlineData("https://example.com", "example.com")]
     [InlineData("http://example.com/path/page", "example.com")]
-    [InlineData("steam://rungameid/12345", "rungameid")]
     public void TryResolve_Url_ResolvesWithExpectedDisplayName(string url, string expectedDisplayName)
     {
         var ok = AppResolver.TryResolve(url, out var resolved);

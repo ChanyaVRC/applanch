@@ -1,4 +1,5 @@
 using System.IO;
+using Microsoft.Win32;
 
 namespace applanch.Infrastructure.Utilities;
 
@@ -41,7 +42,18 @@ internal static class PathNormalization
 
         // Require "://" to distinguish proper URL schemes from Windows device names (e.g. "CON:something").
         var s = uri.Scheme.Length;
-        return path.Length > s + 2 && path[s] == ':' && path[s + 1] == '/' && path[s + 2] == '/';
+        if (path.Length <= s + 2 || path[s] != ':' || path[s + 1] != '/' || path[s + 2] != '/')
+        {
+            return false;
+        }
+
+        return IsRegisteredUriScheme(uri.Scheme);
+    }
+
+    private static bool IsRegisteredUriScheme(string scheme)
+    {
+        using var key = Registry.ClassesRoot.OpenSubKey(scheme);
+        return key?.GetValue("URL Protocol") != null;
     }
 
     internal static bool TryNormalizePersistablePath(string path, out string normalizedPath)

@@ -40,7 +40,6 @@ public class PathNormalizationTests
     [Theory]
     [InlineData("https://example.com")]
     [InlineData("http://example.com/path")]
-    [InlineData("steam://rungameid/12345")]
     public void TryNormalizePersistablePath_Url_StoredAsIs(string url)
     {
         var success = PathNormalization.TryNormalizePersistablePath(url, out var normalized);
@@ -51,10 +50,16 @@ public class PathNormalizationTests
 
     [Theory]
     [InlineData("https://example.com")]
-    [InlineData("steam://rungameid/12345")]
-    public void IsUrl_AbsoluteNonFileUri_ReturnsTrue(string url)
+    [InlineData("http://example.com/path")]
+    public void IsUrl_RegisteredScheme_ReturnsTrue(string url)
     {
         Assert.True(PathNormalization.IsUrl(url));
+    }
+
+    [Fact]
+    public void IsUrl_UnregisteredScheme_ReturnsFalse()
+    {
+        Assert.False(PathNormalization.IsUrl("invalidscheme://something"));
     }
 
     [Theory]
@@ -62,6 +67,7 @@ public class PathNormalizationTests
     [InlineData(@"tools\app.exe")]
     [InlineData("foo:bar")]
     [InlineData("CON:something")]
+    [InlineData("invalidscheme://something")]
     public void IsUrl_FilePath_ReturnsFalse(string path)
     {
         Assert.False(PathNormalization.IsUrl(path));
