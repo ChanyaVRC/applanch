@@ -32,10 +32,29 @@ internal static class PathNormalization
         return Path.TrimEndingDirectorySeparator(path);
     }
 
+    internal static bool IsUrl(string path)
+    {
+        return Uri.TryCreate(path, UriKind.Absolute, out var uri)
+            && uri.Scheme != Uri.UriSchemeFile
+            && path.Length > uri.Scheme.Length + 1;
+    }
+
     internal static bool TryNormalizePersistablePath(string path, out string normalizedPath)
     {
         var candidatePath = NormalizeDriveSpecifier(path.Trim());
-        if (string.IsNullOrWhiteSpace(candidatePath) || !Path.IsPathFullyQualified(candidatePath))
+        if (string.IsNullOrWhiteSpace(candidatePath))
+        {
+            normalizedPath = string.Empty;
+            return false;
+        }
+
+        if (IsUrl(candidatePath))
+        {
+            normalizedPath = candidatePath;
+            return true;
+        }
+
+        if (!Path.IsPathFullyQualified(candidatePath))
         {
             normalizedPath = string.Empty;
             return false;

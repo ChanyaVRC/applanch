@@ -77,7 +77,7 @@ public sealed class LaunchItemViewModel : INotifyPropertyChanged
 
     public string FullPath { get; }
     public BitmapSource? IconSource { get; }
-    public bool IsPathMissing => !Path.Exists(FullPath);
+    public bool IsPathMissing => !PathNormalization.IsUrl(FullPath) && !Path.Exists(FullPath);
 
     public string Arguments
     {

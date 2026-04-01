@@ -41,6 +41,15 @@ internal static partial class AppResolver
 
         var trimmed = input.Trim();
 
+        if (Uri.TryCreate(trimmed, UriKind.Absolute, out var uri)
+            && uri.Scheme != Uri.UriSchemeFile
+            && trimmed.Length > uri.Scheme.Length + 1)
+        {
+            var displayName = string.IsNullOrWhiteSpace(uri.Host) ? trimmed : uri.Host;
+            resolvedApp = new ResolvedApp(trimmed, displayName);
+            return true;
+        }
+
         if (File.Exists(trimmed))
         {
             resolvedApp = new ResolvedApp(trimmed, Path.GetFileNameWithoutExtension(trimmed));

@@ -22,6 +22,23 @@ public class ItemLaunchServiceTests
         Assert.Equal(System.Windows.MessageBoxImage.Warning, result.Icon);
     }
 
+    [Theory]
+    [InlineData("https://example.com")]
+    [InlineData("steam://rungameid/12345")]
+    public void TryLaunch_Url_LaunchesDirectlyWithShellExecute(string url)
+    {
+        var launcher = new FakeProcessLauncher();
+        var service = new ItemLaunchService(launcher.Start);
+        var item = new LaunchItemViewModel(url, "Web", string.Empty, "Example");
+
+        var result = service.TryLaunch(item);
+
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(launcher.LastStartInfo);
+        Assert.Equal(url, launcher.LastStartInfo!.FileName);
+        Assert.True(launcher.LastStartInfo.UseShellExecute);
+    }
+
     [Fact]
     public void TryLaunch_FilePath_UsesFileAndArguments()
     {

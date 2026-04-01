@@ -34,10 +34,11 @@ internal sealed class ItemLaunchService : IItemLaunchService
     public LaunchExecutionResult TryLaunch(LaunchItemViewModel item, bool runAsAdministrator = false)
     {
         var path = item.FullPath;
-        var isDirectory = Directory.Exists(path);
-        var isFile = !isDirectory && File.Exists(path);
+        var isUrl = PathNormalization.IsUrl(path);
+        var isDirectory = !isUrl && Directory.Exists(path);
+        var isFile = !isUrl && !isDirectory && File.Exists(path);
 
-        if (!isFile && !isDirectory)
+        if (!isUrl && !isFile && !isDirectory)
         {
             return LaunchExecutionResult.Failed(
                 string.Format(AppResources.Error_FileNotFound, path),

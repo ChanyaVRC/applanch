@@ -36,4 +36,32 @@ public class PathNormalizationTests
         Assert.False(success);
         Assert.Equal(string.Empty, normalized);
     }
+
+    [Theory]
+    [InlineData("https://example.com")]
+    [InlineData("http://example.com/path")]
+    [InlineData("steam://rungameid/12345")]
+    public void TryNormalizePersistablePath_Url_StoredAsIs(string url)
+    {
+        var success = PathNormalization.TryNormalizePersistablePath(url, out var normalized);
+
+        Assert.True(success);
+        Assert.Equal(url, normalized);
+    }
+
+    [Theory]
+    [InlineData("https://example.com")]
+    [InlineData("steam://rungameid/12345")]
+    public void IsUrl_AbsoluteNonFileUri_ReturnsTrue(string url)
+    {
+        Assert.True(PathNormalization.IsUrl(url));
+    }
+
+    [Theory]
+    [InlineData(@"C:\Tools\app.exe")]
+    [InlineData(@"tools\app.exe")]
+    public void IsUrl_FilePath_ReturnsFalse(string path)
+    {
+        Assert.False(PathNormalization.IsUrl(path));
+    }
 }
