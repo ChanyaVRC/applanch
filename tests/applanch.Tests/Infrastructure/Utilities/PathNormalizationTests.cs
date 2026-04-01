@@ -60,6 +60,8 @@ public class PathNormalizationTests
     [Theory]
     [InlineData(@"C:\Tools\app.exe")]
     [InlineData(@"tools\app.exe")]
+    [InlineData("foo:bar")]
+    [InlineData("CON:something")]
     public void IsUrl_FilePath_ReturnsFalse(string path)
     {
         Assert.False(PathNormalization.IsUrl(path));

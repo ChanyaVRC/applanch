@@ -34,9 +34,14 @@ internal static class PathNormalization
 
     internal static bool IsUrl(string path)
     {
-        return Uri.TryCreate(path, UriKind.Absolute, out var uri)
-            && uri.Scheme != Uri.UriSchemeFile
-            && path.Length > uri.Scheme.Length + 1;
+        if (!Uri.TryCreate(path, UriKind.Absolute, out var uri) || uri.Scheme == Uri.UriSchemeFile)
+        {
+            return false;
+        }
+
+        // Require "://" to distinguish proper URL schemes from Windows device names (e.g. "CON:something").
+        var s = uri.Scheme.Length;
+        return path.Length > s + 2 && path[s] == ':' && path[s + 1] == '/' && path[s + 2] == '/';
     }
 
     internal static bool TryNormalizePersistablePath(string path, out string normalizedPath)
