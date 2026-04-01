@@ -1,5 +1,5 @@
-using System.IO;
 using applanch.Infrastructure.Resolution;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch;
 
@@ -60,21 +60,5 @@ internal sealed class QuickAddWorkflow(IAppResolver appResolver)
         return string.Equals(normalizedLeft, normalizedRight, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string NormalizePath(string path)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return string.Empty;
-        }
-
-        try
-        {
-            var fullPath = Path.GetFullPath(path.Trim());
-            return Path.TrimEndingDirectorySeparator(fullPath);
-        }
-        catch (Exception)
-        {
-            return path.Trim();
-        }
-    }
+    private static string NormalizePath(string path) => PathNormalization.NormalizeForComparison(path);
 }

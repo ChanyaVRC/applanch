@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Win32;
 using System.IO;
 using System.Security;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Resolution;
 
@@ -317,14 +318,7 @@ internal static partial class AppResolver
     private static bool LooksLikePath(string input) => input.IndexOfAny(['\\', '/', ':']) >= 0;
 
     private static string NormalizeResolvedDirectoryPath(string path)
-    {
-        if (IsDriveLetterSpecifier(path))
-        {
-            return path + Path.DirectorySeparatorChar;
-        }
-
-        return Path.TrimEndingDirectorySeparator(path);
-    }
+        => PathNormalization.NormalizeDirectoryPath(path);
 
     private static string GetDirectoryDisplayName(string normalizedDirectoryPath)
     {
