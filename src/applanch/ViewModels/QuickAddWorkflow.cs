@@ -42,7 +42,7 @@ internal sealed class QuickAddWorkflow(IAppResolver appResolver)
             return QuickAddResult.Failed(Properties.Resources.Error_AlreadyRegistered, QuickAddMessageSeverity.Information);
         }
 
-        var normalizedResolvedPath = NormalizeResolvedPathForLaunchItem(resolvedApp.Path);
+        var normalizedResolvedPath = NormalizePath(resolvedApp.Path);
 
         newItem = new LaunchItemViewModel(
             normalizedResolvedPath,
@@ -55,30 +55,12 @@ internal sealed class QuickAddWorkflow(IAppResolver appResolver)
 
     private static bool IsSamePath(string left, string right)
     {
-        var normalizedLeft = NormalizePathForComparison(left);
-        var normalizedRight = NormalizePathForComparison(right);
+        var normalizedLeft = NormalizePath(left);
+        var normalizedRight = NormalizePath(right);
         return string.Equals(normalizedLeft, normalizedRight, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string NormalizePathForComparison(string path)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return string.Empty;
-        }
-
-        try
-        {
-            var fullPath = Path.GetFullPath(path);
-            return Path.TrimEndingDirectorySeparator(fullPath);
-        }
-        catch (Exception)
-        {
-            return path.Trim();
-        }
-    }
-
-    private static string NormalizeResolvedPathForLaunchItem(string path)
+    private static string NormalizePath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
         {
