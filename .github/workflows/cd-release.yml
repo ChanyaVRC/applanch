@@ -27,56 +27,19 @@ jobs:
       app_version: ${{ steps.meta.outputs.app_version }}
       is_prerelease: ${{ steps.meta.outputs.is_prerelease }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Derive release metadata
         id: meta
-        uses: actions/github-script@v7
+        shell: pwsh
         env:
           INPUT_TAG: ${{ github.event.inputs.tag }}
           REF_NAME: ${{ github.ref_name }}
           EVENT_NAME: ${{ github.event_name }}
-        with:
-          script: |
-            const inputTag = (process.env.INPUT_TAG || '').trim();
-            const refName = (process.env.REF_NAME || '').trim();
-            const eventName = process.env.EVENT_NAME;
-
-            const tag = eventName === 'workflow_dispatch' ? inputTag : refName;
-            if (!tag) {
-              core.setFailed('Release tag is required.');
-              return;
-            }
-
-            const normalizedTag = tag.startsWith('refs/tags/') ? tag.slice('refs/tags/'.length) : tag;
-            if (!normalizedTag) {
-              core.setFailed(`Invalid release tag: '${tag}'`);
-              return;
-            }
-
-            const semverLikeTag = /^v\d+\.\d+\.\d+([-.][0-9A-Za-z.-]+)?$/;
-            if (!semverLikeTag.test(normalizedTag)) {
-              core.setFailed(`Tag must match vMAJOR.MINOR.PATCH[-suffix], got: '${normalizedTag}'`);
-              return;
-            }
-
-            if (eventName === 'workflow_dispatch') {
-              try {
-                await github.rest.git.getRef({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  ref: `tags/${normalizedTag}`
-                });
-              } catch {
-                core.setFailed(`Tag '${normalizedTag}' was not found in this repository.`);
-                return;
-              }
-            }
-
-            const version = normalizedTag.startsWith('v') ? normalizedTag.slice(1) : normalizedTag;
-            const isPre = String(version.includes('-'));
-
-            core.setOutput('release_tag', normalizedTag);
-            core.setOutput('app_version', version);
-            core.setOutput('is_prerelease', isPre);
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./scripts/derive-release-metadata.ps1
 
   verify:
     needs: metadata
