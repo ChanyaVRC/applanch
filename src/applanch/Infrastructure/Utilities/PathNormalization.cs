@@ -1,10 +1,14 @@
 using System.IO;
+using System.Collections.Concurrent;
 using Microsoft.Win32;
 
 namespace applanch.Infrastructure.Utilities;
 
 internal static class PathNormalization
 {
+    private static readonly ConcurrentDictionary<string, bool> RegisteredUriSchemeCache =
+        new(StringComparer.OrdinalIgnoreCase);
+
     internal static string NormalizeForComparison(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -35,10 +39,19 @@ internal static class PathNormalization
 
     internal static bool IsUrl(string path)
     {
-        if (!Uri.TryCreate(path, UriKind.Absolute, out var uri) || uri.Scheme == Uri.UriSchemeFile)
+        return TryParseRegisteredUrl(path, out _);
+    }
+
+    internal static bool TryParseRegisteredUrl(string path, out Uri uri)
+    {
+        uri = default!;
+
+        if (!Uri.TryCreate(path, UriKind.Absolute, out var parsedUri) || parsedUri.Scheme == Uri.UriSchemeFile)
         {
             return false;
         }
+
+        uri = parsedUri;
 
         // Require "://" to distinguish proper URL schemes from Windows device names (e.g. "CON:something").
         var s = uri.Scheme.Length;
@@ -52,8 +65,11 @@ internal static class PathNormalization
 
     private static bool IsRegisteredUriScheme(string scheme)
     {
-        using var key = Registry.ClassesRoot.OpenSubKey(scheme);
-        return key?.GetValue("URL Protocol") != null;
+        return RegisteredUriSchemeCache.GetOrAdd(scheme, static s =>
+        {
+            using var key = Registry.ClassesRoot.OpenSubKey(s);
+            return key?.GetValue("URL Protocol") != null;
+        });
     }
 
     internal static bool TryNormalizePersistablePath(string path, out string normalizedPath)
@@ -65,7 +81,7 @@ internal static class PathNormalization
             return false;
         }
 
-        if (IsUrl(candidatePath))
+        if (TryParseRegisteredUrl(candidatePath, out _))
         {
             normalizedPath = candidatePath;
             return true;

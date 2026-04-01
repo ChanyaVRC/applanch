@@ -41,13 +41,8 @@ internal static partial class AppResolver
 
         var trimmed = input.Trim();
 
-        if (PathNormalization.IsUrl(trimmed))
+        if (PathNormalization.TryParseRegisteredUrl(trimmed, out var uri))
         {
-            if (!Uri.TryCreate(trimmed, UriKind.Absolute, out var uri))
-            {
-                return false;
-            }
-
             var displayName = string.IsNullOrWhiteSpace(uri.Host) ? trimmed : uri.Host;
             resolvedApp = new ResolvedApp(trimmed, displayName);
             return true;
