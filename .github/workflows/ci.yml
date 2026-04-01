@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  format:
+  prepare:
     runs-on: windows-latest
     timeout-minutes: 20
 
@@ -36,11 +36,46 @@ jobs:
 
       - name: Build
         run: dotnet build applanch.slnx --configuration Release --no-restore
+
+      - name: Upload prepared workspace
+        uses: actions/upload-artifact@v4
+        with:
+          name: prepared-workspace
+          path: |
+            src/**/obj/**
+            src/**/bin/**
+            tests/**/obj/**
+            tests/**/bin/**
+          retention-days: 1
+          if-no-files-found: error
+
+  format:
+    needs: prepare
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
+
+      - name: Download prepared workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: prepared-workspace
+          path: .
 
       - name: Check formatting
         run: dotnet format applanch.slnx --verify-no-changes --no-restore --verbosity minimal
 
   vulnerable-packages:
+    needs: prepare
     runs-on: windows-latest
     timeout-minutes: 20
 
@@ -55,16 +90,17 @@ jobs:
           cache: true
           cache-dependency-path: '**/packages.lock.json'
 
-      - name: Restore
-        run: dotnet restore applanch.slnx
-
-      - name: Build
-        run: dotnet build applanch.slnx --configuration Release --no-restore
+      - name: Download prepared workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: prepared-workspace
+          path: .
 
       - name: Check vulnerable packages
-        run: dotnet list applanch.slnx package --vulnerable --include-transitive
+        run: dotnet list applanch.slnx package --vulnerable --include-transitive --no-restore
 
   test:
+    needs: prepare
     runs-on: windows-latest
     timeout-minutes: 20
 
@@ -79,14 +115,14 @@ jobs:
           cache: true
           cache-dependency-path: '**/packages.lock.json'
 
-      - name: Restore
-        run: dotnet restore applanch.slnx
-
-      - name: Build
-        run: dotnet build applanch.slnx --configuration Release --no-restore
+      - name: Download prepared workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: prepared-workspace
+          path: .
 
       - name: Test
-        run: dotnet test tests/applanch.Tests/applanch.Tests.csproj --configuration Release --no-build --results-directory TestResults --logger "trx;LogFileName=test-results.trx" --collect "XPlat Code Coverage;Format=cobertura"
+        run: dotnet test tests/applanch.Tests/applanch.Tests.csproj --configuration Release --no-build --no-restore --results-directory TestResults --logger "trx;LogFileName=test-results.trx" --collect "XPlat Code Coverage;Format=cobertura"
 
       - name: Upload test results
         if: always()
