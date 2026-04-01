@@ -36,21 +36,8 @@ internal static class PathNormalization
     {
         normalizedPath = string.Empty;
 
-        var trimmedPathSpan = path.AsSpan().Trim();
-        if (trimmedPathSpan.IsEmpty)
-        {
-            return false;
-        }
-
-        ReadOnlySpan<char> candidatePath = trimmedPathSpan;
-        string? driveRootPath = null;
-        if (IsDriveLetterSpecifier(trimmedPathSpan))
-        {
-            driveRootPath = string.Concat(trimmedPathSpan.ToString(), Path.DirectorySeparatorChar);
-            candidatePath = driveRootPath.AsSpan();
-        }
-
-        if (!Path.IsPathFullyQualified(candidatePath))
+        var candidatePath = NormalizeDriveSpecifier(path.Trim());
+        if (string.IsNullOrWhiteSpace(candidatePath) || !Path.IsPathFullyQualified(candidatePath))
         {
             return false;
         }
@@ -59,15 +46,14 @@ internal static class PathNormalization
         return !string.IsNullOrWhiteSpace(normalizedPath);
     }
 
-    private static string NormalizePersistablePathCore(ReadOnlySpan<char> path)
+    private static string NormalizePersistablePathCore(string path)
     {
-        var trimmedPathSpan = path.Trim();
-        if (trimmedPathSpan.IsEmpty)
+        var trimmedPath = path.Trim();
+        if (trimmedPath.Length == 0)
         {
             return string.Empty;
         }
 
-        var trimmedPath = trimmedPathSpan.ToString();
         try
         {
             var full = Path.GetFullPath(trimmedPath);
@@ -85,11 +71,10 @@ internal static class PathNormalization
     private static bool IsDriveLetterSpecifier(ReadOnlySpan<char> path) =>
         path.Length == 2 && char.IsLetter(path[0]) && path[1] == ':';
 
-    private static bool IsDriveLetterSpecifier(string path)
-    {
-        var trimmed = path.AsSpan().Trim();
-        return IsDriveLetterSpecifier(trimmed);
-    }
+    private static string NormalizeDriveSpecifier(string path) =>
+        IsDriveLetterSpecifier(path.AsSpan())
+            ? path + Path.DirectorySeparatorChar
+            : path;
 
     private static string EnsureTrailingDirectorySeparator(string path) =>
         Path.EndsInDirectorySeparator(path)
