@@ -15,7 +15,7 @@ namespace applanch;
 public sealed class MainWindowViewModel : INotifyPropertyChanged
 {
     private static string AllCategoriesLabel => AppResources.AllCategories;
-    private static readonly IReadOnlySet<string> KnownAllCategoriesLabels = BuildKnownAllCategoriesLabels();
+    private static readonly HashSet<string> KnownAllCategoriesLabels = BuildKnownAllCategoriesLabels();
     private const int QuickAddSuggestionsLimit = 10;
 
     private readonly QuickAddWorkflow _quickAddWorkflow;
@@ -401,7 +401,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private static bool IsAllCategoriesLabel(string category) =>
         KnownAllCategoriesLabels.Contains(category);
 
-    private static IReadOnlySet<string> BuildKnownAllCategoriesLabels()
+    private static HashSet<string> BuildKnownAllCategoriesLabels()
     {
         var resourceManager = new ResourceManager(typeof(AppResources).FullName!, typeof(AppResources).Assembly);
         var labels = new HashSet<string>(StringComparer.Ordinal);

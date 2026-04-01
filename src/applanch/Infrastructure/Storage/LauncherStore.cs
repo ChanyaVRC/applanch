@@ -90,7 +90,7 @@ internal static class LauncherStore
         File.WriteAllText(StoreFilePath, json);
     }
 
-    private static IReadOnlyList<LauncherEntry> LoadLegacyEntries()
+    private static List<LauncherEntry> LoadLegacyEntries()
     {
         if (!File.Exists(LegacyStoreFilePath))
         {
@@ -102,12 +102,12 @@ internal static class LauncherStore
             .Select(static path => new LauncherEntry(path, LauncherEntry.DefaultCategory, string.Empty, Path.GetFileName(path)))
             .ToList();
 
-        var normalized = NormalizeEntries(entries).ToList();
+        var normalized = NormalizeEntries(entries);
         SaveAll(normalized);
         return normalized;
     }
 
-    private static IReadOnlyList<LauncherEntry> NormalizeEntries(IEnumerable<LauncherEntry> entries)
+    private static List<LauncherEntry> NormalizeEntries(IEnumerable<LauncherEntry> entries)
     {
         var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var result = new List<LauncherEntry>();

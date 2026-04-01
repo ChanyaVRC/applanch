@@ -264,7 +264,7 @@ internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
         return resolver.TryResolve(launchPath, out var appId) ? appId : null;
     }
 
-    private static string ExpandTemplate(string template, IReadOnlyDictionary<string, string> values)
+    private static string ExpandTemplate(string template, Dictionary<string, string> values)
     {
         if (string.IsNullOrWhiteSpace(template))
         {

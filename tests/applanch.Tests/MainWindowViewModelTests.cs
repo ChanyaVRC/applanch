@@ -726,7 +726,7 @@ public class MainWindowViewModelTests
 
         public int SaveCallCount { get; private set; }
 
-        public IReadOnlyList<LauncherStore.LauncherEntry> LastSavedEntries { get; private set; } = [];
+        public List<LauncherStore.LauncherEntry> LastSavedEntries { get; private set; } = [];
 
         public IReadOnlyList<LauncherStore.LauncherEntry> LoadAll() => _entries;
 

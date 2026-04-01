@@ -2,3 +2,4 @@ root = true
 
 [*.cs]
 dotnet_diagnostic.IDE0005.severity = error
+dotnet_diagnostic.CA1859.severity = warning

@@ -32,8 +32,8 @@ internal sealed class ThemeManager(Func<AppTheme>? themeProvider = null)
         ("Brush.QuickAddWarningText", "#92400E", "#F59E0B")
     ];
 
-    private static readonly IReadOnlyDictionary<string, SolidColorBrush> LightBrushes = BuildBrushMap(isLight: true);
-    private static readonly IReadOnlyDictionary<string, SolidColorBrush> DarkBrushes = BuildBrushMap(isLight: false);
+    private static readonly Dictionary<string, SolidColorBrush> LightBrushes = BuildBrushMap(isLight: true);
+    private static readonly Dictionary<string, SolidColorBrush> DarkBrushes = BuildBrushMap(isLight: false);
 
     private readonly Func<AppTheme> _themeProvider = themeProvider ?? (() => AppTheme.System);
 
@@ -64,7 +64,7 @@ internal sealed class ThemeManager(Func<AppTheme>? themeProvider = null)
         }
     }
 
-    private static IReadOnlyDictionary<string, SolidColorBrush> BuildBrushMap(bool isLight)
+    private static Dictionary<string, SolidColorBrush> BuildBrushMap(bool isLight)
     {
         var map = new Dictionary<string, SolidColorBrush>(Palette.Length, StringComparer.Ordinal);
         foreach (var (key, lightHex, darkHex) in Palette)

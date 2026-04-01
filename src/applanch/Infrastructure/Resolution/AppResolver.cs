@@ -147,7 +147,7 @@ internal static partial class AppResolver
         return -string.Compare(left.Text, right.Text, StringComparison.CurrentCultureIgnoreCase);
     }
 
-    private static IReadOnlyList<string> SelectTopSuggestions(ICollection<SuggestionCandidate> candidates, int maxResults)
+    private static IReadOnlyList<string> SelectTopSuggestions(Dictionary<string, SuggestionCandidate>.ValueCollection candidates, int maxResults)
     {
         if (candidates.Count <= maxResults)
         {
