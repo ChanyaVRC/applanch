@@ -1,4 +1,5 @@
 using applanch.Infrastructure.Utilities;
+using Microsoft.Win32;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Utilities;
@@ -60,6 +61,24 @@ public class PathNormalizationTests
     public void IsUrl_UnregisteredScheme_ReturnsFalse()
     {
         Assert.False(PathNormalization.IsUrl("invalidscheme://something"));
+    }
+
+    [Fact]
+    public void IsUrl_CustomRegisteredScheme_ReturnsTrue()
+    {
+        var scheme = "applanch-test-" + Guid.NewGuid().ToString("N")[..8];
+        var keyPath = $@"Software\Classes\{scheme}";
+        try
+        {
+            using var key = Registry.CurrentUser.CreateSubKey(keyPath);
+            key.SetValue("URL Protocol", string.Empty);
+
+            Assert.True(PathNormalization.IsUrl($"{scheme}://something"));
+        }
+        finally
+        {
+            Registry.CurrentUser.DeleteSubKeyTree(keyPath, throwOnMissingSubKey: false);
+        }
     }
 
     [Theory]
