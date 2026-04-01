@@ -34,14 +34,14 @@ jobs:
       - name: Restore
         run: dotnet restore applanch.slnx
 
+      - name: Build
+        run: dotnet build applanch.slnx --configuration Release --no-restore
+
       - name: Check formatting
         run: dotnet format applanch.slnx --verify-no-changes --no-restore --verbosity minimal
 
       - name: Check vulnerable packages
         run: dotnet list applanch.slnx package --vulnerable --include-transitive
-
-      - name: Build
-        run: dotnet build applanch.slnx --configuration Release --no-restore
 
       - name: Test
         run: dotnet test tests/applanch.Tests/applanch.Tests.csproj --configuration Release --no-build --results-directory TestResults --logger "trx;LogFileName=test-results.trx" --collect "XPlat Code Coverage;Format=cobertura"
