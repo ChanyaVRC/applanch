@@ -144,6 +144,23 @@ public class QuickAddWorkflowTests
     }
 
     [Fact]
+    public void TryCreateLaunchItem_Success_NormalizesResolvedForwardSlashPath()
+    {
+        var resolver = new FakeResolver
+        {
+            ShouldResolve = true,
+            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(@"C:/Tools/NewApp.exe", "NewApp"),
+        };
+        var workflow = new QuickAddWorkflow(resolver);
+
+        var result = workflow.TryCreateLaunchItem("newapp", "Ops", "-v", [], out var newItem);
+
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(newItem);
+        Assert.Equal(@"C:\Tools\NewApp.exe", newItem.FullPath);
+    }
+
+    [Fact]
     public void GetSuggestions_DelegatesToResolver()
     {
         var resolver = new FakeResolver

@@ -6,6 +6,7 @@ using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Storage;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch;
 
@@ -118,23 +119,39 @@ public sealed class LaunchItemViewModel : INotifyPropertyChanged
     private static BitmapSource? GetIcon(string fullPath)
     {
         var shfi = new NativeMethods.SHFILEINFO();
-        var result = NativeMethods.SHGetFileInfo(fullPath, 0, ref shfi,
-            (uint)Marshal.SizeOf<NativeMethods.SHFILEINFO>(),
-            NativeMethods.SHGFI_ICON | NativeMethods.SHGFI_LARGEICON);
-
-        if (result == IntPtr.Zero || shfi.hIcon == IntPtr.Zero)
-            return null;
 
         try
         {
+            var result = NativeMethods.SHGetFileInfo(fullPath, 0, ref shfi,
+                (uint)Marshal.SizeOf<NativeMethods.SHFILEINFO>(),
+                NativeMethods.SHGFI_ICON | NativeMethods.SHGFI_LARGEICON);
+
+            if (result == IntPtr.Zero || shfi.hIcon == IntPtr.Zero)
+            {
+                if (Path.Exists(fullPath))
+                {
+                    AppLogger.Instance.Warn($"Icon was not found for '{fullPath}'.");
+                }
+
+                return null;
+            }
+
             return Imaging.CreateBitmapSourceFromHIcon(
                 shfi.hIcon,
                 Int32Rect.Empty,
                 BitmapSizeOptions.FromWidthAndHeight(32, 32));
         }
+        catch (Exception ex)
+        {
+            AppLogger.Instance.Error(ex, $"Failed to load icon for '{fullPath}'");
+            return null;
+        }
         finally
         {
-            NativeMethods.DestroyIcon(shfi.hIcon);
+            if (shfi.hIcon != IntPtr.Zero)
+            {
+                NativeMethods.DestroyIcon(shfi.hIcon);
+            }
         }
     }
 }

@@ -42,8 +42,10 @@ internal sealed class QuickAddWorkflow(IAppResolver appResolver)
             return QuickAddResult.Failed(Properties.Resources.Error_AlreadyRegistered, QuickAddMessageSeverity.Information);
         }
 
+        var normalizedResolvedPath = NormalizeResolvedPathForLaunchItem(resolvedApp.Path);
+
         newItem = new LaunchItemViewModel(
-            resolvedApp.Path,
+            normalizedResolvedPath,
             quickAddCategory,
             quickAddArguments,
             resolvedApp.DisplayName);
@@ -68,6 +70,24 @@ internal sealed class QuickAddWorkflow(IAppResolver appResolver)
         try
         {
             var fullPath = Path.GetFullPath(path);
+            return Path.TrimEndingDirectorySeparator(fullPath);
+        }
+        catch (Exception)
+        {
+            return path.Trim();
+        }
+    }
+
+    private static string NormalizeResolvedPathForLaunchItem(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            var fullPath = Path.GetFullPath(path.Trim());
             return Path.TrimEndingDirectorySeparator(fullPath);
         }
         catch (Exception)
