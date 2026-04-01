@@ -137,6 +137,12 @@
   <data name="Theme_Dark" xml:space="preserve">
     <value>ダーク</value>
   </data>
+  <data name="Theme_Monochrome" xml:space="preserve">
+    <value>モノクロ</value>
+  </data>
+  <data name="Theme_DarkMonochrome" xml:space="preserve">
+    <value>ダークモノクロ</value>
+  </data>
   <data name="Setting_Language" xml:space="preserve">
     <value>言語</value>
   </data>

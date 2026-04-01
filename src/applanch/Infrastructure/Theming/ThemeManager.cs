@@ -1,56 +1,39 @@
 using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Media;
+using applanch.Infrastructure.Storage;
 
 namespace applanch.Infrastructure.Theming;
 
-internal sealed class ThemeManager(Func<AppTheme>? themeProvider = null)
+internal sealed class ThemeManager
 {
     private const string PersonalizeRegistryPath = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
     private const string AppsUseLightTheme = "AppsUseLightTheme";
 
-    private static readonly (string Key, string LightHex, string DarkHex)[] Palette =
-    [
-        ("Brush.AppBackground", "#F1F5F9", "#0B1220"),
-        ("Brush.Surface", "#FFFFFF", "#131D31"),
-        ("Brush.SurfaceBorder", "#D0D7E2", "#223149"),
-        ("Brush.TextPrimary", "#0F172A", "#E2E8F0"),
-        ("Brush.TextSecondary", "#475569", "#9FB2C9"),
-        ("Brush.TextTertiary", "#64748B", "#7C93AF"),
-        ("Brush.ItemBackground", "#F8FAFC", "#111C30"),
-        ("Brush.ItemBorder", "#D7DEE8", "#2A3B57"),
-        ("Brush.IconBackground", "#E2E8F0", "#20304B"),
-        ("Brush.NotificationInfoBackground", "#FFFFFF", "#131D31"),
-        ("Brush.NotificationInfoBorder", "#D7DEE8", "#2A3B57"),
-        ("Brush.NotificationWarningBackground", "#FFF7ED", "#2B2111"),
-        ("Brush.NotificationWarningBorder", "#FDBA74", "#B45309"),
-        ("Brush.NotificationErrorBackground", "#FEF2F2", "#2A1618"),
-        ("Brush.NotificationErrorBorder", "#FCA5A5", "#B45353"),
-        ("Brush.NotificationProgressTrack", "#E2E8F0", "#2A3B57"),
-        ("Brush.NotificationProgressValue", "#94A3B8", "#7C93AF"),
-        ("Brush.QuickAddInfoText", "#B45309", "#FBBF24"),
-        ("Brush.QuickAddWarningText", "#92400E", "#F59E0B")
-    ];
+    private readonly ThemePaletteConfiguration _configuration;
+    private readonly Dictionary<string, Dictionary<string, SolidColorBrush>> _brushesByThemeId;
+    private readonly Func<AppSettings> _settingsProvider;
 
-    private static readonly Dictionary<string, SolidColorBrush> LightBrushes = BuildBrushMap(isLight: true);
-    private static readonly Dictionary<string, SolidColorBrush> DarkBrushes = BuildBrushMap(isLight: false);
-
-    private readonly Func<AppTheme> _themeProvider = themeProvider ?? (() => AppTheme.System);
+    public ThemeManager(
+        Func<AppSettings>? settingsProvider = null,
+        ThemePaletteConfiguration? configuration = null)
+    {
+        _settingsProvider = settingsProvider ?? AppSettings.Load;
+        _configuration = configuration ?? ThemePaletteConfigurationLoader.LoadForRuntime();
+        _brushesByThemeId = BuildBrushMaps(_configuration);
+    }
 
     public void ApplyTheme(ResourceDictionary resources)
     {
-        var isLight = _themeProvider() switch
+        var selectedThemeId = ResolveThemeId(_settingsProvider());
+        if (!_brushesByThemeId.TryGetValue(selectedThemeId, out var brushMap))
         {
-            AppTheme.Light => true,
-            AppTheme.Dark => false,
-            _ => ReadWindowsThemePreference(),
-        };
+            brushMap = _brushesByThemeId.Values.First();
+        }
 
-        var brushMap = isLight ? LightBrushes : DarkBrushes;
-
-        foreach (var (key, _, _) in Palette)
+        foreach (var entry in _configuration.Entries)
         {
-            resources[key] = brushMap[key];
+            resources[entry.Key] = brushMap[entry.Key];
         }
     }
 
@@ -64,18 +47,72 @@ internal sealed class ThemeManager(Func<AppTheme>? themeProvider = null)
         }
     }
 
-    private static Dictionary<string, SolidColorBrush> BuildBrushMap(bool isLight)
+    private static Dictionary<string, Dictionary<string, SolidColorBrush>> BuildBrushMaps(ThemePaletteConfiguration configuration)
     {
-        var map = new Dictionary<string, SolidColorBrush>(Palette.Length, StringComparer.Ordinal);
-        foreach (var (key, lightHex, darkHex) in Palette)
+        var brushMaps = new Dictionary<string, Dictionary<string, SolidColorBrush>>(StringComparer.OrdinalIgnoreCase);
+        var availableThemeIds = configuration.Themes
+            .Select(static x => x.Id)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var themeId in availableThemeIds)
         {
-            var color = ColorFromHex(isLight ? lightHex : darkHex);
-            var brush = new SolidColorBrush(color);
-            brush.Freeze();
-            map[key] = brush;
+            brushMaps[themeId] = new Dictionary<string, SolidColorBrush>(configuration.Entries.Count, StringComparer.Ordinal);
         }
 
-        return map;
+        foreach (var entry in configuration.Entries)
+        {
+            foreach (var themeId in availableThemeIds)
+            {
+                var hex = ResolveHex(entry, themeId);
+                var color = ColorFromHex(hex);
+                var brush = new SolidColorBrush(color);
+                brush.Freeze();
+                brushMaps[themeId][entry.Key] = brush;
+            }
+        }
+
+        return brushMaps;
+    }
+
+    private static string ResolveHex(ThemePaletteEntry entry, string themeId)
+    {
+        if (entry.ColorsByThemeId.TryGetValue(themeId, out var hex) && !string.IsNullOrWhiteSpace(hex))
+        {
+            return hex;
+        }
+
+        if (entry.ColorsByThemeId.TryGetValue(ThemePaletteConfigurationLoader.LightThemeId, out var lightHex) && !string.IsNullOrWhiteSpace(lightHex))
+        {
+            return lightHex;
+        }
+
+        return entry.ColorsByThemeId.Values.First(static x => !string.IsNullOrWhiteSpace(x));
+    }
+
+    private string ResolveThemeId(AppSettings settings)
+    {
+        if (settings.Theme == AppTheme.System)
+        {
+            var preferredThemeId = ReadWindowsThemePreference()
+                ? ThemePaletteConfigurationLoader.LightThemeId
+                : ThemePaletteConfigurationLoader.DarkThemeId;
+            if (_brushesByThemeId.ContainsKey(preferredThemeId))
+            {
+                return preferredThemeId;
+            }
+
+            return _brushesByThemeId.Keys.First();
+        }
+
+        var selectedThemeId = settings.ThemeId?.Trim();
+        if (!string.IsNullOrWhiteSpace(selectedThemeId) && _brushesByThemeId.ContainsKey(selectedThemeId))
+        {
+            return selectedThemeId;
+        }
+
+        return settings.Theme == AppTheme.Dark
+            ? ThemePaletteConfigurationLoader.DarkThemeId
+            : ThemePaletteConfigurationLoader.LightThemeId;
     }
 
     private static Color ColorFromHex(string hex)

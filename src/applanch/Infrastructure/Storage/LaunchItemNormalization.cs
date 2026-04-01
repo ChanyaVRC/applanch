@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.IO;
 using System.Resources;
 
@@ -15,7 +14,7 @@ internal static class LaunchItemNormalization
     {
         var rm = new ResourceManager(typeof(AppResources).FullName!, typeof(AppResources).Assembly);
         var set = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new("en"), new("ja") })
+        foreach (var culture in LanguageOptionMap.EnumerateSupportedCultures(includeInvariantCulture: true))
         {
             var value = rm.GetString("DefaultCategory", culture);
             if (value is not null)

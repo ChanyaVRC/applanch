@@ -13,6 +13,8 @@
         SourceInitialized="Window_SourceInitialized"
         Background="{DynamicResource Brush.AppBackground}">
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+
         <Style x:Key="SettingsCheckBoxStyle"
                TargetType="CheckBox">
             <Setter Property="Foreground"
@@ -246,6 +248,7 @@
                                Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_Theme]}"
                                FontSize="13"
                                VerticalAlignment="Center"
+                               Visibility="{Binding IsThemeSelectionVisible, Converter={StaticResource BoolToVisibilityConverter}}"
                                Foreground="{DynamicResource Brush.TextPrimary}"/>
 
                     <ComboBox Grid.Row="0"
@@ -253,10 +256,10 @@
                               Width="200"
                               Margin="12,0,0,0"
                               Style="{StaticResource RoundedComboBoxStyle}"
+                              ItemsSource="{Binding ThemeOptions}"
+                              DisplayMemberPath="DisplayName"
+                              Visibility="{Binding IsThemeSelectionVisible, Converter={StaticResource BoolToVisibilityConverter}}"
                               SelectedIndex="{Binding ThemeIndex}">
-                        <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Theme_System]}"/>
-                        <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Theme_Light]}"/>
-                        <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Theme_Dark]}"/>
                     </ComboBox>
 
                     <TextBlock Grid.Row="2"

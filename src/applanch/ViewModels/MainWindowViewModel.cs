@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Resources;
 using System.Windows;
@@ -405,7 +404,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     {
         var resourceManager = new ResourceManager(typeof(AppResources).FullName!, typeof(AppResources).Assembly);
         var labels = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new("en"), new("ja") })
+        foreach (var culture in LanguageOptionMap.EnumerateSupportedCultures(includeInvariantCulture: true))
         {
             var value = resourceManager.GetString(nameof(AppResources.AllCategories), culture);
             if (!string.IsNullOrWhiteSpace(value))

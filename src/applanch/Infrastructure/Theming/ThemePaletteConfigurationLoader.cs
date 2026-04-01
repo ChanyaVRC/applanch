@@ -1,0 +1,282 @@
+using System.IO;
+using System.Text;
+using System.Text.Json;
+using applanch.Infrastructure.Storage;
+using applanch.Infrastructure.Utilities;
+
+namespace applanch.Infrastructure.Theming;
+
+internal static class ThemePaletteConfigurationLoader
+{
+    internal const string SystemThemeId = "system";
+    internal const string LightThemeId = "light";
+    internal const string DarkThemeId = "dark";
+
+    private static readonly ThemePaletteConfiguration FallbackConfiguration = new(
+        Themes:
+        [
+            new ThemeDefinition(LightThemeId, ResolveDisplayName(LightThemeId)),
+            new ThemeDefinition(DarkThemeId, ResolveDisplayName(DarkThemeId))
+        ],
+        Entries:
+        [
+            FallbackEntry("Brush.AppBackground", "#F1F5F9", "#0B1220"),
+            FallbackEntry("Brush.Surface", "#FFFFFF", "#131D31"),
+            FallbackEntry("Brush.SurfaceBorder", "#D0D7E2", "#223149"),
+            FallbackEntry("Brush.TextPrimary", "#0F172A", "#E2E8F0"),
+            FallbackEntry("Brush.TextSecondary", "#475569", "#9FB2C9"),
+            FallbackEntry("Brush.TextTertiary", "#64748B", "#7C93AF"),
+            FallbackEntry("Brush.ItemBackground", "#F8FAFC", "#111C30"),
+            FallbackEntry("Brush.ItemBorder", "#D7DEE8", "#2A3B57"),
+            FallbackEntry("Brush.IconBackground", "#E2E8F0", "#20304B"),
+            FallbackEntry("Brush.NotificationInfoBackground", "#FFFFFF", "#131D31"),
+            FallbackEntry("Brush.NotificationInfoBorder", "#D7DEE8", "#2A3B57"),
+            FallbackEntry("Brush.NotificationWarningBackground", "#FFF7ED", "#2B2111"),
+            FallbackEntry("Brush.NotificationWarningBorder", "#FDBA74", "#B45309"),
+            FallbackEntry("Brush.NotificationErrorBackground", "#FEF2F2", "#2A1618"),
+            FallbackEntry("Brush.NotificationErrorBorder", "#FCA5A5", "#B45353"),
+            FallbackEntry("Brush.NotificationProgressTrack", "#E2E8F0", "#2A3B57"),
+            FallbackEntry("Brush.NotificationProgressValue", "#94A3B8", "#7C93AF"),
+            FallbackEntry("Brush.QuickAddInfoText", "#B45309", "#FBBF24"),
+            FallbackEntry("Brush.QuickAddWarningText", "#92400E", "#F59E0B")
+        ],
+        LoadedFromConfig: false);
+
+    internal static ThemePaletteConfiguration LoadForRuntime() =>
+        TryLoadFromDirectory(AppContext.BaseDirectory, out var configuration)
+            ? configuration
+            : FallbackConfiguration;
+
+    internal static bool TryLoadForSettings(out ThemePaletteConfiguration configuration) =>
+        TryLoadFromDirectory(AppContext.BaseDirectory, out configuration);
+
+    internal static bool TryLoadFromDirectory(string appBaseDirectory, out ThemePaletteConfiguration configuration)
+    {
+        var path = Path.Combine(appBaseDirectory, "Config", "theme-palette.json");
+        if (!File.Exists(path))
+        {
+            AppLogger.Instance.Warn($"Theme palette config not found: {path}");
+            configuration = FallbackConfiguration;
+            return false;
+        }
+
+        try
+        {
+            using var stream = File.OpenRead(path);
+            using var doc = JsonDocument.Parse(stream, new JsonDocumentOptions
+            {
+                CommentHandling = JsonCommentHandling.Skip,
+                AllowTrailingCommas = true,
+            });
+
+            if (!TryParseConfiguration(doc.RootElement, out var parsedConfiguration))
+            {
+                AppLogger.Instance.Warn($"Theme palette config has no valid entries: {path}");
+                configuration = FallbackConfiguration;
+                return false;
+            }
+
+            configuration = parsedConfiguration;
+            AppLogger.Instance.Info($"Loaded theme palette config: {path}");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Instance.Warn($"Failed to load theme palette config '{path}': {ex.Message}");
+            configuration = FallbackConfiguration;
+            return false;
+        }
+    }
+
+    private static bool TryParseConfiguration(JsonElement root, out ThemePaletteConfiguration configuration)
+    {
+        if (!TryParseThemesAndEntries(root, out var themes, out var entries))
+        {
+            configuration = FallbackConfiguration;
+            return false;
+        }
+
+        configuration = new ThemePaletteConfiguration(themes, entries, LoadedFromConfig: true);
+        return true;
+    }
+
+    private static bool TryParseThemesAndEntries(
+        JsonElement root,
+        out ThemeDefinition[] themes,
+        out ThemePaletteEntry[] entries)
+    {
+        themes = [];
+        entries = [];
+
+        if (!root.TryGetProperty("themes", out var themesNode) || themesNode.ValueKind != JsonValueKind.Array)
+        {
+            return false;
+        }
+
+        var estimatedThemeCount = themesNode.GetArrayLength();
+        var parsedThemes = new List<ThemeDefinition>(estimatedThemeCount);
+        var colorsByEntryKey = new Dictionary<string, Dictionary<string, string>>(estimatedThemeCount, StringComparer.Ordinal);
+
+        foreach (var themeNode in themesNode.EnumerateArray())
+        {
+            if (!TryGetStringProperty(themeNode, "id", out var rawThemeId))
+            {
+                continue;
+            }
+
+            var themeId = NormalizeThemeId(rawThemeId);
+            if (string.IsNullOrWhiteSpace(themeId))
+            {
+                continue;
+            }
+
+            parsedThemes.Add(new ThemeDefinition(themeId, ResolveDisplayName(themeId, ParseDisplayNames(themeNode))));
+
+            if (!themeNode.TryGetProperty("entries", out var entriesNode) || entriesNode.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            foreach (var entryNode in entriesNode.EnumerateArray())
+            {
+                if (!TryGetStringProperty(entryNode, "key", out var key) || string.IsNullOrWhiteSpace(key))
+                {
+                    continue;
+                }
+
+                if (!TryGetStringProperty(entryNode, "hex", out var hex) || string.IsNullOrWhiteSpace(hex))
+                {
+                    continue;
+                }
+
+                AddColorEntry(colorsByEntryKey, key, themeId, hex);
+            }
+        }
+
+        if (parsedThemes.Count == 0 || colorsByEntryKey.Count == 0)
+        {
+            return false;
+        }
+
+        themes = parsedThemes.ToArray();
+        entries = colorsByEntryKey.Select(static x => new ThemePaletteEntry(x.Key, x.Value)).ToArray();
+
+        return true;
+    }
+
+    private static void AddColorEntry(
+        Dictionary<string, Dictionary<string, string>> byKey,
+        string entryKey,
+        string themeId,
+        string hex)
+    {
+        if (!byKey.TryGetValue(entryKey, out var colors))
+        {
+            colors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            byKey[entryKey] = colors;
+        }
+
+        colors[themeId] = hex;
+    }
+
+    private static ThemePaletteEntry FallbackEntry(string key, string lightHex, string darkHex)
+    {
+        return new ThemePaletteEntry(
+            key,
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [LightThemeId] = lightHex,
+                [DarkThemeId] = darkHex,
+            });
+    }
+
+    private static string NormalizeThemeId(string? themeId) =>
+        string.IsNullOrWhiteSpace(themeId) ? string.Empty : themeId.Trim().ToLowerInvariant();
+
+    private static bool TryGetStringProperty(JsonElement node, string propertyName, out string value)
+    {
+        value = string.Empty;
+        if (!node.TryGetProperty(propertyName, out var propertyNode) || propertyNode.ValueKind != JsonValueKind.String)
+        {
+            return false;
+        }
+
+        var parsed = propertyNode.GetString();
+        if (parsed is null)
+        {
+            return false;
+        }
+
+        value = parsed;
+        return true;
+    }
+
+    private static LocalizedText ResolveDisplayName(
+        string themeId,
+        IReadOnlyDictionary<LanguageOption, string>? displayNames = null)
+    {
+        var fallback = string.Equals(themeId, LightThemeId, StringComparison.OrdinalIgnoreCase)
+                ? AppResources.Theme_Light
+                : string.Equals(themeId, DarkThemeId, StringComparison.OrdinalIgnoreCase)
+                    ? AppResources.Theme_Dark
+                    : ToTitleCase(themeId);
+
+        return new LocalizedText(fallback, displayNames);
+    }
+
+    private static Dictionary<LanguageOption, string> ParseDisplayNames(JsonElement themeNode)
+    {
+        var displayNames = new Dictionary<LanguageOption, string>();
+        if (!themeNode.TryGetProperty("displayNames", out var displayNamesNode) || displayNamesNode.ValueKind != JsonValueKind.Object)
+        {
+            return displayNames;
+        }
+
+        foreach (var property in displayNamesNode.EnumerateObject())
+        {
+            var value = property.Value.GetString();
+            if (value is null)
+            {
+                continue;
+            }
+
+            if (LanguageOptionMap.TryMapFromCultureCode(property.Name, out var language))
+            {
+                displayNames[language] = value;
+            }
+        }
+
+        return displayNames;
+    }
+
+    private static string ToTitleCase(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return value;
+        }
+
+        var builder = new StringBuilder(value.Length);
+        var makeUpper = true;
+
+        foreach (var c in value)
+        {
+            if (c is '-' or '_' or ' ')
+            {
+                if (builder.Length > 0 && builder[^1] != ' ')
+                {
+                    builder.Append(' ');
+                }
+
+                makeUpper = true;
+                continue;
+            }
+
+            builder.Append(makeUpper ? char.ToUpperInvariant(c) : c);
+            makeUpper = false;
+        }
+
+        var result = builder.ToString().Trim();
+        return result.Length == 0 ? value : result;
+    }
+}

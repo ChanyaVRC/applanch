@@ -9,8 +9,11 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
 {
     private readonly AppEvent _appEvent;
     private readonly Action<AppSettings> _save;
+    private readonly Func<IReadOnlyList<ThemeOption>> _themeOptionsProvider;
+    private IReadOnlyList<ThemeOption> _themeOptions;
     private AppSettings _current;
-    private AppTheme _theme;
+    private AppTheme _themeMode;
+    private string? _themeId;
     private PostLaunchBehavior _postLaunchBehavior;
     private bool _closeOnLaunch;
     private bool _checkForUpdatesOnStartup;
@@ -24,12 +27,19 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
     private bool _runAsAdministrator;
     private LanguageOption _language;
 
-    internal SettingsWindowViewModel(AppSettings settings, AppEvent appEvent, Action<AppSettings>? save = null)
+    internal SettingsWindowViewModel(
+        AppSettings settings,
+        AppEvent appEvent,
+        Action<AppSettings>? save = null,
+        Func<IReadOnlyList<ThemeOption>>? themeOptionsProvider = null)
     {
         _appEvent = appEvent;
         _save = save ?? (static s => s.Save());
+        _themeOptionsProvider = themeOptionsProvider ?? ThemeOptionsProvider.Load;
+        _themeOptions = _themeOptionsProvider();
         _current = settings;
-        _theme = settings.Theme;
+        _themeMode = settings.Theme;
+        _themeId = settings.ThemeId;
         _postLaunchBehavior = settings.ResolvePostLaunchBehavior();
         _closeOnLaunch = settings.CloseOnLaunch;
         _checkForUpdatesOnStartup = settings.CheckForUpdatesOnStartup;
@@ -44,17 +54,40 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
         _language = settings.Language;
     }
 
+    public IReadOnlyList<ThemeOption> ThemeOptions => _themeOptions;
+
+    public bool IsThemeSelectionVisible => _themeOptions.Count > 0;
+
     public int ThemeIndex
     {
-        get => (int)_theme;
+        get => ResolveThemeIndex();
         set
         {
-            if ((int)_theme == value)
+            if (!IsThemeSelectionVisible || value < 0 || value >= _themeOptions.Count)
             {
                 return;
             }
 
-            _theme = (AppTheme)value;
+            var selected = _themeOptions[value];
+            var selectedThemeMode = selected.IsSystemOption
+                ? AppTheme.System
+                : string.Equals(selected.ThemeId, ThemePaletteConfigurationLoader.DarkThemeId, StringComparison.OrdinalIgnoreCase)
+                    ? AppTheme.Dark
+                    : AppTheme.Light;
+            var selectedThemeId = selected.IsSystemOption ||
+                string.Equals(selected.ThemeId, ThemePaletteConfigurationLoader.LightThemeId, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(selected.ThemeId, ThemePaletteConfigurationLoader.DarkThemeId, StringComparison.OrdinalIgnoreCase)
+                ? null
+                : selected.ThemeId;
+
+            if (_themeMode == selectedThemeMode &&
+                string.Equals(_themeId, selectedThemeId, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            _themeMode = selectedThemeMode;
+            _themeId = selectedThemeId;
             OnPropertyChanged();
             Commit();
         }
@@ -259,8 +292,11 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
 
     internal void ApplyExternalSettings(AppSettings settings)
     {
+        var languageChanged = _language != settings.Language;
+
         _current = settings;
-        _theme = settings.Theme;
+        _themeMode = settings.Theme;
+        _themeId = settings.ThemeId;
         _postLaunchBehavior = settings.ResolvePostLaunchBehavior();
         _closeOnLaunch = settings.CloseOnLaunch;
         _checkForUpdatesOnStartup = settings.CheckForUpdatesOnStartup;
@@ -273,6 +309,11 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
         _appListSortMode = settings.AppListSortMode;
         _runAsAdministrator = settings.RunAsAdministrator;
         _language = settings.Language;
+
+        if (languageChanged)
+        {
+            ReloadThemeOptions();
+        }
 
         OnPropertyChanged(nameof(ThemeIndex));
         OnPropertyChanged(nameof(PostLaunchBehaviorIndex));
@@ -292,7 +333,9 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
     internal void ResetToDefaults()
     {
         var defaults = new AppSettings();
-        _theme = defaults.Theme;
+        var languageChanged = _language != defaults.Language;
+        _themeMode = defaults.Theme;
+        _themeId = defaults.ThemeId;
         _postLaunchBehavior = defaults.ResolvePostLaunchBehavior();
         _closeOnLaunch = defaults.CloseOnLaunch;
         _checkForUpdatesOnStartup = defaults.CheckForUpdatesOnStartup;
@@ -305,6 +348,10 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
         _appListSortMode = defaults.AppListSortMode;
         _runAsAdministrator = defaults.RunAsAdministrator;
         _language = defaults.Language;
+        if (languageChanged)
+        {
+            ReloadThemeOptions();
+        }
         OnPropertyChanged(nameof(ThemeIndex));
         OnPropertyChanged(nameof(PostLaunchBehaviorIndex));
         OnPropertyChanged(nameof(CloseOnLaunch));
@@ -325,7 +372,8 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
     {
         _current = _current with
         {
-            Theme = _theme,
+            Theme = _themeMode,
+            ThemeId = _themeId,
             PostLaunchBehavior = _postLaunchBehavior,
             CloseOnLaunch = _closeOnLaunch,
             CheckForUpdatesOnStartup = _checkForUpdatesOnStartup,
@@ -346,6 +394,40 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void ReloadThemeOptions()
+    {
+        _themeOptions = _themeOptionsProvider();
+        OnPropertyChanged(nameof(ThemeOptions));
+        OnPropertyChanged(nameof(IsThemeSelectionVisible));
+    }
+
+    private int ResolveThemeIndex()
+    {
+        if (!IsThemeSelectionVisible)
+        {
+            return -1;
+        }
+
+        if (_themeMode == AppTheme.System)
+        {
+            return _themeOptions
+                .Select(static (option, index) => (option, index))
+                .FirstOrDefault(static x => x.Item1.IsSystemOption, (_themeOptions[0], 0))
+                .Item2;
+        }
+
+        var targetThemeId = !string.IsNullOrWhiteSpace(_themeId)
+            ? _themeId
+            : _themeMode == AppTheme.Dark
+                ? ThemePaletteConfigurationLoader.DarkThemeId
+                : ThemePaletteConfigurationLoader.LightThemeId;
+
+        return _themeOptions
+            .Select(static (option, index) => (option, index))
+            .FirstOrDefault(x => string.Equals(x.Item1.ThemeId, targetThemeId, StringComparison.OrdinalIgnoreCase), (_themeOptions[0], 0))
+            .Item2;
+    }
 
     private void OnPropertyChanged([CallerMemberName] string? name = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

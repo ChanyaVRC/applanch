@@ -6,6 +6,14 @@ namespace applanch.Tests;
 
 public class SettingsWindowViewModelTests
 {
+    private static readonly IReadOnlyList<ThemeOption> ThemeOptions =
+    [
+        new ThemeOption(ThemePaletteConfigurationLoader.SystemThemeId, "System", IsSystemOption: true),
+        new ThemeOption(ThemePaletteConfigurationLoader.LightThemeId, "Light"),
+        new ThemeOption(ThemePaletteConfigurationLoader.DarkThemeId, "Dark"),
+        new ThemeOption("monochrome", "Monochrome")
+    ];
+
     private static SettingsWindowViewModel Make(
         AppSettings? settings = null,
         Action<AppSettings>? onCommit = null,
@@ -27,7 +35,8 @@ public class SettingsWindowViewModelTests
         return new SettingsWindowViewModel(
             settings ?? new AppSettings(),
             appEvent,
-            s => captures.Add(s));
+            s => captures.Add(s),
+            () => ThemeOptions);
     }
 
     // ── Initial state ──────────────────────────────────────
@@ -92,6 +101,19 @@ public class SettingsWindowViewModelTests
 
         Assert.NotNull(refreshed);
         Assert.Equal(AppTheme.Light, refreshed!.Theme);
+    }
+
+    [Fact]
+    public void ThemeIndex_Change_CallsOnCommitWithMonochromeTheme()
+    {
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
+
+        vm.ThemeIndex = 3;
+
+        Assert.NotNull(committed);
+        Assert.Equal(AppTheme.Light, committed!.Theme);
+        Assert.Equal("monochrome", committed.ThemeId);
     }
 
     [Fact]
@@ -306,5 +328,38 @@ public class SettingsWindowViewModelTests
         Assert.False(vm.CheckForUpdatesOnStartup);
         Assert.Equal((int)LanguageOption.Japanese, vm.LanguageIndex);
         Assert.Empty(saved);
+    }
+
+    [Fact]
+    public void ApplyExternalSettings_WhenLanguageChanges_ReloadsThemeOptions()
+    {
+        var appEvent = new AppEvent();
+        var providerCallCount = 0;
+        IReadOnlyList<ThemeOption> ThemeOptionsProvider()
+        {
+            providerCallCount++;
+            return providerCallCount == 1
+                ?
+                [
+                    new ThemeOption(ThemePaletteConfigurationLoader.SystemThemeId, "System", IsSystemOption: true),
+                    new ThemeOption(ThemePaletteConfigurationLoader.LightThemeId, "Light")
+                ]
+                :
+                [
+                    new ThemeOption(ThemePaletteConfigurationLoader.SystemThemeId, "システム", IsSystemOption: true),
+                    new ThemeOption(ThemePaletteConfigurationLoader.LightThemeId, "ライト")
+                ];
+        }
+
+        var vm = new SettingsWindowViewModel(
+            new AppSettings { Language = LanguageOption.English },
+            appEvent,
+            save: null,
+            ThemeOptionsProvider);
+
+        vm.ApplyExternalSettings(new AppSettings { Language = LanguageOption.Japanese });
+
+        Assert.Equal(2, providerCallCount);
+        Assert.Equal("システム", vm.ThemeOptions[0].DisplayName);
     }
 }

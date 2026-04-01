@@ -14,7 +14,7 @@ public partial class App : Application
     internal const string RegisterArgument = "--register";
     internal AppEvent Events { get; } = new();
     private AppSettings _settings = new();
-    private readonly ThemeManager _themeManager = new(() => AppSettings.Load().Theme);
+    private readonly ThemeManager _themeManager = new(AppSettings.Load);
     private readonly ContextMenuRegistrar _contextMenuRegistrar = new();
     private readonly StartupRegistrationService _startupRegistrationService = new();
 
@@ -98,12 +98,9 @@ public partial class App : Application
 
     private static void ApplyLanguage(LanguageOption language)
     {
-        var cultureName = language switch
-        {
-            LanguageOption.English => "en",
-            LanguageOption.Japanese => "ja",
-            _ => CultureInfo.InstalledUICulture.Name,
-        };
+        var cultureName = LanguageOptionMap.TryGetCultureCode(language, out var mappedCultureName)
+            ? mappedCultureName
+            : CultureInfo.InstalledUICulture.Name;
 
         var culture = new CultureInfo(cultureName);
         CultureInfo.CurrentUICulture = culture;

@@ -1,0 +1,116 @@
+{
+  "themes": [
+    {
+      "id": "light",
+      "displayNames": {
+        "en": "Light",
+        "ja": "ライト"
+      },
+      "entries": [
+        { "key": "Brush.AppBackground", "hex": "#F1F5F9" },
+        { "key": "Brush.Surface", "hex": "#FFFFFF" },
+        { "key": "Brush.SurfaceBorder", "hex": "#D0D7E2" },
+        { "key": "Brush.TextPrimary", "hex": "#0F172A" },
+        { "key": "Brush.TextSecondary", "hex": "#475569" },
+        { "key": "Brush.TextTertiary", "hex": "#64748B" },
+        { "key": "Brush.ItemBackground", "hex": "#F8FAFC" },
+        { "key": "Brush.ItemBorder", "hex": "#D7DEE8" },
+        { "key": "Brush.IconBackground", "hex": "#E2E8F0" },
+        { "key": "Brush.NotificationInfoBackground", "hex": "#FFFFFF" },
+        { "key": "Brush.NotificationInfoBorder", "hex": "#D7DEE8" },
+        { "key": "Brush.NotificationWarningBackground", "hex": "#FFF7ED" },
+        { "key": "Brush.NotificationWarningBorder", "hex": "#FDBA74" },
+        { "key": "Brush.NotificationErrorBackground", "hex": "#FEF2F2" },
+        { "key": "Brush.NotificationErrorBorder", "hex": "#FCA5A5" },
+        { "key": "Brush.NotificationProgressTrack", "hex": "#E2E8F0" },
+        { "key": "Brush.NotificationProgressValue", "hex": "#94A3B8" },
+        { "key": "Brush.QuickAddInfoText", "hex": "#B45309" },
+        { "key": "Brush.QuickAddWarningText", "hex": "#92400E" }
+      ]
+    },
+    {
+      "id": "dark",
+      "displayNames": {
+        "en": "Dark",
+        "ja": "ダーク"
+      },
+      "entries": [
+        { "key": "Brush.AppBackground", "hex": "#0B1220" },
+        { "key": "Brush.Surface", "hex": "#131D31" },
+        { "key": "Brush.SurfaceBorder", "hex": "#223149" },
+        { "key": "Brush.TextPrimary", "hex": "#E2E8F0" },
+        { "key": "Brush.TextSecondary", "hex": "#9FB2C9" },
+        { "key": "Brush.TextTertiary", "hex": "#7C93AF" },
+        { "key": "Brush.ItemBackground", "hex": "#111C30" },
+        { "key": "Brush.ItemBorder", "hex": "#2A3B57" },
+        { "key": "Brush.IconBackground", "hex": "#20304B" },
+        { "key": "Brush.NotificationInfoBackground", "hex": "#131D31" },
+        { "key": "Brush.NotificationInfoBorder", "hex": "#2A3B57" },
+        { "key": "Brush.NotificationWarningBackground", "hex": "#2B2111" },
+        { "key": "Brush.NotificationWarningBorder", "hex": "#B45309" },
+        { "key": "Brush.NotificationErrorBackground", "hex": "#2A1618" },
+        { "key": "Brush.NotificationErrorBorder", "hex": "#B45353" },
+        { "key": "Brush.NotificationProgressTrack", "hex": "#2A3B57" },
+        { "key": "Brush.NotificationProgressValue", "hex": "#7C93AF" },
+        { "key": "Brush.QuickAddInfoText", "hex": "#FBBF24" },
+        { "key": "Brush.QuickAddWarningText", "hex": "#F59E0B" }
+      ]
+    },
+    {
+      "id": "monochrome",
+      "displayNames": {
+        "en": "Monochrome",
+        "ja": "モノクローム"
+      },
+      "entries": [
+        { "key": "Brush.AppBackground", "hex": "#F2F2F2" },
+        { "key": "Brush.Surface", "hex": "#FFFFFF" },
+        { "key": "Brush.SurfaceBorder", "hex": "#BFBFBF" },
+        { "key": "Brush.TextPrimary", "hex": "#1A1A1A" },
+        { "key": "Brush.TextSecondary", "hex": "#4D4D4D" },
+        { "key": "Brush.TextTertiary", "hex": "#737373" },
+        { "key": "Brush.ItemBackground", "hex": "#F7F7F7" },
+        { "key": "Brush.ItemBorder", "hex": "#C7C7C7" },
+        { "key": "Brush.IconBackground", "hex": "#DDDDDD" },
+        { "key": "Brush.NotificationInfoBackground", "hex": "#FFFFFF" },
+        { "key": "Brush.NotificationInfoBorder", "hex": "#C7C7C7" },
+        { "key": "Brush.NotificationWarningBackground", "hex": "#F2F2F2" },
+        { "key": "Brush.NotificationWarningBorder", "hex": "#9E9E9E" },
+        { "key": "Brush.NotificationErrorBackground", "hex": "#EFEFEF" },
+        { "key": "Brush.NotificationErrorBorder", "hex": "#8C8C8C" },
+        { "key": "Brush.NotificationProgressTrack", "hex": "#D9D9D9" },
+        { "key": "Brush.NotificationProgressValue", "hex": "#7A7A7A" },
+        { "key": "Brush.QuickAddInfoText", "hex": "#525252" },
+        { "key": "Brush.QuickAddWarningText", "hex": "#404040" }
+      ]
+    },
+    {
+      "id": "darkmonochrome",
+      "displayNames": {
+        "en": "Dark Monochrome",
+        "ja": "ダークモノクローム"
+      },
+      "entries": [
+        { "key": "Brush.AppBackground", "hex": "#121212" },
+        { "key": "Brush.Surface", "hex": "#1E1E1E" },
+        { "key": "Brush.SurfaceBorder", "hex": "#3D3D3D" },
+        { "key": "Brush.TextPrimary", "hex": "#E6E6E6" },
+        { "key": "Brush.TextSecondary", "hex": "#B8B8B8" },
+        { "key": "Brush.TextTertiary", "hex": "#969696" },
+        { "key": "Brush.ItemBackground", "hex": "#181818" },
+        { "key": "Brush.ItemBorder", "hex": "#343434" },
+        { "key": "Brush.IconBackground", "hex": "#2C2C2C" },
+        { "key": "Brush.NotificationInfoBackground", "hex": "#1E1E1E" },
+        { "key": "Brush.NotificationInfoBorder", "hex": "#343434" },
+        { "key": "Brush.NotificationWarningBackground", "hex": "#1A1A1A" },
+        { "key": "Brush.NotificationWarningBorder", "hex": "#808080" },
+        { "key": "Brush.NotificationErrorBackground", "hex": "#191919" },
+        { "key": "Brush.NotificationErrorBorder", "hex": "#787878" },
+        { "key": "Brush.NotificationProgressTrack", "hex": "#2F2F2F" },
+        { "key": "Brush.NotificationProgressValue", "hex": "#8A8A8A" },
+        { "key": "Brush.QuickAddInfoText", "hex": "#B0B0B0" },
+        { "key": "Brush.QuickAddWarningText", "hex": "#9E9E9E" }
+      ]
+    }
+  ]
+}
