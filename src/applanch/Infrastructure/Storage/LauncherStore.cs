@@ -221,7 +221,7 @@ internal static class LauncherStore
 
     internal sealed record LauncherEntry(string Path, string Category, string Arguments, string DisplayName)
     {
-        public static string DefaultCategory => global::applanch.Properties.Resources.DefaultCategory;
+        public static string DefaultCategory => AppResources.DefaultCategory;
 
         [JsonIgnore]
         public bool IsNormalized { get; init; }

@@ -10,7 +10,7 @@ internal sealed class LocalizedStrings : INotifyPropertyChanged
     {
         get
         {
-            var value = typeof(global::applanch.Properties.Resources).GetProperty(key)?.GetValue(null) as string;
+            var value = typeof(AppResources).GetProperty(key)?.GetValue(null) as string;
             return string.IsNullOrEmpty(value) ? key : value;
         }
     }

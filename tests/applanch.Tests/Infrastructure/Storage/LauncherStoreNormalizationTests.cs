@@ -119,7 +119,7 @@ public class LauncherStoreNormalizationTests
         CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("ja");
         CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("ja");
 
-        var placeholderPath = global::applanch.Properties.Resources.EmptyMessage;
+        var placeholderPath = AppResources.EmptyMessage;
         Assert.False(string.IsNullOrWhiteSpace(placeholderPath));
 
         try
@@ -153,7 +153,7 @@ public class LauncherStoreNormalizationTests
         CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en");
         CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en");
 
-        var placeholderPath = global::applanch.Properties.Resources.EmptyMessage;
+        var placeholderPath = AppResources.EmptyMessage;
         Assert.False(string.IsNullOrWhiteSpace(placeholderPath));
 
         try

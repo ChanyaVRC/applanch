@@ -1,0 +1,1 @@
+global using AppResources = global::applanch.Properties.Resources;

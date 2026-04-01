@@ -289,7 +289,7 @@ public class MainWindowViewModelTests
         var opsItem = vm.LaunchItems.Single(item => item.Category == "Ops");
         vm.RemoveItem(opsItem);
 
-        Assert.Equal(global::applanch.Properties.Resources.AllCategories, vm.SelectedCategory);
+        Assert.Equal(AppResources.AllCategories, vm.SelectedCategory);
     }
 
     [Fact]
@@ -503,7 +503,7 @@ public class MainWindowViewModelTests
         Assert.Equal(2, store.SaveCallCount);
 
         // Dev category should disappear, selected category should reset to all.
-        Assert.Equal(global::applanch.Properties.Resources.AllCategories, vm.SelectedCategory);
+        Assert.Equal(AppResources.AllCategories, vm.SelectedCategory);
         Assert.DoesNotContain("Dev", vm.CategoryNames);
         Assert.Contains("Ops", vm.CategoryNames);
 
@@ -550,7 +550,7 @@ public class MainWindowViewModelTests
 
             vm.ApplySettings(new AppSettings { Language = LanguageOption.English });
 
-            Assert.Equal(global::applanch.Properties.Resources.AllCategories, vm.SelectedCategory);
+            Assert.Equal(AppResources.AllCategories, vm.SelectedCategory);
             Assert.False(vm.FilteredLaunchItems.IsEmpty);
             Assert.Equal(Visibility.Collapsed, vm.EmptyMessageVisibility);
         }
@@ -575,11 +575,11 @@ public class MainWindowViewModelTests
 
             var store = new FakeStore(
             [
-                new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", global::applanch.Properties.Resources.DefaultCategory, string.Empty, "A")
+                new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", AppResources.DefaultCategory, string.Empty, "A")
             ]);
 
             var vm = CreateViewModel(store: store);
-            vm.QuickAddCategory = global::applanch.Properties.Resources.DefaultCategory;
+            vm.QuickAddCategory = AppResources.DefaultCategory;
 
             var en = new CultureInfo("en");
             CultureInfo.CurrentUICulture = en;
@@ -587,8 +587,8 @@ public class MainWindowViewModelTests
 
             vm.ApplySettings(new AppSettings { Language = LanguageOption.English });
 
-            Assert.Equal(global::applanch.Properties.Resources.DefaultCategory, vm.LaunchItems[0].Category);
-            Assert.Equal(global::applanch.Properties.Resources.DefaultCategory, vm.QuickAddCategory);
+            Assert.Equal(AppResources.DefaultCategory, vm.LaunchItems[0].Category);
+            Assert.Equal(AppResources.DefaultCategory, vm.QuickAddCategory);
         }
         finally
         {

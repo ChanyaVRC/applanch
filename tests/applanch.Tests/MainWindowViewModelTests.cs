@@ -374,7 +374,7 @@ public class MainWindowViewModelTests
         var opsItem = vm.LaunchItems.Single(item => item.Category == "Ops");
         vm.RemoveItem(opsItem);
 
-        Assert.Equal(global::applanch.Properties.Resources.AllCategories, vm.SelectedCategory);
+        Assert.Equal(AppResources.AllCategories, vm.SelectedCategory);
     }
 
     [Fact]
@@ -588,7 +588,7 @@ public class MainWindowViewModelTests
         Assert.Equal(2, store.SaveCallCount);
 
         // Dev category should disappear, selected category should reset to all.
-        Assert.Equal(global::applanch.Properties.Resources.AllCategories, vm.SelectedCategory);
+        Assert.Equal(AppResources.AllCategories, vm.SelectedCategory);
         Assert.DoesNotContain("Dev", vm.CategoryNames);
         Assert.Contains("Ops", vm.CategoryNames);
 

@@ -30,7 +30,7 @@ public class LocalizedStringsTests
             CultureInfo.CurrentUICulture = culture;
             CultureInfo.CurrentCulture = culture;
 
-            var value = LocalizedStrings.Instance[nameof(global::applanch.Properties.Resources.DefaultCategory)];
+            var value = LocalizedStrings.Instance[nameof(AppResources.DefaultCategory)];
 
             Assert.Equal(expected, value);
         }

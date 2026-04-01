@@ -15,7 +15,7 @@ public class ResourcesSourceGenerationTests
 
             Assert.Equal(
                 "Right-click to register items, then launch with one click. Drag & drop to reorder.",
-                global::applanch.Properties.Resources.Subtitle);
+                AppResources.Subtitle);
         }
         finally
         {
@@ -33,7 +33,7 @@ public class ResourcesSourceGenerationTests
 
             Assert.Equal(
                 "右クリックで登録した項目をワンクリックで起動。並び替えはドラッグ＆ドロップ。",
-                global::applanch.Properties.Resources.Subtitle);
+                AppResources.Subtitle);
         }
         finally
         {
