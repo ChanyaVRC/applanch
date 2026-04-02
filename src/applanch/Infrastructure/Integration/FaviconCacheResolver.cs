@@ -6,7 +6,7 @@ using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Integration;
 
-internal sealed class FaviconCacheResolver
+internal sealed class FaviconCacheResolver : IFaviconCacheResolver
 {
     private static readonly TimeSpan DiskCacheTtl = TimeSpan.FromDays(14);
 
@@ -21,7 +21,7 @@ internal sealed class FaviconCacheResolver
             "Favicons");
     }
 
-    internal BitmapFrame? TryLoad(Uri faviconUri, bool acceptExpired)
+    public BitmapFrame? TryLoad(Uri faviconUri, bool acceptExpired)
     {
         try
         {
@@ -47,7 +47,7 @@ internal sealed class FaviconCacheResolver
         }
     }
 
-    internal void TryWrite(Uri faviconUri, byte[] payload)
+    public void TryWrite(Uri faviconUri, byte[] payload)
     {
         try
         {

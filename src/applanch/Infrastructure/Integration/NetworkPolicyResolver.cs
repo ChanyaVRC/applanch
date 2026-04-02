@@ -4,7 +4,7 @@ using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Integration;
 
-internal sealed class NetworkPolicyResolver
+internal sealed class NetworkPolicyResolver : INetworkPolicyResolver
 {
     private static readonly IPNetwork[] PrivateNetworks =
     [
@@ -25,12 +25,12 @@ internal sealed class NetworkPolicyResolver
         _hostAddressResolver = hostAddressResolver ?? DefaultResolveHostAddressesAsync;
     }
 
-    internal void ApplySettings(AppSettings settings)
+    public void ApplySettings(AppSettings settings)
     {
         _settings = settings;
     }
 
-    internal bool ShouldRequestFavicon(Uri pageUri)
+    public bool ShouldRequestFavicon(Uri pageUri)
     {
         if (!_settings.FetchHttpIcons)
         {
@@ -45,7 +45,7 @@ internal sealed class NetworkPolicyResolver
         return !IsLocalOrPrivateLiteral(pageUri.Host);
     }
 
-    internal async Task<bool> IsDestinationAllowedAsync(Uri uri)
+    public async Task<bool> IsDestinationAllowedAsync(Uri uri)
     {
         if (_settings.AllowPrivateNetworkHttpIconRequests)
         {
@@ -69,7 +69,7 @@ internal sealed class NetworkPolicyResolver
         }
     }
 
-    internal async Task<Uri?> ResolveAllowedRedirectAsync(Uri originalUri, Uri currentUri, Uri? location)
+    public async Task<Uri?> ResolveAllowedRedirectAsync(Uri originalUri, Uri currentUri, Uri? location)
     {
         var target = ResolveRedirectTarget(originalUri, currentUri, location);
         if (target is null)

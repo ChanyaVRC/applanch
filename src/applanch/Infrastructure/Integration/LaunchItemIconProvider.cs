@@ -25,14 +25,14 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
 
     private readonly HttpClient _httpClient;
     private readonly ConcurrentDictionary<string, Lazy<Task<ImageSource?>>> _faviconCache;
-    private readonly NetworkPolicyResolver _networkPolicy;
-    private readonly FaviconCacheResolver _diskCache;
+    private readonly INetworkPolicyResolver _networkPolicy;
+    private readonly IFaviconCacheResolver _diskCache;
 
     internal LaunchItemIconProvider(
         HttpClient? httpClient = null,
         ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>? faviconCache = null,
-        NetworkPolicyResolver? networkPolicy = null,
-        FaviconCacheResolver? diskCache = null)
+        INetworkPolicyResolver? networkPolicy = null,
+        IFaviconCacheResolver? diskCache = null)
     {
         _httpClient = httpClient ?? SharedHttpClient;
         _faviconCache = faviconCache ?? new ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>(StringComparer.OrdinalIgnoreCase);
