@@ -673,7 +673,7 @@ public sealed partial class MainWindow : Window
                     continue;
                 }
 
-                var translate = GetOrCreateTranslateTransform(container);
+                var translate = EnsureTranslateTransform(container);
                 translate.BeginAnimation(TranslateTransform.YProperty, null);
 
                 var anim = new DoubleAnimation
@@ -727,7 +727,7 @@ public sealed partial class MainWindow : Window
         return null;
     }
 
-    private static TranslateTransform GetOrCreateTranslateTransform(UIElement element)
+    internal static TranslateTransform EnsureTranslateTransform(UIElement element)
     {
         switch (element.RenderTransform)
         {
@@ -735,37 +735,47 @@ public sealed partial class MainWindow : Window
                 return tt;
 
             case TransformGroup group:
-                {
-                    foreach (var transform in group.Children)
-                    {
-                        if (transform is TranslateTransform existing)
-                        {
-                            return existing;
-                        }
-                    }
-
-                    var created = new TranslateTransform();
-                    group.Children.Add(created);
-                    return created;
-                }
+                return GetOrAddTranslateTransform(group);
 
             case null:
-                {
-                    var created = new TranslateTransform();
-                    element.RenderTransform = created;
-                    return created;
-                }
+                return CreateAndAssignTranslateTransform(element);
 
             default:
-                {
-                    var created = new TranslateTransform();
-                    element.RenderTransform = new TransformGroup
-                    {
-                        Children = { element.RenderTransform, created }
-                    };
-                    return created;
-                }
+                return WrapWithTransformGroupAndAppendTranslate(element);
         }
+    }
+
+    private static TranslateTransform GetOrAddTranslateTransform(TransformGroup group)
+    {
+        foreach (var transform in group.Children)
+        {
+            if (transform is TranslateTransform existing)
+            {
+                return existing;
+            }
+        }
+
+        var created = new TranslateTransform();
+        group.Children.Add(created);
+        return created;
+    }
+
+    private static TranslateTransform CreateAndAssignTranslateTransform(UIElement element)
+    {
+        var created = new TranslateTransform();
+        element.RenderTransform = created;
+        return created;
+    }
+
+    private static TranslateTransform WrapWithTransformGroupAndAppendTranslate(UIElement element)
+    {
+        var created = new TranslateTransform();
+        element.RenderTransform = new TransformGroup
+        {
+            Children = { element.RenderTransform, created }
+        };
+
+        return created;
     }
 
     internal static bool TryCreateOpenLocationStartInfo(string path, out ProcessStartInfo startInfo)
