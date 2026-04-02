@@ -298,6 +298,10 @@ public class LaunchItemViewModelTests
     {
         private readonly TaskCompletionSource<ImageSource?> _deferredIcon = new();
 
+        public void ApplySettings(AppSettings settings)
+        {
+        }
+
         public ImageSource? GetInitialIcon(string fullPath) => initialIcon;
 
         public ValueTask<ImageSource?> GetDeferredIconAsync(string fullPath) => new(_deferredIcon.Task);

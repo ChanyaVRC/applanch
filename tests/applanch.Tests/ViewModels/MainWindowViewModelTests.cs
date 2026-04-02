@@ -1,6 +1,8 @@
 using Xunit;
 using System.Windows;
 using System.Globalization;
+using System.Windows.Media;
+using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
 using applanch.Tests.ViewModels.TestDoubles;
@@ -764,9 +766,56 @@ public class MainWindowViewModelTests
         Assert.Equal(["Dev", "Ops"], vm.CategoryNames);
     }
 
-    private static MainWindowViewModel CreateViewModel(FakeStore? store = null, FakeResolver? resolver = null, AppSettings? settings = null)
+    [Fact]
+    public void ApplySettings_HttpIconPolicyChange_RefreshesOnlyHttpItems()
     {
-        return new MainWindowViewModel(resolver ?? new FakeResolver(), store ?? new FakeStore([]), settings ?? new AppSettings());
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry("https://example.com", "Web", string.Empty, "Example"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
+        ]);
+        var iconProvider = new TrackingIconProvider();
+        var vm = CreateViewModel(store: store, iconProvider: iconProvider);
+
+        iconProvider.Reset();
+        vm.ApplySettings(new AppSettings { FetchHttpIcons = false });
+
+        Assert.Equal(1, iconProvider.ApplySettingsCallCount);
+        Assert.Equal(1, iconProvider.GetInitialIconCalls.Count(static path => path.StartsWith("https://", StringComparison.OrdinalIgnoreCase)));
+        Assert.DoesNotContain(iconProvider.GetInitialIconCalls, static path => path.StartsWith(@"C:\", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static MainWindowViewModel CreateViewModel(FakeStore? store = null, FakeResolver? resolver = null, AppSettings? settings = null, ILaunchItemIconProvider? iconProvider = null)
+    {
+        return new MainWindowViewModel(resolver ?? new FakeResolver(), store ?? new FakeStore([]), settings ?? new AppSettings(), iconProvider);
+    }
+
+    private sealed class TrackingIconProvider : ILaunchItemIconProvider
+    {
+        internal List<string> GetInitialIconCalls { get; } = [];
+        internal int ApplySettingsCallCount { get; private set; }
+
+        public void ApplySettings(AppSettings settings)
+        {
+            ApplySettingsCallCount++;
+        }
+
+        public ImageSource? GetInitialIcon(string fullPath)
+        {
+            GetInitialIconCalls.Add(fullPath);
+            return null;
+        }
+
+        public ValueTask<ImageSource?> GetDeferredIconAsync(string fullPath)
+        {
+            return ValueTask.FromResult<ImageSource?>(null);
+        }
+
+        internal void Reset()
+        {
+            GetInitialIconCalls.Clear();
+            ApplySettingsCallCount = 0;
+        }
     }
 }
 

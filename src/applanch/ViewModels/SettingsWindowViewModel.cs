@@ -17,6 +17,8 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     private bool _debugUpdate;
     private bool _startMinimizedOnLaunch;
     private bool _launchAtWindowsStartup;
+    private bool _fetchHttpIcons;
+    private bool _allowPrivateNetworkHttpIconRequests;
     private bool _confirmBeforeLaunch;
     private bool _confirmBeforeDelete;
     private CategorySortMode _categorySortMode;
@@ -147,6 +149,18 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         set => SetFieldAndCommit(ref _launchAtWindowsStartup, value);
     }
 
+    public bool FetchHttpIcons
+    {
+        get => _fetchHttpIcons;
+        set => SetFieldAndCommit(ref _fetchHttpIcons, value);
+    }
+
+    public bool AllowPrivateNetworkHttpIconRequests
+    {
+        get => _allowPrivateNetworkHttpIconRequests;
+        set => SetFieldAndCommit(ref _allowPrivateNetworkHttpIconRequests, value);
+    }
+
     public bool ConfirmBeforeLaunch
     {
         get => _confirmBeforeLaunch;
@@ -223,6 +237,8 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         _debugUpdate = settings.DebugUpdate;
         _startMinimizedOnLaunch = settings.StartMinimizedOnLaunch;
         _launchAtWindowsStartup = settings.LaunchAtWindowsStartup;
+        _fetchHttpIcons = settings.FetchHttpIcons;
+        _allowPrivateNetworkHttpIconRequests = settings.AllowPrivateNetworkHttpIconRequests;
         _confirmBeforeLaunch = settings.ConfirmBeforeLaunch;
         _confirmBeforeDelete = settings.ConfirmBeforeDelete;
         _categorySortMode = settings.CategorySortMode;
@@ -242,6 +258,8 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         OnPropertyChanged(nameof(DebugUpdate));
         OnPropertyChanged(nameof(StartMinimizedOnLaunch));
         OnPropertyChanged(nameof(LaunchAtWindowsStartup));
+        OnPropertyChanged(nameof(FetchHttpIcons));
+        OnPropertyChanged(nameof(AllowPrivateNetworkHttpIconRequests));
         OnPropertyChanged(nameof(ConfirmBeforeLaunch));
         OnPropertyChanged(nameof(ConfirmBeforeDelete));
         OnPropertyChanged(nameof(CategorySortModeIndex));
@@ -274,6 +292,8 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             DebugUpdate = _debugUpdate,
             StartMinimizedOnLaunch = _startMinimizedOnLaunch,
             LaunchAtWindowsStartup = _launchAtWindowsStartup,
+            FetchHttpIcons = _fetchHttpIcons,
+            AllowPrivateNetworkHttpIconRequests = _allowPrivateNetworkHttpIconRequests,
             ConfirmBeforeLaunch = _confirmBeforeLaunch,
             ConfirmBeforeDelete = _confirmBeforeDelete,
             CategorySortMode = _categorySortMode,

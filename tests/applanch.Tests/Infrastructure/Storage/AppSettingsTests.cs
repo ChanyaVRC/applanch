@@ -59,4 +59,13 @@ public class AppSettingsTests
         Assert.Equal(PostLaunchBehavior.CloseApp, closeSettings.ResolvePostLaunchBehavior());
         Assert.Equal(PostLaunchBehavior.KeepOpen, keepOpenSettings.ResolvePostLaunchBehavior());
     }
+
+    [Fact]
+    public void Defaults_EnableHttpIconFetching_ButBlockPrivateRequests()
+    {
+        var settings = new AppSettings();
+
+        Assert.True(settings.FetchHttpIcons);
+        Assert.False(settings.AllowPrivateNetworkHttpIconRequests);
+    }
 }

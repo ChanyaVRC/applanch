@@ -18,6 +18,7 @@ public sealed class LaunchItemViewModel : ObservableObject
     private readonly Dispatcher _dispatcher;
     private readonly ILaunchItemIconProvider _iconProvider;
     private ImageSource? _iconSource;
+    private int _iconRefreshVersion;
 
     public LaunchItemViewModel(string fullPath, string category, string arguments, string displayName)
         : this(fullPath, category, arguments, displayName, null)
@@ -30,11 +31,10 @@ public sealed class LaunchItemViewModel : ObservableObject
         _dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
         _iconProvider = iconProvider ?? LaunchItemIconProvider.Shared;
         _displayName = LaunchItemNormalization.NormalizeDisplayName(displayName, fullPath);
-        _iconSource = _iconProvider.GetInitialIcon(fullPath);
         _category = LaunchItemNormalization.NormalizeCategory(category);
         _arguments = LaunchItemNormalization.NormalizeArguments(arguments);
 
-        _ = LoadDeferredIconAsync();
+        RefreshIcon();
     }
 
     public string DisplayName
@@ -106,23 +106,43 @@ public sealed class LaunchItemViewModel : ObservableObject
         }
     }
 
-    private async Task LoadDeferredIconAsync()
+    internal void RefreshIcon()
+    {
+        var refreshVersion = Interlocked.Increment(ref _iconRefreshVersion);
+        IconSource = _iconProvider.GetInitialIcon(FullPath);
+        _ = LoadDeferredIconAsync(refreshVersion);
+    }
+
+    private async Task LoadDeferredIconAsync(int refreshVersion)
     {
         try
         {
             var deferredIcon = await _iconProvider.GetDeferredIconAsync(FullPath).ConfigureAwait(false);
-            if (deferredIcon is null || ReferenceEquals(IconSource, deferredIcon))
+            if (refreshVersion != Volatile.Read(ref _iconRefreshVersion) ||
+                deferredIcon is null ||
+                ReferenceEquals(IconSource, deferredIcon))
             {
                 return;
             }
 
             if (_dispatcher.CheckAccess())
             {
+                if (refreshVersion != Volatile.Read(ref _iconRefreshVersion))
+                {
+                    return;
+                }
+
                 IconSource = deferredIcon;
                 return;
             }
 
-            await _dispatcher.InvokeAsync(() => IconSource = deferredIcon);
+            await _dispatcher.InvokeAsync(() =>
+            {
+                if (refreshVersion == Volatile.Read(ref _iconRefreshVersion))
+                {
+                    IconSource = deferredIcon;
+                }
+            });
         }
         catch (Exception ex)
         {

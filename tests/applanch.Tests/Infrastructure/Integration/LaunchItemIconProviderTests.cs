@@ -4,6 +4,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using applanch.Infrastructure.Integration;
+using applanch.Infrastructure.Storage;
+using applanch.Tests.TestSupport;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Integration;
@@ -16,11 +18,97 @@ public class LaunchItemIconProviderTests
     [Fact]
     public void GetInitialIcon_HttpUrl_ReturnsGenericWebIcon()
     {
-        var provider = new LaunchItemIconProvider(new HttpClient(new RecordingHttpMessageHandler(_ => throw new InvalidOperationException())));
+        var provider = CreateProvider();
 
         var icon = provider.GetInitialIcon("https://example.com/path");
 
         Assert.NotNull(icon);
+    }
+
+    [Fact]
+    public void GetInitialIcon_FreshDiskCache_ReturnsCachedBitmap()
+    {
+        RunInSta(() =>
+        {
+            using var tempDirectory = TemporaryDirectory.Create("applanch-favicon-cache");
+            var provider = CreateProvider(cacheDirectory: tempDirectory.Path);
+            provider.ApplySettings(new AppSettings());
+            WriteCacheFile(tempDirectory.Path, "https://example.com/favicon.ico", TinyPngBytes, DateTime.UtcNow);
+
+            var icon = provider.GetInitialIcon("https://example.com/page");
+
+            Assert.IsAssignableFrom<BitmapFrame>(icon);
+        });
+    }
+
+    [Fact]
+    public void GetDeferredIconAsync_FetchDisabled_ReturnsNullWithoutRequest()
+    {
+        RunInSta(async () =>
+        {
+            var handler = new RecordingHttpMessageHandler(_ => throw new InvalidOperationException("network should not be used"));
+            var provider = CreateProvider(httpClient: new HttpClient(handler));
+            provider.ApplySettings(new AppSettings { FetchHttpIcons = false });
+
+            var icon = await provider.GetDeferredIconAsync("https://example.com/page");
+
+            Assert.Null(icon);
+            Assert.Empty(handler.RequestedUris);
+        });
+    }
+
+    [Fact]
+    public void GetDeferredIconAsync_PrivateLiteralBlocked_ReturnsNullWithoutRequest()
+    {
+        RunInSta(async () =>
+        {
+            var handler = new RecordingHttpMessageHandler(_ => throw new InvalidOperationException("network should not be used"));
+            var provider = CreateProvider(httpClient: new HttpClient(handler));
+            provider.ApplySettings(new AppSettings());
+
+            var icon = await provider.GetDeferredIconAsync("http://127.0.0.1/page");
+
+            Assert.Null(icon);
+            Assert.Empty(handler.RequestedUris);
+        });
+    }
+
+    [Fact]
+    public void GetDeferredIconAsync_PrivateResolvedHostBlocked_ReturnsNullWithoutRequest()
+    {
+        RunInSta(async () =>
+        {
+            var handler = new RecordingHttpMessageHandler(_ => throw new InvalidOperationException("network should not be used"));
+            var provider = CreateProvider(
+                httpClient: new HttpClient(handler),
+                hostAddressResolver: static (_, _) => Task.FromResult<IReadOnlyList<IPAddress>>([IPAddress.Parse("192.168.1.10")]));
+            provider.ApplySettings(new AppSettings());
+
+            var icon = await provider.GetDeferredIconAsync("https://intranet.example/page");
+
+            Assert.Null(icon);
+            Assert.Empty(handler.RequestedUris);
+        });
+    }
+
+    [Fact]
+    public void GetDeferredIconAsync_AllowedPrivateRequest_FetchesIcon()
+    {
+        RunInSta(async () =>
+        {
+            using var tempDirectory = TemporaryDirectory.Create("applanch-favicon-private-allowed");
+            var handler = new RecordingHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(TinyPngBytes),
+            });
+            var provider = CreateProvider(httpClient: new HttpClient(handler), cacheDirectory: tempDirectory.Path);
+            provider.ApplySettings(new AppSettings { AllowPrivateNetworkHttpIconRequests = true });
+
+            var icon = await provider.GetDeferredIconAsync("http://127.0.0.1/page");
+
+            Assert.IsAssignableFrom<BitmapFrame>(icon);
+            Assert.Single(handler.RequestedUris);
+        });
     }
 
     [Fact]
@@ -44,7 +132,9 @@ public class LaunchItemIconProviderTests
                 };
             });
 
-            var provider = new LaunchItemIconProvider(new HttpClient(handler), new ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>());
+            using var tempDirectory = TemporaryDirectory.Create("applanch-favicon-redirect");
+            var provider = CreateProvider(httpClient: new HttpClient(handler), cacheDirectory: tempDirectory.Path);
+            provider.ApplySettings(new AppSettings());
 
             var icon = await provider.GetDeferredIconAsync("http://example.com/page");
 
@@ -62,12 +152,14 @@ public class LaunchItemIconProviderTests
     {
         RunInSta(async () =>
         {
+            using var tempDirectory = TemporaryDirectory.Create("applanch-favicon-cross-host");
             var handler = new RecordingHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.Redirect)
             {
                 Headers = { Location = new Uri("https://evil.example/favicon.ico") },
             });
 
-            var provider = new LaunchItemIconProvider(new HttpClient(handler), new ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>());
+            var provider = CreateProvider(httpClient: new HttpClient(handler), cacheDirectory: tempDirectory.Path);
+            provider.ApplySettings(new AppSettings());
 
             var icon = await provider.GetDeferredIconAsync("https://example.com/page");
 
@@ -86,7 +178,8 @@ public class LaunchItemIconProviderTests
                 Content = new ByteArrayContent(new byte[300 * 1024]),
             });
 
-            var provider = new LaunchItemIconProvider(new HttpClient(handler), new ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>());
+            var provider = CreateProvider(httpClient: new HttpClient(handler));
+            provider.ApplySettings(new AppSettings());
 
             var icon = await provider.GetDeferredIconAsync("https://example.com/page");
 
@@ -95,27 +188,97 @@ public class LaunchItemIconProviderTests
     }
 
     [Fact]
-    public void GetDeferredIconAsync_ReusesCachedResult()
+    public void GetDeferredIconAsync_RefreshesOnce_AndUsesCacheOnSecondCall()
     {
         RunInSta(async () =>
         {
+            using var tempDirectory = TemporaryDirectory.Create("applanch-favicon-cache-reuse");
             var handler = new RecordingHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new ByteArrayContent(TinyPngBytes),
             });
 
-            var provider = new LaunchItemIconProvider(new HttpClient(handler), new ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>());
+            var provider = CreateProvider(httpClient: new HttpClient(handler), cacheDirectory: tempDirectory.Path);
+            provider.ApplySettings(new AppSettings());
 
             var first = await provider.GetDeferredIconAsync("https://example.com/a");
             var second = await provider.GetDeferredIconAsync("https://example.com/b");
 
             Assert.NotNull(first);
-            Assert.Same(first, second);
+            Assert.Null(second);
             Assert.Single(handler.RequestedUris);
         });
     }
 
-    private static void RunInSta(Func<Task> action)
+    [Fact]
+    public void GetDeferredIconAsync_FreshDiskCache_SkipsNetworkRequest()
+    {
+        RunInSta(async () =>
+        {
+            using var tempDirectory = TemporaryDirectory.Create("applanch-favicon-cache-fresh");
+            var handler = new RecordingHttpMessageHandler(_ => throw new InvalidOperationException("network should not be used"));
+            var provider = CreateProvider(httpClient: new HttpClient(handler), cacheDirectory: tempDirectory.Path);
+            provider.ApplySettings(new AppSettings());
+            WriteCacheFile(tempDirectory.Path, "https://example.com/favicon.ico", TinyPngBytes, DateTime.UtcNow);
+
+            var icon = await provider.GetDeferredIconAsync("https://example.com/page");
+
+            Assert.Null(icon);
+            Assert.Empty(handler.RequestedUris);
+        });
+    }
+
+    [Fact]
+    public void GetDeferredIconAsync_StaleDiskCache_RefreshesAndWritesNewFile()
+    {
+        RunInSta(async () =>
+        {
+            using var tempDirectory = TemporaryDirectory.Create("applanch-favicon-cache-stale");
+            WriteCacheFile(tempDirectory.Path, "https://example.com/favicon.ico", TinyPngBytes, DateTime.UtcNow.AddDays(-30));
+            var handler = new RecordingHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(TinyPngBytes),
+            });
+            var provider = CreateProvider(httpClient: new HttpClient(handler), cacheDirectory: tempDirectory.Path);
+            provider.ApplySettings(new AppSettings());
+
+            var icon = await provider.GetDeferredIconAsync("https://example.com/page");
+
+            Assert.NotNull(icon);
+            Assert.Single(handler.RequestedUris);
+            var cachePath = GetCacheFilePath(tempDirectory.Path, "https://example.com/favicon.ico");
+            Assert.True(File.GetLastWriteTimeUtc(cachePath) > DateTime.UtcNow.AddDays(-1));
+        });
+    }
+
+    private static LaunchItemIconProvider CreateProvider(
+        HttpClient? httpClient = null,
+        Func<string, CancellationToken, Task<IReadOnlyList<IPAddress>>>? hostAddressResolver = null,
+        string? cacheDirectory = null)
+    {
+        return new LaunchItemIconProvider(
+            httpClient,
+            new ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>(StringComparer.OrdinalIgnoreCase),
+            hostAddressResolver,
+            cacheDirectory);
+    }
+
+    private static void WriteCacheFile(string cacheDirectory, string faviconUri, byte[] bytes, DateTime lastWriteUtc)
+    {
+        Directory.CreateDirectory(cacheDirectory);
+        var path = GetCacheFilePath(cacheDirectory, faviconUri);
+        File.WriteAllBytes(path, bytes);
+        File.SetLastWriteTimeUtc(path, lastWriteUtc);
+    }
+
+    private static string GetCacheFilePath(string cacheDirectory, string faviconUri)
+    {
+        using var sha = System.Security.Cryptography.SHA256.Create();
+        var hash = Convert.ToHexString(sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(faviconUri))).ToLowerInvariant();
+        return Path.Combine(cacheDirectory, hash + ".bin");
+    }
+
+    private static void RunInSta(Action action)
     {
         Exception? captured = null;
         var completed = new ManualResetEventSlim(false);
@@ -123,7 +286,7 @@ public class LaunchItemIconProviderTests
         {
             try
             {
-                action().GetAwaiter().GetResult();
+                action();
                 DrainDispatcher();
             }
             catch (Exception ex)
@@ -144,6 +307,11 @@ public class LaunchItemIconProviderTests
         {
             throw new Xunit.Sdk.XunitException($"STA test failed: {captured}");
         }
+    }
+
+    private static void RunInSta(Func<Task> action)
+    {
+        RunInSta(() => action().GetAwaiter().GetResult());
     }
 
     private static void DrainDispatcher()

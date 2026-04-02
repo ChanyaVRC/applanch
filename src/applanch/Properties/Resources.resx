@@ -170,6 +170,18 @@
   <data name="Setting_LaunchAtWindowsStartupDesc" xml:space="preserve">
     <value>Automatically launch Applanch after signing in.</value>
   </data>
+  <data name="Setting_FetchHttpIcons" xml:space="preserve">
+    <value>Fetch website icons for http/https items</value>
+  </data>
+  <data name="Setting_FetchHttpIconsDesc" xml:space="preserve">
+    <value>Uses /favicon.ico and stores it on disk to avoid downloading the same icon again on startup.</value>
+  </data>
+  <data name="Setting_AllowPrivateNetworkHttpIconRequests" xml:space="preserve">
+    <value>Allow icon requests to private or loopback addresses</value>
+  </data>
+  <data name="Setting_AllowPrivateNetworkHttpIconRequestsDesc" xml:space="preserve">
+    <value>When off, favicon requests to localhost and private-network destinations are blocked.</value>
+  </data>
   <data name="Setting_PostLaunchBehavior" xml:space="preserve">
     <value>After launching an item</value>
   </data>

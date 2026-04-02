@@ -9,6 +9,7 @@ using applanch.Helpers;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch.ViewModels;
 
@@ -37,10 +38,11 @@ public sealed class MainWindowViewModel : ObservableObject
 
     internal MainWindowViewModel(IAppResolver appResolver, ILauncherStore launcherStore, AppSettings? settings = null, ILaunchItemIconProvider? iconProvider = null)
     {
-        _iconProvider = iconProvider ?? LaunchItemIconProvider.Shared;
-        _quickAddWorkflow = new QuickAddWorkflow(appResolver, _iconProvider);
         _launcherStore = launcherStore;
         _settings = settings ?? new AppSettings();
+        _iconProvider = iconProvider ?? LaunchItemIconProvider.Shared;
+        _iconProvider.ApplySettings(_settings);
+        _quickAddWorkflow = new QuickAddWorkflow(appResolver, _iconProvider);
 
         LaunchItems = _launcherStore.LoadAll()
             .Select(entry => new LaunchItemViewModel(entry.Path, entry.Category, entry.Arguments, entry.DisplayName, _iconProvider))
@@ -237,18 +239,37 @@ public sealed class MainWindowViewModel : ObservableObject
 
     internal void ApplySettings(AppSettings settings)
     {
+        var iconSettingsChanged = _settings.FetchHttpIcons != settings.FetchHttpIcons ||
+                                  _settings.AllowPrivateNetworkHttpIconRequests != settings.AllowPrivateNetworkHttpIconRequests;
         var languageChanged = _settings.Language != settings.Language;
         _settings = settings;
+        _iconProvider.ApplySettings(settings);
 
         if (languageChanged)
         {
             NormalizeLocalizedDefaultCategories();
         }
 
+        if (iconSettingsChanged)
+        {
+            RefreshHttpItemIcons();
+        }
+
         RebuildCategoryLists();
         ApplyLaunchItemSort();
         RefreshFilteredView();
         OnPropertyChanged(nameof(EmptyMessageVisibility));
+    }
+
+    private void RefreshHttpItemIcons()
+    {
+        foreach (var item in LaunchItems)
+        {
+            if (PathNormalization.IsHttpUrl(item.FullPath))
+            {
+                item.RefreshIcon();
+            }
+        }
     }
 
     private void RefreshQuickAddSuggestions()

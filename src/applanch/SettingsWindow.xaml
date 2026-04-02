@@ -321,6 +321,27 @@
                                Foreground="{DynamicResource Brush.TextTertiary}"
                                TextWrapping="Wrap"/>
 
+                    <CheckBox Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_FetchHttpIcons]}"
+                              IsChecked="{Binding FetchHttpIcons}"
+                              Margin="0,14,0,0"
+                              Style="{StaticResource SettingsCheckBoxStyle}"/>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_FetchHttpIconsDesc]}"
+                               Margin="0,6,0,0"
+                               FontSize="11"
+                               Foreground="{DynamicResource Brush.TextTertiary}"
+                               TextWrapping="Wrap"/>
+
+                    <CheckBox Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_AllowPrivateNetworkHttpIconRequests]}"
+                              IsChecked="{Binding AllowPrivateNetworkHttpIconRequests}"
+                              IsEnabled="{Binding FetchHttpIcons}"
+                              Margin="0,10,0,0"
+                              Style="{StaticResource SettingsCheckBoxStyle}"/>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_AllowPrivateNetworkHttpIconRequestsDesc]}"
+                               Margin="0,6,0,0"
+                               FontSize="11"
+                               Foreground="{DynamicResource Brush.TextTertiary}"
+                               TextWrapping="Wrap"/>
+
                     <Grid Margin="0,14,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>

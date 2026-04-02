@@ -13,6 +13,8 @@ internal sealed record AppSettings
     public bool CheckForUpdatesOnStartup { get; init; } = true;
     public bool StartMinimizedOnLaunch { get; init; } = false;
     public bool LaunchAtWindowsStartup { get; init; } = false;
+    public bool FetchHttpIcons { get; init; } = true;
+    public bool AllowPrivateNetworkHttpIconRequests { get; init; } = false;
     public bool ConfirmBeforeLaunch { get; init; } = false;
     public bool ConfirmBeforeDelete { get; init; } = false;
     public CategorySortMode CategorySortMode { get; init; } = CategorySortMode.Alphabetical;

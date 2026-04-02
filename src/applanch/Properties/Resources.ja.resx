@@ -170,6 +170,18 @@
   <data name="Setting_LaunchAtWindowsStartupDesc" xml:space="preserve">
     <value>サインイン後に Applanch を自動起動します。</value>
   </data>
+  <data name="Setting_FetchHttpIcons" xml:space="preserve">
+    <value>http/https 項目のサイトアイコンを取得する</value>
+  </data>
+  <data name="Setting_FetchHttpIconsDesc" xml:space="preserve">
+    <value>/favicon.ico を取得し、起動時の再ダウンロードを減らすためにディスクへ保存します。</value>
+  </data>
+  <data name="Setting_AllowPrivateNetworkHttpIconRequests" xml:space="preserve">
+    <value>プライベート/ループバック宛のアイコン取得を許可する</value>
+  </data>
+  <data name="Setting_AllowPrivateNetworkHttpIconRequestsDesc" xml:space="preserve">
+    <value>オフのときは localhost とプライベートネットワーク宛の favicon 取得をブロックします。</value>
+  </data>
   <data name="Setting_PostLaunchBehavior" xml:space="preserve">
     <value>アイテム起動後の動作</value>
   </data>

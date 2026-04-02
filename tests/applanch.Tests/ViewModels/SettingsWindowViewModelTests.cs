@@ -43,6 +43,8 @@ public class SettingsWindowViewModelTests
             CloseOnLaunch = false,
             CheckForUpdatesOnStartup = false,
             DebugUpdate = true,
+            FetchHttpIcons = false,
+            AllowPrivateNetworkHttpIconRequests = true,
             Language = LanguageOption.Japanese,
             CategorySortMode = CategorySortMode.AsAdded,
         };
@@ -53,6 +55,8 @@ public class SettingsWindowViewModelTests
         Assert.False(vm.CloseOnLaunch);
         Assert.False(vm.CheckForUpdatesOnStartup);
         Assert.True(vm.DebugUpdate);
+        Assert.False(vm.FetchHttpIcons);
+        Assert.True(vm.AllowPrivateNetworkHttpIconRequests);
         Assert.Equal((int)LanguageOption.Japanese, vm.LanguageIndex);
         Assert.Equal((int)CategorySortMode.AsAdded, vm.CategorySortModeIndex);
         Assert.False(vm.SettingsChanged);
@@ -246,6 +250,28 @@ public class SettingsWindowViewModelTests
     }
 
     [Fact]
+    public void FetchHttpIcons_Change_UpdatesSavedSettings()
+    {
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
+
+        vm.FetchHttpIcons = false;
+
+        Assert.False(committed!.FetchHttpIcons);
+    }
+
+    [Fact]
+    public void AllowPrivateNetworkHttpIconRequests_Change_UpdatesSavedSettings()
+    {
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
+
+        vm.AllowPrivateNetworkHttpIconRequests = true;
+
+        Assert.True(committed!.AllowPrivateNetworkHttpIconRequests);
+    }
+
+    [Fact]
     public void AppListSortModeIndex_Change_UpdatesSavedSettings()
     {
         AppSettings? committed = null;
@@ -281,6 +307,8 @@ public class SettingsWindowViewModelTests
             DebugUpdate = true,
             StartMinimizedOnLaunch = true,
             LaunchAtWindowsStartup = true,
+            FetchHttpIcons = false,
+            AllowPrivateNetworkHttpIconRequests = true,
             ConfirmBeforeLaunch = true,
             ConfirmBeforeDelete = true,
             CategorySortMode = CategorySortMode.AsAdded,
@@ -298,6 +326,8 @@ public class SettingsWindowViewModelTests
         Assert.Equal(defaults.DebugUpdate, vm.DebugUpdate);
         Assert.Equal(defaults.StartMinimizedOnLaunch, vm.StartMinimizedOnLaunch);
         Assert.Equal(defaults.LaunchAtWindowsStartup, vm.LaunchAtWindowsStartup);
+        Assert.Equal(defaults.FetchHttpIcons, vm.FetchHttpIcons);
+        Assert.Equal(defaults.AllowPrivateNetworkHttpIconRequests, vm.AllowPrivateNetworkHttpIconRequests);
         Assert.Equal(defaults.ConfirmBeforeLaunch, vm.ConfirmBeforeLaunch);
         Assert.Equal(defaults.ConfirmBeforeDelete, vm.ConfirmBeforeDelete);
         Assert.Equal((int)defaults.CategorySortMode, vm.CategorySortModeIndex);
@@ -334,6 +364,8 @@ public class SettingsWindowViewModelTests
             PostLaunchBehavior = PostLaunchBehavior.MinimizeWindow,
             CloseOnLaunch = false,
             CheckForUpdatesOnStartup = false,
+            FetchHttpIcons = false,
+            AllowPrivateNetworkHttpIconRequests = true,
             Language = LanguageOption.Japanese,
         };
 
@@ -343,6 +375,8 @@ public class SettingsWindowViewModelTests
         Assert.Equal((int)PostLaunchBehavior.MinimizeWindow, vm.PostLaunchBehaviorIndex);
         Assert.False(vm.CloseOnLaunch);
         Assert.False(vm.CheckForUpdatesOnStartup);
+        Assert.False(vm.FetchHttpIcons);
+        Assert.True(vm.AllowPrivateNetworkHttpIconRequests);
         Assert.Equal((int)LanguageOption.Japanese, vm.LanguageIndex);
         Assert.Null(committed);
     }
