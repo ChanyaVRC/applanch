@@ -597,9 +597,175 @@ public class MainWindowViewModelTests
         }
     }
 
-    private static MainWindowViewModel CreateViewModel(FakeStore? store = null, FakeResolver? resolver = null)
+    [Fact]
+    public void TryAddQuickItem_EmptyInput_SetsInformationMessage()
     {
-        return new MainWindowViewModel(resolver ?? new FakeResolver(), store ?? new FakeStore([]));
+        var vm = CreateViewModel();
+        vm.QuickAddNameOrPath = "   ";
+
+        vm.TryAddQuickItem();
+
+        Assert.NotEmpty(vm.QuickAddFeedback.Message);
+        Assert.Equal(QuickAddMessageSeverity.Information, vm.QuickAddFeedback.Severity);
+        Assert.Equal(Visibility.Visible, vm.QuickAddFeedback.MessageVisibility);
+    }
+
+    [Fact]
+    public void TryAddQuickItem_UnresolvedInput_SetsWarningMessage()
+    {
+        var vm = CreateViewModel(resolver: new FakeResolver());
+        vm.QuickAddNameOrPath = "unknown-app";
+
+        vm.TryAddQuickItem();
+
+        Assert.NotEmpty(vm.QuickAddFeedback.Message);
+        Assert.Equal(QuickAddMessageSeverity.Warning, vm.QuickAddFeedback.Severity);
+        Assert.Equal(Visibility.Visible, vm.QuickAddFeedback.MessageVisibility);
+    }
+
+    [Fact]
+    public void TryAddQuickItem_Success_ClearsMessage()
+    {
+        var resolver = new FakeResolver
+        {
+            ShouldResolve = true,
+            ResolvedApp = new ResolvedApp(@"C:\\Tools\\NewApp.exe", "NewApp")
+        };
+        var vm = CreateViewModel(resolver: resolver);
+        vm.QuickAddNameOrPath = "newapp";
+        // Produce a prior failure message via an empty input, then succeed.
+        var vmPrime = CreateViewModel(resolver: resolver);
+        vmPrime.QuickAddNameOrPath = string.Empty;
+        vmPrime.TryAddQuickItem(); // sets QuickAddFeedback.Message
+        Assert.NotEmpty(vmPrime.QuickAddFeedback.Message);
+        vmPrime.QuickAddNameOrPath = "newapp";
+
+        vmPrime.TryAddQuickItem();
+
+        Assert.Empty(vmPrime.QuickAddFeedback.Message);
+        Assert.Equal(Visibility.Collapsed, vmPrime.QuickAddFeedback.MessageVisibility);
+    }
+
+    [Fact]
+    public void InsertItem_InsertsAtSpecifiedIndex_AndPersistsImmediately()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Dev", string.Empty, "C")
+        ]);
+
+        var vm = CreateViewModel(store: store);
+        var itemB = new LaunchItemViewModel(@"C:\\Tools\\B.exe", "B", "Dev", string.Empty);
+
+        vm.InsertItem(itemB, 1);
+
+        Assert.Equal(1, store.SaveCallCount);
+        Assert.Equal(["A", "B", "C"], vm.LaunchItems.Select(x => x.DisplayName));
+        Assert.Equal(["A", "B", "C"], store.LastSavedEntries.Select(x => x.DisplayName));
+    }
+
+    [Fact]
+    public void InsertItem_OutOfRangeIndex_IsClamped()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
+        ]);
+
+        var vm = CreateViewModel(store: store);
+        var itemHead = new LaunchItemViewModel(@"C:\\Tools\\Head.exe", "Head", "Dev", string.Empty);
+        var itemTail = new LaunchItemViewModel(@"C:\\Tools\\Tail.exe", "Tail", "Dev", string.Empty);
+
+        vm.InsertItem(itemHead, -100);
+        vm.InsertItem(itemTail, 999);
+
+        Assert.Equal(2, store.SaveCallCount);
+        Assert.Equal(["Head", "A", "Tail"], vm.LaunchItems.Select(x => x.DisplayName));
+    }
+
+    [Fact]
+    public void CategorySortMode_AsAdded_PreservesFirstAppearanceOrder()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Ops", string.Empty, "A"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Neko", string.Empty, "C")
+        ]);
+
+        var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.AsAdded });
+
+        Assert.Equal(["Ops", "Dev", "Neko"], vm.CategoryNames);
+    }
+
+    [Fact]
+    public void CategorySortMode_AsAdded_DefaultCategoryPinnedLast()
+    {
+        var defaultCategory = LauncherStore.LauncherEntry.DefaultCategory;
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", defaultCategory, string.Empty, "A"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Ops", string.Empty, "C")
+        ]);
+
+        var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.AsAdded });
+
+        Assert.Equal(defaultCategory, vm.CategoryNames.Last());
+    }
+
+    [Fact]
+    public void CategorySortMode_Alphabetical_DefaultCategoryPinnedLast()
+    {
+        var defaultCategory = LauncherStore.LauncherEntry.DefaultCategory;
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", defaultCategory, string.Empty, "A"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Ops", string.Empty, "C")
+        ]);
+
+        var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.Alphabetical });
+
+        Assert.Equal(defaultCategory, vm.CategoryNames.Last());
+    }
+
+    [Fact]
+    public void AppListSortMode_Name_SortsFilteredViewByDisplayName()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Ops", string.Empty, "Zeta"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "Alpha"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Dev", string.Empty, "Kappa")
+        ]);
+
+        var vm = CreateViewModel(store: store, settings: new AppSettings { AppListSortMode = AppListSortMode.Name });
+
+        Assert.Equal(["Alpha", "Kappa", "Zeta"], vm.FilteredLaunchItems.Cast<LaunchItemViewModel>().Select(x => x.DisplayName));
+    }
+
+    [Fact]
+    public void ApplySettings_CategorySortModeSwitch_RebuildsCategoryOrder()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Ops", string.Empty, "A"),
+            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B")
+        ]);
+
+        var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.AsAdded });
+        Assert.Equal(["Ops", "Dev"], vm.CategoryNames);
+
+        vm.ApplySettings(new AppSettings { CategorySortMode = CategorySortMode.Alphabetical });
+
+        Assert.Equal(["Dev", "Ops"], vm.CategoryNames);
+    }
+
+    private static MainWindowViewModel CreateViewModel(FakeStore? store = null, FakeResolver? resolver = null, AppSettings? settings = null)
+    {
+        return new MainWindowViewModel(resolver ?? new FakeResolver(), store ?? new FakeStore([]), settings ?? new AppSettings());
     }
 }
 
