@@ -443,7 +443,10 @@ public sealed partial class MainWindow : Window
 
             case "Delete":
                 if (LaunchItemContextMenuHandler.GetTargetItem(sender) is { } deleteTarget)
+                {
                     DeleteItemWithUndo(deleteTarget);
+                }
+
                 break;
         }
     }
@@ -543,22 +546,19 @@ public sealed partial class MainWindow : Window
     {
         if (_settings.AppListSortMode != AppListSortMode.Manual)
         {
-            e.Effects = DragDropEffects.None;
-            e.Handled = true;
+            RejectDragDrop(e);
             return;
         }
 
         if (sender is not ListBox listBox)
         {
-            e.Effects = DragDropEffects.None;
-            e.Handled = true;
+            RejectDragDrop(e);
             return;
         }
 
         if (!e.Data.GetDataPresent(typeof(LaunchItemViewModel)))
         {
-            e.Effects = DragDropEffects.None;
-            e.Handled = true;
+            RejectDragDrop(e);
             return;
         }
 
@@ -615,6 +615,12 @@ public sealed partial class MainWindow : Window
         }
 
         CommitDragReorder();
+        e.Handled = true;
+    }
+
+    private static void RejectDragDrop(DragEventArgs e)
+    {
+        e.Effects = DragDropEffects.None;
         e.Handled = true;
     }
 
