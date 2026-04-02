@@ -76,6 +76,41 @@ public class PathNormalizationTests
         Assert.False(PathNormalization.TryParseHttpUrl(url, out _));
     }
 
+    [Theory]
+    [InlineData("https://example.com", 2)]
+    [InlineData("http://example.com/path", 2)]
+    [InlineData(@"C:\Tools\app.exe", 0)]
+    [InlineData(@"tools\app.exe", 0)]
+    public void GetPathType_ClassifiesCommonInputs(string input, int expected)
+    {
+        var actual = PathNormalization.GetPathType(input);
+
+        Assert.Equal((PathType)expected, actual);
+    }
+
+    [Fact]
+    public void GetPathType_CustomRegisteredScheme_ReturnsRegisteredUrl()
+    {
+        var scheme = "applanch-test-" + Guid.NewGuid().ToString("N")[..8];
+        var keyPath = $@"Software\Classes\{scheme}";
+        try
+        {
+            using var key = Registry.CurrentUser.CreateSubKey(keyPath);
+            key.SetValue("URL Protocol", string.Empty);
+
+            var url = $"{scheme}://something";
+            var pathType = PathNormalization.GetPathType(url, out var uri);
+
+            Assert.Equal(PathType.RegisteredUrl, pathType);
+            Assert.NotNull(uri);
+            Assert.Equal(new Uri(url).AbsoluteUri, uri!.AbsoluteUri);
+        }
+        finally
+        {
+            Registry.CurrentUser.DeleteSubKeyTree(keyPath, throwOnMissingSubKey: false);
+        }
+    }
+
     [Fact]
     public void IsUrl_UnregisteredScheme_ReturnsFalse()
     {
@@ -111,3 +146,4 @@ public class PathNormalizationTests
         Assert.False(PathNormalization.IsUrl(path));
     }
 }
+

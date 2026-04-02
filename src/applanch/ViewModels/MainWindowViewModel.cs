@@ -265,7 +265,7 @@ public sealed class MainWindowViewModel : ObservableObject
     {
         foreach (var item in LaunchItems)
         {
-            if (PathNormalization.IsHttpUrl(item.FullPath))
+            if (PathNormalization.GetPathType(item.FullPath) is PathType.HttpUrl)
             {
                 item.RefreshIcon();
             }
@@ -524,3 +524,4 @@ public sealed class MainWindowViewModel : ObservableObject
         }
     }
 }
+

@@ -56,7 +56,8 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
 
     public ImageSource? GetInitialIcon(string fullPath)
     {
-        if (!PathNormalization.TryParseHttpUrl(fullPath, out var pageUri))
+        var pathType = PathNormalization.GetPathType(fullPath, out var pageUri);
+        if (pathType is not PathType.HttpUrl || pageUri is null)
         {
             return GetShellIcon(fullPath);
         }
@@ -73,7 +74,8 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
 
     public async ValueTask<ImageSource?> GetDeferredIconAsync(string fullPath)
     {
-        if (!PathNormalization.TryParseHttpUrl(fullPath, out var pageUri) || !ShouldRequestFavicon(pageUri))
+        var pathType = PathNormalization.GetPathType(fullPath, out var pageUri);
+        if (pathType is not PathType.HttpUrl || pageUri is null || !ShouldRequestFavicon(pageUri))
         {
             return null;
         }
