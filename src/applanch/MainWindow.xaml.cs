@@ -235,7 +235,12 @@ public sealed partial class MainWindow : Window
 
         if (!workflowResult.Execution.IsSuccess)
         {
-            ShowFloatingNotification(workflowResult.Execution.Message, workflowResult.Execution.Icon);
+            ShowFloatingNotification(
+                workflowResult.Execution.Message,
+                workflowResult.Execution.Icon,
+                deleteAction: ShouldOfferDeleteActionForLaunchFailure(workflowResult.Execution)
+                    ? () => DeleteItemWithUndo(item)
+                    : null);
             return;
         }
 
@@ -329,11 +334,23 @@ public sealed partial class MainWindow : Window
         ViewModel.FloatingNotification.UndoAction?.Invoke();
     }
 
-    private void ShowFloatingNotification(string message, MessageBoxImage icon, Action? undoAction = null)
+    private void DeleteNotificationButton_Click(object sender, RoutedEventArgs e)
+    {
+        HideFloatingNotification();
+        ViewModel.FloatingNotification.DeleteAction?.Invoke();
+    }
+
+    internal static bool ShouldOfferDeleteActionForLaunchFailure(LaunchExecutionResult execution)
+    {
+        return !execution.IsSuccess && execution.FailureKind == LaunchFailureKind.MissingTarget;
+    }
+
+    private void ShowFloatingNotification(string message, MessageBoxImage icon, Action? undoAction = null, Action? deleteAction = null)
     {
         ViewModel.FloatingNotification.Message = message;
         ViewModel.FloatingNotification.IconType = FloatingNotificationCoordinator.MapIcon(icon);
         ViewModel.FloatingNotification.UndoAction = undoAction;
+        ViewModel.FloatingNotification.DeleteAction = deleteAction;
         FloatingNotificationBanner.Visibility = Visibility.Visible;
         _floatingNotificationCoordinator.BeginShow();
         _slideInStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
@@ -380,6 +397,7 @@ public sealed partial class MainWindow : Window
         ViewModel.FloatingNotification.Message = string.Empty;
         ViewModel.FloatingNotification.IconType = NotificationIconType.None;
         ViewModel.FloatingNotification.UndoAction = null;
+        ViewModel.FloatingNotification.DeleteAction = null;
     }
 
     // ── Context menu handlers ───────────────────────────────

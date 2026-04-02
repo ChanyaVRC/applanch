@@ -43,7 +43,8 @@ internal sealed class ItemLaunchService : IItemLaunchService
         {
             return LaunchExecutionResult.Failed(
                 string.Format(AppResources.Error_FileNotFound, path),
-                MessageBoxImage.Warning);
+                MessageBoxImage.Warning,
+                LaunchFailureKind.MissingTarget);
         }
 
         if (_fallbackResolver.TryCreatePreferred(path, runAsAdministrator, out var preferredFallback, out var preferredFallbackName))

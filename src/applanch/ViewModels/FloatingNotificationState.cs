@@ -7,6 +7,7 @@ public sealed class FloatingNotificationState : ObservableObject
     private string _message = string.Empty;
     private NotificationIconType _iconType;
     private Action? _undoAction;
+    private Action? _deleteAction;
 
     public string Message
     {
@@ -32,5 +33,19 @@ public sealed class FloatingNotificationState : ObservableObject
         }
     }
 
+    public Action? DeleteAction
+    {
+        get => _deleteAction;
+        internal set
+        {
+            if (SetField(ref _deleteAction, value))
+            {
+                OnPropertyChanged(nameof(DeleteVisibility));
+            }
+        }
+    }
+
     public Visibility UndoVisibility => _undoAction is null ? Visibility.Collapsed : Visibility.Visible;
+
+    public Visibility DeleteVisibility => _deleteAction is null ? Visibility.Collapsed : Visibility.Visible;
 }

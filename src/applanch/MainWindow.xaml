@@ -685,45 +685,83 @@
                                Foreground="{DynamicResource Brush.TextPrimary}"
                                TextWrapping="Wrap"
                                Text="{Binding FloatingNotification.Message}"/>
-                    <Button Grid.Row="1"
-                            Grid.Column="2"
-                            HorizontalAlignment="Right"
-                            Margin="0,6,0,0"
-                            Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_Undo]}"
-                            Visibility="{Binding FloatingNotification.UndoVisibility}"
-                            Click="UndoButton_Click"
-                            Cursor="Hand"
-                            FontSize="11"
-                            Padding="0">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Background"
-                                        Value="Transparent"/>
-                                <Setter Property="BorderThickness"
-                                        Value="0"/>
-                                <Setter Property="Foreground"
-                                        Value="{DynamicResource Brush.TextPrimary}"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="Button">
-                                            <TextBlock Text="{TemplateBinding Content}"
-                                                       Foreground="{TemplateBinding Foreground}"
-                                                       TextDecorations="Underline"
-                                                       Padding="{TemplateBinding Padding}"
-                                                       Cursor="Hand"/>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver"
-                                                        Value="True">
-                                                    <Setter Property="Foreground"
-                                                            Value="{DynamicResource Brush.NotificationInfoBorder}"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                    <StackPanel Grid.Row="1"
+                                Grid.Column="2"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,6,0,0">
+                        <Button Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_DeleteForMissingItem]}"
+                                Visibility="{Binding FloatingNotification.DeleteVisibility}"
+                                Click="DeleteNotificationButton_Click"
+                                Cursor="Hand"
+                                FontSize="11"
+                                Padding="0">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background"
+                                            Value="Transparent"/>
+                                    <Setter Property="BorderThickness"
+                                            Value="0"/>
+                                    <Setter Property="Foreground"
+                                            Value="{DynamicResource Brush.TextPrimary}"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <TextBlock Text="{TemplateBinding Content}"
+                                                           Foreground="{TemplateBinding Foreground}"
+                                                           TextDecorations="Underline"
+                                                           Padding="{TemplateBinding Padding}"
+                                                           Cursor="Hand"/>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver"
+                                                            Value="True">
+                                                        <Setter Property="Foreground"
+                                                                Value="{DynamicResource Brush.NotificationInfoBorder}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Margin="10,0,0,0"
+                                Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_Undo]}"
+                                Visibility="{Binding FloatingNotification.UndoVisibility}"
+                                Click="UndoButton_Click"
+                                Cursor="Hand"
+                                FontSize="11"
+                                Padding="0">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background"
+                                            Value="Transparent"/>
+                                    <Setter Property="BorderThickness"
+                                            Value="0"/>
+                                    <Setter Property="Foreground"
+                                            Value="{DynamicResource Brush.TextPrimary}"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <TextBlock Text="{TemplateBinding Content}"
+                                                           Foreground="{TemplateBinding Foreground}"
+                                                           TextDecorations="Underline"
+                                                           Padding="{TemplateBinding Padding}"
+                                                           Cursor="Hand"/>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver"
+                                                            Value="True">
+                                                        <Setter Property="Foreground"
+                                                                Value="{DynamicResource Brush.NotificationInfoBorder}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
                 </Grid>
                 <Border Grid.Row="1"
                         BorderBrush="{DynamicResource Brush.NotificationProgressTrack}"

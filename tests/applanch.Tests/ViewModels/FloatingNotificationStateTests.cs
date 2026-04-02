@@ -53,4 +53,36 @@ public class FloatingNotificationStateTests
         Assert.Contains(nameof(FloatingNotificationState.UndoAction), changed);
         Assert.Contains(nameof(FloatingNotificationState.UndoVisibility), changed);
     }
+
+    [Fact]
+    public void DeleteVisibility_IsCollapsed_WhenDeleteActionIsNull()
+    {
+        var state = new FloatingNotificationState();
+
+        Assert.Equal(Visibility.Collapsed, state.DeleteVisibility);
+    }
+
+    [Fact]
+    public void DeleteVisibility_IsVisible_WhenDeleteActionIsSet()
+    {
+        var state = new FloatingNotificationState
+        {
+            DeleteAction = static () => { }
+        };
+
+        Assert.Equal(Visibility.Visible, state.DeleteVisibility);
+    }
+
+    [Fact]
+    public void DeleteAction_Set_RaisesPropertyChanged_ForDeleteActionAndDeleteVisibility()
+    {
+        var state = new FloatingNotificationState();
+        var changed = new List<string>();
+        state.PropertyChanged += (_, e) => changed.Add(e.PropertyName ?? string.Empty);
+
+        state.DeleteAction = static () => { };
+
+        Assert.Contains(nameof(FloatingNotificationState.DeleteAction), changed);
+        Assert.Contains(nameof(FloatingNotificationState.DeleteVisibility), changed);
+    }
 }

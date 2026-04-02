@@ -21,6 +21,7 @@ public class ItemLaunchServiceTests
 
         Assert.False(result.IsSuccess);
         Assert.Equal(System.Windows.MessageBoxImage.Warning, result.Icon);
+        Assert.Equal(LaunchFailureKind.MissingTarget, result.FailureKind);
     }
 
     [Theory]
@@ -90,6 +91,7 @@ public class ItemLaunchServiceTests
 
         Assert.False(result.IsSuccess);
         Assert.Equal(System.Windows.MessageBoxImage.Error, result.Icon);
+        Assert.Equal(LaunchFailureKind.Other, result.FailureKind);
     }
 
     [Fact]

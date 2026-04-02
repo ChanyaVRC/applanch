@@ -93,6 +93,9 @@
     <data name="Button_Undo" xml:space="preserve">
       <value>元に戻す</value>
     </data>
+  <data name="Button_DeleteForMissingItem" xml:space="preserve">
+    <value>削除する</value>
+  </data>
   <data name="Hint_AddApp" xml:space="preserve">
     <value>例: VSCode / code / notepad / C:\path\app.exe</value>
   </data>
