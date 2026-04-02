@@ -57,6 +57,25 @@ public class PathNormalizationTests
         Assert.True(PathNormalization.IsUrl(url));
     }
 
+    [Theory]
+    [InlineData("https://example.com")]
+    [InlineData("http://example.com/path")]
+    public void IsHttpUrl_HttpSchemes_ReturnTrue(string url)
+    {
+        Assert.True(PathNormalization.IsHttpUrl(url));
+        Assert.True(PathNormalization.TryParseHttpUrl(url, out var uri));
+        Assert.Equal(new Uri(url).AbsoluteUri, uri.AbsoluteUri);
+    }
+
+    [Theory]
+    [InlineData("steam://run/123")]
+    [InlineData("mailto:user@example.com")]
+    public void IsHttpUrl_NonHttpSchemes_ReturnFalse(string url)
+    {
+        Assert.False(PathNormalization.IsHttpUrl(url));
+        Assert.False(PathNormalization.TryParseHttpUrl(url, out _));
+    }
+
     [Fact]
     public void IsUrl_UnregisteredScheme_ReturnsFalse()
     {

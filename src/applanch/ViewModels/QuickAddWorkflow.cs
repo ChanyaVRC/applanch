@@ -1,9 +1,10 @@
 using applanch.Infrastructure.Resolution;
+using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Utilities;
 
 namespace applanch.ViewModels;
 
-internal sealed class QuickAddWorkflow(IAppResolver appResolver)
+internal sealed class QuickAddWorkflow(IAppResolver appResolver, ILaunchItemIconProvider? iconProvider = null)
 {
     internal IReadOnlyList<string> GetSuggestions(string input, int maxResults)
     {
@@ -48,7 +49,8 @@ internal sealed class QuickAddWorkflow(IAppResolver appResolver)
             normalizedResolvedPath,
             quickAddCategory,
             quickAddArguments,
-            resolvedApp.DisplayName);
+            resolvedApp.DisplayName,
+            iconProvider);
 
         return QuickAddResult.Success();
     }

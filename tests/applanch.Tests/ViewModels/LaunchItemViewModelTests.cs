@@ -1,6 +1,9 @@
 using Xunit;
 using applanch.Infrastructure.Storage;
+using applanch.Infrastructure.Integration;
 using applanch.ViewModels;
+using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace applanch.Tests.ViewModels;
 
@@ -192,6 +195,116 @@ public class LaunchItemViewModelTests
         finally
         {
             File.Delete(existingPath);
+        }
+    }
+
+    [Fact]
+    public void Constructor_UrlItem_UpdatesIconSourceWhenDeferredIconArrives()
+    {
+        RunInSta(() =>
+        {
+            var initialIcon = CreateDrawingImage();
+            var deferredIcon = CreateDrawingImage();
+            var provider = new DeferredIconProvider(initialIcon);
+            var vm = new LaunchItemViewModel(
+                fullPath: "https://example.com",
+                category: "Web",
+                arguments: string.Empty,
+                displayName: "Example",
+                iconProvider: provider);
+
+            var changed = new List<string>();
+            vm.PropertyChanged += (_, e) =>
+            {
+                if (!string.IsNullOrWhiteSpace(e.PropertyName))
+                {
+                    changed.Add(e.PropertyName!);
+                }
+            };
+
+            Assert.Same(initialIcon, vm.IconSource);
+
+            provider.Complete(deferredIcon);
+            WaitUntil(() => ReferenceEquals(vm.IconSource, deferredIcon));
+
+            Assert.Contains(nameof(LaunchItemViewModel.IconSource), changed);
+        });
+    }
+
+    private static DrawingImage CreateDrawingImage()
+    {
+        var drawing = new GeometryDrawing(
+            Brushes.CadetBlue,
+            null,
+            new RectangleGeometry(new System.Windows.Rect(0, 0, 10, 10)));
+        drawing.Freeze();
+
+        var image = new DrawingImage(drawing);
+        image.Freeze();
+        return image;
+    }
+
+    private static void RunInSta(Action action)
+    {
+        Exception? captured = null;
+        var completed = new ManualResetEventSlim(false);
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                action();
+                DrainDispatcher();
+            }
+            catch (Exception ex)
+            {
+                captured = ex;
+            }
+            finally
+            {
+                completed.Set();
+            }
+        });
+
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        completed.Wait();
+
+        if (captured is not null)
+        {
+            throw new Xunit.Sdk.XunitException($"STA test failed: {captured}");
+        }
+    }
+
+    private static void WaitUntil(Func<bool> condition)
+    {
+        var timeoutAt = DateTime.UtcNow.AddSeconds(2);
+        while (!condition() && DateTime.UtcNow < timeoutAt)
+        {
+            DrainDispatcher();
+            Thread.Sleep(10);
+        }
+
+        Assert.True(condition());
+    }
+
+    private static void DrainDispatcher()
+    {
+        var frame = new DispatcherFrame();
+        Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => frame.Continue = false));
+        Dispatcher.PushFrame(frame);
+    }
+
+    private sealed class DeferredIconProvider(ImageSource initialIcon) : ILaunchItemIconProvider
+    {
+        private readonly TaskCompletionSource<ImageSource?> _deferredIcon = new();
+
+        public ImageSource? GetInitialIcon(string fullPath) => initialIcon;
+
+        public ValueTask<ImageSource?> GetDeferredIconAsync(string fullPath) => new(_deferredIcon.Task);
+
+        internal void Complete(ImageSource icon)
+        {
+            _deferredIcon.TrySetResult(icon);
         }
     }
 }

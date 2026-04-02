@@ -1,11 +1,10 @@
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Interop;
-using System.Windows.Media.Imaging;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Utilities;
+using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace applanch.ViewModels;
 
@@ -16,14 +15,26 @@ public sealed class LaunchItemViewModel : ObservableObject
     private string _arguments;
     private bool _isRenaming;
     private string _editingName = string.Empty;
+    private readonly Dispatcher _dispatcher;
+    private readonly ILaunchItemIconProvider _iconProvider;
+    private ImageSource? _iconSource;
 
     public LaunchItemViewModel(string fullPath, string category, string arguments, string displayName)
+        : this(fullPath, category, arguments, displayName, null)
+    {
+    }
+
+    internal LaunchItemViewModel(string fullPath, string category, string arguments, string displayName, ILaunchItemIconProvider? iconProvider)
     {
         FullPath = fullPath;
+        _dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
+        _iconProvider = iconProvider ?? LaunchItemIconProvider.Shared;
         _displayName = LaunchItemNormalization.NormalizeDisplayName(displayName, fullPath);
-        IconSource = GetIcon(fullPath);
+        _iconSource = _iconProvider.GetInitialIcon(fullPath);
         _category = LaunchItemNormalization.NormalizeCategory(category);
         _arguments = LaunchItemNormalization.NormalizeArguments(arguments);
+
+        _ = LoadDeferredIconAsync();
     }
 
     public string DisplayName
@@ -55,7 +66,12 @@ public sealed class LaunchItemViewModel : ObservableObject
     }
 
     public string FullPath { get; }
-    public BitmapSource? IconSource { get; }
+    public ImageSource? IconSource
+    {
+        get => _iconSource;
+        private set => SetField(ref _iconSource, value);
+    }
+
     public bool IsPathMissing => !PathNormalization.IsUrl(FullPath) && !Path.Exists(FullPath);
 
     public string Arguments
@@ -90,42 +106,27 @@ public sealed class LaunchItemViewModel : ObservableObject
         }
     }
 
-    private static BitmapSource? GetIcon(string fullPath)
+    private async Task LoadDeferredIconAsync()
     {
-        var shfi = new NativeMethods.SHFILEINFO();
-
         try
         {
-            var result = NativeMethods.SHGetFileInfo(fullPath, 0, ref shfi,
-                (uint)Marshal.SizeOf<NativeMethods.SHFILEINFO>(),
-                NativeMethods.SHGFI_ICON | NativeMethods.SHGFI_LARGEICON);
-
-            if (result == IntPtr.Zero || shfi.hIcon == IntPtr.Zero)
+            var deferredIcon = await _iconProvider.GetDeferredIconAsync(FullPath).ConfigureAwait(false);
+            if (deferredIcon is null || ReferenceEquals(IconSource, deferredIcon))
             {
-                if (Path.Exists(fullPath))
-                {
-                    AppLogger.Instance.Warn($"Icon was not found for '{fullPath}'.");
-                }
-
-                return null;
+                return;
             }
 
-            return Imaging.CreateBitmapSourceFromHIcon(
-                shfi.hIcon,
-                Int32Rect.Empty,
-                BitmapSizeOptions.FromWidthAndHeight(32, 32));
+            if (_dispatcher.CheckAccess())
+            {
+                IconSource = deferredIcon;
+                return;
+            }
+
+            await _dispatcher.InvokeAsync(() => IconSource = deferredIcon);
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Error(ex, $"Failed to load icon for '{fullPath}'");
-            return null;
-        }
-        finally
-        {
-            if (shfi.hIcon != IntPtr.Zero)
-            {
-                NativeMethods.DestroyIcon(shfi.hIcon);
-            }
+            AppLogger.Instance.Warn($"Failed to update icon for '{FullPath}': {ex.Message}");
         }
     }
 }

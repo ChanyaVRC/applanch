@@ -6,6 +6,7 @@ using System.Resources;
 using System.Windows;
 using System.Windows.Data;
 using applanch.Helpers;
+using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
 
@@ -19,6 +20,7 @@ public sealed class MainWindowViewModel : ObservableObject
 
     private readonly QuickAddWorkflow _quickAddWorkflow;
     private readonly ILauncherStore _launcherStore;
+    private readonly ILaunchItemIconProvider _iconProvider;
     private AppSettings _settings;
     private LaunchItemViewModel? _selectedLaunchItem;
     private string _selectedCategory = AllCategoriesLabel;
@@ -33,14 +35,15 @@ public sealed class MainWindowViewModel : ObservableObject
     {
     }
 
-    internal MainWindowViewModel(IAppResolver appResolver, ILauncherStore launcherStore, AppSettings? settings = null)
+    internal MainWindowViewModel(IAppResolver appResolver, ILauncherStore launcherStore, AppSettings? settings = null, ILaunchItemIconProvider? iconProvider = null)
     {
-        _quickAddWorkflow = new QuickAddWorkflow(appResolver);
+        _iconProvider = iconProvider ?? LaunchItemIconProvider.Shared;
+        _quickAddWorkflow = new QuickAddWorkflow(appResolver, _iconProvider);
         _launcherStore = launcherStore;
         _settings = settings ?? new AppSettings();
 
         LaunchItems = _launcherStore.LoadAll()
-            .Select(entry => new LaunchItemViewModel(entry.Path, entry.Category, entry.Arguments, entry.DisplayName))
+            .Select(entry => new LaunchItemViewModel(entry.Path, entry.Category, entry.Arguments, entry.DisplayName, _iconProvider))
             .ToObservableCollection();
 
         CategoryNames = [];

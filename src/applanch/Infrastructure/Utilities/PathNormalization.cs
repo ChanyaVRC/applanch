@@ -42,6 +42,29 @@ internal static class PathNormalization
         return TryParseRegisteredUrl(path, out _);
     }
 
+    internal static bool IsHttpUrl(string path)
+    {
+        return TryParseHttpUrl(path, out _);
+    }
+
+    internal static bool TryParseHttpUrl(string path, out Uri uri)
+    {
+        uri = default!;
+        if (!TryParseRegisteredUrl(path, out var parsedUri))
+        {
+            return false;
+        }
+
+        if (!string.Equals(parsedUri.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(parsedUri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        uri = parsedUri;
+        return true;
+    }
+
     internal static bool TryParseRegisteredUrl(string path, out Uri uri)
     {
         uri = default!;
