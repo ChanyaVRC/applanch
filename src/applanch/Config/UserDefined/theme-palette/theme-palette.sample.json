@@ -1,4 +1,5 @@
-// User-defined theme palette — rename this file to theme-palette.json to activate.
+// User-defined theme palette sample.
+// Place one or more *.json files in this directory to activate custom themes.
 //
 // Themes defined here are merged with the built-in palette:
 //   - New theme IDs are added to the theme selection list.

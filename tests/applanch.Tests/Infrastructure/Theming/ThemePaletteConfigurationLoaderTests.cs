@@ -151,9 +151,9 @@ public sealed class ThemePaletteConfigurationLoaderTests
     {
         var root = CreateTempDirectory();
         var appBase = Path.Combine(root, "appbase");
-        Directory.CreateDirectory(Path.Combine(appBase, "Config", "UserDefined"));
+        Directory.CreateDirectory(Path.Combine(appBase, "Config", "UserDefined", "theme-palette"));
         File.WriteAllText(
-            Path.Combine(appBase, "Config", "UserDefined", "theme-palette.json"),
+            Path.Combine(appBase, "Config", "UserDefined", "theme-palette", "ocean.json"),
             """
             {
                 "themes": [
@@ -178,6 +178,74 @@ public sealed class ThemePaletteConfigurationLoaderTests
             Assert.Equal("Ocean", theme.DisplayName.Resolve(LanguageOption.English));
             var entry = Assert.Single(configuration.Entries);
             Assert.Equal("#001E3C", entry.ColorsByThemeId["ocean"]);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void TryLoadUserDefined_MergesAllJsonFilesInDirectory()
+    {
+        var root = CreateTempDirectory();
+        var appBase = Path.Combine(root, "appbase");
+        Directory.CreateDirectory(Path.Combine(appBase, "Config", "UserDefined", "theme-palette"));
+
+        File.WriteAllText(
+            Path.Combine(appBase, "Config", "UserDefined", "theme-palette", "01-base.json"),
+            """
+            {
+                "themes": [
+                    {
+                        "id": "ocean",
+                        "displayNames": { "en": "Ocean", "ja": "オーシャン" },
+                        "entries": [
+                            { "key": "Brush.AppBackground", "hex": "#001E3C" }
+                        ]
+                    }
+                ]
+            }
+            """);
+
+        File.WriteAllText(
+            Path.Combine(appBase, "Config", "UserDefined", "theme-palette", "02-override.json"),
+            """
+            {
+                "themes": [
+                    {
+                        "id": "ocean",
+                        "displayNames": { "en": "Ocean Override", "ja": "オーシャン" },
+                        "entries": [
+                            { "key": "Brush.AppBackground", "hex": "#112244" },
+                            { "key": "Brush.Surface", "hex": "#0A1628" }
+                        ]
+                    },
+                    {
+                        "id": "forest",
+                        "displayNames": { "en": "Forest", "ja": "フォレスト" },
+                        "entries": [
+                            { "key": "Brush.AppBackground", "hex": "#102A1A" }
+                        ]
+                    }
+                ]
+            }
+            """);
+
+        try
+        {
+            var loaded = ThemePaletteConfigurationLoader.TryLoadUserDefined(appBase, out var configuration);
+
+            Assert.True(loaded);
+            Assert.Contains(configuration.Themes, t => t.Id == "ocean");
+            Assert.Contains(configuration.Themes, t => t.Id == "forest");
+
+            var background = Assert.Single(configuration.Entries, e => e.Key == "Brush.AppBackground");
+            Assert.Equal("#112244", background.ColorsByThemeId["ocean"]);
+            Assert.Equal("#102A1A", background.ColorsByThemeId["forest"]);
+
+            var surface = Assert.Single(configuration.Entries, e => e.Key == "Brush.Surface");
+            Assert.Equal("#0A1628", surface.ColorsByThemeId["ocean"]);
         }
         finally
         {

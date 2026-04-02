@@ -13,7 +13,7 @@ internal static class ThemePaletteConfigurationLoader
     internal const string DarkThemeId = "dark";
 
     private const string UserDefinedDirectoryName = "UserDefined";
-    private const string UserDefinedFileName = "theme-palette.json";
+    private const string UserDefinedThemePaletteDirectoryName = "theme-palette";
     private static readonly ThemePaletteConfiguration FallbackConfiguration = new(
         Themes:
         [
@@ -70,14 +70,42 @@ internal static class ThemePaletteConfigurationLoader
 
     internal static bool TryLoadUserDefined(string appBaseDirectory, out ThemePaletteConfiguration configuration)
     {
-        var path = Path.Combine(appBaseDirectory, "Config", UserDefinedDirectoryName, UserDefinedFileName);
-        if (!File.Exists(path))
+        var userDefinedDirectory = Path.Combine(
+            appBaseDirectory,
+            "Config",
+            UserDefinedDirectoryName,
+            UserDefinedThemePaletteDirectoryName);
+
+        if (!Directory.Exists(userDefinedDirectory))
         {
             configuration = FallbackConfiguration;
             return false;
         }
 
-        return TryParseFile(path, out configuration);
+        ThemePaletteConfiguration? merged = null;
+
+        foreach (var path in Directory
+                     .EnumerateFiles(userDefinedDirectory, "*.json", SearchOption.TopDirectoryOnly)
+                     .OrderBy(static x => x, StringComparer.OrdinalIgnoreCase))
+        {
+            if (!TryParseFile(path, out var parsed))
+            {
+                continue;
+            }
+
+            merged = merged is null
+                ? parsed
+                : Merge(merged, parsed);
+        }
+
+        if (merged is null)
+        {
+            configuration = FallbackConfiguration;
+            return false;
+        }
+
+        configuration = merged;
+        return true;
     }
 
     internal static ThemePaletteConfiguration Merge(ThemePaletteConfiguration @base, ThemePaletteConfiguration overlay)
