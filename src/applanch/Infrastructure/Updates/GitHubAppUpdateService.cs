@@ -70,7 +70,7 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
 
         if (asset is null)
         {
-            var available = string.Join(", ", release.Assets.Select(a => a.Name));
+            var available = string.Join(", ", release.Assets.Select(static a => a.Name));
             log.Info($"Matching asset not found. Available: [{available}]");
             return null;
         }

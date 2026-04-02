@@ -6,14 +6,9 @@ using applanch.Infrastructure.Launch.AppIdResolvers;
 
 namespace applanch.Infrastructure.Launch;
 
-internal sealed class LaunchFallbackResolver : ILaunchFallbackResolver
+internal sealed class LaunchFallbackResolver(LaunchFallbackConfiguration configuration) : ILaunchFallbackResolver
 {
-    private readonly IReadOnlyList<LaunchFallbackRuleConfiguration> _rules;
-
-    internal LaunchFallbackResolver(LaunchFallbackConfiguration configuration)
-    {
-        _rules = configuration.Rules;
-    }
+    private readonly IReadOnlyList<LaunchFallbackRuleConfiguration> _rules = configuration.Rules;
 
     internal static LaunchFallbackResolver CreateDefault()
     {

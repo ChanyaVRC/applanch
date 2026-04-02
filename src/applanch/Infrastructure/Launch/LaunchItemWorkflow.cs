@@ -4,8 +4,6 @@ namespace applanch.Infrastructure.Launch;
 
 internal sealed class LaunchItemWorkflow(IItemLaunchService itemLaunchService)
 {
-    private readonly IItemLaunchService _itemLaunchService = itemLaunchService;
-
     internal LaunchItemWorkflowResult TryLaunch(
         LaunchItemViewModel item,
         AppSettings settings,
@@ -16,7 +14,7 @@ internal sealed class LaunchItemWorkflow(IItemLaunchService itemLaunchService)
             return LaunchItemWorkflowResult.Cancelled();
         }
 
-        var execution = _itemLaunchService.TryLaunch(item, settings.RunAsAdministrator);
+        var execution = itemLaunchService.TryLaunch(item, settings.RunAsAdministrator);
         if (!execution.IsSuccess)
         {
             return LaunchItemWorkflowResult.Failed(execution);
