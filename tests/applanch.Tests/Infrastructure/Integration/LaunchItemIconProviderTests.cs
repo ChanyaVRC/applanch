@@ -92,6 +92,24 @@ public class LaunchItemIconProviderTests
     }
 
     [Fact]
+    public void GetDeferredIconAsync_IPv4MappedIPv6PrivateAddress_ReturnsNullWithoutRequest()
+    {
+        RunInSta(async () =>
+        {
+            var handler = new RecordingHttpMessageHandler(_ => throw new InvalidOperationException("network should not be used"));
+            var provider = CreateProvider(
+                httpClient: new HttpClient(handler),
+                hostAddressResolver: static (_, _) => Task.FromResult<IReadOnlyList<IPAddress>>([IPAddress.Parse("::ffff:192.168.1.10")]));
+            provider.ApplySettings(new AppSettings());
+
+            var icon = await provider.GetDeferredIconAsync("https://intranet.example/page");
+
+            Assert.Null(icon);
+            Assert.Empty(handler.RequestedUris);
+        });
+    }
+
+    [Fact]
     public void GetDeferredIconAsync_AllowedPrivateRequest_FetchesIcon()
     {
         RunInSta(async () =>
@@ -273,9 +291,8 @@ public class LaunchItemIconProviderTests
 
     private static string GetCacheFilePath(string cacheDirectory, string faviconUri)
     {
-        using var sha = System.Security.Cryptography.SHA256.Create();
-        var hash = Convert.ToHexString(sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(faviconUri))).ToLowerInvariant();
-        return Path.Combine(cacheDirectory, hash + ".bin");
+        var hash = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(faviconUri)));
+        return Path.Combine(cacheDirectory, $"{hash}.bin");
     }
 
     private static void RunInSta(Action action)

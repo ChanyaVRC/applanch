@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -185,26 +184,19 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
 
                 if (IsRedirect(response.StatusCode))
                 {
-                    if (!TryResolveRedirectTarget(faviconUri, currentUri, response.Headers.Location, out var redirectedUri))
+                    var redirected = ResolveRedirectTarget(faviconUri, currentUri, response.Headers.Location);
+                    if (redirected is null || !await IsRequestDestinationAllowedAsync(redirected).ConfigureAwait(false))
                     {
                         return null;
                     }
 
-                    if (!await IsRequestDestinationAllowedAsync(redirectedUri).ConfigureAwait(false))
-                    {
-                        return null;
-                    }
-
-                    currentUri = redirectedUri;
+                    currentUri = redirected;
                     continue;
                 }
 
-                if (!response.IsSuccessStatusCode || IsSvg(response.Content.Headers.ContentType?.MediaType))
-                {
-                    return null;
-                }
-
-                if (response.Content.Headers.ContentLength is > MaxFaviconBytes)
+                if (!response.IsSuccessStatusCode
+                    || IsSvg(response.Content.Headers.ContentType?.MediaType)
+                    || response.Content.Headers.ContentLength > MaxFaviconBytes)
                 {
                     return null;
                 }
@@ -233,7 +225,7 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
         return null;
     }
 
-    private async Task<byte[]?> ReadLimitedContentAsync(HttpContent content)
+    private static async Task<byte[]?> ReadLimitedContentAsync(HttpContent content)
     {
         await using var responseStream = await content.ReadAsStreamAsync().ConfigureAwait(false);
         using var buffer = new MemoryStream();
@@ -288,13 +280,7 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
             var path = GetCacheFilePath(faviconUri);
             var tempPath = path + ".tmp";
             File.WriteAllBytes(tempPath, payload);
-
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
-
-            File.Move(tempPath, path);
+            File.Move(tempPath, path, overwrite: true);
         }
         catch (Exception ex)
         {
@@ -304,22 +290,15 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
 
     private string GetCacheFilePath(Uri faviconUri)
     {
-        using var sha = SHA256.Create();
-        var hashBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(faviconUri.AbsoluteUri));
-        var hash = Convert.ToHexString(hashBytes).ToLowerInvariant();
-        return Path.Combine(_cacheDirectory, hash + ".bin");
+        var hash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(faviconUri.AbsoluteUri)));
+        return Path.Combine(_cacheDirectory, $"{hash}.bin");
     }
 
     private static BitmapFrame? DecodeImage(byte[] payload)
     {
-        using var stream = new MemoryStream(payload, writable: false);
-        return DecodeImage(stream);
-    }
-
-    private static BitmapFrame? DecodeImage(Stream stream)
-    {
         try
         {
+            using var stream = new MemoryStream(payload, writable: false);
             var bitmap = BitmapFrame.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
             bitmap.Freeze();
             return bitmap;
@@ -341,22 +320,22 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
         return mediaType?.Contains("svg", StringComparison.OrdinalIgnoreCase) == true;
     }
 
-    private static bool TryResolveRedirectTarget(Uri originalUri, Uri currentUri, Uri? location, out Uri redirectedUri)
+    private static Uri? ResolveRedirectTarget(Uri originalUri, Uri currentUri, Uri? location)
     {
-        redirectedUri = null!;
         if (location is null)
         {
-            return false;
+            return null;
         }
 
-        redirectedUri = location.IsAbsoluteUri ? location : new Uri(currentUri, location);
-        if (!string.Equals(redirectedUri.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) &&
-            !string.Equals(redirectedUri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        var target = location.IsAbsoluteUri ? location : new Uri(currentUri, location);
+        if (target.Scheme is not ("http" or "https"))
         {
-            return false;
+            return null;
         }
 
-        return string.Equals(redirectedUri.IdnHost, originalUri.IdnHost, StringComparison.OrdinalIgnoreCase);
+        return string.Equals(target.IdnHost, originalUri.IdnHost, StringComparison.OrdinalIgnoreCase)
+            ? target
+            : null;
     }
 
     private static bool IsLocalOrPrivateLiteral(string host)
@@ -369,6 +348,17 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
         return IPAddress.TryParse(host, out var address) && IsPrivateOrLoopbackAddress(address);
     }
 
+    private static readonly IPNetwork[] PrivateNetworks =
+    [
+        IPNetwork.Parse("10.0.0.0/8"),
+        IPNetwork.Parse("172.16.0.0/12"),
+        IPNetwork.Parse("192.168.0.0/16"),
+        IPNetwork.Parse("169.254.0.0/16"),
+        IPNetwork.Parse("fc00::/7"),
+        IPNetwork.Parse("fe80::/10"),
+        IPNetwork.Parse("fec0::/10"),
+    ];
+
     private static bool IsPrivateOrLoopbackAddress(IPAddress address)
     {
         if (IPAddress.IsLoopback(address))
@@ -376,23 +366,12 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
             return true;
         }
 
-        if (address.AddressFamily == AddressFamily.InterNetwork)
+        if (address.IsIPv4MappedToIPv6)
         {
-            var bytes = address.GetAddressBytes();
-            return bytes[0] == 10 ||
-                   (bytes[0] == 172 && bytes[1] >= 16 && bytes[1] <= 31) ||
-                   (bytes[0] == 192 && bytes[1] == 168) ||
-                   (bytes[0] == 169 && bytes[1] == 254);
+            address = address.MapToIPv4();
         }
 
-        if (address.AddressFamily == AddressFamily.InterNetworkV6)
-        {
-            return address.IsIPv6LinkLocal || address.IsIPv6SiteLocal ||
-                   address.Equals(IPAddress.IPv6Loopback) ||
-                   (address.GetAddressBytes()[0] & 0xFE) == 0xFC;
-        }
-
-        return false;
+        return PrivateNetworks.Any(network => network.Contains(address));
     }
 
     private static async Task<IReadOnlyList<IPAddress>> ResolveHostAddressesAsync(string host, CancellationToken cancellationToken)
