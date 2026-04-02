@@ -55,8 +55,7 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
 
     public ImageSource? GetInitialIcon(string fullPath)
     {
-        var pathType = PathNormalization.GetPathType(fullPath, out var pageUri);
-        if (pathType is not PathType.HttpUrl || pageUri is null)
+        if (!TryGetHttpPageUri(fullPath, out var pageUri))
         {
             return GetShellIcon(fullPath);
         }
@@ -73,8 +72,7 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
 
     public async ValueTask<ImageSource?> GetDeferredIconAsync(string fullPath)
     {
-        var pathType = PathNormalization.GetPathType(fullPath, out var pageUri);
-        if (pathType is not PathType.HttpUrl || pageUri is null || !ShouldRequestFavicon(pageUri))
+        if (!TryGetHttpPageUri(fullPath, out var pageUri) || !ShouldRequestFavicon(pageUri))
         {
             return null;
         }
@@ -103,6 +101,19 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
         }
 
         return icon;
+    }
+
+    private static bool TryGetHttpPageUri(string fullPath, out Uri pageUri)
+    {
+        pageUri = default!;
+        var pathType = PathNormalization.GetPathType(fullPath, out var parsedUri);
+        if (pathType is not PathType.HttpUrl || parsedUri is null)
+        {
+            return false;
+        }
+
+        pageUri = parsedUri;
+        return true;
     }
 
     internal static Uri CreateFaviconUri(Uri pageUri)

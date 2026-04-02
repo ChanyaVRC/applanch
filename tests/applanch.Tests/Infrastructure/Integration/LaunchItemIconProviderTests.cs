@@ -58,6 +58,22 @@ public class LaunchItemIconProviderTests
     }
 
     [Fact]
+    public void GetDeferredIconAsync_NonHttpPath_ReturnsNullWithoutRequest()
+    {
+        RunInSta(async () =>
+        {
+            var handler = new RecordingHttpMessageHandler(_ => throw new InvalidOperationException("network should not be used"));
+            var provider = CreateProvider(httpClient: new HttpClient(handler));
+            provider.ApplySettings(new AppSettings());
+
+            var icon = await provider.GetDeferredIconAsync(@"C:\\Tools\\Tool.exe");
+
+            Assert.Null(icon);
+            Assert.Empty(handler.RequestedUris);
+        });
+    }
+
+    [Fact]
     public void GetDeferredIconAsync_PrivateLiteralBlocked_ReturnsNullWithoutRequest()
     {
         RunInSta(async () =>
