@@ -9,7 +9,6 @@ using applanch.Helpers;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Utilities;
 
 namespace applanch.ViewModels;
 
@@ -45,7 +44,7 @@ public sealed class MainWindowViewModel : ObservableObject
         _quickAddWorkflow = new QuickAddWorkflow(appResolver, _iconProvider);
 
         LaunchItems = _launcherStore.LoadAll()
-            .Select(entry => new LaunchItemViewModel(new LaunchPath(entry.Path), entry.Category, entry.Arguments, entry.DisplayName, _iconProvider))
+            .Select(entry => new LaunchItemViewModel(entry.Path, entry.Category, entry.Arguments, entry.DisplayName, _iconProvider))
             .ToObservableCollection();
 
         CategoryNames = [];
@@ -450,7 +449,7 @@ public sealed class MainWindowViewModel : ObservableObject
         SelectedCategory == AllCategoriesLabel;
 
     private static LauncherStore.LauncherEntry ToLauncherEntry(LaunchItemViewModel item) =>
-        new(item.FullPath.Value, item.Category, item.Arguments, item.DisplayName);
+        new(item.FullPath, item.Category, item.Arguments, item.DisplayName);
 
     private void UnsubscribeRemovedItems(IList? oldItems)
     {

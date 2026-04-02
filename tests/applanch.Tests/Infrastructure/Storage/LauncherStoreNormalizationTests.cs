@@ -64,7 +64,7 @@ public class LauncherStoreNormalizationTests
         var normalized = InvokeNormalizeEntries(entries).ToList();
 
         var item = Assert.Single(normalized);
-        Assert.Equal(driveRoot, item.Path);
+        Assert.Equal(driveRoot, item.Path.Value);
     }
 
     [Fact]
@@ -104,7 +104,7 @@ public class LauncherStoreNormalizationTests
         var normalized = InvokeNormalizeEntries(entries).ToList();
 
         Assert.Single(normalized);
-        Assert.Equal(@"C:\Apps\Tool.exe", normalized[0].Path);
+        Assert.Equal(@"C:\Apps\Tool.exe", normalized[0].Path.Value);
         Assert.Equal("Dev", normalized[0].Category);
         Assert.Equal("-a", normalized[0].Arguments);
         Assert.Equal("Tool Name", normalized[0].DisplayName);
@@ -133,7 +133,7 @@ public class LauncherStoreNormalizationTests
             var normalized = InvokeNormalizeEntries(entries).ToList();
 
             var item = Assert.Single(normalized);
-            Assert.Equal(Path.GetFullPath(@"C:\Apps\Tool.exe"), item.Path);
+            Assert.Equal(Path.GetFullPath(@"C:\Apps\Tool.exe"), item.Path.Value);
         }
         finally
         {
@@ -167,7 +167,7 @@ public class LauncherStoreNormalizationTests
             var normalized = InvokeNormalizeEntries(entries).ToList();
 
             var item = Assert.Single(normalized);
-            Assert.Equal(Path.GetFullPath(@"C:\Apps\Tool.exe"), item.Path);
+            Assert.Equal(Path.GetFullPath(@"C:\Apps\Tool.exe"), item.Path.Value);
         }
         finally
         {

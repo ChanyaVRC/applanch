@@ -64,14 +64,14 @@ internal static class LauncherStore
         }
 
         var existing = LoadAll().ToList();
-        var seenPaths = new HashSet<string>(existing.Select(static x => x.Path), StringComparer.OrdinalIgnoreCase);
+        var seenPaths = new HashSet<string>(existing.Select(static x => x.Path.Value), StringComparer.OrdinalIgnoreCase);
         if (!seenPaths.Add(normalizedPath))
         {
             return;
         }
 
         existing.Add(new LauncherEntry(
-            normalizedPath,
+            new LaunchPath(normalizedPath),
             LaunchItemNormalization.NormalizeCategory(category),
             LaunchItemNormalization.NormalizeArguments(arguments),
             LaunchItemNormalization.NormalizeDisplayName(displayName, normalizedPath))
@@ -119,7 +119,7 @@ internal static class LauncherStore
                 continue;
             }
 
-            if (!seenPaths.Add(normalizedEntry.Path))
+            if (!seenPaths.Add(normalizedEntry.Path.Value))
             {
                 continue;
             }
@@ -134,13 +134,18 @@ internal static class LauncherStore
     {
         normalizedEntry = default!;
 
+        if (string.IsNullOrWhiteSpace(entry.Path.Value))
+        {
+            return false;
+        }
+
         if (entry.IsNormalized)
         {
             normalizedEntry = entry;
             return true;
         }
 
-        if (!TryNormalizePersistablePath(entry.Path, out var normalizedPath))
+        if (!TryNormalizePersistablePath(entry.Path.Value, out var normalizedPath))
         {
             return false;
         }
@@ -151,7 +156,7 @@ internal static class LauncherStore
 
         normalizedEntry = entry with
         {
-            Path = normalizedPath,
+            Path = new LaunchPath(normalizedPath),
             Category = normalizedCategory,
             Arguments = normalizedArguments,
             DisplayName = normalizedDisplayName,
@@ -166,9 +171,24 @@ internal static class LauncherStore
         return PathNormalization.TryNormalizePersistablePath(path, out normalizedPath);
     }
 
-    internal sealed record LauncherEntry(string Path, string Category, string Arguments, string DisplayName)
+    internal sealed record LauncherEntry(
+        [property: JsonConverter(typeof(LaunchPathJsonConverter))] LaunchPath Path,
+        string Category,
+        string Arguments,
+        string DisplayName)
     {
         public static string DefaultCategory => AppResources.DefaultCategory;
+
+        internal LauncherEntry(string path, string category, string arguments, string displayName)
+            : this(
+                string.IsNullOrWhiteSpace(path)
+                    ? default
+                    : new LaunchPath(path),
+                category,
+                arguments,
+                displayName)
+        {
+        }
 
         [JsonIgnore]
         public bool IsNormalized { get; init; }

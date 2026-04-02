@@ -26,7 +26,7 @@ public class LauncherStoreBehaviorTests
 
         var entries = LauncherStore.LoadAll();
         var entry = Assert.Single(entries);
-        Assert.Equal(Path.GetFullPath(@"C:\Tools\MyApp.exe"), entry.Path);
+        Assert.Equal(Path.GetFullPath(@"C:\Tools\MyApp.exe"), entry.Path.Value);
         Assert.Equal("Dev", entry.Category);
         Assert.Equal("--run", entry.Arguments);
         Assert.Equal("My App", entry.DisplayName);
@@ -71,7 +71,7 @@ public class LauncherStoreBehaviorTests
 
         var entries = LauncherStore.LoadAll();
         var entry = Assert.Single(entries);
-        Assert.Equal(driveRoot, entry.Path);
+        Assert.Equal(driveRoot, entry.Path.Value);
     }
 
     [Fact]
@@ -87,11 +87,11 @@ public class LauncherStoreBehaviorTests
             "C:\\Tools\\LegacyB.exe"
         ]);
 
-        var entries = LauncherStore.LoadAll().OrderBy(x => x.Path, StringComparer.OrdinalIgnoreCase).ToList();
+        var entries = LauncherStore.LoadAll().OrderBy(x => x.Path.Value, StringComparer.OrdinalIgnoreCase).ToList();
 
         Assert.Equal(2, entries.Count);
-        Assert.Contains(entries, e => e.Path.Equals(Path.GetFullPath(@"C:\Tools\LegacyA.exe"), StringComparison.OrdinalIgnoreCase));
-        Assert.Contains(entries, e => e.Path.Equals(Path.GetFullPath(@"C:\Tools\LegacyB.exe"), StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(entries, e => e.Path.Value.Equals(Path.GetFullPath(@"C:\Tools\LegacyA.exe"), StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(entries, e => e.Path.Value.Equals(Path.GetFullPath(@"C:\Tools\LegacyB.exe"), StringComparison.OrdinalIgnoreCase));
 
         // Legacy load should also persist normalized JSON for next load.
         Assert.True(File.Exists(scope.StoreFilePath));
@@ -113,7 +113,7 @@ public class LauncherStoreBehaviorTests
 
         var entries = LauncherStore.LoadAll();
         var entry = Assert.Single(entries);
-        Assert.Equal(Path.GetFullPath(@"C:\Apps\Tool.exe"), entry.Path);
+        Assert.Equal(Path.GetFullPath(@"C:\Apps\Tool.exe"), entry.Path.Value);
         Assert.Equal("Dev", entry.Category);
         Assert.Equal("-a", entry.Arguments);
         Assert.Equal("Tool Name", entry.DisplayName);
@@ -132,7 +132,7 @@ public class LauncherStoreBehaviorTests
 
         var entries = LauncherStore.LoadAll();
         var entry = Assert.Single(entries);
-        Assert.Equal(Path.GetFullPath(@"C:\Apps\RealApp.exe"), entry.Path);
+        Assert.Equal(Path.GetFullPath(@"C:\Apps\RealApp.exe"), entry.Path.Value);
         Assert.Equal("Real App", entry.DisplayName);
     }
 

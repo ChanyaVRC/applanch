@@ -142,9 +142,12 @@ internal static class PathNormalization
     internal static string NormalizeLaunchPath(string path)
     {
         var trimmed = path.Trim();
-        var normalizedPath = TryNormalizePersistablePath(trimmed, out var persistablePath)
-            ? persistablePath
-            : NormalizeForComparison(trimmed);
+        if (!TryNormalizePersistablePath(trimmed, out var persistablePath))
+        {
+            return trimmed;
+        }
+
+        var normalizedPath = persistablePath;
 
         return GetPathType(normalizedPath) is PathType.FileSystem
             ? NormalizeForComparison(normalizedPath)
