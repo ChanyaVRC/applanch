@@ -95,7 +95,7 @@ public class ThemeManagerTests
     {
         var resources = new ResourceDictionary();
         var configuration = new ThemePaletteConfiguration(
-            [new ThemeDefinition("sunset", new LocalizedText("Sunset"))],
+            [new FixedThemeDefinition("sunset", new LocalizedText("Sunset"))],
             [new ThemePaletteEntry("Brush.Custom", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = "#AABBCC" })],
             LoadedFromConfig: true);
         var manager = new ThemeManager(
@@ -114,10 +114,17 @@ public class ThemeManagerTests
         var resources = new ResourceDictionary();
         var configuration = new ThemePaletteConfiguration(
             [
-                new ThemeDefinition(ThemePaletteConfigurationLoader.SystemThemeId, new LocalizedText("System")),
-                new ThemeDefinition("monochrome", new LocalizedText("Monochrome")),
-                new ThemeDefinition(ThemePaletteConfigurationLoader.LightThemeId, new LocalizedText("Light")),
-                new ThemeDefinition(ThemePaletteConfigurationLoader.DarkThemeId, new LocalizedText("Dark"))
+                new SystemDependentThemeDefinition(
+                    ThemePaletteConfigurationLoader.SystemThemeId,
+                    new LocalizedText("System"),
+                    new Dictionary<SystemThemeMode, string>
+                    {
+                        [SystemThemeMode.Light] = "monochrome",
+                        [SystemThemeMode.Dark] = "monochrome",
+                    }),
+                new FixedThemeDefinition("monochrome", new LocalizedText("Monochrome")),
+                new FixedThemeDefinition(ThemePaletteConfigurationLoader.LightThemeId, new LocalizedText("Light")),
+                new FixedThemeDefinition(ThemePaletteConfigurationLoader.DarkThemeId, new LocalizedText("Dark"))
             ],
             [
                 new ThemePaletteEntry(
@@ -129,12 +136,7 @@ public class ThemeManagerTests
                         ["monochrome"] = "#1A1A1A",
                     })
             ],
-            LoadedFromConfig: true,
-            SystemThemeEntrySources: new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                [ThemePaletteConfigurationLoader.LightThemeId] = "monochrome",
-                [ThemePaletteConfigurationLoader.DarkThemeId] = "monochrome",
-            });
+            LoadedFromConfig: true);
         var manager = new ThemeManager(
             () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.SystemThemeId },
             configuration);
@@ -145,12 +147,71 @@ public class ThemeManagerTests
         Assert.Equal((Color)ColorConverter.ConvertFromString("#1A1A1A")!, brush.Color);
     }
 
+    [Fact]
+    public void ApplyTheme_NonSystemTheme_UsesEntriesFromInheritanceChain()
+    {
+        var resources = new ResourceDictionary();
+        var configuration = new ThemePaletteConfiguration(
+            [
+                new FixedThemeDefinition("light", new LocalizedText("Light")),
+                new FixedThemeDefinition("base", new LocalizedText("Base"), "light"),
+                new FixedThemeDefinition("ocean", new LocalizedText("Ocean"), "base")
+            ],
+            [
+                new ThemePaletteEntry(
+                    "Brush.TextPrimary",
+                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["light"] = "#0F172A",
+                        ["base"] = "#1A1A1A",
+                    })
+            ],
+            LoadedFromConfig: true);
+        var manager = new ThemeManager(
+            () => new AppSettings { ThemeId = "ocean" },
+            configuration);
+
+        manager.ApplyTheme(resources);
+
+        var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#1A1A1A")!, brush.Color);
+    }
+
+    [Fact]
+    public void ApplyTheme_NonSystemTheme_WithCircularEntriesFrom_FallsBackToLight()
+    {
+        var resources = new ResourceDictionary();
+        var configuration = new ThemePaletteConfiguration(
+            [
+                new FixedThemeDefinition("light", new LocalizedText("Light")),
+                new FixedThemeDefinition("alpha", new LocalizedText("Alpha"), "beta"),
+                new FixedThemeDefinition("beta", new LocalizedText("Beta"), "alpha")
+            ],
+            [
+                new ThemePaletteEntry(
+                    "Brush.TextPrimary",
+                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["light"] = "#0F172A",
+                    })
+            ],
+            LoadedFromConfig: true);
+        var manager = new ThemeManager(
+            () => new AppSettings { ThemeId = "alpha" },
+            configuration);
+
+        manager.ApplyTheme(resources);
+
+        var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#0F172A")!, brush.Color);
+    }
+
     private static ThemePaletteConfiguration BuildConfiguration() =>
         new(
             [
-                new ThemeDefinition("light", new LocalizedText("Light")),
-                new ThemeDefinition("dark", new LocalizedText("Dark")),
-                new ThemeDefinition("monochrome", new LocalizedText("Monochrome"))
+                new FixedThemeDefinition("light", new LocalizedText("Light")),
+                new FixedThemeDefinition("dark", new LocalizedText("Dark")),
+                new FixedThemeDefinition("monochrome", new LocalizedText("Monochrome"))
             ],
             [
                 new ThemePaletteEntry(
@@ -172,5 +233,6 @@ public class ThemeManagerTests
             ],
             LoadedFromConfig: true);
 }
+
 
 

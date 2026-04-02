@@ -11,6 +11,7 @@ internal sealed class ThemeManager
     private const string AppsUseLightTheme = "AppsUseLightTheme";
 
     private readonly ThemePaletteConfiguration _configuration;
+    private readonly Dictionary<string, ThemeDefinition> _themesById;
     private readonly Dictionary<string, Dictionary<string, SolidColorBrush>> _brushesByThemeId;
     private readonly Func<AppSettings> _settingsProvider;
 
@@ -20,7 +21,8 @@ internal sealed class ThemeManager
     {
         _settingsProvider = settingsProvider ?? AppSettings.Load;
         _configuration = configuration ?? ThemePaletteConfigurationLoader.LoadForRuntime();
-        _brushesByThemeId = BuildBrushMaps(_configuration);
+        _themesById = _configuration.Themes.ToDictionary(static x => x.Id, StringComparer.OrdinalIgnoreCase);
+        _brushesByThemeId = BuildBrushMaps(_configuration, _themesById);
     }
 
     public void ApplyTheme(ResourceDictionary resources)
@@ -47,7 +49,9 @@ internal sealed class ThemeManager
         }
     }
 
-    private static Dictionary<string, Dictionary<string, SolidColorBrush>> BuildBrushMaps(ThemePaletteConfiguration configuration)
+    private static Dictionary<string, Dictionary<string, SolidColorBrush>> BuildBrushMaps(
+        ThemePaletteConfiguration configuration,
+        IReadOnlyDictionary<string, ThemeDefinition> themesById)
     {
         var brushMaps = new Dictionary<string, Dictionary<string, SolidColorBrush>>(StringComparer.OrdinalIgnoreCase);
         var availableThemeIds = configuration.Themes
@@ -63,7 +67,7 @@ internal sealed class ThemeManager
         {
             foreach (var themeId in availableThemeIds)
             {
-                var hex = ResolveHex(entry, themeId);
+                var hex = ResolveHex(entry, themeId, themesById);
                 var color = ColorFromHex(hex);
                 var brush = new SolidColorBrush(color);
                 brush.Freeze();
@@ -74,14 +78,23 @@ internal sealed class ThemeManager
         return brushMaps;
     }
 
-    private static string ResolveHex(ThemePaletteEntry entry, string themeId)
+    private static string ResolveHex(
+        ThemePaletteEntry entry,
+        string themeId,
+        IReadOnlyDictionary<string, ThemeDefinition> themesById)
     {
-        if (entry.ColorsByThemeId.TryGetValue(themeId, out var hex) && !string.IsNullOrWhiteSpace(hex))
+        if (entry.ColorsByThemeId.TryGetValue(themeId, out var hex))
         {
             return hex;
         }
 
-        if (entry.ColorsByThemeId.TryGetValue(ThemePaletteConfigurationLoader.LightThemeId, out var lightHex) && !string.IsNullOrWhiteSpace(lightHex))
+        var inheritedHex = ResolveInheritedHex(entry, themeId, themesById);
+        if (!string.IsNullOrWhiteSpace(inheritedHex))
+        {
+            return inheritedHex;
+        }
+
+        if (entry.ColorsByThemeId.TryGetValue(ThemePaletteConfigurationLoader.LightThemeId, out var lightHex))
         {
             return lightHex;
         }
@@ -89,32 +102,56 @@ internal sealed class ThemeManager
         return entry.ColorsByThemeId.Values.First(static x => !string.IsNullOrWhiteSpace(x));
     }
 
+    private static string? ResolveInheritedHex(
+        ThemePaletteEntry entry,
+        string themeId,
+        IReadOnlyDictionary<string, ThemeDefinition> themesById)
+    {
+        var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { themeId };
+        var currentThemeId = themeId;
+
+        while (themesById.TryGetValue(currentThemeId, out var theme) &&
+               theme.TryGetInheritedThemeId(out var parentThemeId) &&
+               visited.Add(parentThemeId))
+        {
+            if (entry.ColorsByThemeId.TryGetValue(parentThemeId, out var inheritedHex))
+            {
+                return inheritedHex;
+            }
+
+            currentThemeId = parentThemeId;
+        }
+
+        return null;
+    }
+
     private string ResolveThemeId(AppSettings settings)
     {
-        if (string.Equals(settings.ThemeId, ThemePaletteConfigurationLoader.SystemThemeId, StringComparison.OrdinalIgnoreCase))
-        {
-            var preferredMode = ReadWindowsThemePreference()
-                ? ThemePaletteConfigurationLoader.LightThemeId
-                : ThemePaletteConfigurationLoader.DarkThemeId;
+        var selectedThemeId = settings.ThemeId.Trim();
+        var preferredMode = ReadWindowsThemePreference()
+            ? SystemThemeMode.Light
+            : SystemThemeMode.Dark;
+        var isSystemDependentTheme = false;
 
-            var preferredThemeId = ResolveSystemThemeSource(preferredMode) ?? preferredMode;
+        if (_themesById.TryGetValue(selectedThemeId, out var selectedTheme) &&
+            selectedTheme is SystemDependentThemeDefinition systemDependentTheme &&
+            systemDependentTheme.TryResolveSystemSource(preferredMode, out var preferredThemeId))
+        {
+            isSystemDependentTheme = true;
             if (_brushesByThemeId.ContainsKey(preferredThemeId))
             {
                 return preferredThemeId;
             }
-
-            if (_brushesByThemeId.ContainsKey(preferredMode))
-            {
-                return preferredMode;
-            }
-
-            return _brushesByThemeId.Keys.First();
         }
 
-        var selectedThemeId = settings.ThemeId.Trim();
         if (_brushesByThemeId.ContainsKey(selectedThemeId))
         {
             return selectedThemeId;
+        }
+
+        if (isSystemDependentTheme && _brushesByThemeId.ContainsKey(ThemeIdFor(preferredMode)))
+        {
+            return ThemeIdFor(preferredMode);
         }
 
         return _brushesByThemeId.ContainsKey(ThemePaletteConfigurationLoader.LightThemeId)
@@ -122,22 +159,15 @@ internal sealed class ThemeManager
             : _brushesByThemeId.Keys.First();
     }
 
-    private string? ResolveSystemThemeSource(string mode)
-    {
-        if (_configuration.SystemThemeEntrySources is null)
-        {
-            return null;
-        }
-
-        return _configuration.SystemThemeEntrySources.TryGetValue(mode, out var source)
-            ? source
-            : null;
-    }
-
     private static Color ColorFromHex(string hex)
     {
         return (Color)ColorConverter.ConvertFromString(hex)!;
     }
+
+    private static string ThemeIdFor(SystemThemeMode mode) =>
+        mode == SystemThemeMode.Light
+            ? ThemePaletteConfigurationLoader.LightThemeId
+            : ThemePaletteConfigurationLoader.DarkThemeId;
 
     private static bool ReadWindowsThemePreference()
     {

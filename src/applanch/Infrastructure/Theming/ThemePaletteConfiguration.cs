@@ -3,5 +3,4 @@ namespace applanch.Infrastructure.Theming;
 internal sealed record ThemePaletteConfiguration(
     IReadOnlyList<ThemeDefinition> Themes,
     IReadOnlyList<ThemePaletteEntry> Entries,
-    bool LoadedFromConfig,
-    IReadOnlyDictionary<string, string>? SystemThemeEntrySources = null);
+    bool LoadedFromConfig);

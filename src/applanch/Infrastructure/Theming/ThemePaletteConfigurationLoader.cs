@@ -17,8 +17,16 @@ internal static class ThemePaletteConfigurationLoader
     private static readonly ThemePaletteConfiguration FallbackConfiguration = new(
         Themes:
         [
-            new ThemeDefinition(LightThemeId, ResolveDisplayName(LightThemeId)),
-            new ThemeDefinition(DarkThemeId, ResolveDisplayName(DarkThemeId))
+            new FixedThemeDefinition(LightThemeId, ResolveDisplayName(LightThemeId)),
+            new FixedThemeDefinition(DarkThemeId, ResolveDisplayName(DarkThemeId)),
+            new SystemDependentThemeDefinition(
+                SystemThemeId,
+                ResolveDisplayName(SystemThemeId),
+                new Dictionary<SystemThemeMode, string>
+                {
+                    [SystemThemeMode.Light] = LightThemeId,
+                    [SystemThemeMode.Dark] = DarkThemeId,
+                })
         ],
         Entries:
         [
@@ -42,12 +50,7 @@ internal static class ThemePaletteConfigurationLoader
             FallbackEntry("Brush.QuickAddInfoText", "#B45309", "#FBBF24"),
             FallbackEntry("Brush.QuickAddWarningText", "#92400E", "#F59E0B")
         ],
-        LoadedFromConfig: false,
-        SystemThemeEntrySources: new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            [LightThemeId] = LightThemeId,
-            [DarkThemeId] = DarkThemeId,
-        });
+        LoadedFromConfig: false);
 
     internal static ThemePaletteConfiguration LoadForRuntime()
     {
@@ -115,11 +118,15 @@ internal static class ThemePaletteConfigurationLoader
 
     internal static ThemePaletteConfiguration Merge(ThemePaletteConfiguration @base, ThemePaletteConfiguration overlay)
     {
-        var seenIds = new HashSet<string>(@base.Themes.Select(static t => t.Id), StringComparer.OrdinalIgnoreCase);
         var mergedThemes = @base.Themes.ToList();
         foreach (var theme in overlay.Themes)
         {
-            if (seenIds.Add(theme.Id))
+            var existingIndex = mergedThemes.FindIndex(x => string.Equals(x.Id, theme.Id, StringComparison.OrdinalIgnoreCase));
+            if (existingIndex >= 0)
+            {
+                mergedThemes[existingIndex] = theme;
+            }
+            else
             {
                 mergedThemes.Add(theme);
             }
@@ -148,8 +155,10 @@ internal static class ThemePaletteConfigurationLoader
             .Select(static kvp => new ThemePaletteEntry(kvp.Key, kvp.Value))
             .ToArray();
 
-        var mergedSystemThemeEntrySources = overlay.SystemThemeEntrySources ?? @base.SystemThemeEntrySources;
-        return new ThemePaletteConfiguration(mergedThemes, mergedEntries, LoadedFromConfig: true, mergedSystemThemeEntrySources);
+        return new ThemePaletteConfiguration(
+            mergedThemes,
+            mergedEntries,
+            LoadedFromConfig: true);
     }
 
     internal static bool TryLoadFromDirectory(string appBaseDirectory, out ThemePaletteConfiguration configuration)
@@ -197,25 +206,24 @@ internal static class ThemePaletteConfigurationLoader
 
     private static bool TryParseConfiguration(JsonElement root, out ThemePaletteConfiguration configuration)
     {
-        if (!TryParseThemesAndEntries(root, out var themes, out var entries, out var systemThemeEntrySources))
+        if (!TryParseThemesAndEntries(root, out var parsed))
         {
             configuration = FallbackConfiguration;
             return false;
         }
 
-        configuration = new ThemePaletteConfiguration(themes, entries, LoadedFromConfig: true, systemThemeEntrySources);
+        configuration = new ThemePaletteConfiguration(
+            parsed.Themes,
+            parsed.Entries,
+            LoadedFromConfig: true);
         return true;
     }
 
     private static bool TryParseThemesAndEntries(
         JsonElement root,
-        out ThemeDefinition[] themes,
-        out ThemePaletteEntry[] entries,
-        out IReadOnlyDictionary<string, string>? systemThemeEntrySources)
+        out ParsedThemePalette parsed)
     {
-        themes = [];
-        entries = [];
-        systemThemeEntrySources = null;
+        parsed = new ParsedThemePalette([], []);
 
         if (!root.TryGetProperty("themes", out var themesNode) || themesNode.ValueKind != JsonValueKind.Array)
         {
@@ -239,12 +247,7 @@ internal static class ThemePaletteConfigurationLoader
                 continue;
             }
 
-            if (string.Equals(themeId, SystemThemeId, StringComparison.OrdinalIgnoreCase))
-            {
-                systemThemeEntrySources = ParseSystemThemeEntrySources(themeNode);
-            }
-
-            parsedThemes.Add(new ThemeDefinition(themeId, ResolveDisplayName(themeId, ParseDisplayNames(themeNode))));
+            parsedThemes.Add(ParseThemeDefinition(themeNode, themeId));
 
             if (!themeNode.TryGetProperty("entries", out var entriesNode) || entriesNode.ValueKind != JsonValueKind.Array)
             {
@@ -272,27 +275,55 @@ internal static class ThemePaletteConfigurationLoader
             return false;
         }
 
-        themes = parsedThemes.ToArray();
-        entries = colorsByEntryKey.Select(static x => new ThemePaletteEntry(x.Key, x.Value)).ToArray();
+        parsed = new ParsedThemePalette(
+            parsedThemes.ToArray(),
+            colorsByEntryKey.Select(static x => new ThemePaletteEntry(x.Key, x.Value)).ToArray());
 
         return true;
     }
 
-    private static Dictionary<string, string>? ParseSystemThemeEntrySources(JsonElement systemThemeNode)
+    private static ThemeDefinition ParseThemeDefinition(JsonElement themeNode, string themeId)
     {
-        if (!systemThemeNode.TryGetProperty("entriesFrom", out var entriesFromNode) ||
-            entriesFromNode.ValueKind != JsonValueKind.Object)
+        var displayName = ResolveDisplayName(themeId, ParseDisplayNames(themeNode));
+
+        if (!themeNode.TryGetProperty("entriesFrom", out var entriesFromNode))
         {
-            return null;
+            return new FixedThemeDefinition(themeId, displayName);
         }
 
-        var sources = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (entriesFromNode.ValueKind == JsonValueKind.String)
+        {
+            var sourceThemeId = NormalizeThemeId(entriesFromNode.GetString());
+            return string.IsNullOrWhiteSpace(sourceThemeId)
+                ? new FixedThemeDefinition(themeId, displayName)
+                : new FixedThemeDefinition(themeId, displayName, sourceThemeId);
+        }
+
+        if (entriesFromNode.ValueKind == JsonValueKind.Object)
+        {
+            var sourcesByMode = ParseSystemDependentSourcesByMode(entriesFromNode);
+            return sourcesByMode is null
+                ? new FixedThemeDefinition(themeId, displayName)
+                : new SystemDependentThemeDefinition(themeId, displayName, sourcesByMode);
+        }
+
+        return new FixedThemeDefinition(themeId, displayName);
+    }
+
+    private static Dictionary<SystemThemeMode, string>? ParseSystemDependentSourcesByMode(JsonElement entriesFromNode)
+    {
+        var sources = new Dictionary<SystemThemeMode, string>();
 
         foreach (var property in entriesFromNode.EnumerateObject())
         {
             var mode = NormalizeThemeId(property.Name);
-            if (!string.Equals(mode, LightThemeId, StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(mode, DarkThemeId, StringComparison.OrdinalIgnoreCase))
+            var systemThemeMode = mode switch
+            {
+                LightThemeId => SystemThemeMode.Light,
+                DarkThemeId => SystemThemeMode.Dark,
+                _ => (SystemThemeMode?)null,
+            };
+            if (systemThemeMode is null)
             {
                 continue;
             }
@@ -308,7 +339,7 @@ internal static class ThemePaletteConfigurationLoader
                 continue;
             }
 
-            sources[mode] = sourceThemeId;
+            sources[systemThemeMode.Value] = sourceThemeId;
         }
 
         return sources.Count == 0 ? null : sources;

@@ -12,9 +12,9 @@ public sealed class ThemeOptionsProviderTests
     {
         var configuration = new ThemePaletteConfiguration(
             [
-                new ThemeDefinition(ThemePaletteConfigurationLoader.SystemThemeId, new LocalizedText("System")),
-                new ThemeDefinition(ThemePaletteConfigurationLoader.LightThemeId, new LocalizedText("Light")),
-                new ThemeDefinition("monochrome", new LocalizedText("Monochrome"))
+                new FixedThemeDefinition(ThemePaletteConfigurationLoader.SystemThemeId, new LocalizedText("System")),
+                new FixedThemeDefinition(ThemePaletteConfigurationLoader.LightThemeId, new LocalizedText("Light")),
+                new FixedThemeDefinition("monochrome", new LocalizedText("Monochrome"))
             ],
             [],
             LoadedFromConfig: true);
@@ -45,8 +45,8 @@ public sealed class ThemeOptionsProviderTests
     {
         var configuration = new ThemePaletteConfiguration(
             [
-                new ThemeDefinition(ThemePaletteConfigurationLoader.LightThemeId, new LocalizedText("Light")),
-                new ThemeDefinition("monochrome", new LocalizedText("Monochrome"))
+                new FixedThemeDefinition(ThemePaletteConfigurationLoader.LightThemeId, new LocalizedText("Light")),
+                new FixedThemeDefinition("monochrome", new LocalizedText("Monochrome"))
             ],
             [],
             LoadedFromConfig: true);
@@ -69,7 +69,7 @@ public sealed class ThemeOptionsProviderTests
     {
         var configuration = new ThemePaletteConfiguration(
             [
-                new ThemeDefinition(
+                new FixedThemeDefinition(
                     ThemePaletteConfigurationLoader.SystemThemeId,
                     new LocalizedText(
                         "System",

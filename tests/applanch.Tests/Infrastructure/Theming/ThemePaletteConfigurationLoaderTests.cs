@@ -173,7 +173,7 @@ public sealed class ThemePaletteConfigurationLoaderTests
     }
 
     [Fact]
-    public void TryLoadFromDirectory_WhenSystemThemeHasEntriesFrom_LoadsSystemThemeEntrySources()
+    public void TryLoadFromDirectory_WhenSystemThemeHasEntriesFrom_LoadsSystemDependentThemeDefinition()
     {
         var root = CreateTempDirectory();
         var appBase = Path.Combine(root, "appbase");
@@ -211,9 +211,53 @@ public sealed class ThemePaletteConfigurationLoaderTests
             var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out var configuration);
 
             Assert.True(loaded);
-            Assert.NotNull(configuration.SystemThemeEntrySources);
-            Assert.Equal("sunrise", configuration.SystemThemeEntrySources![ThemePaletteConfigurationLoader.LightThemeId]);
-            Assert.Equal("midnight", configuration.SystemThemeEntrySources[ThemePaletteConfigurationLoader.DarkThemeId]);
+            var systemTheme = Assert.IsType<SystemDependentThemeDefinition>(
+                Assert.Single(configuration.Themes, t => t.Id == ThemePaletteConfigurationLoader.SystemThemeId));
+            Assert.Equal("sunrise", systemTheme.SourcesByMode[SystemThemeMode.Light]);
+            Assert.Equal("midnight", systemTheme.SourcesByMode[SystemThemeMode.Dark]);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void TryLoadFromDirectory_WhenThemeHasEntriesFromString_LoadsFixedThemeInheritance()
+    {
+        var root = CreateTempDirectory();
+        var appBase = Path.Combine(root, "appbase");
+        Directory.CreateDirectory(Path.Combine(appBase, "Config"));
+        File.WriteAllText(
+            Path.Combine(appBase, "Config", "theme-palette.json"),
+            """
+            {
+                "themes": [
+                    {
+                        "id": "light",
+                        "entries": [
+                            { "key": "Brush.Custom", "hex": "#112233" }
+                        ]
+                    },
+                    {
+                        "id": "sunset",
+                        "entriesFrom": "light",
+                        "entries": [
+                            { "key": "Brush.Custom2", "hex": "#AABBCC" }
+                        ]
+                    }
+                ]
+            }
+            """);
+
+        try
+        {
+            var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out var configuration);
+
+            Assert.True(loaded);
+            var sunsetTheme = Assert.IsType<FixedThemeDefinition>(
+                Assert.Single(configuration.Themes, t => t.Id == "sunset"));
+            Assert.Equal("light", sunsetTheme.InheritedThemeId);
         }
         finally
         {
@@ -435,12 +479,33 @@ public sealed class ThemePaletteConfigurationLoaderTests
         Assert.Contains(merged.Entries, e => e.Key == "Brush.AppBackground");
     }
 
+    [Fact]
+    public void Merge_OverlayThemeDefinitionsOverrideBase()
+    {
+        var @base = new ThemePaletteConfiguration(
+            [
+                new FixedThemeDefinition("light", new LocalizedText("Light")),
+                new FixedThemeDefinition("sunset", new LocalizedText("Sunset"), "light")
+            ],
+            [new ThemePaletteEntry("Brush.AppBackground", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["light"] = "#FFFFFF" })],
+            LoadedFromConfig: true);
+        var overlay = new ThemePaletteConfiguration(
+            [new FixedThemeDefinition("sunset", new LocalizedText("Sunset"), "dark")],
+            [new ThemePaletteEntry("Brush.AppBackground", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = "#FFEECC" })],
+            LoadedFromConfig: true);
+
+        var merged = ThemePaletteConfigurationLoader.Merge(@base, overlay);
+
+        var sunsetTheme = Assert.IsType<FixedThemeDefinition>(Assert.Single(merged.Themes, t => t.Id == "sunset"));
+        Assert.Equal("dark", sunsetTheme.InheritedThemeId);
+    }
+
     private static ThemePaletteConfiguration BuildConfig(
         (string Id, string Name, string Hex)[] themes,
         (string Key, (string ThemeId, string Hex)[] Colors)[] entries)
     {
         var themeDefinitions = themes
-            .Select(t => new ThemeDefinition(t.Id, new LocalizedText(t.Name)))
+            .Select(t => new FixedThemeDefinition(t.Id, new LocalizedText(t.Name)))
             .ToList();
 
         var entryList = entries
@@ -484,3 +549,4 @@ public sealed class ThemePaletteConfigurationLoaderTests
         }
     }
 }
+
