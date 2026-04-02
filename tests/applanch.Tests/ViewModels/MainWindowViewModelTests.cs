@@ -660,7 +660,7 @@ public class MainWindowViewModelTests
         ]);
 
         var vm = CreateViewModel(store: store);
-        var itemB = new LaunchItemViewModel(@"C:\\Tools\\B.exe", "B", "Dev", string.Empty);
+        var itemB = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\\Tools\\B.exe"), "B", "Dev", string.Empty);
 
         vm.InsertItem(itemB, 1);
 
@@ -678,8 +678,8 @@ public class MainWindowViewModelTests
         ]);
 
         var vm = CreateViewModel(store: store);
-        var itemHead = new LaunchItemViewModel(@"C:\\Tools\\Head.exe", "Head", "Dev", string.Empty);
-        var itemTail = new LaunchItemViewModel(@"C:\\Tools\\Tail.exe", "Tail", "Dev", string.Empty);
+        var itemHead = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\\Tools\\Head.exe"), "Head", "Dev", string.Empty);
+        var itemTail = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\\Tools\\Tail.exe"), "Tail", "Dev", string.Empty);
 
         vm.InsertItem(itemHead, -100);
         vm.InsertItem(itemTail, 999);

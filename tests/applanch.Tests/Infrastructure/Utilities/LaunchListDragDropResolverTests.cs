@@ -14,8 +14,8 @@ public class LaunchListDragDropResolverTests
     {
         RunInSta(() =>
         {
-            var first = new LaunchItemViewModel("a", "Dev", string.Empty, "A");
-            var second = new LaunchItemViewModel("b", "Dev", string.Empty, "B");
+            var first = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("a"), "Dev", string.Empty, "A");
+            var second = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("b"), "Dev", string.Empty, "B");
             var items = new List<LaunchItemViewModel> { first, second };
             var data = new DataObject(typeof(LaunchItemViewModel), second);
             var sut = new LaunchListDragDropResolver();
@@ -35,7 +35,7 @@ public class LaunchListDragDropResolverTests
         {
             var items = new List<LaunchItemViewModel>
             {
-                new("a", "Dev", string.Empty, "A")
+                new(new LaunchPath("a"), "Dev", string.Empty, "A")
             };
             var data = new DataObject();
             var sut = new LaunchListDragDropResolver();
@@ -55,9 +55,9 @@ public class LaunchListDragDropResolverTests
         {
             var items = new List<LaunchItemViewModel>
             {
-                new("a", "Dev", string.Empty, "A")
+                new(new LaunchPath("a"), "Dev", string.Empty, "A")
             };
-            var outside = new LaunchItemViewModel("x", "Dev", string.Empty, "X");
+            var outside = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("x"), "Dev", string.Empty, "X");
             var data = new DataObject(typeof(LaunchItemViewModel), outside);
             var sut = new LaunchListDragDropResolver();
 
@@ -76,9 +76,9 @@ public class LaunchListDragDropResolverTests
         {
             var items = new List<LaunchItemViewModel>
             {
-                new("a", "Dev", string.Empty, "A"),
-                new("b", "Dev", string.Empty, "B"),
-                new("c", "Dev", string.Empty, "C")
+                new(new LaunchPath("a"), "Dev", string.Empty, "A"),
+                new(new LaunchPath("b"), "Dev", string.Empty, "B"),
+                new(new LaunchPath("c"), "Dev", string.Empty, "C")
             };
             var listBox = CreateMeasuredListBox();
             var sut = new LaunchListDragDropResolver();
@@ -96,9 +96,9 @@ public class LaunchListDragDropResolverTests
         {
             var items = new List<LaunchItemViewModel>
             {
-                new("a", "Dev", string.Empty, "A"),
-                new("b", "Dev", string.Empty, "B"),
-                new("c", "Dev", string.Empty, "C")
+                new(new LaunchPath("a"), "Dev", string.Empty, "A"),
+                new(new LaunchPath("b"), "Dev", string.Empty, "B"),
+                new(new LaunchPath("c"), "Dev", string.Empty, "C")
             };
             var listBox = CreateMeasuredListBox();
             var sut = new LaunchListDragDropResolver();
@@ -116,9 +116,9 @@ public class LaunchListDragDropResolverTests
         {
             var items = new List<LaunchItemViewModel>
             {
-                new("a", "Dev", string.Empty, "A"),
-                new("b", "Dev", string.Empty, "B"),
-                new("c", "Dev", string.Empty, "C")
+                new(new LaunchPath("a"), "Dev", string.Empty, "A"),
+                new(new LaunchPath("b"), "Dev", string.Empty, "B"),
+                new(new LaunchPath("c"), "Dev", string.Empty, "C")
             };
             var listBox = CreateMeasuredListBox();
             var sut = new LaunchListDragDropResolver();

@@ -1,5 +1,6 @@
 using applanch.Infrastructure.Utilities;
 using Xunit;
+using System.Reflection;
 
 namespace applanch.Tests.Infrastructure.Utilities;
 
@@ -39,5 +40,19 @@ public class LaunchPathTests
 
         Assert.False(created);
         Assert.Equal(default, path);
+    }
+
+    [Fact]
+    public void Type_DoesNotExposeImplicitConversionOperator()
+    {
+        var hasImplicit = typeof(LaunchPath)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .Any(method =>
+                method.Name == "op_Implicit"
+                && method.ReturnType == typeof(LaunchPath)
+                && method.GetParameters() is [{ ParameterType: var sourceType }]
+                && sourceType == typeof(string));
+
+        Assert.False(hasImplicit);
     }
 }

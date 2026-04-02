@@ -56,7 +56,7 @@ public class QuickAddWorkflowTests
         };
         var workflow = new QuickAddWorkflow(resolver);
         var existingItems =
-            new[] { new LaunchItemViewModel(existingPath, "Dev", string.Empty, "App") };
+            new[] { new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(existingPath), "Dev", string.Empty, "App") };
 
         var result = workflow.TryCreateLaunchItem("app", "Dev", string.Empty, existingItems, out var newItem);
 
@@ -76,7 +76,7 @@ public class QuickAddWorkflowTests
         };
         var workflow = new QuickAddWorkflow(resolver);
         var existingItems =
-            new[] { new LaunchItemViewModel(existingPath, "Dev", string.Empty, "App") };
+            new[] { new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(existingPath), "Dev", string.Empty, "App") };
 
         var result = workflow.TryCreateLaunchItem("app", "Dev", string.Empty, existingItems, out var newItem);
 
@@ -96,7 +96,7 @@ public class QuickAddWorkflowTests
         };
         var workflow = new QuickAddWorkflow(resolver);
         var existingItems =
-            new[] { new LaunchItemViewModel(existingPath, "Dev", string.Empty, "App") };
+            new[] { new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(existingPath), "Dev", string.Empty, "App") };
 
         var result = workflow.TryCreateLaunchItem("app", "Dev", string.Empty, existingItems, out var newItem);
 
@@ -116,7 +116,7 @@ public class QuickAddWorkflowTests
         };
         var workflow = new QuickAddWorkflow(resolver);
         var existingItems =
-            new[] { new LaunchItemViewModel(existingPath, "Dev", string.Empty, "Folder") };
+            new[] { new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(existingPath), "Dev", string.Empty, "Folder") };
 
         var result = workflow.TryCreateLaunchItem("folder", "Dev", string.Empty, existingItems, out var newItem);
 

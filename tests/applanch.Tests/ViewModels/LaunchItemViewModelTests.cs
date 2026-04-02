@@ -13,8 +13,7 @@ public class LaunchItemViewModelTests
     [Fact]
     public void Constructor_UsesPathFileName_WhenDisplayNameIsBlank()
     {
-        var vm = new LaunchItemViewModel(
-            fullPath: @"C:\\Tools\\MyApp.exe",
+        var vm = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(fullPath: @"C:\\Tools\\MyApp.exe"),
             category: "Dev",
             arguments: "--help",
             displayName: "   ");
@@ -25,8 +24,7 @@ public class LaunchItemViewModelTests
     [Fact]
     public void Constructor_NormalizesCategoryAndArguments()
     {
-        var vm = new LaunchItemViewModel(
-            fullPath: @"C:\\Tools\\MyApp.exe",
+        var vm = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(fullPath: @"C:\\Tools\\MyApp.exe"),
             category: "  Utilities  ",
             arguments: "  -v  ",
             displayName: "  Custom Name  ");
@@ -39,8 +37,7 @@ public class LaunchItemViewModelTests
     [Fact]
     public void Category_SetWhitespace_FallsBackToDefaultCategory()
     {
-        var vm = new LaunchItemViewModel(
-            fullPath: @"C:\\Tools\\MyApp.exe",
+        var vm = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(fullPath: @"C:\\Tools\\MyApp.exe"),
             category: "Dev",
             arguments: string.Empty,
             displayName: "App");
@@ -53,8 +50,7 @@ public class LaunchItemViewModelTests
     [Fact]
     public void Arguments_SetWhitespace_BecomesEmptyString()
     {
-        var vm = new LaunchItemViewModel(
-            fullPath: @"C:\\Tools\\MyApp.exe",
+        var vm = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(fullPath: @"C:\\Tools\\MyApp.exe"),
             category: "Dev",
             arguments: "abc",
             displayName: "App");
@@ -67,8 +63,7 @@ public class LaunchItemViewModelTests
     [Fact]
     public void PropertyChanged_RaisesOnlyOnEffectiveValueChange()
     {
-        var vm = new LaunchItemViewModel(
-            fullPath: @"C:\\Tools\\MyApp.exe",
+        var vm = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(fullPath: @"C:\\Tools\\MyApp.exe"),
             category: "Dev",
             arguments: "abc",
             displayName: "App");
@@ -93,8 +88,7 @@ public class LaunchItemViewModelTests
     [Fact]
     public void DisplayName_SetWhitespace_FallsBackToFileName_AndRaisesChanged()
     {
-        var vm = new LaunchItemViewModel(
-            fullPath: @"C:\\Tools\\Tool.exe",
+        var vm = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(fullPath: @"C:\\Tools\\Tool.exe"),
             category: "Dev",
             arguments: string.Empty,
             displayName: "Original");
@@ -118,8 +112,7 @@ public class LaunchItemViewModelTests
     [Fact]
     public void IsRenaming_RaisesOnlyOnEffectiveValueChange()
     {
-        var vm = new LaunchItemViewModel(
-            fullPath: @"C:\\Tools\\Tool.exe",
+        var vm = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(fullPath: @"C:\\Tools\\Tool.exe"),
             category: "Dev",
             arguments: string.Empty,
             displayName: "Tool");
@@ -143,8 +136,7 @@ public class LaunchItemViewModelTests
     [Fact]
     public void EditingName_RaisesOnlyOnEffectiveValueChange()
     {
-        var vm = new LaunchItemViewModel(
-            fullPath: @"C:\\Tools\\Tool.exe",
+        var vm = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(fullPath: @"C:\\Tools\\Tool.exe"),
             category: "Dev",
             arguments: string.Empty,
             displayName: "Tool");
@@ -170,8 +162,7 @@ public class LaunchItemViewModelTests
     public void IsPathMissing_WhenPathDoesNotExist_ReturnsTrue()
     {
         var missingPath = Path.Combine(Path.GetTempPath(), $"applanch-missing-{Guid.NewGuid():N}.exe");
-        var vm = new LaunchItemViewModel(
-            fullPath: missingPath,
+        var vm = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(fullPath: missingPath),
             category: "Dev",
             arguments: string.Empty,
             displayName: "Missing");
@@ -185,8 +176,7 @@ public class LaunchItemViewModelTests
         var existingPath = Path.GetTempFileName();
         try
         {
-            var vm = new LaunchItemViewModel(
-                fullPath: existingPath,
+            var vm = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(fullPath: existingPath),
                 category: "Dev",
                 arguments: string.Empty,
                 displayName: "Existing");
@@ -207,8 +197,7 @@ public class LaunchItemViewModelTests
             var initialIcon = CreateDrawingImage();
             var deferredIcon = CreateDrawingImage();
             var provider = new DeferredIconProvider(initialIcon);
-            var vm = new LaunchItemViewModel(
-                fullPath: "https://example.com",
+            var vm = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(fullPath: "https://example.com"),
                 category: "Web",
                 arguments: string.Empty,
                 displayName: "Example",

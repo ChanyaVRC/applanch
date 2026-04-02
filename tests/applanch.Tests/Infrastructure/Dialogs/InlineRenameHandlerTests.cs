@@ -14,7 +14,7 @@ public class InlineRenameHandlerTests
     {
         RunInSta(() =>
         {
-            var item = new LaunchItemViewModel("path", "Dev", string.Empty, "Old")
+            var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "Old")
             {
                 EditingName = "New",
                 IsRenaming = true,
@@ -46,7 +46,7 @@ public class InlineRenameHandlerTests
     {
         RunInSta(() =>
         {
-            var item = new LaunchItemViewModel("path", "Dev", string.Empty, "Old")
+            var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "Old")
             {
                 EditingName = "New",
                 IsRenaming = true,
@@ -66,7 +66,7 @@ public class InlineRenameHandlerTests
     {
         RunInSta(() =>
         {
-            var item = new LaunchItemViewModel("path", "Dev", string.Empty, "Old")
+            var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "Old")
             {
                 EditingName = "New",
                 IsRenaming = true,
@@ -86,7 +86,7 @@ public class InlineRenameHandlerTests
     {
         RunInSta(() =>
         {
-            var item = new LaunchItemViewModel("path", "Dev", string.Empty, "Old")
+            var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "Old")
             {
                 EditingName = "New",
                 IsRenaming = true,
@@ -116,7 +116,7 @@ public class InlineRenameHandlerTests
     {
         RunInSta(() =>
         {
-            var item = new LaunchItemViewModel("path", "Dev", string.Empty, "Old")
+            var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "Old")
             {
                 EditingName = "New",
                 IsRenaming = false,

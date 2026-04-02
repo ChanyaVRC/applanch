@@ -1,5 +1,6 @@
 using applanch.Infrastructure.Items;
 using applanch.Infrastructure.Storage;
+using applanch.Infrastructure.Utilities;
 using applanch.ViewModels;
 using Xunit;
 
@@ -14,7 +15,7 @@ public class DeleteItemWorkflowTests
         var settings = new AppSettings { ConfirmBeforeDelete = true };
         var items = new List<LaunchItemViewModel>
         {
-            new(@"C:\\Tools\\app.exe", "Dev", string.Empty, "App")
+            new(new LaunchPath(@"C:\\Tools\\app.exe"), "Dev", string.Empty, "App")
         };
         var item = items[0];
         var removed = false;
@@ -33,9 +34,9 @@ public class DeleteItemWorkflowTests
         var settings = new AppSettings { ConfirmBeforeDelete = false };
         var items = new List<LaunchItemViewModel>
         {
-            new(@"C:\\Tools\\a.exe", "Dev", string.Empty, "A"),
-            new(@"C:\\Tools\\b.exe", "Dev", string.Empty, "B"),
-            new(@"C:\\Tools\\c.exe", "Dev", string.Empty, "C")
+            new(new LaunchPath(@"C:\\Tools\\a.exe"), "Dev", string.Empty, "A"),
+            new(new LaunchPath(@"C:\\Tools\\b.exe"), "Dev", string.Empty, "B"),
+            new(new LaunchPath(@"C:\\Tools\\c.exe"), "Dev", string.Empty, "C")
         };
         var target = items[1];
 
@@ -51,8 +52,8 @@ public class DeleteItemWorkflowTests
     {
         var workflow = new DeleteItemWorkflow();
         var settings = new AppSettings();
-        var existing = new LaunchItemViewModel(@"C:\\Tools\\a.exe", "Dev", string.Empty, "A");
-        var target = new LaunchItemViewModel(@"C:\\Tools\\x.exe", "Dev", string.Empty, "X");
+        var existing = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\\Tools\\a.exe"), "Dev", string.Empty, "A");
+        var target = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\\Tools\\x.exe"), "Dev", string.Empty, "X");
         var items = new List<LaunchItemViewModel> { existing };
 
         var result = workflow.TryDelete(target, settings, () => true, items, x => items.Remove(x));
