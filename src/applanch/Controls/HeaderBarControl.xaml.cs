@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace applanch.Controls;
 
-public partial class HeaderBarControl : UserControl
+public sealed partial class HeaderBarControl : UserControl
 {
     public HeaderBarControl()
     {

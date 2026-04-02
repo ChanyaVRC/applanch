@@ -8,7 +8,7 @@ using System.Windows.Threading;
 
 namespace applanch.Controls;
 
-public partial class SuggestionInputControl : UserControl
+public sealed partial class SuggestionInputControl : UserControl
 {
     private static readonly string[] EmptySuggestions = [];
 

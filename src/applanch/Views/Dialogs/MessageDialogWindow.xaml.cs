@@ -5,7 +5,7 @@ using applanch.Infrastructure.Theming;
 
 namespace applanch;
 
-public partial class MessageDialogWindow : Window
+public sealed partial class MessageDialogWindow : Window
 {
     public MessageDialogWindow(string message, string caption, MessageBoxImage icon, Window? owner = null)
     {

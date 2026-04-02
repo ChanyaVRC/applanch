@@ -9,7 +9,7 @@ using applanch.Infrastructure.Utilities;
 
 namespace applanch;
 
-public partial class App : Application
+public sealed partial class App : Application
 {
     internal const string RegisterArgument = "--register";
     internal AppEvent Events { get; } = new();

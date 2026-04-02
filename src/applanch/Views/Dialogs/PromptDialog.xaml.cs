@@ -3,7 +3,7 @@ using applanch.Infrastructure.Theming;
 
 namespace applanch;
 
-public partial class PromptDialog : Window
+public sealed partial class PromptDialog : Window
 {
     private readonly bool _useSuggestions;
 

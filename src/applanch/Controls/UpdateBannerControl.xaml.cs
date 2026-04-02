@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace applanch.Controls;
 
-public partial class UpdateBannerControl : UserControl
+public sealed partial class UpdateBannerControl : UserControl
 {
     public UpdateBannerControl()
     {

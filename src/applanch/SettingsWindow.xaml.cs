@@ -4,7 +4,7 @@ using applanch.Infrastructure.Theming;
 
 namespace applanch;
 
-public partial class SettingsWindow : Window
+public sealed partial class SettingsWindow : Window
 {
     private readonly AppEvent _appEvent;
     private SettingsWindowViewModel ViewModel { get; }

@@ -4,7 +4,7 @@ using Strings = applanch.Properties.Resources;
 
 namespace applanch;
 
-public partial class ConfirmationDialogWindow : Window
+public sealed partial class ConfirmationDialogWindow : Window
 {
     public ConfirmationDialogWindow(string message, string caption, Window owner)
     {
