@@ -55,9 +55,8 @@ internal static class ThemePaletteConfigurationLoader
         var builtIn = TryLoadFromDirectory(AppContext.BaseDirectory, out var configuration)
             ? configuration
             : FallbackConfiguration;
-        return TryLoadUserDefined(AppContext.BaseDirectory, out var userDefined)
-            ? Merge(builtIn, userDefined)
-            : builtIn;
+
+        return MergeWithUserDefinedIfAvailable(AppContext.BaseDirectory, builtIn);
     }
 
     internal static bool TryLoadForSettings(out ThemePaletteConfiguration configuration)
@@ -68,10 +67,17 @@ internal static class ThemePaletteConfigurationLoader
             return false;
         }
 
-        configuration = TryLoadUserDefined(AppContext.BaseDirectory, out var userDefined)
+        configuration = MergeWithUserDefinedIfAvailable(AppContext.BaseDirectory, builtIn);
+        return true;
+    }
+
+    private static ThemePaletteConfiguration MergeWithUserDefinedIfAvailable(
+        string appBaseDirectory,
+        ThemePaletteConfiguration builtIn)
+    {
+        return TryLoadUserDefined(appBaseDirectory, out var userDefined)
             ? Merge(builtIn, userDefined)
             : builtIn;
-        return true;
     }
 
     internal static bool TryLoadUserDefined(string appBaseDirectory, out ThemePaletteConfiguration configuration)
@@ -285,23 +291,36 @@ internal static class ThemePaletteConfigurationLoader
             return new FixedThemeDefinition(themeId, displayName);
         }
 
-        if (entriesFromNode.ValueKind == JsonValueKind.String)
+        return entriesFromNode.ValueKind switch
         {
-            var sourceThemeId = NormalizeThemeId(entriesFromNode.GetString());
-            return string.IsNullOrWhiteSpace(sourceThemeId)
-                ? new FixedThemeDefinition(themeId, displayName)
-                : new FixedThemeDefinition(themeId, displayName, sourceThemeId);
-        }
+            JsonValueKind.String => ParseFixedThemeWithInheritance(themeId, displayName, entriesFromNode),
+            JsonValueKind.Object => ParseSystemDependentTheme(themeId, displayName, entriesFromNode),
+            _ => new FixedThemeDefinition(themeId, displayName),
+        };
+    }
 
-        if (entriesFromNode.ValueKind == JsonValueKind.Object)
-        {
-            var sourcesByMode = ParseSystemDependentSourcesByMode(entriesFromNode);
-            return sourcesByMode is null
-                ? new FixedThemeDefinition(themeId, displayName)
-                : new SystemDependentThemeDefinition(themeId, displayName, sourcesByMode);
-        }
+    private static FixedThemeDefinition ParseFixedThemeWithInheritance(
+        string themeId,
+        LocalizedText displayName,
+        JsonElement entriesFromNode)
+    {
+        var sourceThemeId = NormalizeThemeId(entriesFromNode.GetString());
 
-        return new FixedThemeDefinition(themeId, displayName);
+        return string.IsNullOrWhiteSpace(sourceThemeId)
+            ? new FixedThemeDefinition(themeId, displayName)
+            : new FixedThemeDefinition(themeId, displayName, sourceThemeId);
+    }
+
+    private static ThemeDefinition ParseSystemDependentTheme(
+        string themeId,
+        LocalizedText displayName,
+        JsonElement entriesFromNode)
+    {
+        var sourcesByMode = ParseSystemDependentSourcesByMode(entriesFromNode);
+
+        return sourcesByMode is null
+            ? new FixedThemeDefinition(themeId, displayName)
+            : new SystemDependentThemeDefinition(themeId, displayName, sourcesByMode);
     }
 
     private static Dictionary<SystemThemeMode, string>? ParseSystemDependentSourcesByMode(JsonElement entriesFromNode)
