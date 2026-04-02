@@ -6,13 +6,13 @@ using applanch.Infrastructure.Theming;
 
 namespace applanch.Tests.Infrastructure.Theming;
 
-public class ThemeManagerTests
+public class ThemeApplierTests
 {
     [Fact]
     public void ApplyTheme_LightTheme_SetsExpectedPrimaryBrush()
     {
         var resources = new ResourceDictionary();
-        var manager = new ThemeManager(
+        var manager = new ThemeApplier(
             () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.LightThemeId },
             BuildConfiguration());
 
@@ -29,7 +29,7 @@ public class ThemeManagerTests
     public void ApplyTheme_DarkTheme_SetsExpectedPrimaryBrush()
     {
         var resources = new ResourceDictionary();
-        var manager = new ThemeManager(
+        var manager = new ThemeApplier(
             () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.DarkThemeId },
             BuildConfiguration());
 
@@ -46,7 +46,7 @@ public class ThemeManagerTests
     public void ApplyTheme_CustomThemeId_SetsExpectedPrimaryBrush()
     {
         var resources = new ResourceDictionary();
-        var manager = new ThemeManager(
+        var manager = new ThemeApplier(
             () => new AppSettings { ThemeId = "monochrome" },
             BuildConfiguration());
 
@@ -63,7 +63,7 @@ public class ThemeManagerTests
     public void ApplyTheme_UnknownThemeId_FallsBackToLight()
     {
         var resources = new ResourceDictionary();
-        var manager = new ThemeManager(
+        var manager = new ThemeApplier(
             () => new AppSettings { ThemeId = "unknown-theme" },
             BuildConfiguration());
 
@@ -80,7 +80,7 @@ public class ThemeManagerTests
     public void ApplyTheme_WithWindows_StillUpdatesBrushes()
     {
         var resources = new ResourceDictionary();
-        var manager = new ThemeManager(
+        var manager = new ThemeApplier(
             () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.LightThemeId },
             BuildConfiguration());
 
@@ -98,7 +98,7 @@ public class ThemeManagerTests
             [new FixedThemeDefinition("sunset", new LocalizedText("Sunset"))],
             [new ThemePaletteEntry("Brush.Custom", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = "#AABBCC" })],
             LoadedFromConfig: true);
-        var manager = new ThemeManager(
+        var manager = new ThemeApplier(
             () => new AppSettings { ThemeId = "sunset" },
             configuration);
 
@@ -137,7 +137,7 @@ public class ThemeManagerTests
                     })
             ],
             LoadedFromConfig: true);
-        var manager = new ThemeManager(
+        var manager = new ThemeApplier(
             () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.SystemThemeId },
             configuration);
 
@@ -167,7 +167,7 @@ public class ThemeManagerTests
                     })
             ],
             LoadedFromConfig: true);
-        var manager = new ThemeManager(
+        var manager = new ThemeApplier(
             () => new AppSettings { ThemeId = "ocean" },
             configuration);
 
@@ -196,7 +196,7 @@ public class ThemeManagerTests
                     })
             ],
             LoadedFromConfig: true);
-        var manager = new ThemeManager(
+        var manager = new ThemeApplier(
             () => new AppSettings { ThemeId = "alpha" },
             configuration);
 

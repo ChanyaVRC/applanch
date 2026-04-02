@@ -18,26 +18,17 @@ public class SettingsWindowViewModelTests
 
     private static SettingsWindowViewModel Make(
         AppSettings? settings = null,
-        Action<AppSettings>? onCommit = null,
-        Action<AppSettings>? onRefresh = null,
-        List<AppSettings>? saved = null)
+        Action<AppSettings>? onCommit = null)
     {
-        var captures = saved ?? [];
         var appEvent = new AppEvent();
         if (onCommit is not null)
         {
             appEvent.Register(AppEvents.Commit, onCommit);
         }
 
-        if (onRefresh is not null)
-        {
-            appEvent.Register(AppEvents.Refresh, onRefresh);
-        }
-
         return new SettingsWindowViewModel(
             settings ?? new AppSettings(),
             appEvent,
-            s => captures.Add(s),
             () => ThemeOptions);
     }
 
@@ -94,18 +85,6 @@ public class SettingsWindowViewModelTests
     }
 
     [Fact]
-    public void ThemeIndex_Change_CallsOnRefreshWithNewTheme()
-    {
-        AppSettings? refreshed = null;
-        var vm = Make(onRefresh: s => refreshed = s);
-
-        vm.ThemeIndex = 1;
-
-        Assert.NotNull(refreshed);
-        Assert.Equal(ThemePaletteConfigurationLoader.LightThemeId, refreshed!.ThemeId);
-    }
-
-    [Fact]
     public void ThemeIndex_Change_CallsOnCommitWithMonochromeTheme()
     {
         AppSettings? committed = null;
@@ -120,12 +99,12 @@ public class SettingsWindowViewModelTests
     [Fact]
     public void ThemeIndex_SameValue_DoesNotSave()
     {
-        var saved = new List<AppSettings>();
-        var vm = Make(settings: new AppSettings { ThemeId = ThemePaletteConfigurationLoader.LightThemeId }, saved: saved);
+        AppSettings? committed = null;
+        var vm = Make(settings: new AppSettings { ThemeId = ThemePaletteConfigurationLoader.LightThemeId }, onCommit: s => committed = s);
 
         vm.ThemeIndex = 1;
 
-        Assert.Empty(saved);
+        Assert.Null(committed);
     }
 
     // ── CloseOnLaunch ──────────────────────────────────────
@@ -145,12 +124,12 @@ public class SettingsWindowViewModelTests
     [Fact]
     public void CloseOnLaunch_SameValue_DoesNotSave()
     {
-        var saved = new List<AppSettings>();
-        var vm = Make(settings: new AppSettings { CloseOnLaunch = true }, saved: saved);
+        AppSettings? committed = null;
+        var vm = Make(settings: new AppSettings { CloseOnLaunch = true }, onCommit: s => committed = s);
 
         vm.CloseOnLaunch = true;
 
-        Assert.Empty(saved);
+        Assert.Null(committed);
     }
 
     // ── Commit ─────────────────────────────────────────────
@@ -158,27 +137,27 @@ public class SettingsWindowViewModelTests
     [Fact]
     public void Commit_SetsSettingsChanged()
     {
-        var saved = new List<AppSettings>();
-        var vm = Make(saved: saved);
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
 
         vm.DebugUpdate = true;
 
         Assert.True(vm.SettingsChanged);
-        Assert.Single(saved);
+        Assert.NotNull(committed);
     }
 
     [Fact]
     public void Commit_SavesAllCurrentValues()
     {
-        var saved = new List<AppSettings>();
+        AppSettings? committed = null;
         var vm = Make(
             settings: new AppSettings { ThemeId = ThemePaletteConfigurationLoader.SystemThemeId, CloseOnLaunch = true, CheckForUpdatesOnStartup = true, DebugUpdate = false },
-            saved: saved);
+            onCommit: s => committed = s);
 
         vm.ThemeIndex = 2;
         vm.CloseOnLaunch = false;
 
-        var last = saved.Last();
+        var last = Assert.IsType<AppSettings>(committed);
         Assert.Equal(ThemePaletteConfigurationLoader.DarkThemeId, last.ThemeId);
         Assert.False(last.CloseOnLaunch);
     }
@@ -186,12 +165,12 @@ public class SettingsWindowViewModelTests
     [Fact]
     public void PostLaunchBehaviorIndex_Change_UpdatesSavedSettings()
     {
-        var saved = new List<AppSettings>();
-        var vm = Make(saved: saved);
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
 
         vm.PostLaunchBehaviorIndex = (int)PostLaunchBehavior.MinimizeWindow;
 
-        var last = saved.Last();
+        var last = Assert.IsType<AppSettings>(committed);
         Assert.Equal(PostLaunchBehavior.MinimizeWindow, last.PostLaunchBehavior);
         Assert.False(last.CloseOnLaunch);
     }
@@ -199,45 +178,82 @@ public class SettingsWindowViewModelTests
     [Fact]
     public void LanguageIndex_Change_UpdatesSavedSettings()
     {
-        var saved = new List<AppSettings>();
-        var vm = Make(saved: saved);
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
 
         vm.LanguageIndex = (int)LanguageOption.English;
 
-        Assert.Equal(LanguageOption.English, saved.Last().Language);
+        Assert.Equal(LanguageOption.English, committed!.Language);
+    }
+
+    [Fact]
+    public void LanguageIndex_Change_ReloadsThemeOptionsImmediately()
+    {
+        var appEvent = new AppEvent();
+        var providerCallCount = 0;
+        var culturePhase = "before";
+
+        appEvent.Register(AppEvents.Commit, _ => culturePhase = "after");
+
+        IReadOnlyList<ThemeOption> ThemeOptionsProvider()
+        {
+            providerCallCount++;
+            return culturePhase == "before"
+                ?
+                [
+                    new ThemeOption(ThemePaletteConfigurationLoader.SystemThemeId, "System", IsSystemOption: true),
+                    new ThemeOption(ThemePaletteConfigurationLoader.LightThemeId, "Light")
+                ]
+                :
+                [
+                    new ThemeOption(ThemePaletteConfigurationLoader.SystemThemeId, "システム", IsSystemOption: true),
+                    new ThemeOption(ThemePaletteConfigurationLoader.LightThemeId, "ライト")
+                ];
+        }
+
+        var vm = new SettingsWindowViewModel(
+            new AppSettings { Language = LanguageOption.English },
+            appEvent,
+            ThemeOptionsProvider);
+
+        vm.LanguageIndex = (int)LanguageOption.Japanese;
+
+        Assert.Equal(2, providerCallCount);
+        Assert.Equal("after", culturePhase);
+        Assert.Equal("システム", vm.ThemeOptions[0].DisplayName);
     }
 
     [Fact]
     public void LaunchAtWindowsStartup_Change_UpdatesSavedSettings()
     {
-        var saved = new List<AppSettings>();
-        var vm = Make(saved: saved);
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
 
         vm.LaunchAtWindowsStartup = true;
 
-        Assert.True(saved.Last().LaunchAtWindowsStartup);
+        Assert.True(committed!.LaunchAtWindowsStartup);
     }
 
     [Fact]
     public void ConfirmBeforeDelete_Change_UpdatesSavedSettings()
     {
-        var saved = new List<AppSettings>();
-        var vm = Make(saved: saved);
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
 
         vm.ConfirmBeforeDelete = true;
 
-        Assert.True(saved.Last().ConfirmBeforeDelete);
+        Assert.True(committed!.ConfirmBeforeDelete);
     }
 
     [Fact]
     public void AppListSortModeIndex_Change_UpdatesSavedSettings()
     {
-        var saved = new List<AppSettings>();
-        var vm = Make(saved: saved);
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
 
         vm.AppListSortModeIndex = (int)AppListSortMode.CategoryThenName;
 
-        Assert.Equal(AppListSortMode.CategoryThenName, saved.Last().AppListSortMode);
+        Assert.Equal(AppListSortMode.CategoryThenName, committed!.AppListSortMode);
     }
 
     [Fact]
@@ -310,8 +326,8 @@ public class SettingsWindowViewModelTests
     [Fact]
     public void ApplyExternalSettings_UpdatesValuesWithoutSaving()
     {
-        var saved = new List<AppSettings>();
-        var vm = Make(saved: saved);
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
         var refreshed = new AppSettings
         {
             ThemeId = ThemePaletteConfigurationLoader.DarkThemeId,
@@ -328,7 +344,7 @@ public class SettingsWindowViewModelTests
         Assert.False(vm.CloseOnLaunch);
         Assert.False(vm.CheckForUpdatesOnStartup);
         Assert.Equal((int)LanguageOption.Japanese, vm.LanguageIndex);
-        Assert.Empty(saved);
+        Assert.Null(committed);
     }
 
     [Fact]
@@ -355,7 +371,6 @@ public class SettingsWindowViewModelTests
         var vm = new SettingsWindowViewModel(
             new AppSettings { Language = LanguageOption.English },
             appEvent,
-            save: null,
             ThemeOptionsProvider);
 
         vm.ApplyExternalSettings(new AppSettings { Language = LanguageOption.Japanese });

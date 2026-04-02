@@ -67,7 +67,7 @@ internal sealed class LaunchFallbackResolver(LaunchFallbackConfiguration configu
         if (rule.MatchFileNames.Count > 0)
         {
             var fileName = Path.GetFileName(launchPath);
-            if (!rule.MatchFileNames.Any(name => string.Equals(name, fileName, StringComparison.OrdinalIgnoreCase)))
+            if (!rule.MatchFileNames.Contains(fileName, StringComparer.OrdinalIgnoreCase))
             {
                 return false;
             }

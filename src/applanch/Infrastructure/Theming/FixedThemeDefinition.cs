@@ -9,7 +9,7 @@ internal sealed class FixedThemeDefinition(
     internal string? InheritedThemeId { get; } = inheritedThemeId;
 
     internal override IReadOnlyDictionary<string, string> ColorsByKey { get; } =
-        colorsByKey ?? new Dictionary<string, string>(StringComparer.Ordinal);
+        colorsByKey ?? new Dictionary<string, string>();
 
     protected override IEnumerable<string> GetRelatedThemeIds(SystemThemeMode preferredSystemMode)
     {

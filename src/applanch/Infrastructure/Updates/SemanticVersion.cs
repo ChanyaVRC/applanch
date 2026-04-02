@@ -2,7 +2,7 @@ namespace applanch.Infrastructure.Updates;
 
 internal readonly record struct SemanticVersion(int Major, int Minor, int Patch, string Prerelease) : IComparable<SemanticVersion>
 {
-    public bool IsPrerelease => Prerelease.Length > 0;
+    public bool IsPrerelease => !string.IsNullOrEmpty(Prerelease);
 
     public static bool TryParse(string input, out SemanticVersion result)
     {

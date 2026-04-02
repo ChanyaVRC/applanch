@@ -29,7 +29,7 @@ internal sealed class ThemePaletteConfiguration
         IReadOnlyList<ThemeDefinition> themes,
         IReadOnlyList<ThemePaletteEntry> entries)
     {
-        var colorsByThemeId = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
+        var colorsByThemeId = new Dictionary<string, Dictionary<string, string>>();
 
         foreach (var entry in entries)
         {
@@ -37,7 +37,7 @@ internal sealed class ThemePaletteConfiguration
             {
                 if (!colorsByThemeId.TryGetValue(themeId, out var colorsByKey))
                 {
-                    colorsByKey = new Dictionary<string, string>(StringComparer.Ordinal);
+                    colorsByKey = new Dictionary<string, string>();
                     colorsByThemeId[themeId] = colorsByKey;
                 }
 
@@ -62,14 +62,14 @@ internal sealed class ThemePaletteConfiguration
                 fixedTheme.Id,
                 fixedTheme.DisplayName,
                 fixedTheme.InheritedThemeId,
-                new Dictionary<string, string>(colorsByKey, StringComparer.Ordinal)),
+                new Dictionary<string, string>(colorsByKey)),
             _ => theme,
         };
     }
 
     private static ThemePaletteEntry[] BuildEntries(IReadOnlyList<ThemeDefinition> themes)
     {
-        var colorsByEntryKey = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
+        var colorsByEntryKey = new Dictionary<string, Dictionary<string, string>>();
 
         foreach (var theme in themes)
         {
@@ -77,7 +77,7 @@ internal sealed class ThemePaletteConfiguration
             {
                 if (!colorsByEntryKey.TryGetValue(key, out var colorsByThemeId))
                 {
-                    colorsByThemeId = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                    colorsByThemeId = new Dictionary<string, string>();
                     colorsByEntryKey[key] = colorsByThemeId;
                 }
 

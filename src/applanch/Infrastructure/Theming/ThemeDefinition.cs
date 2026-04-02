@@ -8,7 +8,7 @@ internal abstract class ThemeDefinition
         string id,
         LocalizedText displayName)
     {
-        Id = id;
+        Id = id.ToLowerInvariant();
         DisplayName = displayName;
     }
 
@@ -24,9 +24,9 @@ internal abstract class ThemeDefinition
     {
         var allKeys = themesById.Values
             .SelectMany(static theme => theme.ColorsByKey.Keys)
-            .Distinct(StringComparer.Ordinal)
+            .Distinct()
             .ToArray();
-        var brushMap = new Dictionary<string, SolidColorBrush>(allKeys.Length, StringComparer.Ordinal);
+        var brushMap = new Dictionary<string, SolidColorBrush>(allKeys.Length);
 
         foreach (var key in allKeys)
         {
@@ -46,14 +46,14 @@ internal abstract class ThemeDefinition
         IReadOnlyDictionary<string, ThemeDefinition> themesById,
         SystemThemeMode preferredSystemMode)
     {
-        var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var visited = new HashSet<string>();
 
         if (TryResolveHexInGraph(key, themesById, preferredSystemMode, visited, out var hex))
         {
             return hex;
         }
 
-        if (!string.Equals(Id, ThemePaletteConfigurationLoader.LightThemeId, StringComparison.OrdinalIgnoreCase) &&
+        if (Id != ThemePaletteConfigurationLoader.LightThemeId &&
             themesById.TryGetValue(ThemePaletteConfigurationLoader.LightThemeId, out var lightTheme) &&
             lightTheme.TryResolveHexInGraph(key, themesById, preferredSystemMode, visited, out var lightHex))
         {

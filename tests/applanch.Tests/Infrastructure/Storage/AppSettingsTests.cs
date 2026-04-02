@@ -1,10 +1,41 @@
 using applanch.Infrastructure.Storage;
+using applanch.Infrastructure.Theming;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Storage;
 
 public class AppSettingsTests
 {
+    [Fact]
+    public void Normalize_WhenThemeIdIsNull_UsesSystemThemeId()
+    {
+        var settings = new AppSettings { ThemeId = null! };
+
+        var normalized = AppSettings.Normalize(settings);
+
+        Assert.Equal(ThemePaletteConfigurationLoader.SystemThemeId, normalized.ThemeId);
+    }
+
+    [Fact]
+    public void Normalize_WhenThemeIdIsWhitespace_UsesSystemThemeId()
+    {
+        var settings = new AppSettings { ThemeId = "   " };
+
+        var normalized = AppSettings.Normalize(settings);
+
+        Assert.Equal(ThemePaletteConfigurationLoader.SystemThemeId, normalized.ThemeId);
+    }
+
+    [Fact]
+    public void Normalize_WhenThemeIdHasSurroundingSpaces_Trims()
+    {
+        var settings = new AppSettings { ThemeId = "  monochrome  " };
+
+        var normalized = AppSettings.Normalize(settings);
+
+        Assert.Equal("monochrome", normalized.ThemeId);
+    }
+
     [Fact]
     public void ResolvePostLaunchBehavior_UsesExplicitValue_WhenProvided()
     {

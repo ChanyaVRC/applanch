@@ -20,7 +20,7 @@ internal static class ThemeOptionsProvider
         }
 
         var hasSystemTheme = configuration.Themes.Any(static x =>
-            string.Equals(x.Id, ThemePaletteConfigurationLoader.SystemThemeId, StringComparison.OrdinalIgnoreCase));
+            x.Id == ThemePaletteConfigurationLoader.SystemThemeId);
         var options = new List<ThemeOption>(configuration.Themes.Count + (hasSystemTheme ? 0 : 1));
 
         if (!hasSystemTheme)
@@ -34,7 +34,7 @@ internal static class ThemeOptionsProvider
         options.AddRange(configuration.Themes.Select(static x => new ThemeOption(
             x.Id,
             x.DisplayName.ResolveCurrentCulture(),
-            IsSystemOption: string.Equals(x.Id, ThemePaletteConfigurationLoader.SystemThemeId, StringComparison.OrdinalIgnoreCase))));
+            IsSystemOption: x.Id == ThemePaletteConfigurationLoader.SystemThemeId)));
 
         return options;
     }

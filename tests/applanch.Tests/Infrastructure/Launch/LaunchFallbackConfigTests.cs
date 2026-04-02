@@ -1,4 +1,5 @@
 using System.Text.Json;
+using applanch.Infrastructure.Launch;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Launch;
@@ -60,5 +61,37 @@ public class LaunchFallbackConfigTests
 
         Assert.DoesNotContain(rules.EnumerateArray(), rule =>
             rule.GetProperty("name").GetString() == "Custom URI sample");
+    }
+
+    [Fact]
+    public void UserDefinedSampleConfig_InRepository_IsLoadableByCurrentLoader()
+    {
+        var root = CreateTempDirectory();
+        var appBase = Path.Combine(root, "appbase");
+        var userDefinedDirectory = Path.Combine(appBase, "Config", "UserDefined", "launch-fallbacks");
+        Directory.CreateDirectory(userDefinedDirectory);
+
+        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        var samplePath = Path.Combine(projectRoot, "src", "applanch", "Config", "UserDefined", "launch-fallbacks", "launch-fallbacks.sample.json");
+        File.Copy(samplePath, Path.Combine(userDefinedDirectory, "launch-fallbacks.sample.json"));
+
+        try
+        {
+            var configuration = LaunchFallbackConfigurationLoader.LoadFromDirectory(appBase);
+
+            Assert.Equal(2, configuration.Rules.Count);
+            Assert.All(configuration.Rules, static rule => Assert.False(rule.Enabled));
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    private static string CreateTempDirectory()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "applanch-launch-config-tests-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(path);
+        return path;
     }
 }

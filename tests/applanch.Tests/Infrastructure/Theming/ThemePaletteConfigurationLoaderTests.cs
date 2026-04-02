@@ -8,6 +8,46 @@ namespace applanch.Tests.Infrastructure.Theming;
 public sealed class ThemePaletteConfigurationLoaderTests
 {
     [Fact]
+    public void BundledConfig_InRepository_IsLoadableByCurrentLoader()
+    {
+        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        var appBase = Path.Combine(projectRoot, "src", "applanch");
+
+        var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out var configuration);
+
+        Assert.True(loaded);
+        Assert.Contains(configuration.Themes, t => t.Id == ThemePaletteConfigurationLoader.SystemThemeId);
+        Assert.Contains(configuration.Themes, t => t.Id == ThemePaletteConfigurationLoader.LightThemeId);
+        Assert.Contains(configuration.Themes, t => t.Id == ThemePaletteConfigurationLoader.DarkThemeId);
+        Assert.All(configuration.Themes, t => Assert.Equal(t.Id.ToLowerInvariant(), t.Id));
+    }
+
+    [Fact]
+    public void UserDefinedSampleConfig_InRepository_IsLoadableByCurrentLoader()
+    {
+        var root = CreateTempDirectory();
+        var appBase = Path.Combine(root, "appbase");
+        var userDefinedDirectory = Path.Combine(appBase, "Config", "UserDefined", "theme-palette");
+        Directory.CreateDirectory(userDefinedDirectory);
+
+        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        var samplePath = Path.Combine(projectRoot, "src", "applanch", "Config", "UserDefined", "theme-palette", "theme-palette.sample.json");
+        File.Copy(samplePath, Path.Combine(userDefinedDirectory, "theme-palette.sample.json"));
+
+        try
+        {
+            var loaded = ThemePaletteConfigurationLoader.TryLoadUserDefined(appBase, out var configuration);
+
+            Assert.True(loaded);
+            Assert.Contains(configuration.Themes, t => t.Id == "my-theme");
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
     public void TryLoadFromDirectory_LoadsPaletteEntriesFromThemes()
     {
         var root = CreateTempDirectory();

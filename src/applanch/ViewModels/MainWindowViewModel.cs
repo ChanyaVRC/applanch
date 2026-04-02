@@ -165,8 +165,7 @@ public sealed class MainWindowViewModel : ObservableObject
             return Fail(result.Message, result.Severity);
         }
 
-        ArgumentNullException.ThrowIfNull(newItem);
-        LaunchItems.Add(newItem);
+        LaunchItems.Add(newItem!);
         ResetQuickAddFieldsAfterAdd();
         QuickAddFeedback.Message = string.Empty;
         return QuickAddResult.Success();

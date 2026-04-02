@@ -82,6 +82,8 @@ internal static class ThemePaletteConfigurationLoader
 
     internal static bool TryLoadUserDefined(string appBaseDirectory, out ThemePaletteConfiguration configuration)
     {
+        ArgumentNullException.ThrowIfNull(appBaseDirectory);
+
         var userDefinedDirectory = Path.Combine(
             appBaseDirectory,
             "Config",
@@ -122,7 +124,7 @@ internal static class ThemePaletteConfigurationLoader
 
     internal static ThemePaletteConfiguration Merge(ThemePaletteConfiguration @base, ThemePaletteConfiguration overlay)
     {
-        var mergedThemes = @base.Themes.ToDictionary(static theme => theme.Id, StringComparer.OrdinalIgnoreCase);
+        var mergedThemes = @base.Themes.ToDictionary(static theme => theme.Id);
         foreach (var theme in overlay.Themes)
         {
             if (mergedThemes.TryGetValue(theme.Id, out var baseTheme))
@@ -145,7 +147,7 @@ internal static class ThemePaletteConfigurationLoader
         if (@base is FixedThemeDefinition baseFixedTheme &&
             overlay is FixedThemeDefinition overlayFixedTheme)
         {
-            var mergedColors = new Dictionary<string, string>(baseFixedTheme.ColorsByKey, StringComparer.Ordinal);
+            var mergedColors = new Dictionary<string, string>(baseFixedTheme.ColorsByKey);
             foreach (var (key, hex) in overlayFixedTheme.ColorsByKey)
             {
                 mergedColors[key] = hex;
@@ -163,6 +165,8 @@ internal static class ThemePaletteConfigurationLoader
 
     internal static bool TryLoadFromDirectory(string appBaseDirectory, out ThemePaletteConfiguration configuration)
     {
+        ArgumentNullException.ThrowIfNull(appBaseDirectory);
+
         var path = Path.Combine(appBaseDirectory, "Config", "theme-palette.json");
         if (!File.Exists(path))
         {
@@ -176,6 +180,8 @@ internal static class ThemePaletteConfigurationLoader
 
     private static bool TryParseFile(string path, out ThemePaletteConfiguration configuration)
     {
+        ArgumentNullException.ThrowIfNull(path);
+
         try
         {
             using var stream = File.OpenRead(path);
@@ -232,7 +238,7 @@ internal static class ThemePaletteConfigurationLoader
 
         var estimatedThemeCount = themesNode.GetArrayLength();
         var parsedThemes = new List<ThemeDefinition>(estimatedThemeCount);
-        var colorsByEntryKey = new Dictionary<string, Dictionary<string, string>>(estimatedThemeCount, StringComparer.Ordinal);
+        var colorsByEntryKey = new Dictionary<string, Dictionary<string, string>>(estimatedThemeCount);
 
         foreach (var themeNode in themesNode.EnumerateArray())
         {
@@ -242,7 +248,7 @@ internal static class ThemePaletteConfigurationLoader
             }
 
             var themeId = NormalizeThemeId(rawThemeId);
-            if (string.IsNullOrWhiteSpace(themeId))
+            if (string.IsNullOrEmpty(themeId))
             {
                 continue;
             }
@@ -306,7 +312,7 @@ internal static class ThemePaletteConfigurationLoader
     {
         var sourceThemeId = NormalizeThemeId(entriesFromNode.GetString());
 
-        return string.IsNullOrWhiteSpace(sourceThemeId)
+        return string.IsNullOrEmpty(sourceThemeId)
             ? new FixedThemeDefinition(themeId, displayName)
             : new FixedThemeDefinition(themeId, displayName, sourceThemeId);
     }
@@ -347,7 +353,7 @@ internal static class ThemePaletteConfigurationLoader
             }
 
             var sourceThemeId = NormalizeThemeId(property.Value.GetString());
-            if (string.IsNullOrWhiteSpace(sourceThemeId))
+            if (string.IsNullOrEmpty(sourceThemeId))
             {
                 continue;
             }
@@ -366,7 +372,7 @@ internal static class ThemePaletteConfigurationLoader
     {
         if (!byKey.TryGetValue(entryKey, out var colors))
         {
-            colors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            colors = new Dictionary<string, string>();
             byKey[entryKey] = colors;
         }
 
@@ -377,7 +383,7 @@ internal static class ThemePaletteConfigurationLoader
     {
         return new ThemePaletteEntry(
             key,
-            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            new Dictionary<string, string>
             {
                 [LightThemeId] = lightHex,
                 [DarkThemeId] = darkHex,

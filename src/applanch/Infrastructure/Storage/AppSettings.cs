@@ -38,7 +38,22 @@ internal sealed record AppSettings
         try
         {
             var json = File.ReadAllText(FilePath);
-            return JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
+            var loaded = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
+            var normalized = Normalize(loaded);
+
+            if (!string.Equals(loaded.ThemeId, normalized.ThemeId, StringComparison.Ordinal))
+            {
+                try
+                {
+                    normalized.Save();
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Instance.Warn($"Failed to rewrite normalized settings: {ex.Message}");
+                }
+            }
+
+            return normalized;
         }
         catch (Exception ex)
         {
@@ -50,8 +65,25 @@ internal sealed record AppSettings
     public void Save()
     {
         Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
-        var json = JsonSerializer.Serialize(this, JsonOptions);
+        var json = JsonSerializer.Serialize(Normalize(this), JsonOptions);
         File.WriteAllText(FilePath, json);
+    }
+
+    internal static AppSettings Normalize(AppSettings settings)
+    {
+        var themeId = NormalizeThemeId(settings.ThemeId);
+
+        return settings with { ThemeId = themeId };
+    }
+
+    private static string NormalizeThemeId(string? themeId)
+    {
+        if (!string.IsNullOrWhiteSpace(themeId))
+        {
+            return themeId.Trim();
+        }
+
+        return ThemePaletteConfigurationLoader.SystemThemeId;
     }
 
     public PostLaunchBehavior ResolvePostLaunchBehavior() =>

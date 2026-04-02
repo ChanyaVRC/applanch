@@ -4,7 +4,7 @@ using applanch.Infrastructure.Storage;
 
 namespace applanch.Infrastructure.Theming;
 
-internal sealed class ThemeManager
+internal sealed class ThemeApplier
 {
     private const string PersonalizeRegistryPath = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
     private const string AppsUseLightTheme = "AppsUseLightTheme";
@@ -13,20 +13,23 @@ internal sealed class ThemeManager
     private readonly Dictionary<string, ThemeDefinition> _themesById;
     private readonly Func<AppSettings> _settingsProvider;
 
-    public ThemeManager(
+    public ThemeApplier()
+        : this(AppSettings.Load, ThemePaletteConfigurationLoader.LoadForRuntime())
+    {
+    }
+
+    internal ThemeApplier(
         Func<AppSettings>? settingsProvider = null,
         ThemePaletteConfiguration? configuration = null)
     {
         _settingsProvider = settingsProvider ?? AppSettings.Load;
         _configuration = configuration ?? ThemePaletteConfigurationLoader.LoadForRuntime();
-        _themesById = _configuration.Themes.ToDictionary(static x => x.Id, StringComparer.OrdinalIgnoreCase);
+        _themesById = _configuration.Themes.ToDictionary(static x => x.Id);
     }
 
     public void ApplyTheme(ResourceDictionary resources)
     {
-        var preferredMode = ReadWindowsThemePreference()
-            ? SystemThemeMode.Light
-            : SystemThemeMode.Dark;
+        var preferredMode = ReadWindowsThemePreference();
         var selectedTheme = ResolveTheme(_settingsProvider());
         var brushMap = selectedTheme.CreateBrushMap(_themesById, preferredMode);
 
@@ -60,11 +63,11 @@ internal sealed class ThemeManager
             : _themesById.Values.First();
     }
 
-    private static bool ReadWindowsThemePreference()
+    private static SystemThemeMode ReadWindowsThemePreference()
     {
         using var key = Registry.CurrentUser.OpenSubKey(PersonalizeRegistryPath);
         var value = key?.GetValue(AppsUseLightTheme);
-        return value is not int intValue || intValue != 0;
+        return value is int intValue && intValue == 0 ? SystemThemeMode.Dark : SystemThemeMode.Light;
     }
 }
 

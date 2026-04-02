@@ -5,7 +5,7 @@ internal sealed class SystemDependentThemeDefinition(
     LocalizedText displayName,
     IReadOnlyDictionary<SystemThemeMode, string> sourcesByMode) : ThemeDefinition(id, displayName)
 {
-    private static readonly IReadOnlyDictionary<string, string> EmptyColors = new Dictionary<string, string>(StringComparer.Ordinal);
+    private static readonly IReadOnlyDictionary<string, string> EmptyColors = new Dictionary<string, string>();
 
     internal IReadOnlyDictionary<SystemThemeMode, string> SourcesByMode { get; } = sourcesByMode;
 

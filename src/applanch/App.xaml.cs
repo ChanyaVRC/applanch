@@ -15,7 +15,7 @@ public sealed partial class App : Application
     internal const string RegisterArgument = "--register";
     internal AppEvent Events { get; } = new();
     private AppSettings _settings = new();
-    private readonly ThemeManager _themeManager = new(AppSettings.Load);
+    private readonly ThemeApplier _themeApplier = new();
     private readonly ContextMenuRegistrar _contextMenuRegistrar = new();
     private readonly StartupRegistrationService _startupRegistrationService = new();
 
@@ -23,6 +23,7 @@ public sealed partial class App : Application
     {
         base.OnStartup(e);
 
+        Events.Register(AppEvents.Commit, OnSettingsCommitted);
         Events.Register(AppEvents.Refresh, Refresh);
 
         DispatcherUnhandledException += (_, args) =>
@@ -62,15 +63,22 @@ public sealed partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         AppLogger.Instance.Info("Application exiting");
+        Events.Unregister(AppEvents.Commit, OnSettingsCommitted);
         Events.Unregister(AppEvents.Refresh, Refresh);
         SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
         AppLogger.Instance.Dispose();
         base.OnExit(e);
     }
 
+    private void OnSettingsCommitted(AppSettings settings)
+    {
+        settings.Save();
+        Events.Invoke(AppEvents.Refresh, settings);
+    }
+
     private void InitializeEnvironment()
     {
-        _themeManager.ApplyTheme(Resources, Windows.Cast<Window>());
+        _themeApplier.ApplyTheme(Resources, Windows.Cast<Window>());
         SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
 
         LauncherStore.EnsureStorageDirectory();
@@ -83,7 +91,7 @@ public sealed partial class App : Application
         ApplyLanguage(settings.Language);
         ApplyStartupRegistration(settings);
         LocalizedStrings.Instance.NotifyLanguageChanged();
-        _themeManager.ApplyTheme(Resources, Windows.Cast<Window>());
+        _themeApplier.ApplyTheme(Resources, Windows.Cast<Window>());
     }
 
     private void ShowMainWindow()
@@ -134,7 +142,7 @@ public sealed partial class App : Application
         {
             Dispatcher.Invoke(() =>
             {
-                _themeManager.ApplyTheme(Resources, Windows.Cast<Window>());
+                _themeApplier.ApplyTheme(Resources, Windows.Cast<Window>());
             });
         }
     }

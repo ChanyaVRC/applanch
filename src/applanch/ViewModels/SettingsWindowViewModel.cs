@@ -7,7 +7,6 @@ namespace applanch.ViewModels;
 internal sealed class SettingsWindowViewModel : ObservableObject
 {
     private readonly AppEvent _appEvent;
-    private readonly Action<AppSettings> _save;
     private readonly Func<IReadOnlyList<ThemeOption>> _themeOptionsProvider;
     private IReadOnlyList<ThemeOption> _themeOptions;
     private AppSettings _current;
@@ -28,11 +27,9 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     internal SettingsWindowViewModel(
         AppSettings settings,
         AppEvent appEvent,
-        Action<AppSettings>? save = null,
         Func<IReadOnlyList<ThemeOption>>? themeOptionsProvider = null)
     {
         _appEvent = appEvent;
-        _save = save ?? (static s => s.Save());
         _themeOptionsProvider = themeOptionsProvider ?? ThemeOptionsProvider.Load;
         _themeOptions = _themeOptionsProvider();
         _current = settings;
@@ -53,7 +50,26 @@ internal sealed class SettingsWindowViewModel : ObservableObject
                 return;
             }
 
-            var selected = _themeOptions[value];
+            SelectedThemeId = _themeOptions[value].ThemeId;
+        }
+    }
+
+    public string SelectedThemeId
+    {
+        get => _themeId;
+        set
+        {
+            if (!IsThemeSelectionVisible)
+            {
+                return;
+            }
+
+            var selected = _themeOptions.FirstOrDefault(
+                option => string.Equals(option.ThemeId, value, StringComparison.OrdinalIgnoreCase));
+            if (selected is null)
+            {
+                return;
+            }
 
             if (string.Equals(_themeId, selected.ThemeId, StringComparison.OrdinalIgnoreCase))
             {
@@ -62,9 +78,15 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
             _themeId = selected.ThemeId;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(ThemeIndex));
+            OnPropertyChanged(nameof(SelectedThemeDisplayName));
             Commit();
         }
     }
+
+    public string SelectedThemeDisplayName =>
+        _themeOptions.FirstOrDefault(option => string.Equals(option.ThemeId, _themeId, StringComparison.OrdinalIgnoreCase))?.DisplayName
+        ?? string.Empty;
 
     public bool CloseOnLaunch
     {
@@ -211,6 +233,8 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
     private void NotifyAllProperties()
     {
+        OnPropertyChanged(nameof(SelectedThemeId));
+        OnPropertyChanged(nameof(SelectedThemeDisplayName));
         OnPropertyChanged(nameof(ThemeIndex));
         OnPropertyChanged(nameof(PostLaunchBehaviorIndex));
         OnPropertyChanged(nameof(CloseOnLaunch));
@@ -239,6 +263,8 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
     private void Commit()
     {
+        var languageChanged = _current.Language != _language;
+
         _current = _current with
         {
             ThemeId = _themeId,
@@ -255,10 +281,14 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             RunAsAdministrator = _runAsAdministrator,
             Language = _language,
         };
-        _save(_current);
+
         SettingsChanged = true;
         _appEvent.Invoke(AppEvents.Commit, _current);
-        _appEvent.Invoke(AppEvents.Refresh, _current);
+
+        if (languageChanged)
+        {
+            ReloadThemeOptions();
+        }
     }
 
     private void ReloadThemeOptions()
@@ -266,6 +296,9 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         _themeOptions = _themeOptionsProvider();
         OnPropertyChanged(nameof(ThemeOptions));
         OnPropertyChanged(nameof(IsThemeSelectionVisible));
+        OnPropertyChanged(nameof(SelectedThemeId));
+        OnPropertyChanged(nameof(SelectedThemeDisplayName));
+        OnPropertyChanged(nameof(ThemeIndex));
     }
 
     private int ResolveThemeIndex()
