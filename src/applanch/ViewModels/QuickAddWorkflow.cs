@@ -60,5 +60,10 @@ internal sealed class QuickAddWorkflow(IAppResolver appResolver)
         return string.Equals(normalizedLeft, normalizedRight, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string NormalizePath(string path) => PathNormalization.NormalizeForComparison(path);
+    private static string NormalizePath(string path)
+    {
+        return PathNormalization.TryNormalizePersistablePath(path, out var normalizedPath)
+            ? normalizedPath
+            : PathNormalization.NormalizeForComparison(path);
+    }
 }

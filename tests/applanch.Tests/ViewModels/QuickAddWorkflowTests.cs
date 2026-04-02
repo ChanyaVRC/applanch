@@ -162,6 +162,24 @@ public class QuickAddWorkflowTests
     }
 
     [Fact]
+    public void TryCreateLaunchItem_Success_UrlPathIsPreserved()
+    {
+        const string url = "https://example.com/path";
+        var resolver = new FakeResolver
+        {
+            ShouldResolve = true,
+            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(url, "example.com"),
+        };
+        var workflow = new QuickAddWorkflow(resolver);
+
+        var result = workflow.TryCreateLaunchItem("example", "Web", string.Empty, [], out var newItem);
+
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(newItem);
+        Assert.Equal(url, newItem.FullPath);
+    }
+
+    [Fact]
     public void GetSuggestions_DelegatesToResolver()
     {
         var resolver = new FakeResolver
