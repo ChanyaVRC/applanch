@@ -1,6 +1,13 @@
 {
   "themes": [
     {
+      "id": "system",
+      "displayNames": {
+        "en": "System",
+        "ja": "システム"
+      }
+    },
+    {
       "id": "light",
       "displayNames": {
         "en": "Light",

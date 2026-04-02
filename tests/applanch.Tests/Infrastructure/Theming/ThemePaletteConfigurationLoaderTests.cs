@@ -128,6 +128,51 @@ public sealed class ThemePaletteConfigurationLoaderTests
     }
 
     [Fact]
+    public void TryLoadFromDirectory_WhenJsonContainsSystemTheme_LoadsSystemThemeDefinition()
+    {
+        var root = CreateTempDirectory();
+        var appBase = Path.Combine(root, "appbase");
+        Directory.CreateDirectory(Path.Combine(appBase, "Config"));
+        File.WriteAllText(
+            Path.Combine(appBase, "Config", "theme-palette.json"),
+            """
+            {
+                "themes": [
+                    {
+                        "id": "system",
+                        "displayNames": { "en": "System", "ja": "システム" }
+                    },
+                    {
+                        "id": "light",
+                        "entries": [
+                            { "key": "Brush.Custom", "hex": "#112233" }
+                        ]
+                    },
+                    {
+                        "id": "dark",
+                        "entries": [
+                            { "key": "Brush.Custom", "hex": "#445566" }
+                        ]
+                    }
+                ]
+            }
+            """);
+
+        try
+        {
+            var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out var configuration);
+
+            Assert.True(loaded);
+            var systemTheme = Assert.Single(configuration.Themes, t => t.Id == ThemePaletteConfigurationLoader.SystemThemeId);
+            Assert.Equal("システム", systemTheme.DisplayName.Resolve(LanguageOption.Japanese));
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
     public void TryLoadUserDefined_WhenFileAbsent_ReturnsFalse()
     {
         var root = CreateTempDirectory();

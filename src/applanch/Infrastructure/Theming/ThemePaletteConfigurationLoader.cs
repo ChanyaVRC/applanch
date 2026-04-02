@@ -316,7 +316,9 @@ internal static class ThemePaletteConfigurationLoader
         string themeId,
         IReadOnlyDictionary<LanguageOption, string>? displayNames = null)
     {
-        var fallback = string.Equals(themeId, LightThemeId, StringComparison.OrdinalIgnoreCase)
+        var fallback = string.Equals(themeId, SystemThemeId, StringComparison.OrdinalIgnoreCase)
+                ? AppResources.Theme_System
+                : string.Equals(themeId, LightThemeId, StringComparison.OrdinalIgnoreCase)
                 ? AppResources.Theme_Light
                 : string.Equals(themeId, DarkThemeId, StringComparison.OrdinalIgnoreCase)
                     ? AppResources.Theme_Dark
