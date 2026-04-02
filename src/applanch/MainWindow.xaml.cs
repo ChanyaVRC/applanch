@@ -281,7 +281,13 @@ public sealed partial class MainWindow : Window
         ShowFloatingNotification(
             string.Format(Strings.Notification_ItemDeleted, item.DisplayName),
             MessageBoxImage.Information,
-            undoAction: () => ViewModel.InsertItem(item, workflowResult.DeletedIndex));
+            undoAction: () =>
+            {
+                ViewModel.InsertItem(item, workflowResult.DeletedIndex);
+                ShowFloatingNotification(
+                    string.Format(Strings.Notification_ItemRestored, item.DisplayName),
+                    MessageBoxImage.Information);
+            });
     }
 
     private void QuickAddButton_Click(object sender, RoutedEventArgs e)
@@ -317,8 +323,8 @@ public sealed partial class MainWindow : Window
 
     private void UndoButton_Click(object sender, RoutedEventArgs e)
     {
-        ViewModel.FloatingNotification.UndoAction?.Invoke();
         HideFloatingNotification();
+        ViewModel.FloatingNotification.UndoAction?.Invoke();
     }
 
     private void ShowFloatingNotification(string message, MessageBoxImage icon, Action? undoAction = null)
