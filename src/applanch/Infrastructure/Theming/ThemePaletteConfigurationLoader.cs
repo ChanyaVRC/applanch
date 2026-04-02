@@ -12,6 +12,8 @@ internal static class ThemePaletteConfigurationLoader
     internal const string LightThemeId = "light";
     internal const string DarkThemeId = "dark";
 
+    private const string UserDefinedDirectoryName = "UserDefined";
+    private const string UserDefinedFileName = "theme-palette.json";
     private static readonly ThemePaletteConfiguration FallbackConfiguration = new(
         Themes:
         [
@@ -42,13 +44,79 @@ internal static class ThemePaletteConfigurationLoader
         ],
         LoadedFromConfig: false);
 
-    internal static ThemePaletteConfiguration LoadForRuntime() =>
-        TryLoadFromDirectory(AppContext.BaseDirectory, out var configuration)
+    internal static ThemePaletteConfiguration LoadForRuntime()
+    {
+        var builtIn = TryLoadFromDirectory(AppContext.BaseDirectory, out var configuration)
             ? configuration
             : FallbackConfiguration;
+        return TryLoadUserDefined(AppContext.BaseDirectory, out var userDefined)
+            ? Merge(builtIn, userDefined)
+            : builtIn;
+    }
 
-    internal static bool TryLoadForSettings(out ThemePaletteConfiguration configuration) =>
-        TryLoadFromDirectory(AppContext.BaseDirectory, out configuration);
+    internal static bool TryLoadForSettings(out ThemePaletteConfiguration configuration)
+    {
+        if (!TryLoadFromDirectory(AppContext.BaseDirectory, out var builtIn))
+        {
+            configuration = FallbackConfiguration;
+            return false;
+        }
+
+        configuration = TryLoadUserDefined(AppContext.BaseDirectory, out var userDefined)
+            ? Merge(builtIn, userDefined)
+            : builtIn;
+        return true;
+    }
+
+    internal static bool TryLoadUserDefined(string appBaseDirectory, out ThemePaletteConfiguration configuration)
+    {
+        var path = Path.Combine(appBaseDirectory, "Config", UserDefinedDirectoryName, UserDefinedFileName);
+        if (!File.Exists(path))
+        {
+            configuration = FallbackConfiguration;
+            return false;
+        }
+
+        return TryParseFile(path, out configuration);
+    }
+
+    internal static ThemePaletteConfiguration Merge(ThemePaletteConfiguration @base, ThemePaletteConfiguration overlay)
+    {
+        var seenIds = new HashSet<string>(@base.Themes.Select(static t => t.Id), StringComparer.OrdinalIgnoreCase);
+        var mergedThemes = @base.Themes.ToList();
+        foreach (var theme in overlay.Themes)
+        {
+            if (seenIds.Add(theme.Id))
+            {
+                mergedThemes.Add(theme);
+            }
+        }
+
+        var entriesByKey = @base.Entries.ToDictionary(
+            static e => e.Key,
+            static e => new Dictionary<string, string>(e.ColorsByThemeId, StringComparer.OrdinalIgnoreCase),
+            StringComparer.Ordinal);
+
+        foreach (var entry in overlay.Entries)
+        {
+            if (!entriesByKey.TryGetValue(entry.Key, out var colors))
+            {
+                colors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                entriesByKey[entry.Key] = colors;
+            }
+
+            foreach (var (themeId, hex) in entry.ColorsByThemeId)
+            {
+                colors[themeId] = hex;
+            }
+        }
+
+        var mergedEntries = entriesByKey
+            .Select(static kvp => new ThemePaletteEntry(kvp.Key, kvp.Value))
+            .ToArray();
+
+        return new ThemePaletteConfiguration(mergedThemes, mergedEntries, LoadedFromConfig: true);
+    }
 
     internal static bool TryLoadFromDirectory(string appBaseDirectory, out ThemePaletteConfiguration configuration)
     {
@@ -60,6 +128,11 @@ internal static class ThemePaletteConfigurationLoader
             return false;
         }
 
+        return TryParseFile(path, out configuration);
+    }
+
+    private static bool TryParseFile(string path, out ThemePaletteConfiguration configuration)
+    {
         try
         {
             using var stream = File.OpenRead(path);

@@ -1,0 +1,40 @@
+// User-defined theme palette — rename this file to theme-palette.json to activate.
+//
+// Themes defined here are merged with the built-in palette:
+//   - New theme IDs are added to the theme selection list.
+//   - Existing theme IDs (e.g. "light", "dark") have their entries overridden per key.
+//
+// All brush keys must be valid CSS hex colors (#RRGGBB or #AARRGGBB).
+// Missing keys fall back to the built-in color for that theme.
+{
+  "themes": [
+    {
+      "id": "my-theme",
+      "displayNames": {
+        "en": "My Theme",
+        "ja": "マイテーマ"
+      },
+      "entries": [
+        { "key": "Brush.AppBackground",                "hex": "#1E1E2E" },
+        { "key": "Brush.Surface",                      "hex": "#181825" },
+        { "key": "Brush.SurfaceBorder",                "hex": "#313244" },
+        { "key": "Brush.TextPrimary",                  "hex": "#CDD6F4" },
+        { "key": "Brush.TextSecondary",                "hex": "#BAC2DE" },
+        { "key": "Brush.TextTertiary",                 "hex": "#A6ADC8" },
+        { "key": "Brush.ItemBackground",               "hex": "#1E1E2E" },
+        { "key": "Brush.ItemBorder",                   "hex": "#313244" },
+        { "key": "Brush.IconBackground",               "hex": "#313244" },
+        { "key": "Brush.NotificationInfoBackground",   "hex": "#181825" },
+        { "key": "Brush.NotificationInfoBorder",       "hex": "#313244" },
+        { "key": "Brush.NotificationWarningBackground","hex": "#2B2111" },
+        { "key": "Brush.NotificationWarningBorder",    "hex": "#FAB387" },
+        { "key": "Brush.NotificationErrorBackground",  "hex": "#2A1618" },
+        { "key": "Brush.NotificationErrorBorder",      "hex": "#F38BA8" },
+        { "key": "Brush.NotificationProgressTrack",    "hex": "#313244" },
+        { "key": "Brush.NotificationProgressValue",    "hex": "#CBA6F7" },
+        { "key": "Brush.QuickAddInfoText",             "hex": "#FAB387" },
+        { "key": "Brush.QuickAddWarningText",          "hex": "#F38BA8" }
+      ]
+    }
+  ]
+}
