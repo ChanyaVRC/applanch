@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace applanch;
+namespace applanch.ViewModels;
 
 internal sealed class DragReorderState
 {

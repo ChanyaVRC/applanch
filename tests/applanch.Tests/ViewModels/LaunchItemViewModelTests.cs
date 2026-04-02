@@ -1,5 +1,6 @@
 using Xunit;
 using applanch.Infrastructure.Storage;
+using applanch.ViewModels;
 
 namespace applanch.Tests.ViewModels;
 

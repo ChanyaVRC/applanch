@@ -1,6 +1,8 @@
 using Xunit;
+using applanch.Events;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
+using applanch.ViewModels;
 
 namespace applanch.Tests;
 

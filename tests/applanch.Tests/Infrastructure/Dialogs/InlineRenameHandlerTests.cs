@@ -2,6 +2,7 @@ using System.Runtime.ExceptionServices;
 using System.Windows.Controls;
 using System.Windows.Input;
 using applanch.Infrastructure.Dialogs;
+using applanch.ViewModels;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Dialogs;

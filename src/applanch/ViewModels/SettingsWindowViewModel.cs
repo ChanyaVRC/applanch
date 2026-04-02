@@ -1,7 +1,8 @@
+using applanch.Events;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
 
-namespace applanch;
+namespace applanch.ViewModels;
 
 internal sealed class SettingsWindowViewModel : ObservableObject
 {

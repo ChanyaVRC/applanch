@@ -2,6 +2,7 @@ using Microsoft.Win32;
 using System.IO;
 using System.Globalization;
 using System.Windows;
+using applanch.Events;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;

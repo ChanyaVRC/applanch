@@ -1,3 +1,4 @@
+using applanch.Events;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Updates;
 using Xunit;

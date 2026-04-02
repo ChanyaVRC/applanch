@@ -1,4 +1,5 @@
 using applanch.Tests.ViewModels.TestDoubles;
+using applanch.ViewModels;
 using Xunit;
 
 namespace applanch.Tests.ViewModels;

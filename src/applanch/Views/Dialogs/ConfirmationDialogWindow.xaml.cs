@@ -2,7 +2,7 @@ using System.Windows;
 using applanch.Infrastructure.Theming;
 using Strings = applanch.Properties.Resources;
 
-namespace applanch;
+namespace applanch.Views.Dialogs;
 
 public sealed partial class ConfirmationDialogWindow : Window
 {

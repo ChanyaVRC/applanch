@@ -5,10 +5,11 @@ using System.ComponentModel;
 using System.Resources;
 using System.Windows;
 using System.Windows.Data;
+using applanch.Helpers;
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
 
-namespace applanch;
+namespace applanch.ViewModels;
 
 public sealed class MainWindowViewModel : ObservableObject
 {

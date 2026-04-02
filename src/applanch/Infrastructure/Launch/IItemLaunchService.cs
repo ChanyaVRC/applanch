@@ -1,3 +1,5 @@
+using applanch.ViewModels;
+
 namespace applanch.Infrastructure.Launch;
 
 internal interface IItemLaunchService

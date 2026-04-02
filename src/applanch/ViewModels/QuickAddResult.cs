@@ -1,4 +1,4 @@
-namespace applanch;
+namespace applanch.ViewModels;
 
 public readonly record struct QuickAddResult(bool IsSuccess, string Message, QuickAddMessageSeverity Severity)
 {

@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using applanch.Infrastructure.Theming;
 
-namespace applanch;
+namespace applanch.Views.Dialogs;
 
 public sealed partial class PromptDialog : Window
 {

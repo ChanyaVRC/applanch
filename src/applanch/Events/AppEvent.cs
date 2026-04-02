@@ -1,7 +1,7 @@
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Updates;
 
-namespace applanch;
+namespace applanch.Events;
 
 internal sealed class AppEvent
 {

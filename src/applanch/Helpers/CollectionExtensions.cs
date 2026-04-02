@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
 
-namespace applanch;
+namespace applanch.Helpers;
 
 internal static class CollectionExtensions
 {

@@ -2,6 +2,7 @@ using System.Runtime.ExceptionServices;
 using System.Windows;
 using System.Windows.Controls;
 using applanch.Infrastructure.Utilities;
+using applanch.ViewModels;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Utilities;

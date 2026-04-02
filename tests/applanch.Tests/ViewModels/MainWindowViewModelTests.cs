@@ -4,6 +4,7 @@ using System.Globalization;
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
 using applanch.Tests.ViewModels.TestDoubles;
+using applanch.ViewModels;
 
 namespace applanch.Tests.ViewModels;
 

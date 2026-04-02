@@ -7,7 +7,7 @@ using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Utilities;
 
-namespace applanch;
+namespace applanch.ViewModels;
 
 public sealed class LaunchItemViewModel : ObservableObject
 {

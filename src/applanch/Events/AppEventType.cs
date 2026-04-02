@@ -1,4 +1,4 @@
-namespace applanch;
+namespace applanch.Events;
 
 internal enum AppEventType
 {

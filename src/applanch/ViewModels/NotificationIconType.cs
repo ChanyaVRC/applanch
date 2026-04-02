@@ -1,4 +1,4 @@
-namespace applanch;
+namespace applanch.ViewModels;
 
 public enum NotificationIconType
 {

@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace applanch;
+namespace applanch.ViewModels;
 
 public abstract class ObservableObject : INotifyPropertyChanged
 {

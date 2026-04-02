@@ -1,5 +1,6 @@
 using applanch.Infrastructure.Launch;
 using applanch.Infrastructure.Storage;
+using applanch.ViewModels;
 using System.Windows;
 using Xunit;
 

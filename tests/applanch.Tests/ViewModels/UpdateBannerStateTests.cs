@@ -1,4 +1,5 @@
 using System.Windows;
+using applanch.ViewModels;
 using Xunit;
 
 namespace applanch.Tests.ViewModels;

@@ -1,7 +1,7 @@
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Utilities;
 
-namespace applanch;
+namespace applanch.ViewModels;
 
 internal sealed class QuickAddWorkflow(IAppResolver appResolver)
 {

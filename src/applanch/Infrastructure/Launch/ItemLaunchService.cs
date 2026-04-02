@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using applanch.Infrastructure.Utilities;
+using applanch.ViewModels;
 
 namespace applanch.Infrastructure.Launch;
 

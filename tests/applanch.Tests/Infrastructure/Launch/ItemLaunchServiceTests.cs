@@ -4,6 +4,7 @@ using System.Diagnostics;
 using applanch.Infrastructure.Launch;
 using applanch.Tests.Infrastructure.Launch.TestDoubles;
 using applanch.Tests.TestSupport;
+using applanch.ViewModels;
 
 namespace applanch.Tests.Infrastructure.Launch;
 

@@ -1,4 +1,4 @@
-<Window x:Class="applanch.ConfirmationDialogWindow"
+<Window x:Class="applanch.Views.Dialogs.ConfirmationDialogWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         SizeToContent="Height"
