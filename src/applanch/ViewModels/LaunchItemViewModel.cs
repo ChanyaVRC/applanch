@@ -20,13 +20,8 @@ public sealed class LaunchItemViewModel : ObservableObject
     private ImageSource? _iconSource;
     private int _iconRefreshVersion;
 
-    public LaunchItemViewModel(string fullPath, string category, string arguments, string displayName)
-        : this(new LaunchPath(fullPath), category, arguments, displayName, null)
-    {
-    }
-
-    internal LaunchItemViewModel(string fullPath, string category, string arguments, string displayName, ILaunchItemIconProvider? iconProvider)
-        : this(new LaunchPath(fullPath), category, arguments, displayName, iconProvider)
+    public LaunchItemViewModel(LaunchPath fullPath, string category, string arguments, string displayName)
+        : this(fullPath, category, arguments, displayName, null)
     {
     }
 

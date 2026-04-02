@@ -39,6 +39,8 @@ public readonly struct LaunchPath : IEquatable<LaunchPath>
         return true;
     }
 
+    public static implicit operator LaunchPath(string fullPath) => new(fullPath);
+
     public override string ToString() => Value;
 
     public bool Equals(LaunchPath other) =>
