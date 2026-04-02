@@ -30,12 +30,12 @@
                     <ControlTemplate TargetType="CheckBox">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="10"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Border x:Name="Track"
-                                    Grid.Column="0"
+                                    Grid.Column="2"
                                     Width="42"
                                     Height="24"
                                     Background="{DynamicResource Brush.Surface}"
@@ -49,7 +49,7 @@
                                          HorizontalAlignment="Left"
                                          Fill="{DynamicResource Brush.TextTertiary}"/>
                             </Border>
-                            <ContentPresenter Grid.Column="2"
+                            <ContentPresenter Grid.Column="0"
                                               VerticalAlignment="Center"
                                               RecognizesAccessKey="True"/>
                         </Grid>
