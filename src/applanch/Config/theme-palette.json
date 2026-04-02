@@ -3,8 +3,8 @@
     {
       "id": "system",
       "displayNames": {
-        "en": "System",
-        "ja": "システム"
+        "en": "Follow system",
+        "ja": "システムに従う"
       },
       "entriesFrom": {
         "light": "light",
