@@ -15,7 +15,6 @@ internal static class ThemePaletteConfigurationLoader
     private const string UserDefinedDirectoryName = "UserDefined";
     private const string UserDefinedThemePaletteDirectoryName = "theme-palette";
     private static readonly ThemePaletteConfiguration FallbackConfiguration = new(
-        Themes:
         [
             new FixedThemeDefinition(LightThemeId, ResolveDisplayName(LightThemeId)),
             new FixedThemeDefinition(DarkThemeId, ResolveDisplayName(DarkThemeId)),
@@ -28,7 +27,6 @@ internal static class ThemePaletteConfigurationLoader
                     [SystemThemeMode.Dark] = DarkThemeId,
                 })
         ],
-        Entries:
         [
             FallbackEntry("Brush.AppBackground", "#F1F5F9", "#0B1220"),
             FallbackEntry("Brush.Surface", "#FFFFFF", "#131D31"),
@@ -118,47 +116,43 @@ internal static class ThemePaletteConfigurationLoader
 
     internal static ThemePaletteConfiguration Merge(ThemePaletteConfiguration @base, ThemePaletteConfiguration overlay)
     {
-        var mergedThemes = @base.Themes.ToList();
+        var mergedThemes = @base.Themes.ToDictionary(static theme => theme.Id, StringComparer.OrdinalIgnoreCase);
         foreach (var theme in overlay.Themes)
         {
-            var existingIndex = mergedThemes.FindIndex(x => string.Equals(x.Id, theme.Id, StringComparison.OrdinalIgnoreCase));
-            if (existingIndex >= 0)
+            if (mergedThemes.TryGetValue(theme.Id, out var baseTheme))
             {
-                mergedThemes[existingIndex] = theme;
+                mergedThemes[theme.Id] = MergeTheme(baseTheme, theme);
             }
             else
             {
-                mergedThemes.Add(theme);
+                mergedThemes[theme.Id] = theme;
             }
         }
-
-        var entriesByKey = @base.Entries.ToDictionary(
-            static e => e.Key,
-            static e => new Dictionary<string, string>(e.ColorsByThemeId, StringComparer.OrdinalIgnoreCase),
-            StringComparer.Ordinal);
-
-        foreach (var entry in overlay.Entries)
-        {
-            if (!entriesByKey.TryGetValue(entry.Key, out var colors))
-            {
-                colors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                entriesByKey[entry.Key] = colors;
-            }
-
-            foreach (var (themeId, hex) in entry.ColorsByThemeId)
-            {
-                colors[themeId] = hex;
-            }
-        }
-
-        var mergedEntries = entriesByKey
-            .Select(static kvp => new ThemePaletteEntry(kvp.Key, kvp.Value))
-            .ToArray();
 
         return new ThemePaletteConfiguration(
-            mergedThemes,
-            mergedEntries,
+            mergedThemes.Values.ToArray(),
             LoadedFromConfig: true);
+    }
+
+    private static ThemeDefinition MergeTheme(ThemeDefinition @base, ThemeDefinition overlay)
+    {
+        if (@base is FixedThemeDefinition baseFixedTheme &&
+            overlay is FixedThemeDefinition overlayFixedTheme)
+        {
+            var mergedColors = new Dictionary<string, string>(baseFixedTheme.ColorsByKey, StringComparer.Ordinal);
+            foreach (var (key, hex) in overlayFixedTheme.ColorsByKey)
+            {
+                mergedColors[key] = hex;
+            }
+
+            return new FixedThemeDefinition(
+                overlayFixedTheme.Id,
+                overlayFixedTheme.DisplayName,
+                overlayFixedTheme.InheritedThemeId,
+                mergedColors);
+        }
+
+        return overlay;
     }
 
     internal static bool TryLoadFromDirectory(string appBaseDirectory, out ThemePaletteConfiguration configuration)

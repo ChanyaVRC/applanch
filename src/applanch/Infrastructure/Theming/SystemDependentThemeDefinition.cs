@@ -5,12 +5,21 @@ internal sealed class SystemDependentThemeDefinition(
     LocalizedText displayName,
     IReadOnlyDictionary<SystemThemeMode, string> sourcesByMode) : ThemeDefinition(id, displayName)
 {
-    private readonly IReadOnlyDictionary<SystemThemeMode, string> _sourcesByMode = sourcesByMode;
+    private static readonly IReadOnlyDictionary<string, string> EmptyColors = new Dictionary<string, string>(StringComparer.Ordinal);
 
-    internal IReadOnlyDictionary<SystemThemeMode, string> SourcesByMode => _sourcesByMode;
+    internal IReadOnlyDictionary<SystemThemeMode, string> SourcesByMode { get; } = sourcesByMode;
 
-    internal bool TryResolveSystemSource(SystemThemeMode mode, out string sourceThemeId)
+    internal override IReadOnlyDictionary<string, string> ColorsByKey => EmptyColors;
+
+    protected override IEnumerable<string> GetRelatedThemeIds(SystemThemeMode preferredSystemMode)
     {
-        return _sourcesByMode.TryGetValue(mode, out sourceThemeId!);
+        if (SourcesByMode.TryGetValue(preferredSystemMode, out var sourceThemeId))
+        {
+            yield return sourceThemeId;
+        }
+
+        yield return preferredSystemMode == SystemThemeMode.Light
+            ? ThemePaletteConfigurationLoader.LightThemeId
+            : ThemePaletteConfigurationLoader.DarkThemeId;
     }
 }
