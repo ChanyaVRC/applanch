@@ -1,11 +1,9 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
 
 namespace applanch;
 
-internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
+internal sealed class SettingsWindowViewModel : ObservableObject
 {
     private readonly AppEvent _appEvent;
     private readonly Action<AppSettings> _save;
@@ -38,20 +36,7 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
         _themeOptionsProvider = themeOptionsProvider ?? ThemeOptionsProvider.Load;
         _themeOptions = _themeOptionsProvider();
         _current = settings;
-        _themeMode = settings.Theme;
-        _themeId = settings.ThemeId;
-        _postLaunchBehavior = settings.ResolvePostLaunchBehavior();
-        _closeOnLaunch = settings.CloseOnLaunch;
-        _checkForUpdatesOnStartup = settings.CheckForUpdatesOnStartup;
-        _debugUpdate = settings.DebugUpdate;
-        _startMinimizedOnLaunch = settings.StartMinimizedOnLaunch;
-        _launchAtWindowsStartup = settings.LaunchAtWindowsStartup;
-        _confirmBeforeLaunch = settings.ConfirmBeforeLaunch;
-        _confirmBeforeDelete = settings.ConfirmBeforeDelete;
-        _categorySortMode = settings.CategorySortMode;
-        _appListSortMode = settings.AppListSortMode;
-        _runAsAdministrator = settings.RunAsAdministrator;
-        _language = settings.Language;
+        LoadFields(settings);
     }
 
     public IReadOnlyList<ThemeOption> ThemeOptions => _themeOptions;
@@ -131,161 +116,61 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
     public bool CheckForUpdatesOnStartup
     {
         get => _checkForUpdatesOnStartup;
-        set
-        {
-            if (_checkForUpdatesOnStartup == value)
-            {
-                return;
-            }
-
-            _checkForUpdatesOnStartup = value;
-            OnPropertyChanged();
-            Commit();
-        }
+        set => SetFieldAndCommit(ref _checkForUpdatesOnStartup, value);
     }
 
     public bool DebugUpdate
     {
         get => _debugUpdate;
-        set
-        {
-            if (_debugUpdate == value)
-            {
-                return;
-            }
-
-            _debugUpdate = value;
-            OnPropertyChanged();
-            Commit();
-        }
+        set => SetFieldAndCommit(ref _debugUpdate, value);
     }
 
     public bool StartMinimizedOnLaunch
     {
         get => _startMinimizedOnLaunch;
-        set
-        {
-            if (_startMinimizedOnLaunch == value)
-            {
-                return;
-            }
-
-            _startMinimizedOnLaunch = value;
-            OnPropertyChanged();
-            Commit();
-        }
+        set => SetFieldAndCommit(ref _startMinimizedOnLaunch, value);
     }
 
     public bool LaunchAtWindowsStartup
     {
         get => _launchAtWindowsStartup;
-        set
-        {
-            if (_launchAtWindowsStartup == value)
-            {
-                return;
-            }
-
-            _launchAtWindowsStartup = value;
-            OnPropertyChanged();
-            Commit();
-        }
+        set => SetFieldAndCommit(ref _launchAtWindowsStartup, value);
     }
 
     public bool ConfirmBeforeLaunch
     {
         get => _confirmBeforeLaunch;
-        set
-        {
-            if (_confirmBeforeLaunch == value)
-            {
-                return;
-            }
-
-            _confirmBeforeLaunch = value;
-            OnPropertyChanged();
-            Commit();
-        }
+        set => SetFieldAndCommit(ref _confirmBeforeLaunch, value);
     }
 
     public bool ConfirmBeforeDelete
     {
         get => _confirmBeforeDelete;
-        set
-        {
-            if (_confirmBeforeDelete == value)
-            {
-                return;
-            }
-
-            _confirmBeforeDelete = value;
-            OnPropertyChanged();
-            Commit();
-        }
+        set => SetFieldAndCommit(ref _confirmBeforeDelete, value);
     }
 
     public int CategorySortModeIndex
     {
         get => (int)_categorySortMode;
-        set
-        {
-            if ((int)_categorySortMode == value)
-            {
-                return;
-            }
-
-            _categorySortMode = (CategorySortMode)value;
-            OnPropertyChanged();
-            Commit();
-        }
+        set => SetFieldAndCommit(ref _categorySortMode, (CategorySortMode)value);
     }
 
     public int AppListSortModeIndex
     {
         get => (int)_appListSortMode;
-        set
-        {
-            if ((int)_appListSortMode == value)
-            {
-                return;
-            }
-
-            _appListSortMode = (AppListSortMode)value;
-            OnPropertyChanged();
-            Commit();
-        }
+        set => SetFieldAndCommit(ref _appListSortMode, (AppListSortMode)value);
     }
 
     public bool RunAsAdministrator
     {
         get => _runAsAdministrator;
-        set
-        {
-            if (_runAsAdministrator == value)
-            {
-                return;
-            }
-
-            _runAsAdministrator = value;
-            OnPropertyChanged();
-            Commit();
-        }
+        set => SetFieldAndCommit(ref _runAsAdministrator, value);
     }
 
     public int LanguageIndex
     {
         get => (int)_language;
-        set
-        {
-            if ((int)_language == value)
-            {
-                return;
-            }
-
-            _language = (LanguageOption)value;
-            OnPropertyChanged();
-            Commit();
-        }
+        set => SetFieldAndCommit(ref _language, (LanguageOption)value);
     }
 
     public bool SettingsChanged { get; private set; }
@@ -293,8 +178,34 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
     internal void ApplyExternalSettings(AppSettings settings)
     {
         var languageChanged = _language != settings.Language;
-
         _current = settings;
+        LoadFields(settings);
+
+        if (languageChanged)
+        {
+            ReloadThemeOptions();
+        }
+
+        NotifyAllProperties();
+    }
+
+    internal void ResetToDefaults()
+    {
+        var defaults = new AppSettings();
+        var languageChanged = _language != defaults.Language;
+        LoadFields(defaults);
+
+        if (languageChanged)
+        {
+            ReloadThemeOptions();
+        }
+
+        NotifyAllProperties();
+        Commit();
+    }
+
+    private void LoadFields(AppSettings settings)
+    {
         _themeMode = settings.Theme;
         _themeId = settings.ThemeId;
         _postLaunchBehavior = settings.ResolvePostLaunchBehavior();
@@ -309,12 +220,10 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
         _appListSortMode = settings.AppListSortMode;
         _runAsAdministrator = settings.RunAsAdministrator;
         _language = settings.Language;
+    }
 
-        if (languageChanged)
-        {
-            ReloadThemeOptions();
-        }
-
+    private void NotifyAllProperties()
+    {
         OnPropertyChanged(nameof(ThemeIndex));
         OnPropertyChanged(nameof(PostLaunchBehaviorIndex));
         OnPropertyChanged(nameof(CloseOnLaunch));
@@ -330,42 +239,15 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(LanguageIndex));
     }
 
-    internal void ResetToDefaults()
+    private bool SetFieldAndCommit<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
     {
-        var defaults = new AppSettings();
-        var languageChanged = _language != defaults.Language;
-        _themeMode = defaults.Theme;
-        _themeId = defaults.ThemeId;
-        _postLaunchBehavior = defaults.ResolvePostLaunchBehavior();
-        _closeOnLaunch = defaults.CloseOnLaunch;
-        _checkForUpdatesOnStartup = defaults.CheckForUpdatesOnStartup;
-        _debugUpdate = defaults.DebugUpdate;
-        _startMinimizedOnLaunch = defaults.StartMinimizedOnLaunch;
-        _launchAtWindowsStartup = defaults.LaunchAtWindowsStartup;
-        _confirmBeforeLaunch = defaults.ConfirmBeforeLaunch;
-        _confirmBeforeDelete = defaults.ConfirmBeforeDelete;
-        _categorySortMode = defaults.CategorySortMode;
-        _appListSortMode = defaults.AppListSortMode;
-        _runAsAdministrator = defaults.RunAsAdministrator;
-        _language = defaults.Language;
-        if (languageChanged)
+        if (!SetField(ref field, value, propertyName))
         {
-            ReloadThemeOptions();
+            return false;
         }
-        OnPropertyChanged(nameof(ThemeIndex));
-        OnPropertyChanged(nameof(PostLaunchBehaviorIndex));
-        OnPropertyChanged(nameof(CloseOnLaunch));
-        OnPropertyChanged(nameof(CheckForUpdatesOnStartup));
-        OnPropertyChanged(nameof(DebugUpdate));
-        OnPropertyChanged(nameof(StartMinimizedOnLaunch));
-        OnPropertyChanged(nameof(LaunchAtWindowsStartup));
-        OnPropertyChanged(nameof(ConfirmBeforeLaunch));
-        OnPropertyChanged(nameof(ConfirmBeforeDelete));
-        OnPropertyChanged(nameof(CategorySortModeIndex));
-        OnPropertyChanged(nameof(AppListSortModeIndex));
-        OnPropertyChanged(nameof(RunAsAdministrator));
-        OnPropertyChanged(nameof(LanguageIndex));
+
         Commit();
+        return true;
     }
 
     private void Commit()
@@ -392,8 +274,6 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
         _appEvent.Invoke(AppEvents.Commit, _current);
         _appEvent.Invoke(AppEvents.Refresh, _current);
     }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     private void ReloadThemeOptions()
     {
@@ -428,7 +308,4 @@ internal sealed class SettingsWindowViewModel : INotifyPropertyChanged
             .FirstOrDefault(x => string.Equals(x.Item1.ThemeId, targetThemeId, StringComparison.OrdinalIgnoreCase), (_themeOptions[0], 0))
             .Item2;
     }
-
-    private void OnPropertyChanged([CallerMemberName] string? name = null) =>
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }

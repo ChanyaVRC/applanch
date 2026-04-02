@@ -1,16 +1,12 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows;
 
 namespace applanch;
 
-public sealed class UpdateBannerState : INotifyPropertyChanged
+public sealed class UpdateBannerState : ObservableObject
 {
     private string _message = string.Empty;
     private Visibility _bannerVisibility = Visibility.Collapsed;
     private Visibility _headerButtonVisibility = Visibility.Collapsed;
-
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     public string Message
     {
@@ -28,17 +24,5 @@ public sealed class UpdateBannerState : INotifyPropertyChanged
     {
         get => _headerButtonVisibility;
         internal set => SetField(ref _headerButtonVisibility, value);
-    }
-
-    private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
-    {
-        if (Equals(field, value))
-        {
-            return false;
-        }
-
-        field = value;
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        return true;
     }
 }

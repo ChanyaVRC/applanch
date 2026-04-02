@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Resources;
 using System.Windows;
 using System.Windows.Data;
@@ -11,7 +10,7 @@ using applanch.Infrastructure.Storage;
 
 namespace applanch;
 
-public sealed class MainWindowViewModel : INotifyPropertyChanged
+public sealed class MainWindowViewModel : ObservableObject
 {
     private static string AllCategoriesLabel => AppResources.AllCategories;
     private static readonly HashSet<string> KnownAllCategoriesLabels = BuildKnownAllCategoriesLabels();
@@ -64,8 +63,6 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         SelectedLaunchItem = LaunchItems.FirstOrDefault();
         RefreshQuickAddSuggestions();
     }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     public ObservableCollection<LaunchItemViewModel> LaunchItems { get; }
 
@@ -502,19 +499,4 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
             target.Add(value);
         }
     }
-
-    private bool SetField(ref string field, string value, [CallerMemberName] string propertyName = "")
-    {
-        if (field == value)
-        {
-            return false;
-        }
-
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
-    }
-
-    private void OnPropertyChanged([CallerMemberName] string propertyName = "") =>
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

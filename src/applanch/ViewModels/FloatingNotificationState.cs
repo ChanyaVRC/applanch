@@ -1,16 +1,12 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows;
 
 namespace applanch;
 
-public sealed class FloatingNotificationState : INotifyPropertyChanged
+public sealed class FloatingNotificationState : ObservableObject
 {
     private string _message = string.Empty;
     private NotificationIconType _iconType;
     private Action? _undoAction;
-
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     public string Message
     {
@@ -31,22 +27,10 @@ public sealed class FloatingNotificationState : INotifyPropertyChanged
         {
             if (SetField(ref _undoAction, value))
             {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UndoVisibility)));
+                OnPropertyChanged(nameof(UndoVisibility));
             }
         }
     }
 
     public Visibility UndoVisibility => _undoAction is null ? Visibility.Collapsed : Visibility.Visible;
-
-    private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
-    {
-        if (Equals(field, value))
-        {
-            return false;
-        }
-
-        field = value;
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        return true;
-    }
 }

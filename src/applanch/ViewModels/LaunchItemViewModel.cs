@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -10,7 +9,7 @@ using applanch.Infrastructure.Utilities;
 
 namespace applanch;
 
-public sealed class LaunchItemViewModel : INotifyPropertyChanged
+public sealed class LaunchItemViewModel : ObservableObject
 {
     private string _displayName;
     private string _category;
@@ -27,8 +26,6 @@ public sealed class LaunchItemViewModel : INotifyPropertyChanged
         _arguments = LaunchItemNormalization.NormalizeArguments(arguments);
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-
     public string DisplayName
     {
         get => _displayName;
@@ -41,38 +38,20 @@ public sealed class LaunchItemViewModel : INotifyPropertyChanged
             }
 
             _displayName = normalized;
-            OnPropertyChanged(nameof(DisplayName));
+            OnPropertyChanged();
         }
     }
 
     public bool IsRenaming
     {
         get => _isRenaming;
-        set
-        {
-            if (_isRenaming == value)
-            {
-                return;
-            }
-
-            _isRenaming = value;
-            OnPropertyChanged(nameof(IsRenaming));
-        }
+        set => SetField(ref _isRenaming, value);
     }
 
     public string EditingName
     {
         get => _editingName;
-        set
-        {
-            if (_editingName == value)
-            {
-                return;
-            }
-
-            _editingName = value;
-            OnPropertyChanged(nameof(EditingName));
-        }
+        set => SetField(ref _editingName, value);
     }
 
     public string FullPath { get; }
@@ -91,7 +70,7 @@ public sealed class LaunchItemViewModel : INotifyPropertyChanged
             }
 
             _arguments = normalized;
-            OnPropertyChanged(nameof(Arguments));
+            OnPropertyChanged();
         }
     }
 
@@ -107,13 +86,8 @@ public sealed class LaunchItemViewModel : INotifyPropertyChanged
             }
 
             _category = normalized;
-            OnPropertyChanged(nameof(Category));
+            OnPropertyChanged();
         }
-    }
-
-    private void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     private static BitmapSource? GetIcon(string fullPath)
