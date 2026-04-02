@@ -176,46 +176,20 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
     {
         try
         {
-            var currentUri = faviconUri;
-            for (var redirectCount = 0; redirectCount <= MaxRedirectCount; redirectCount++)
+            var payload = await FetchFaviconPayloadAsync(faviconUri).ConfigureAwait(false);
+            if (payload is null)
             {
-                using var request = new HttpRequestMessage(HttpMethod.Get, currentUri);
-                using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
-
-                if (IsRedirect(response.StatusCode))
-                {
-                    var redirected = ResolveRedirectTarget(faviconUri, currentUri, response.Headers.Location);
-                    if (redirected is null || !await IsRequestDestinationAllowedAsync(redirected).ConfigureAwait(false))
-                    {
-                        return null;
-                    }
-
-                    currentUri = redirected;
-                    continue;
-                }
-
-                if (!response.IsSuccessStatusCode
-                    || IsSvg(response.Content.Headers.ContentType?.MediaType)
-                    || response.Content.Headers.ContentLength > MaxFaviconBytes)
-                {
-                    return null;
-                }
-
-                var payload = await ReadLimitedContentAsync(response.Content).ConfigureAwait(false);
-                if (payload is null)
-                {
-                    return null;
-                }
-
-                var decoded = DecodeImage(payload);
-                if (decoded is null)
-                {
-                    return null;
-                }
-
-                TryWriteCache(faviconUri, payload);
-                return decoded;
+                return null;
             }
+
+            var decoded = DecodeImage(payload);
+            if (decoded is null)
+            {
+                return null;
+            }
+
+            TryWriteCache(faviconUri, payload);
+            return decoded;
         }
         catch (Exception ex)
         {
@@ -223,6 +197,57 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
         }
 
         return null;
+    }
+
+    private async Task<byte[]?> FetchFaviconPayloadAsync(Uri faviconUri)
+    {
+        var currentUri = faviconUri;
+        for (var redirectCount = 0; redirectCount <= MaxRedirectCount; redirectCount++)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, currentUri);
+            using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+
+            if (IsRedirect(response.StatusCode))
+            {
+                var redirected = await ResolveAllowedRedirectAsync(faviconUri, currentUri, response.Headers.Location).ConfigureAwait(false);
+                if (redirected is null)
+                {
+                    return null;
+                }
+
+                currentUri = redirected;
+                continue;
+            }
+
+            if (!IsFaviconResponseAcceptable(response))
+            {
+                return null;
+            }
+
+            return await ReadLimitedContentAsync(response.Content).ConfigureAwait(false);
+        }
+
+        return null;
+    }
+
+    private async Task<Uri?> ResolveAllowedRedirectAsync(Uri originalUri, Uri currentUri, Uri? location)
+    {
+        var redirected = ResolveRedirectTarget(originalUri, currentUri, location);
+        if (redirected is null)
+        {
+            return null;
+        }
+
+        return await IsRequestDestinationAllowedAsync(redirected).ConfigureAwait(false)
+            ? redirected
+            : null;
+    }
+
+    private static bool IsFaviconResponseAcceptable(HttpResponseMessage response)
+    {
+        return response.IsSuccessStatusCode
+            && !IsSvg(response.Content.Headers.ContentType?.MediaType)
+            && response.Content.Headers.ContentLength <= MaxFaviconBytes;
     }
 
     private static async Task<byte[]?> ReadLimitedContentAsync(HttpContent content)
