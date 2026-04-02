@@ -500,6 +500,61 @@ public sealed class ThemePaletteConfigurationLoaderTests
         Assert.Equal("dark", sunsetTheme.InheritedThemeId);
     }
 
+    [Fact]
+    public void Merge_WhenOverlayChangesThemeType_OverlayTypeWins()
+    {
+        var @base = new ThemePaletteConfiguration(
+            [
+                new SystemDependentThemeDefinition(
+                    "system",
+                    new LocalizedText("System"),
+                    new Dictionary<SystemThemeMode, string>
+                    {
+                        [SystemThemeMode.Light] = "light",
+                        [SystemThemeMode.Dark] = "dark",
+                    }),
+                new FixedThemeDefinition("light", new LocalizedText("Light")),
+                new FixedThemeDefinition("dark", new LocalizedText("Dark"))
+            ],
+            [
+                new ThemePaletteEntry("Brush.Custom", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["light"] = "#FFFFFF",
+                    ["dark"] = "#000000",
+                })
+            ],
+            LoadedFromConfig: true);
+        var overlay = new ThemePaletteConfiguration(
+            [new FixedThemeDefinition("system", new LocalizedText("System Override"), "light")],
+            [],
+            LoadedFromConfig: true);
+
+        var merged = ThemePaletteConfigurationLoader.Merge(@base, overlay);
+
+        var systemTheme = Assert.IsType<FixedThemeDefinition>(Assert.Single(merged.Themes, t => t.Id == "system"));
+        Assert.Equal("light", systemTheme.InheritedThemeId);
+    }
+
+    [Fact]
+    public void TryLoadFromDirectory_WhenJsonIsInvalid_ReturnsFalse()
+    {
+        var root = CreateTempDirectory();
+        var appBase = Path.Combine(root, "appbase");
+        Directory.CreateDirectory(Path.Combine(appBase, "Config"));
+        File.WriteAllText(Path.Combine(appBase, "Config", "theme-palette.json"), "not valid json {{{");
+
+        try
+        {
+            var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out _);
+
+            Assert.False(loaded);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
     private static ThemePaletteConfiguration BuildConfig(
         (string Id, string Name, string Hex)[] themes,
         (string Key, (string ThemeId, string Hex)[] Colors)[] entries)
