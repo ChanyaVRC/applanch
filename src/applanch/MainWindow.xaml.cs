@@ -15,7 +15,7 @@ using Strings = applanch.Properties.Resources;
 
 namespace applanch;
 
-public partial class MainWindow : Window
+public sealed partial class MainWindow : Window
 {
     private static readonly TimeSpan FloatingNotificationDuration = TimeSpan.FromSeconds(4);
     private readonly DragReorderState _dragReorderState = new();
@@ -321,20 +321,7 @@ public partial class MainWindow : Window
         HideFloatingNotification();
     }
 
-    private void ShowFloatingNotification(string message, MessageBoxImage icon)
-    {
-        ViewModel.FloatingNotification.Message = message;
-        ViewModel.FloatingNotification.IconType = FloatingNotificationCoordinator.MapIcon(icon);
-        ViewModel.FloatingNotification.UndoAction = null;
-        FloatingNotificationBanner.Visibility = Visibility.Visible;
-        _floatingNotificationCoordinator.BeginShow();
-        _slideInStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
-        _countdownStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
-        _floatingNotificationTimer.Stop();
-        _floatingNotificationTimer.Start();
-    }
-
-    private void ShowFloatingNotification(string message, MessageBoxImage icon, Action? undoAction)
+    private void ShowFloatingNotification(string message, MessageBoxImage icon, Action? undoAction = null)
     {
         ViewModel.FloatingNotification.Message = message;
         ViewModel.FloatingNotification.IconType = FloatingNotificationCoordinator.MapIcon(icon);

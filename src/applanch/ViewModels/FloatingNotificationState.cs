@@ -29,9 +29,10 @@ public sealed class FloatingNotificationState : INotifyPropertyChanged
         get => _undoAction;
         internal set
         {
-            _undoAction = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UndoAction)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UndoVisibility)));
+            if (SetField(ref _undoAction, value))
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UndoVisibility)));
+            }
         }
     }
 
