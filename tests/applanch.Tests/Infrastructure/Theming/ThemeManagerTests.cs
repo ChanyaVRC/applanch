@@ -13,7 +13,7 @@ public class ThemeManagerTests
     {
         var resources = new ResourceDictionary();
         var manager = new ThemeManager(
-            () => new AppSettings { Theme = AppTheme.Light },
+            () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.LightThemeId },
             BuildConfiguration());
 
         manager.ApplyTheme(resources);
@@ -30,7 +30,7 @@ public class ThemeManagerTests
     {
         var resources = new ResourceDictionary();
         var manager = new ThemeManager(
-            () => new AppSettings { Theme = AppTheme.Dark },
+            () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.DarkThemeId },
             BuildConfiguration());
 
         manager.ApplyTheme(resources);
@@ -47,7 +47,7 @@ public class ThemeManagerTests
     {
         var resources = new ResourceDictionary();
         var manager = new ThemeManager(
-            () => new AppSettings { Theme = AppTheme.Light, ThemeId = "monochrome" },
+            () => new AppSettings { ThemeId = "monochrome" },
             BuildConfiguration());
 
         manager.ApplyTheme(resources);
@@ -64,7 +64,7 @@ public class ThemeManagerTests
     {
         var resources = new ResourceDictionary();
         var manager = new ThemeManager(
-            () => new AppSettings { Theme = AppTheme.Light, ThemeId = "unknown-theme" },
+            () => new AppSettings { ThemeId = "unknown-theme" },
             BuildConfiguration());
 
         manager.ApplyTheme(resources);
@@ -81,7 +81,7 @@ public class ThemeManagerTests
     {
         var resources = new ResourceDictionary();
         var manager = new ThemeManager(
-            () => new AppSettings { Theme = AppTheme.Light },
+            () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.LightThemeId },
             BuildConfiguration());
 
         manager.ApplyTheme(resources, []);
@@ -99,7 +99,7 @@ public class ThemeManagerTests
             [new ThemePaletteEntry("Brush.Custom", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = "#AABBCC" })],
             LoadedFromConfig: true);
         var manager = new ThemeManager(
-            () => new AppSettings { Theme = AppTheme.Light, ThemeId = "sunset" },
+            () => new AppSettings { ThemeId = "sunset" },
             configuration);
 
         manager.ApplyTheme(resources);

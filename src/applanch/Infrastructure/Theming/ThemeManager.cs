@@ -91,7 +91,7 @@ internal sealed class ThemeManager
 
     private string ResolveThemeId(AppSettings settings)
     {
-        if (settings.Theme == AppTheme.System)
+        if (string.Equals(settings.ThemeId, ThemePaletteConfigurationLoader.SystemThemeId, StringComparison.OrdinalIgnoreCase))
         {
             var preferredThemeId = ReadWindowsThemePreference()
                 ? ThemePaletteConfigurationLoader.LightThemeId
@@ -104,15 +104,15 @@ internal sealed class ThemeManager
             return _brushesByThemeId.Keys.First();
         }
 
-        var selectedThemeId = settings.ThemeId?.Trim();
-        if (!string.IsNullOrWhiteSpace(selectedThemeId) && _brushesByThemeId.ContainsKey(selectedThemeId))
+        var selectedThemeId = settings.ThemeId.Trim();
+        if (_brushesByThemeId.ContainsKey(selectedThemeId))
         {
             return selectedThemeId;
         }
 
-        return settings.Theme == AppTheme.Dark
-            ? ThemePaletteConfigurationLoader.DarkThemeId
-            : ThemePaletteConfigurationLoader.LightThemeId;
+        return _brushesByThemeId.ContainsKey(ThemePaletteConfigurationLoader.LightThemeId)
+            ? ThemePaletteConfigurationLoader.LightThemeId
+            : _brushesByThemeId.Keys.First();
     }
 
     private static Color ColorFromHex(string hex)

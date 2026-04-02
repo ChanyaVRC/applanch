@@ -11,8 +11,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     private readonly Func<IReadOnlyList<ThemeOption>> _themeOptionsProvider;
     private IReadOnlyList<ThemeOption> _themeOptions;
     private AppSettings _current;
-    private AppTheme _themeMode;
-    private string? _themeId;
+    private string _themeId = ThemePaletteConfigurationLoader.SystemThemeId;
     private PostLaunchBehavior _postLaunchBehavior;
     private bool _closeOnLaunch;
     private bool _checkForUpdatesOnStartup;
@@ -55,25 +54,13 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             }
 
             var selected = _themeOptions[value];
-            var selectedThemeMode = selected.IsSystemOption
-                ? AppTheme.System
-                : string.Equals(selected.ThemeId, ThemePaletteConfigurationLoader.DarkThemeId, StringComparison.OrdinalIgnoreCase)
-                    ? AppTheme.Dark
-                    : AppTheme.Light;
-            var selectedThemeId = selected.IsSystemOption ||
-                string.Equals(selected.ThemeId, ThemePaletteConfigurationLoader.LightThemeId, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(selected.ThemeId, ThemePaletteConfigurationLoader.DarkThemeId, StringComparison.OrdinalIgnoreCase)
-                ? null
-                : selected.ThemeId;
 
-            if (_themeMode == selectedThemeMode &&
-                string.Equals(_themeId, selectedThemeId, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(_themeId, selected.ThemeId, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
 
-            _themeMode = selectedThemeMode;
-            _themeId = selectedThemeId;
+            _themeId = selected.ThemeId;
             OnPropertyChanged();
             Commit();
         }
@@ -207,7 +194,6 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
     private void LoadFields(AppSettings settings)
     {
-        _themeMode = settings.Theme;
         _themeId = settings.ThemeId;
         _postLaunchBehavior = settings.ResolvePostLaunchBehavior();
         _closeOnLaunch = settings.CloseOnLaunch;
@@ -255,7 +241,6 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     {
         _current = _current with
         {
-            Theme = _themeMode,
             ThemeId = _themeId,
             PostLaunchBehavior = _postLaunchBehavior,
             CloseOnLaunch = _closeOnLaunch,
@@ -290,23 +275,9 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             return -1;
         }
 
-        if (_themeMode == AppTheme.System)
-        {
-            return _themeOptions
-                .Select(static (option, index) => (option, index))
-                .FirstOrDefault(static x => x.Item1.IsSystemOption, (_themeOptions[0], 0))
-                .Item2;
-        }
-
-        var targetThemeId = !string.IsNullOrWhiteSpace(_themeId)
-            ? _themeId
-            : _themeMode == AppTheme.Dark
-                ? ThemePaletteConfigurationLoader.DarkThemeId
-                : ThemePaletteConfigurationLoader.LightThemeId;
-
         return _themeOptions
             .Select(static (option, index) => (option, index))
-            .FirstOrDefault(x => string.Equals(x.Item1.ThemeId, targetThemeId, StringComparison.OrdinalIgnoreCase), (_themeOptions[0], 0))
+            .FirstOrDefault(x => string.Equals(x.Item1.ThemeId, _themeId, StringComparison.OrdinalIgnoreCase), (_themeOptions[0], 0))
             .Item2;
     }
 }

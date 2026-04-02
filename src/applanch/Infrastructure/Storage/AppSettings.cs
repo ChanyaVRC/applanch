@@ -9,8 +9,7 @@ internal sealed record AppSettings
 {
     public bool DebugUpdate { get; init; } = false;
     public bool CloseOnLaunch { get; init; } = true;
-    public AppTheme Theme { get; init; } = AppTheme.System;
-    public string? ThemeId { get; init; }
+    public string ThemeId { get; init; } = ThemePaletteConfigurationLoader.SystemThemeId;
     public bool CheckForUpdatesOnStartup { get; init; } = true;
     public bool StartMinimizedOnLaunch { get; init; } = false;
     public bool LaunchAtWindowsStartup { get; init; } = false;

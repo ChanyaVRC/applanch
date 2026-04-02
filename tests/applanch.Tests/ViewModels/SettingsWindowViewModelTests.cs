@@ -48,7 +48,7 @@ public class SettingsWindowViewModelTests
     {
         var settings = new AppSettings
         {
-            Theme = AppTheme.Dark,
+            ThemeId = ThemePaletteConfigurationLoader.DarkThemeId,
             CloseOnLaunch = false,
             CheckForUpdatesOnStartup = false,
             DebugUpdate = true,
@@ -58,7 +58,7 @@ public class SettingsWindowViewModelTests
 
         var vm = Make(settings);
 
-        Assert.Equal((int)AppTheme.Dark, vm.ThemeIndex);
+        Assert.Equal(2, vm.ThemeIndex);
         Assert.False(vm.CloseOnLaunch);
         Assert.False(vm.CheckForUpdatesOnStartup);
         Assert.True(vm.DebugUpdate);
@@ -76,7 +76,7 @@ public class SettingsWindowViewModelTests
         var raised = new List<string?>();
         vm.PropertyChanged += (_, e) => raised.Add(e.PropertyName);
 
-        vm.ThemeIndex = (int)AppTheme.Dark;
+        vm.ThemeIndex = 2;
 
         Assert.Contains(nameof(vm.ThemeIndex), raised);
     }
@@ -87,10 +87,10 @@ public class SettingsWindowViewModelTests
         AppSettings? committed = null;
         var vm = Make(onCommit: s => committed = s);
 
-        vm.ThemeIndex = (int)AppTheme.Light;
+        vm.ThemeIndex = 1;
 
         Assert.NotNull(committed);
-        Assert.Equal(AppTheme.Light, committed!.Theme);
+        Assert.Equal(ThemePaletteConfigurationLoader.LightThemeId, committed!.ThemeId);
     }
 
     [Fact]
@@ -99,10 +99,10 @@ public class SettingsWindowViewModelTests
         AppSettings? refreshed = null;
         var vm = Make(onRefresh: s => refreshed = s);
 
-        vm.ThemeIndex = (int)AppTheme.Light;
+        vm.ThemeIndex = 1;
 
         Assert.NotNull(refreshed);
-        Assert.Equal(AppTheme.Light, refreshed!.Theme);
+        Assert.Equal(ThemePaletteConfigurationLoader.LightThemeId, refreshed!.ThemeId);
     }
 
     [Fact]
@@ -114,7 +114,6 @@ public class SettingsWindowViewModelTests
         vm.ThemeIndex = 3;
 
         Assert.NotNull(committed);
-        Assert.Equal(AppTheme.Light, committed!.Theme);
         Assert.Equal("monochrome", committed.ThemeId);
     }
 
@@ -122,9 +121,9 @@ public class SettingsWindowViewModelTests
     public void ThemeIndex_SameValue_DoesNotSave()
     {
         var saved = new List<AppSettings>();
-        var vm = Make(settings: new AppSettings { Theme = AppTheme.Light }, saved: saved);
+        var vm = Make(settings: new AppSettings { ThemeId = ThemePaletteConfigurationLoader.LightThemeId }, saved: saved);
 
-        vm.ThemeIndex = (int)AppTheme.Light;
+        vm.ThemeIndex = 1;
 
         Assert.Empty(saved);
     }
@@ -173,14 +172,14 @@ public class SettingsWindowViewModelTests
     {
         var saved = new List<AppSettings>();
         var vm = Make(
-            settings: new AppSettings { Theme = AppTheme.System, CloseOnLaunch = true, CheckForUpdatesOnStartup = true, DebugUpdate = false },
+            settings: new AppSettings { ThemeId = ThemePaletteConfigurationLoader.SystemThemeId, CloseOnLaunch = true, CheckForUpdatesOnStartup = true, DebugUpdate = false },
             saved: saved);
 
-        vm.ThemeIndex = (int)AppTheme.Dark;
+        vm.ThemeIndex = 2;
         vm.CloseOnLaunch = false;
 
         var last = saved.Last();
-        Assert.Equal(AppTheme.Dark, last.Theme);
+        Assert.Equal(ThemePaletteConfigurationLoader.DarkThemeId, last.ThemeId);
         Assert.False(last.CloseOnLaunch);
     }
 
@@ -259,7 +258,7 @@ public class SettingsWindowViewModelTests
         var defaults = new AppSettings();
         var settings = new AppSettings
         {
-            Theme = AppTheme.Dark,
+            ThemeId = ThemePaletteConfigurationLoader.DarkThemeId,
             Language = LanguageOption.Japanese,
             CloseOnLaunch = false,
             CheckForUpdatesOnStartup = false,
@@ -276,7 +275,7 @@ public class SettingsWindowViewModelTests
 
         vm.ResetToDefaults();
 
-        Assert.Equal((int)defaults.Theme, vm.ThemeIndex);
+        Assert.Equal(0, vm.ThemeIndex);
         Assert.Equal((int)defaults.Language, vm.LanguageIndex);
         Assert.Equal(defaults.CloseOnLaunch, vm.CloseOnLaunch);
         Assert.Equal(defaults.CheckForUpdatesOnStartup, vm.CheckForUpdatesOnStartup);
@@ -296,14 +295,14 @@ public class SettingsWindowViewModelTests
         AppSettings? committed = null;
         var raised = new List<string?>();
         var vm = Make(
-            settings: new AppSettings { Theme = AppTheme.Dark },
+            settings: new AppSettings { ThemeId = ThemePaletteConfigurationLoader.DarkThemeId },
             onCommit: s => committed = s);
         vm.PropertyChanged += (_, e) => raised.Add(e.PropertyName);
 
         vm.ResetToDefaults();
 
         Assert.NotNull(committed);
-        Assert.Equal(AppTheme.System, committed!.Theme);
+        Assert.Equal(ThemePaletteConfigurationLoader.SystemThemeId, committed!.ThemeId);
         Assert.Contains(nameof(vm.ThemeIndex), raised);
         Assert.Contains(nameof(vm.LanguageIndex), raised);
     }
@@ -315,7 +314,7 @@ public class SettingsWindowViewModelTests
         var vm = Make(saved: saved);
         var refreshed = new AppSettings
         {
-            Theme = AppTheme.Dark,
+            ThemeId = ThemePaletteConfigurationLoader.DarkThemeId,
             PostLaunchBehavior = PostLaunchBehavior.MinimizeWindow,
             CloseOnLaunch = false,
             CheckForUpdatesOnStartup = false,
@@ -324,7 +323,7 @@ public class SettingsWindowViewModelTests
 
         vm.ApplyExternalSettings(refreshed);
 
-        Assert.Equal((int)AppTheme.Dark, vm.ThemeIndex);
+        Assert.Equal(2, vm.ThemeIndex);
         Assert.Equal((int)PostLaunchBehavior.MinimizeWindow, vm.PostLaunchBehaviorIndex);
         Assert.False(vm.CloseOnLaunch);
         Assert.False(vm.CheckForUpdatesOnStartup);
