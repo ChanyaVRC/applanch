@@ -156,43 +156,11 @@ internal static partial class AppResolver
 
     private static IReadOnlyList<string> SelectTopSuggestions(Dictionary<string, SuggestionCandidate>.ValueCollection candidates, int maxResults)
     {
-        if (candidates.Count <= maxResults)
-        {
-            return [.. candidates
-                .OrderByDescending(static x => x.Score)
-                .ThenByDescending(static x => x.SourcePriority)
-                .ThenBy(static x => x.Text, StringComparer.CurrentCultureIgnoreCase)
-                .Select(static x => x.Text)];
-        }
-
-        var selected = new List<SuggestionCandidate>(maxResults);
-        foreach (var candidate in candidates)
-        {
-            if (selected.Count < maxResults)
-            {
-                selected.Add(candidate);
-                continue;
-            }
-
-            var lowestRankIndex = 0;
-            for (var i = 1; i < selected.Count; i++)
-            {
-                if (CompareSuggestionRank(selected[i], selected[lowestRankIndex]) < 0)
-                {
-                    lowestRankIndex = i;
-                }
-            }
-
-            if (CompareSuggestionRank(candidate, selected[lowestRankIndex]) > 0)
-            {
-                selected[lowestRankIndex] = candidate;
-            }
-        }
-
-        return [.. selected
+        return [.. candidates
             .OrderByDescending(static x => x.Score)
             .ThenByDescending(static x => x.SourcePriority)
             .ThenBy(static x => x.Text, StringComparer.CurrentCultureIgnoreCase)
+            .Take(maxResults)
             .Select(static x => x.Text)];
     }
 
