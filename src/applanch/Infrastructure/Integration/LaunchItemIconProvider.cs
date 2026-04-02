@@ -3,8 +3,6 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -20,7 +18,6 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
     private const int MaxRedirectCount = 3;
     private const int MaxFaviconBytes = 256 * 1024;
     private static readonly TimeSpan FaviconTimeout = TimeSpan.FromSeconds(3);
-    private static readonly TimeSpan DiskCacheTtl = TimeSpan.FromDays(14);
     private static readonly DrawingImage GenericWebIcon = CreateGenericWebIcon();
     private static readonly HttpClient SharedHttpClient = CreateHttpClient();
 
@@ -28,29 +25,24 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
 
     private readonly HttpClient _httpClient;
     private readonly ConcurrentDictionary<string, Lazy<Task<ImageSource?>>> _faviconCache;
-    private readonly Func<string, CancellationToken, Task<IReadOnlyList<IPAddress>>> _hostAddressResolver;
-    private readonly string _cacheDirectory;
-    private AppSettings _settings = new();
+    private readonly NetworkPolicyResolver _networkPolicy;
+    private readonly FaviconCacheResolver _diskCache;
 
     internal LaunchItemIconProvider(
         HttpClient? httpClient = null,
         ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>? faviconCache = null,
-        Func<string, CancellationToken, Task<IReadOnlyList<IPAddress>>>? hostAddressResolver = null,
-        string? cacheDirectory = null)
+        NetworkPolicyResolver? networkPolicy = null,
+        FaviconCacheResolver? diskCache = null)
     {
         _httpClient = httpClient ?? SharedHttpClient;
         _faviconCache = faviconCache ?? new ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>(StringComparer.OrdinalIgnoreCase);
-        _hostAddressResolver = hostAddressResolver ?? ResolveHostAddressesAsync;
-        _cacheDirectory = cacheDirectory ?? Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "applanch",
-            "Cache",
-            "Favicons");
+        _networkPolicy = networkPolicy ?? new NetworkPolicyResolver();
+        _diskCache = diskCache ?? new FaviconCacheResolver();
     }
 
     public void ApplySettings(AppSettings settings)
     {
-        _settings = settings;
+        _networkPolicy.ApplySettings(settings);
     }
 
     public ImageSource? GetInitialIcon(string fullPath)
@@ -60,30 +52,30 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
             return GetShellIcon(fullPath);
         }
 
-        if (!ShouldRequestFavicon(pageUri))
+        if (!_networkPolicy.ShouldRequestFavicon(pageUri))
         {
             return GenericWebIcon;
         }
 
         var faviconUri = CreateFaviconUri(pageUri);
-        return (ImageSource?)TryLoadCachedIcon(faviconUri, acceptExpired: true)
+        return (ImageSource?)_diskCache.TryLoad(faviconUri, acceptExpired: true)
             ?? GenericWebIcon;
     }
 
     public async ValueTask<ImageSource?> GetDeferredIconAsync(string fullPath)
     {
-        if (!TryGetHttpPageUri(fullPath, out var pageUri) || !ShouldRequestFavicon(pageUri))
+        if (!TryGetHttpPageUri(fullPath, out var pageUri) || !_networkPolicy.ShouldRequestFavicon(pageUri))
         {
             return null;
         }
 
-        if (!await IsRequestDestinationAllowedAsync(pageUri).ConfigureAwait(false))
+        if (!await _networkPolicy.IsDestinationAllowedAsync(pageUri).ConfigureAwait(false))
         {
             return null;
         }
 
         var faviconUri = CreateFaviconUri(pageUri);
-        if (TryLoadCachedIcon(faviconUri, acceptExpired: false) is not null)
+        if (_diskCache.TryLoad(faviconUri, acceptExpired: false) is not null)
         {
             return null;
         }
@@ -144,43 +136,14 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
         return client;
     }
 
-    private bool ShouldRequestFavicon(Uri pageUri)
+    private static bool IsRedirect(HttpStatusCode statusCode)
     {
-        if (!_settings.FetchHttpIcons)
-        {
-            return false;
-        }
-
-        if (_settings.AllowPrivateNetworkHttpIconRequests)
-        {
-            return true;
-        }
-
-        return !IsLocalOrPrivateLiteral(pageUri.Host);
+        return statusCode is HttpStatusCode.Moved or HttpStatusCode.Redirect or HttpStatusCode.RedirectMethod or HttpStatusCode.TemporaryRedirect or HttpStatusCode.PermanentRedirect;
     }
 
-    private async Task<bool> IsRequestDestinationAllowedAsync(Uri pageUri)
+    private static bool IsSvg(string? mediaType)
     {
-        if (_settings.AllowPrivateNetworkHttpIconRequests)
-        {
-            return true;
-        }
-
-        if (IsLocalOrPrivateLiteral(pageUri.Host))
-        {
-            return false;
-        }
-
-        try
-        {
-            var addresses = await _hostAddressResolver(pageUri.IdnHost, CancellationToken.None).ConfigureAwait(false);
-            return addresses.Count == 0 || addresses.All(static address => !IsPrivateOrLoopbackAddress(address));
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Instance.Warn($"Failed to resolve favicon host '{pageUri.Host}': {ex.Message}");
-            return false;
-        }
+        return mediaType?.Contains("svg", StringComparison.OrdinalIgnoreCase) == true;
     }
 
     private async Task<ImageSource?> LoadAndCacheFaviconAsync(Uri faviconUri)
@@ -193,13 +156,13 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
                 return null;
             }
 
-            var decoded = DecodeImage(payload);
+            var decoded = FaviconCacheResolver.DecodeImage(payload);
             if (decoded is null)
             {
                 return null;
             }
 
-            TryWriteCache(faviconUri, payload);
+            _diskCache.TryWrite(faviconUri, payload);
             return decoded;
         }
         catch (Exception ex)
@@ -220,7 +183,7 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
 
             if (IsRedirect(response.StatusCode))
             {
-                var redirected = await ResolveAllowedRedirectAsync(faviconUri, currentUri, response.Headers.Location).ConfigureAwait(false);
+                var redirected = await _networkPolicy.ResolveAllowedRedirectAsync(faviconUri, currentUri, response.Headers.Location).ConfigureAwait(false);
                 if (redirected is null)
                 {
                     return null;
@@ -230,7 +193,9 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
                 continue;
             }
 
-            if (!IsFaviconResponseAcceptable(response))
+            if (!response.IsSuccessStatusCode
+                || IsSvg(response.Content.Headers.ContentType?.MediaType)
+                || response.Content.Headers.ContentLength > MaxFaviconBytes)
             {
                 return null;
             }
@@ -239,26 +204,6 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
         }
 
         return null;
-    }
-
-    private async Task<Uri?> ResolveAllowedRedirectAsync(Uri originalUri, Uri currentUri, Uri? location)
-    {
-        var redirected = ResolveRedirectTarget(originalUri, currentUri, location);
-        if (redirected is null)
-        {
-            return null;
-        }
-
-        return await IsRequestDestinationAllowedAsync(redirected).ConfigureAwait(false)
-            ? redirected
-            : null;
-    }
-
-    private static bool IsFaviconResponseAcceptable(HttpResponseMessage response)
-    {
-        return response.IsSuccessStatusCode
-            && !IsSvg(response.Content.Headers.ContentType?.MediaType)
-            && response.Content.Headers.ContentLength <= MaxFaviconBytes;
     }
 
     private static async Task<byte[]?> ReadLimitedContentAsync(HttpContent content)
@@ -280,139 +225,6 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
                 return null;
             }
         }
-    }
-
-    private BitmapFrame? TryLoadCachedIcon(Uri faviconUri, bool acceptExpired)
-    {
-        try
-        {
-            var path = GetCacheFilePath(faviconUri);
-            if (!File.Exists(path))
-            {
-                return null;
-            }
-
-            var lastWrite = File.GetLastWriteTimeUtc(path);
-            if (!acceptExpired && DateTime.UtcNow - lastWrite > DiskCacheTtl)
-            {
-                return null;
-            }
-
-            var bytes = File.ReadAllBytes(path);
-            return DecodeImage(bytes);
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Instance.Warn($"Failed to read favicon cache for '{faviconUri}': {ex.Message}");
-            return null;
-        }
-    }
-
-    private void TryWriteCache(Uri faviconUri, byte[] payload)
-    {
-        try
-        {
-            Directory.CreateDirectory(_cacheDirectory);
-            var path = GetCacheFilePath(faviconUri);
-            var tempPath = path + ".tmp";
-            File.WriteAllBytes(tempPath, payload);
-            File.Move(tempPath, path, overwrite: true);
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Instance.Warn($"Failed to write favicon cache for '{faviconUri}': {ex.Message}");
-        }
-    }
-
-    private string GetCacheFilePath(Uri faviconUri)
-    {
-        var hash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(faviconUri.AbsoluteUri)));
-        return Path.Combine(_cacheDirectory, $"{hash}.bin");
-    }
-
-    private static BitmapFrame? DecodeImage(byte[] payload)
-    {
-        try
-        {
-            using var stream = new MemoryStream(payload, writable: false);
-            var bitmap = BitmapFrame.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
-            bitmap.Freeze();
-            return bitmap;
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Instance.Warn($"Failed to decode favicon: {ex.Message}");
-            return null;
-        }
-    }
-
-    private static bool IsRedirect(HttpStatusCode statusCode)
-    {
-        return statusCode is HttpStatusCode.Moved or HttpStatusCode.Redirect or HttpStatusCode.RedirectMethod or HttpStatusCode.TemporaryRedirect or HttpStatusCode.PermanentRedirect;
-    }
-
-    private static bool IsSvg(string? mediaType)
-    {
-        return mediaType?.Contains("svg", StringComparison.OrdinalIgnoreCase) == true;
-    }
-
-    private static Uri? ResolveRedirectTarget(Uri originalUri, Uri currentUri, Uri? location)
-    {
-        if (location is null)
-        {
-            return null;
-        }
-
-        var target = location.IsAbsoluteUri ? location : new Uri(currentUri, location);
-        if (target.Scheme is not ("http" or "https"))
-        {
-            return null;
-        }
-
-        return string.Equals(target.IdnHost, originalUri.IdnHost, StringComparison.OrdinalIgnoreCase)
-            ? target
-            : null;
-    }
-
-    private static bool IsLocalOrPrivateLiteral(string host)
-    {
-        if (string.Equals(host, "localhost", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        return IPAddress.TryParse(host, out var address) && IsPrivateOrLoopbackAddress(address);
-    }
-
-    private static readonly IPNetwork[] PrivateNetworks =
-    [
-        IPNetwork.Parse("10.0.0.0/8"),
-        IPNetwork.Parse("172.16.0.0/12"),
-        IPNetwork.Parse("192.168.0.0/16"),
-        IPNetwork.Parse("169.254.0.0/16"),
-        IPNetwork.Parse("fc00::/7"),
-        IPNetwork.Parse("fe80::/10"),
-        IPNetwork.Parse("fec0::/10"),
-    ];
-
-    private static bool IsPrivateOrLoopbackAddress(IPAddress address)
-    {
-        if (IPAddress.IsLoopback(address))
-        {
-            return true;
-        }
-
-        if (address.IsIPv4MappedToIPv6)
-        {
-            address = address.MapToIPv4();
-        }
-
-        return PrivateNetworks.Any(network => network.Contains(address));
-    }
-
-    private static async Task<IReadOnlyList<IPAddress>> ResolveHostAddressesAsync(string host, CancellationToken cancellationToken)
-    {
-        return await Dns.GetHostAddressesAsync(host, cancellationToken).ConfigureAwait(false);
     }
 
     private static BitmapSource? GetShellIcon(string fullPath)

@@ -293,8 +293,8 @@ public class LaunchItemIconProviderTests
         return new LaunchItemIconProvider(
             httpClient,
             new ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>(StringComparer.OrdinalIgnoreCase),
-            hostAddressResolver,
-            cacheDirectory);
+            new NetworkPolicyResolver(hostAddressResolver),
+            cacheDirectory is not null ? new FaviconCacheResolver(cacheDirectory) : null);
     }
 
     private static void WriteCacheFile(string cacheDirectory, string faviconUri, byte[] bytes, DateTime lastWriteUtc)
