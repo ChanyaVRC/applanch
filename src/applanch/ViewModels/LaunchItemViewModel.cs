@@ -21,16 +21,21 @@ public sealed class LaunchItemViewModel : ObservableObject
     private int _iconRefreshVersion;
 
     public LaunchItemViewModel(string fullPath, string category, string arguments, string displayName)
-        : this(fullPath, category, arguments, displayName, null)
+        : this(new LaunchPath(fullPath), category, arguments, displayName, null)
     {
     }
 
     internal LaunchItemViewModel(string fullPath, string category, string arguments, string displayName, ILaunchItemIconProvider? iconProvider)
+        : this(new LaunchPath(fullPath), category, arguments, displayName, iconProvider)
     {
-        FullPath = new LaunchPath(fullPath);
+    }
+
+    internal LaunchItemViewModel(LaunchPath fullPath, string category, string arguments, string displayName, ILaunchItemIconProvider? iconProvider)
+    {
+        FullPath = fullPath;
         _dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
         _iconProvider = iconProvider ?? LaunchItemIconProvider.Shared;
-        _displayName = LaunchItemNormalization.NormalizeDisplayName(displayName, fullPath);
+        _displayName = LaunchItemNormalization.NormalizeDisplayName(displayName, fullPath.Value);
         _category = LaunchItemNormalization.NormalizeCategory(category);
         _arguments = LaunchItemNormalization.NormalizeArguments(arguments);
 

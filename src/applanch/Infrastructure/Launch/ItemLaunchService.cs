@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using applanch.Infrastructure.Utilities;
-using applanch.ViewModels;
 
 namespace applanch.Infrastructure.Launch;
 
@@ -32,9 +31,8 @@ internal sealed class ItemLaunchService : IItemLaunchService
         _fallbackResolver = fallbackResolver;
     }
 
-    public LaunchExecutionResult TryLaunch(LaunchItemViewModel item, bool runAsAdministrator = false)
+    public LaunchExecutionResult TryLaunch(LaunchPath launchPath, string arguments, bool runAsAdministrator = false)
     {
-        var launchPath = item.FullPath;
         var path = launchPath.Value;
         var isUrl = launchPath.IsUrl;
         var isDirectory = !isUrl && Directory.Exists(path);
@@ -77,7 +75,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
         else
         {
             startInfo.FileName = path;
-            startInfo.Arguments = item.Arguments;
+            startInfo.Arguments = arguments;
         }
 
         if (runAsAdministrator)

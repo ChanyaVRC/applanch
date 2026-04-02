@@ -1,9 +1,9 @@
-using applanch.ViewModels;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Launch;
 
 internal interface IItemLaunchService
 {
-    LaunchExecutionResult TryLaunch(LaunchItemViewModel item, bool runAsAdministrator = false);
+    LaunchExecutionResult TryLaunch(LaunchPath launchPath, string arguments, bool runAsAdministrator = false);
 }
 

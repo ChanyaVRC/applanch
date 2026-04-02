@@ -2,9 +2,9 @@ using Xunit;
 using System.ComponentModel;
 using System.Diagnostics;
 using applanch.Infrastructure.Launch;
+using applanch.Infrastructure.Utilities;
 using applanch.Tests.Infrastructure.Launch.TestDoubles;
 using applanch.Tests.TestSupport;
-using applanch.ViewModels;
 
 namespace applanch.Tests.Infrastructure.Launch;
 
@@ -15,9 +15,8 @@ public class ItemLaunchServiceTests
     {
         var launcher = new FakeProcessLauncher();
         var service = new ItemLaunchService(launcher.Start);
-        var item = new LaunchItemViewModel(@"C:\\missing\\file.exe", "Dev", string.Empty, "Missing");
 
-        var result = service.TryLaunch(item);
+        var result = service.TryLaunch(new LaunchPath(@"C:\\missing\\file.exe"), string.Empty);
 
         Assert.False(result.IsSuccess);
         Assert.Equal(System.Windows.MessageBoxImage.Warning, result.Icon);
@@ -30,9 +29,8 @@ public class ItemLaunchServiceTests
     {
         var launcher = new FakeProcessLauncher();
         var service = new ItemLaunchService(launcher.Start);
-        var item = new LaunchItemViewModel(url, "Web", string.Empty, "Example");
 
-        var result = service.TryLaunch(item);
+        var result = service.TryLaunch(new LaunchPath(url), string.Empty);
 
         Assert.True(result.IsSuccess);
         Assert.NotNull(launcher.LastStartInfo);
@@ -49,9 +47,8 @@ public class ItemLaunchServiceTests
 
         var launcher = new FakeProcessLauncher();
         var service = new ItemLaunchService(launcher.Start);
-        var item = new LaunchItemViewModel(filePath, "Dev", "--flag", "App");
 
-        var result = service.TryLaunch(item);
+        var result = service.TryLaunch(new LaunchPath(filePath), "--flag");
 
         Assert.True(result.IsSuccess);
         Assert.NotNull(launcher.LastStartInfo);
@@ -66,9 +63,8 @@ public class ItemLaunchServiceTests
         using var tempDirectory = TemporaryDirectory.Create();
         var launcher = new FakeProcessLauncher();
         var service = new ItemLaunchService(launcher.Start);
-        var item = new LaunchItemViewModel(tempDirectory.Path, "Dev", string.Empty, "Dir");
 
-        var result = service.TryLaunch(item);
+        var result = service.TryLaunch(new LaunchPath(tempDirectory.Path), string.Empty);
 
         Assert.True(result.IsSuccess);
         Assert.NotNull(launcher.LastStartInfo);
@@ -85,9 +81,8 @@ public class ItemLaunchServiceTests
 
         var launcher = new FakeProcessLauncher { ThrowOnStart = true };
         var service = new ItemLaunchService(launcher.Start);
-        var item = new LaunchItemViewModel(filePath, "Dev", string.Empty, "App");
 
-        var result = service.TryLaunch(item);
+        var result = service.TryLaunch(new LaunchPath(filePath), string.Empty);
 
         Assert.False(result.IsSuccess);
         Assert.Equal(System.Windows.MessageBoxImage.Error, result.Icon);
@@ -103,9 +98,8 @@ public class ItemLaunchServiceTests
 
         var launcher = new FakeProcessLauncher { ReturnNull = true };
         var service = new ItemLaunchService(launcher.Start);
-        var item = new LaunchItemViewModel(filePath, "Dev", string.Empty, "App");
 
-        var result = service.TryLaunch(item);
+        var result = service.TryLaunch(new LaunchPath(filePath), string.Empty);
 
         Assert.False(result.IsSuccess);
         Assert.Equal(System.Windows.MessageBoxImage.Error, result.Icon);
@@ -120,9 +114,8 @@ public class ItemLaunchServiceTests
 
         var launcher = new FakeProcessLauncher();
         var service = new ItemLaunchService(launcher.Start);
-        var item = new LaunchItemViewModel(filePath, "Dev", string.Empty, "App");
 
-        var result = service.TryLaunch(item, runAsAdministrator: true);
+        var result = service.TryLaunch(new LaunchPath(filePath), string.Empty, runAsAdministrator: true);
 
         Assert.True(result.IsSuccess);
         Assert.NotNull(launcher.LastStartInfo);
@@ -148,9 +141,8 @@ public class ItemLaunchServiceTests
         }
 
         var service = new ItemLaunchService(Launcher);
-        var item = new LaunchItemViewModel(valorantPath, "Games", string.Empty, "VALORANT");
 
-        var result = service.TryLaunch(item);
+        var result = service.TryLaunch(new LaunchPath(valorantPath), string.Empty);
 
         Assert.True(result.IsSuccess);
         Assert.Single(attempts);
@@ -206,9 +198,8 @@ public class ItemLaunchServiceTests
         };
 
         var service = new ItemLaunchService(Launcher, new LaunchFallbackResolver(configuration));
-        var item = new LaunchItemViewModel(gamePath, "Games", string.Empty, "CoolGame");
 
-        var result = service.TryLaunch(item);
+        var result = service.TryLaunch(new LaunchPath(gamePath), string.Empty);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(2, attempts.Count);
@@ -259,9 +250,8 @@ public class ItemLaunchServiceTests
         }
 
         var service = new ItemLaunchService(Launcher, new LaunchFallbackResolver(configuration));
-        var item = new LaunchItemViewModel(gamePath, "Games", string.Empty, "CoolGame");
 
-        var result = service.TryLaunch(item);
+        var result = service.TryLaunch(new LaunchPath(gamePath), string.Empty);
 
         Assert.True(result.IsSuccess);
         Assert.Single(attempts);

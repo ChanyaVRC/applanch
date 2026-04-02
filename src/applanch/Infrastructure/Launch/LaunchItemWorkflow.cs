@@ -15,7 +15,7 @@ internal sealed class LaunchItemWorkflow(IItemLaunchService itemLaunchService)
             return LaunchItemWorkflowResult.Cancelled();
         }
 
-        var execution = itemLaunchService.TryLaunch(item, settings.RunAsAdministrator);
+        var execution = itemLaunchService.TryLaunch(item.FullPath, item.Arguments, settings.RunAsAdministrator);
         if (!execution.IsSuccess)
         {
             return LaunchItemWorkflowResult.Failed(execution);

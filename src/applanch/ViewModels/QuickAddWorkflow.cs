@@ -46,7 +46,7 @@ internal sealed class QuickAddWorkflow(IAppResolver appResolver, ILaunchItemIcon
         var normalizedResolvedPath = NormalizePath(resolvedApp.Path);
 
         newItem = new LaunchItemViewModel(
-            normalizedResolvedPath,
+            new LaunchPath(normalizedResolvedPath),
             quickAddCategory,
             quickAddArguments,
             resolvedApp.DisplayName,

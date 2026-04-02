@@ -1,5 +1,6 @@
 using applanch.Infrastructure.Launch;
 using applanch.Infrastructure.Storage;
+using applanch.Infrastructure.Utilities;
 using applanch.ViewModels;
 using System.Windows;
 using Xunit;
@@ -83,11 +84,15 @@ public class LaunchItemWorkflowTests
     {
         public bool Called { get; private set; }
         public bool LastRunAsAdministrator { get; private set; }
+        public LaunchPath LastLaunchPath { get; private set; }
+        public string LastArguments { get; private set; } = string.Empty;
         public LaunchExecutionResult Result { get; init; } = LaunchExecutionResult.Success();
 
-        public LaunchExecutionResult TryLaunch(LaunchItemViewModel item, bool runAsAdministrator = false)
+        public LaunchExecutionResult TryLaunch(LaunchPath launchPath, string arguments, bool runAsAdministrator = false)
         {
             Called = true;
+            LastLaunchPath = launchPath;
+            LastArguments = arguments;
             LastRunAsAdministrator = runAsAdministrator;
             return Result;
         }
