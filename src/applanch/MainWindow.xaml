@@ -1030,6 +1030,9 @@
                                             <MenuItem Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_ChangeArguments]}"
                                                       Tag="EditArguments"
                                                       Click="ContextMenu_Item_Click"/>
+                                            <MenuItem Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_OpenFileLocation]}"
+                                                      Tag="OpenLocation"
+                                                      Click="ContextMenu_Item_Click"/>
                                             <Separator/>
                                             <MenuItem Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_Delete]}"
                                                       Tag="Delete"

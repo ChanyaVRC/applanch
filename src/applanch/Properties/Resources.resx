@@ -108,6 +108,9 @@
   <data name="Menu_ChangeArguments" xml:space="preserve">
     <value>Change launch arguments...</value>
   </data>
+  <data name="Menu_OpenFileLocation" xml:space="preserve">
+    <value>Open file location</value>
+  </data>
   <data name="Menu_Delete" xml:space="preserve">
     <value>Delete</value>
   </data>

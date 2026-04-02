@@ -32,4 +32,15 @@ public class MainWindowXamlTests
         Assert.Contains("Binding=\"{Binding IsPathMissing}\"", xaml);
         Assert.Contains("&#xE7BA;", xaml);
     }
+
+    [Fact]
+    public void LaunchItemTemplate_ContextMenu_IncludesOpenFileLocationAction()
+    {
+        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        var xamlPath = Path.Combine(projectRoot, "src", "applanch", "MainWindow.xaml");
+        var xaml = File.ReadAllText(xamlPath);
+
+        Assert.Contains("Menu_OpenFileLocation", xaml);
+        Assert.Contains("Tag=\"OpenLocation\"", xaml);
+    }
 }

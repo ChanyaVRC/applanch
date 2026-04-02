@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -431,6 +433,14 @@ public sealed partial class MainWindow : Window
                     ViewModel.UpdateItemArguments);
                 break;
 
+            case "OpenLocation":
+                if (LaunchItemContextMenuHandler.GetTargetItem(sender) is { } openLocationTarget)
+                {
+                    OpenItemLocation(openLocationTarget.FullPath);
+                }
+
+                break;
+
             case "Delete":
                 if (LaunchItemContextMenuHandler.GetTargetItem(sender) is { } deleteTarget)
                     DeleteItemWithUndo(deleteTarget);
@@ -755,6 +765,49 @@ public sealed partial class MainWindow : Window
                     };
                     return created;
                 }
+        }
+    }
+
+    internal static bool TryCreateOpenLocationStartInfo(string path, out ProcessStartInfo startInfo)
+    {
+        startInfo = default!;
+
+        if (PathNormalization.IsUrl(path) || !Path.Exists(path))
+        {
+            return false;
+        }
+
+        startInfo = new ProcessStartInfo
+        {
+            UseShellExecute = true,
+            FileName = "explorer.exe",
+            Arguments = Directory.Exists(path)
+                ? $"\"{path}\""
+                : $"/select,\"{path}\"",
+        };
+
+        return true;
+    }
+
+    private void OpenItemLocation(string path)
+    {
+        if (!TryCreateOpenLocationStartInfo(path, out var startInfo))
+        {
+            ShowFloatingNotification(string.Format(Strings.Error_FileNotFound, path), MessageBoxImage.Warning);
+            return;
+        }
+
+        try
+        {
+            if (Process.Start(startInfo) is null)
+            {
+                ShowFloatingNotification(string.Format(Strings.Error_FileNotFound, path), MessageBoxImage.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Instance.Warn($"Open item location failed for '{path}': {ex.Message}");
+            ShowFloatingNotification(string.Format(Strings.Error_FileNotFound, path), MessageBoxImage.Warning);
         }
     }
 }
