@@ -48,4 +48,32 @@ public class MainWindowOpenLocationTests
 
         Assert.False(canOpen);
     }
+
+    [Fact]
+    public void ShouldOfferDeleteActionForMissingPath_MissingPath_ReturnsTrue()
+    {
+        var shouldOffer = MainWindow.ShouldOfferDeleteActionForMissingPath(@"C:\\this\\path\\does-not-exist");
+
+        Assert.True(shouldOffer);
+    }
+
+    [Fact]
+    public void ShouldOfferDeleteActionForMissingPath_Url_ReturnsFalse()
+    {
+        var shouldOffer = MainWindow.ShouldOfferDeleteActionForMissingPath("https://example.com");
+
+        Assert.False(shouldOffer);
+    }
+
+    [Fact]
+    public void ShouldOfferDeleteActionForMissingPath_ExistingFile_ReturnsFalse()
+    {
+        using var tempDirectory = TemporaryDirectory.Create();
+        var filePath = Path.Combine(tempDirectory.Path, "tool.exe");
+        File.WriteAllText(filePath, string.Empty);
+
+        var shouldOffer = MainWindow.ShouldOfferDeleteActionForMissingPath(filePath);
+
+        Assert.False(shouldOffer);
+    }
 }

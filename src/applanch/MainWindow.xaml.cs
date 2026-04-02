@@ -436,7 +436,7 @@ public sealed partial class MainWindow : Window
             case "OpenLocation":
                 if (LaunchItemContextMenuHandler.GetTargetItem(sender) is { } openLocationTarget)
                 {
-                    OpenItemLocation(openLocationTarget.FullPath);
+                    OpenItemLocation(openLocationTarget);
                 }
 
                 break;
@@ -789,11 +789,23 @@ public sealed partial class MainWindow : Window
         return true;
     }
 
-    private void OpenItemLocation(string path)
+    internal static bool ShouldOfferDeleteActionForMissingPath(string path)
     {
+        return !PathNormalization.IsUrl(path) && !Path.Exists(path);
+    }
+
+    private void OpenItemLocation(LaunchItemViewModel item)
+    {
+        var path = item.FullPath;
+
         if (!TryCreateOpenLocationStartInfo(path, out var startInfo))
         {
-            ShowFloatingNotification(string.Format(Strings.Error_FileNotFound, path), MessageBoxImage.Warning);
+            ShowFloatingNotification(
+                string.Format(Strings.Error_FileNotFound, path),
+                MessageBoxImage.Warning,
+                deleteAction: ShouldOfferDeleteActionForMissingPath(path)
+                    ? () => DeleteItemWithUndo(item)
+                    : null);
             return;
         }
 
