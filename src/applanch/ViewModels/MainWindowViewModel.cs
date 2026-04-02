@@ -9,7 +9,6 @@ using applanch.Helpers;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Utilities;
 
 namespace applanch.ViewModels;
 
@@ -265,7 +264,7 @@ public sealed class MainWindowViewModel : ObservableObject
     {
         foreach (var item in LaunchItems)
         {
-            if (PathNormalization.GetPathType(item.FullPath) is PathType.HttpUrl)
+            if (item.FullPath.IsHttpUrl)
             {
                 item.RefreshIcon();
             }
@@ -450,7 +449,7 @@ public sealed class MainWindowViewModel : ObservableObject
         SelectedCategory == AllCategoriesLabel;
 
     private static LauncherStore.LauncherEntry ToLauncherEntry(LaunchItemViewModel item) =>
-        new(item.FullPath, item.Category, item.Arguments, item.DisplayName);
+        new(item.FullPath.Value, item.Category, item.Arguments, item.DisplayName);
 
     private void UnsubscribeRemovedItems(IList? oldItems)
     {

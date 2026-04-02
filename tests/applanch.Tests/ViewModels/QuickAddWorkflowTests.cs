@@ -158,7 +158,7 @@ public class QuickAddWorkflowTests
 
         Assert.True(result.IsSuccess);
         Assert.NotNull(newItem);
-        Assert.Equal(@"C:\Tools\NewApp.exe", newItem.FullPath);
+        Assert.Equal(@"C:\Tools\NewApp.exe", newItem.FullPath.Value);
     }
 
     [Fact]
@@ -176,7 +176,7 @@ public class QuickAddWorkflowTests
 
         Assert.True(result.IsSuccess);
         Assert.NotNull(newItem);
-        Assert.Equal(url, newItem.FullPath);
+        Assert.Equal(url, newItem.FullPath.Value);
     }
 
     [Fact]

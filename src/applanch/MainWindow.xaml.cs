@@ -784,11 +784,12 @@ public sealed partial class MainWindow : Window
         return created;
     }
 
-    internal static bool TryCreateOpenLocationStartInfo(string path, out ProcessStartInfo startInfo)
+    internal static bool TryCreateOpenLocationStartInfo(LaunchPath launchPath, out ProcessStartInfo startInfo)
     {
         startInfo = default!;
+        var path = launchPath.Value;
 
-        if (PathNormalization.IsUrl(path) || !Path.Exists(path))
+        if (launchPath.IsUrl || !Path.Exists(path))
         {
             return false;
         }
@@ -805,9 +806,9 @@ public sealed partial class MainWindow : Window
         return true;
     }
 
-    internal static bool ShouldOfferDeleteActionForMissingPath(string path)
+    internal static bool ShouldOfferDeleteActionForMissingPath(LaunchPath launchPath)
     {
-        return !PathNormalization.IsUrl(path) && !Path.Exists(path);
+        return !launchPath.IsUrl && !Path.Exists(launchPath.Value);
     }
 
     private void OpenItemLocation(LaunchItemViewModel item)
@@ -817,7 +818,7 @@ public sealed partial class MainWindow : Window
         if (!TryCreateOpenLocationStartInfo(path, out var startInfo))
         {
             ShowFloatingNotification(
-                string.Format(Strings.Error_FileNotFound, path),
+                string.Format(Strings.Error_FileNotFound, path.Value),
                 MessageBoxImage.Warning,
                 deleteAction: ShouldOfferDeleteActionForMissingPath(path)
                     ? () => DeleteItemWithUndo(item)
@@ -829,13 +830,13 @@ public sealed partial class MainWindow : Window
         {
             if (Process.Start(startInfo) is null)
             {
-                ShowFloatingNotification(string.Format(Strings.Error_FileNotFound, path), MessageBoxImage.Warning);
+                ShowFloatingNotification(string.Format(Strings.Error_FileNotFound, path.Value), MessageBoxImage.Warning);
             }
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Open item location failed for '{path}': {ex.Message}");
-            ShowFloatingNotification(string.Format(Strings.Error_FileNotFound, path), MessageBoxImage.Warning);
+            AppLogger.Instance.Warn($"Open item location failed for '{path.Value}': {ex.Message}");
+            ShowFloatingNotification(string.Format(Strings.Error_FileNotFound, path.Value), MessageBoxImage.Warning);
         }
     }
 }

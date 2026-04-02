@@ -27,7 +27,7 @@ public sealed class LaunchItemViewModel : ObservableObject
 
     internal LaunchItemViewModel(string fullPath, string category, string arguments, string displayName, ILaunchItemIconProvider? iconProvider)
     {
-        FullPath = fullPath;
+        FullPath = new LaunchPath(fullPath);
         _dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
         _iconProvider = iconProvider ?? LaunchItemIconProvider.Shared;
         _displayName = LaunchItemNormalization.NormalizeDisplayName(displayName, fullPath);
@@ -42,7 +42,7 @@ public sealed class LaunchItemViewModel : ObservableObject
         get => _displayName;
         set
         {
-            var normalized = LaunchItemNormalization.NormalizeDisplayName(value, FullPath);
+            var normalized = LaunchItemNormalization.NormalizeDisplayName(value, FullPath.Value);
             if (_displayName == normalized)
             {
                 return;
@@ -65,14 +65,14 @@ public sealed class LaunchItemViewModel : ObservableObject
         set => SetField(ref _editingName, value);
     }
 
-    public string FullPath { get; }
+    public LaunchPath FullPath { get; }
     public ImageSource? IconSource
     {
         get => _iconSource;
         private set => SetField(ref _iconSource, value);
     }
 
-    public bool IsPathMissing => !PathNormalization.IsUrl(FullPath) && !Path.Exists(FullPath);
+    public bool IsPathMissing => !FullPath.IsUrl && !Path.Exists(FullPath.Value);
 
     public string Arguments
     {
@@ -146,7 +146,7 @@ public sealed class LaunchItemViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Failed to update icon for '{FullPath}': {ex.Message}");
+            AppLogger.Instance.Warn($"Failed to update icon for '{FullPath.Value}': {ex.Message}");
         }
     }
 }

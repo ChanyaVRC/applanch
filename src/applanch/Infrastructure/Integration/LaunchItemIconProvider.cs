@@ -45,11 +45,11 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
         _networkPolicy.ApplySettings(settings);
     }
 
-    public ImageSource? GetInitialIcon(string fullPath)
+    public ImageSource? GetInitialIcon(LaunchPath path)
     {
-        if (!TryGetHttpPageUri(fullPath, out var pageUri))
+        if (!path.IsHttpUrl || path.ParsedUri is not { } pageUri)
         {
-            return GetShellIcon(fullPath);
+            return GetShellIcon(path.Value);
         }
 
         if (!_networkPolicy.ShouldRequestFavicon(pageUri))
@@ -62,9 +62,9 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
             ?? GenericWebIcon;
     }
 
-    public async ValueTask<ImageSource?> GetDeferredIconAsync(string fullPath)
+    public async ValueTask<ImageSource?> GetDeferredIconAsync(LaunchPath path)
     {
-        if (!TryGetHttpPageUri(fullPath, out var pageUri) || !_networkPolicy.ShouldRequestFavicon(pageUri))
+        if (!path.IsHttpUrl || path.ParsedUri is not { } pageUri || !_networkPolicy.ShouldRequestFavicon(pageUri))
         {
             return null;
         }
@@ -93,19 +93,6 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
         }
 
         return icon;
-    }
-
-    private static bool TryGetHttpPageUri(string fullPath, out Uri pageUri)
-    {
-        pageUri = default!;
-        var pathType = PathNormalization.GetPathType(fullPath, out var parsedUri);
-        if (pathType is not PathType.HttpUrl || parsedUri is null)
-        {
-            return false;
-        }
-
-        pageUri = parsedUri;
-        return true;
     }
 
     internal static Uri CreateFaviconUri(Uri pageUri)

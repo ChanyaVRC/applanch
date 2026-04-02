@@ -5,6 +5,7 @@ using System.Windows.Media;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
+using applanch.Infrastructure.Utilities;
 using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;
 
@@ -438,7 +439,7 @@ public class MainWindowViewModelTests
         Assert.Equal(4, vm.LaunchItems.Count);
 
         // Phase 4: mutate display/category/arguments for the newly added item.
-        var added = vm.LaunchItems.Single(x => x.FullPath.EndsWith("D.exe", StringComparison.OrdinalIgnoreCase));
+        var added = vm.LaunchItems.Single(x => x.FullPath.Value.EndsWith("D.exe", StringComparison.OrdinalIgnoreCase));
         vm.UpdateItemDisplayName(added, "D-App");
         vm.UpdateItemCategory(added, "Dev");
         vm.UpdateItemArguments(added, "--updated");
@@ -800,13 +801,13 @@ public class MainWindowViewModelTests
             ApplySettingsCallCount++;
         }
 
-        public ImageSource? GetInitialIcon(string fullPath)
+        public ImageSource? GetInitialIcon(LaunchPath path)
         {
-            GetInitialIconCalls.Add(fullPath);
+            GetInitialIconCalls.Add(path.Value);
             return null;
         }
 
-        public ValueTask<ImageSource?> GetDeferredIconAsync(string fullPath)
+        public ValueTask<ImageSource?> GetDeferredIconAsync(LaunchPath path)
         {
             return ValueTask.FromResult<ImageSource?>(null);
         }

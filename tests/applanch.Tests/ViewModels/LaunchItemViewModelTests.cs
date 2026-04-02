@@ -1,6 +1,7 @@
 using Xunit;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Integration;
+using applanch.Infrastructure.Utilities;
 using applanch.ViewModels;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -302,9 +303,9 @@ public class LaunchItemViewModelTests
         {
         }
 
-        public ImageSource? GetInitialIcon(string fullPath) => initialIcon;
+        public ImageSource? GetInitialIcon(LaunchPath path) => initialIcon;
 
-        public ValueTask<ImageSource?> GetDeferredIconAsync(string fullPath) => new(_deferredIcon.Task);
+        public ValueTask<ImageSource?> GetDeferredIconAsync(LaunchPath path) => new(_deferredIcon.Task);
 
         internal void Complete(ImageSource icon)
         {

@@ -34,8 +34,9 @@ internal sealed class ItemLaunchService : IItemLaunchService
 
     public LaunchExecutionResult TryLaunch(LaunchItemViewModel item, bool runAsAdministrator = false)
     {
-        var path = item.FullPath;
-        var isUrl = PathNormalization.IsUrl(path);
+        var launchPath = item.FullPath;
+        var path = launchPath.Value;
+        var isUrl = launchPath.IsUrl;
         var isDirectory = !isUrl && Directory.Exists(path);
         var isFile = !isUrl && !isDirectory && File.Exists(path);
 

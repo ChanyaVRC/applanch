@@ -5,6 +5,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Storage;
+using applanch.Infrastructure.Utilities;
 using applanch.Tests.TestSupport;
 using Xunit;
 
@@ -20,7 +21,7 @@ public class LaunchItemIconProviderTests
     {
         var provider = CreateProvider();
 
-        var icon = provider.GetInitialIcon("https://example.com/path");
+        var icon = provider.GetInitialIcon(new LaunchPath("https://example.com/path"));
 
         Assert.NotNull(icon);
     }
@@ -35,7 +36,7 @@ public class LaunchItemIconProviderTests
             provider.ApplySettings(new AppSettings());
             WriteCacheFile(tempDirectory.Path, "https://example.com/favicon.ico", TinyPngBytes, DateTime.UtcNow);
 
-            var icon = provider.GetInitialIcon("https://example.com/page");
+            var icon = provider.GetInitialIcon(new LaunchPath("https://example.com/page"));
 
             Assert.IsAssignableFrom<BitmapFrame>(icon);
         });
@@ -50,7 +51,7 @@ public class LaunchItemIconProviderTests
             var provider = CreateProvider(httpClient: new HttpClient(handler));
             provider.ApplySettings(new AppSettings { FetchHttpIcons = false });
 
-            var icon = await provider.GetDeferredIconAsync("https://example.com/page");
+            var icon = await provider.GetDeferredIconAsync(new LaunchPath("https://example.com/page"));
 
             Assert.Null(icon);
             Assert.Empty(handler.RequestedUris);
@@ -66,7 +67,7 @@ public class LaunchItemIconProviderTests
             var provider = CreateProvider(httpClient: new HttpClient(handler));
             provider.ApplySettings(new AppSettings());
 
-            var icon = await provider.GetDeferredIconAsync(@"C:\\Tools\\Tool.exe");
+            var icon = await provider.GetDeferredIconAsync(new LaunchPath(@"C:\\Tools\\Tool.exe"));
 
             Assert.Null(icon);
             Assert.Empty(handler.RequestedUris);
@@ -82,7 +83,7 @@ public class LaunchItemIconProviderTests
             var provider = CreateProvider(httpClient: new HttpClient(handler));
             provider.ApplySettings(new AppSettings());
 
-            var icon = await provider.GetDeferredIconAsync("http://127.0.0.1/page");
+            var icon = await provider.GetDeferredIconAsync(new LaunchPath("http://127.0.0.1/page"));
 
             Assert.Null(icon);
             Assert.Empty(handler.RequestedUris);
@@ -100,7 +101,7 @@ public class LaunchItemIconProviderTests
                 hostAddressResolver: static (_, _) => Task.FromResult<IReadOnlyList<IPAddress>>([IPAddress.Parse("192.168.1.10")]));
             provider.ApplySettings(new AppSettings());
 
-            var icon = await provider.GetDeferredIconAsync("https://intranet.example/page");
+            var icon = await provider.GetDeferredIconAsync(new LaunchPath("https://intranet.example/page"));
 
             Assert.Null(icon);
             Assert.Empty(handler.RequestedUris);
@@ -118,7 +119,7 @@ public class LaunchItemIconProviderTests
                 hostAddressResolver: static (_, _) => Task.FromResult<IReadOnlyList<IPAddress>>([IPAddress.Parse("::ffff:192.168.1.10")]));
             provider.ApplySettings(new AppSettings());
 
-            var icon = await provider.GetDeferredIconAsync("https://intranet.example/page");
+            var icon = await provider.GetDeferredIconAsync(new LaunchPath("https://intranet.example/page"));
 
             Assert.Null(icon);
             Assert.Empty(handler.RequestedUris);
@@ -138,7 +139,7 @@ public class LaunchItemIconProviderTests
             var provider = CreateProvider(httpClient: new HttpClient(handler), cacheDirectory: tempDirectory.Path);
             provider.ApplySettings(new AppSettings { AllowPrivateNetworkHttpIconRequests = true });
 
-            var icon = await provider.GetDeferredIconAsync("http://127.0.0.1/page");
+            var icon = await provider.GetDeferredIconAsync(new LaunchPath("http://127.0.0.1/page"));
 
             Assert.IsAssignableFrom<BitmapFrame>(icon);
             Assert.Single(handler.RequestedUris);
@@ -170,7 +171,7 @@ public class LaunchItemIconProviderTests
             var provider = CreateProvider(httpClient: new HttpClient(handler), cacheDirectory: tempDirectory.Path);
             provider.ApplySettings(new AppSettings());
 
-            var icon = await provider.GetDeferredIconAsync("http://example.com/page");
+            var icon = await provider.GetDeferredIconAsync(new LaunchPath("http://example.com/page"));
 
             Assert.IsAssignableFrom<BitmapFrame>(icon);
             Assert.Equal(new[]
@@ -195,7 +196,7 @@ public class LaunchItemIconProviderTests
             var provider = CreateProvider(httpClient: new HttpClient(handler), cacheDirectory: tempDirectory.Path);
             provider.ApplySettings(new AppSettings());
 
-            var icon = await provider.GetDeferredIconAsync("https://example.com/page");
+            var icon = await provider.GetDeferredIconAsync(new LaunchPath("https://example.com/page"));
 
             Assert.Null(icon);
             Assert.Single(handler.RequestedUris);
@@ -215,7 +216,7 @@ public class LaunchItemIconProviderTests
             var provider = CreateProvider(httpClient: new HttpClient(handler));
             provider.ApplySettings(new AppSettings());
 
-            var icon = await provider.GetDeferredIconAsync("https://example.com/page");
+            var icon = await provider.GetDeferredIconAsync(new LaunchPath("https://example.com/page"));
 
             Assert.Null(icon);
         });
@@ -235,8 +236,8 @@ public class LaunchItemIconProviderTests
             var provider = CreateProvider(httpClient: new HttpClient(handler), cacheDirectory: tempDirectory.Path);
             provider.ApplySettings(new AppSettings());
 
-            var first = await provider.GetDeferredIconAsync("https://example.com/a");
-            var second = await provider.GetDeferredIconAsync("https://example.com/b");
+            var first = await provider.GetDeferredIconAsync(new LaunchPath("https://example.com/a"));
+            var second = await provider.GetDeferredIconAsync(new LaunchPath("https://example.com/b"));
 
             Assert.NotNull(first);
             Assert.Null(second);
@@ -255,7 +256,7 @@ public class LaunchItemIconProviderTests
             provider.ApplySettings(new AppSettings());
             WriteCacheFile(tempDirectory.Path, "https://example.com/favicon.ico", TinyPngBytes, DateTime.UtcNow);
 
-            var icon = await provider.GetDeferredIconAsync("https://example.com/page");
+            var icon = await provider.GetDeferredIconAsync(new LaunchPath("https://example.com/page"));
 
             Assert.Null(icon);
             Assert.Empty(handler.RequestedUris);
@@ -276,7 +277,7 @@ public class LaunchItemIconProviderTests
             var provider = CreateProvider(httpClient: new HttpClient(handler), cacheDirectory: tempDirectory.Path);
             provider.ApplySettings(new AppSettings());
 
-            var icon = await provider.GetDeferredIconAsync("https://example.com/page");
+            var icon = await provider.GetDeferredIconAsync(new LaunchPath("https://example.com/page"));
 
             Assert.NotNull(icon);
             Assert.Single(handler.RequestedUris);

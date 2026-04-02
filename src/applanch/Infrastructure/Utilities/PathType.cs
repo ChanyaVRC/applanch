@@ -1,6 +1,6 @@
 namespace applanch.Infrastructure.Utilities;
 
-internal enum PathType
+public enum PathType
 {
     FileSystem,
     RegisteredUrl,

@@ -38,7 +38,7 @@ internal sealed class QuickAddWorkflow(IAppResolver appResolver, ILaunchItemIcon
                 QuickAddMessageSeverity.Warning);
         }
 
-        if (existingItems.Any(item => IsSamePath(item.FullPath, resolvedApp.Path)))
+        if (existingItems.Any(item => IsSamePath(item.FullPath.Value, resolvedApp.Path)))
         {
             return QuickAddResult.Failed(Properties.Resources.Error_AlreadyRegistered, QuickAddMessageSeverity.Information);
         }
