@@ -5,6 +5,10 @@
       "displayNames": {
         "en": "System",
         "ja": "システム"
+      },
+      "entriesFrom": {
+        "light": "light",
+        "dark": "dark"
       }
     },
     {

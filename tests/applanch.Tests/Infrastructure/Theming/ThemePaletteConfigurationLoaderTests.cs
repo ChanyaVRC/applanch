@@ -173,6 +173,55 @@ public sealed class ThemePaletteConfigurationLoaderTests
     }
 
     [Fact]
+    public void TryLoadFromDirectory_WhenSystemThemeHasEntriesFrom_LoadsSystemThemeEntrySources()
+    {
+        var root = CreateTempDirectory();
+        var appBase = Path.Combine(root, "appbase");
+        Directory.CreateDirectory(Path.Combine(appBase, "Config"));
+        File.WriteAllText(
+            Path.Combine(appBase, "Config", "theme-palette.json"),
+            """
+            {
+                "themes": [
+                    {
+                        "id": "system",
+                        "entriesFrom": {
+                            "light": "sunrise",
+                            "dark": "midnight"
+                        }
+                    },
+                    {
+                        "id": "sunrise",
+                        "entries": [
+                            { "key": "Brush.Custom", "hex": "#112233" }
+                        ]
+                    },
+                    {
+                        "id": "midnight",
+                        "entries": [
+                            { "key": "Brush.Custom", "hex": "#445566" }
+                        ]
+                    }
+                ]
+            }
+            """);
+
+        try
+        {
+            var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out var configuration);
+
+            Assert.True(loaded);
+            Assert.NotNull(configuration.SystemThemeEntrySources);
+            Assert.Equal("sunrise", configuration.SystemThemeEntrySources![ThemePaletteConfigurationLoader.LightThemeId]);
+            Assert.Equal("midnight", configuration.SystemThemeEntrySources[ThemePaletteConfigurationLoader.DarkThemeId]);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
     public void TryLoadUserDefined_WhenFileAbsent_ReturnsFalse()
     {
         var root = CreateTempDirectory();

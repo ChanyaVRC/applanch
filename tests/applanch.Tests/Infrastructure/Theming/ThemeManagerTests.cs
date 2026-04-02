@@ -108,6 +108,43 @@ public class ThemeManagerTests
         Assert.Equal((Color)ColorConverter.ConvertFromString("#AABBCC")!, brush.Color);
     }
 
+    [Fact]
+    public void ApplyTheme_SystemTheme_UsesEntriesFromMappingWhenProvided()
+    {
+        var resources = new ResourceDictionary();
+        var configuration = new ThemePaletteConfiguration(
+            [
+                new ThemeDefinition(ThemePaletteConfigurationLoader.SystemThemeId, new LocalizedText("System")),
+                new ThemeDefinition("monochrome", new LocalizedText("Monochrome")),
+                new ThemeDefinition(ThemePaletteConfigurationLoader.LightThemeId, new LocalizedText("Light")),
+                new ThemeDefinition(ThemePaletteConfigurationLoader.DarkThemeId, new LocalizedText("Dark"))
+            ],
+            [
+                new ThemePaletteEntry(
+                    "Brush.TextPrimary",
+                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        [ThemePaletteConfigurationLoader.LightThemeId] = "#0F172A",
+                        [ThemePaletteConfigurationLoader.DarkThemeId] = "#E2E8F0",
+                        ["monochrome"] = "#1A1A1A",
+                    })
+            ],
+            LoadedFromConfig: true,
+            SystemThemeEntrySources: new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [ThemePaletteConfigurationLoader.LightThemeId] = "monochrome",
+                [ThemePaletteConfigurationLoader.DarkThemeId] = "monochrome",
+            });
+        var manager = new ThemeManager(
+            () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.SystemThemeId },
+            configuration);
+
+        manager.ApplyTheme(resources);
+
+        var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#1A1A1A")!, brush.Color);
+    }
+
     private static ThemePaletteConfiguration BuildConfiguration() =>
         new(
             [

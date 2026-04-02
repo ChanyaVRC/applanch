@@ -42,7 +42,12 @@ internal static class ThemePaletteConfigurationLoader
             FallbackEntry("Brush.QuickAddInfoText", "#B45309", "#FBBF24"),
             FallbackEntry("Brush.QuickAddWarningText", "#92400E", "#F59E0B")
         ],
-        LoadedFromConfig: false);
+        LoadedFromConfig: false,
+        SystemThemeEntrySources: new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            [LightThemeId] = LightThemeId,
+            [DarkThemeId] = DarkThemeId,
+        });
 
     internal static ThemePaletteConfiguration LoadForRuntime()
     {
@@ -143,7 +148,8 @@ internal static class ThemePaletteConfigurationLoader
             .Select(static kvp => new ThemePaletteEntry(kvp.Key, kvp.Value))
             .ToArray();
 
-        return new ThemePaletteConfiguration(mergedThemes, mergedEntries, LoadedFromConfig: true);
+        var mergedSystemThemeEntrySources = overlay.SystemThemeEntrySources ?? @base.SystemThemeEntrySources;
+        return new ThemePaletteConfiguration(mergedThemes, mergedEntries, LoadedFromConfig: true, mergedSystemThemeEntrySources);
     }
 
     internal static bool TryLoadFromDirectory(string appBaseDirectory, out ThemePaletteConfiguration configuration)
@@ -191,23 +197,25 @@ internal static class ThemePaletteConfigurationLoader
 
     private static bool TryParseConfiguration(JsonElement root, out ThemePaletteConfiguration configuration)
     {
-        if (!TryParseThemesAndEntries(root, out var themes, out var entries))
+        if (!TryParseThemesAndEntries(root, out var themes, out var entries, out var systemThemeEntrySources))
         {
             configuration = FallbackConfiguration;
             return false;
         }
 
-        configuration = new ThemePaletteConfiguration(themes, entries, LoadedFromConfig: true);
+        configuration = new ThemePaletteConfiguration(themes, entries, LoadedFromConfig: true, systemThemeEntrySources);
         return true;
     }
 
     private static bool TryParseThemesAndEntries(
         JsonElement root,
         out ThemeDefinition[] themes,
-        out ThemePaletteEntry[] entries)
+        out ThemePaletteEntry[] entries,
+        out IReadOnlyDictionary<string, string>? systemThemeEntrySources)
     {
         themes = [];
         entries = [];
+        systemThemeEntrySources = null;
 
         if (!root.TryGetProperty("themes", out var themesNode) || themesNode.ValueKind != JsonValueKind.Array)
         {
@@ -229,6 +237,11 @@ internal static class ThemePaletteConfigurationLoader
             if (string.IsNullOrWhiteSpace(themeId))
             {
                 continue;
+            }
+
+            if (string.Equals(themeId, SystemThemeId, StringComparison.OrdinalIgnoreCase))
+            {
+                systemThemeEntrySources = ParseSystemThemeEntrySources(themeNode);
             }
 
             parsedThemes.Add(new ThemeDefinition(themeId, ResolveDisplayName(themeId, ParseDisplayNames(themeNode))));
@@ -263,6 +276,42 @@ internal static class ThemePaletteConfigurationLoader
         entries = colorsByEntryKey.Select(static x => new ThemePaletteEntry(x.Key, x.Value)).ToArray();
 
         return true;
+    }
+
+    private static Dictionary<string, string>? ParseSystemThemeEntrySources(JsonElement systemThemeNode)
+    {
+        if (!systemThemeNode.TryGetProperty("entriesFrom", out var entriesFromNode) ||
+            entriesFromNode.ValueKind != JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        var sources = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var property in entriesFromNode.EnumerateObject())
+        {
+            var mode = NormalizeThemeId(property.Name);
+            if (!string.Equals(mode, LightThemeId, StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(mode, DarkThemeId, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (property.Value.ValueKind != JsonValueKind.String)
+            {
+                continue;
+            }
+
+            var sourceThemeId = NormalizeThemeId(property.Value.GetString());
+            if (string.IsNullOrWhiteSpace(sourceThemeId))
+            {
+                continue;
+            }
+
+            sources[mode] = sourceThemeId;
+        }
+
+        return sources.Count == 0 ? null : sources;
     }
 
     private static void AddColorEntry(
