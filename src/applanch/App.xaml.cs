@@ -97,6 +97,8 @@ public sealed partial class App : Application
     private void ShowMainWindow()
     {
         MainWindow = new MainWindow();
+        _themeApplier.ApplyTheme(Resources, [MainWindow]);
+
         if (_settings.StartMinimizedOnLaunch)
         {
             MainWindow.WindowState = WindowState.Minimized;

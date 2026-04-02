@@ -29,8 +29,11 @@ public sealed partial class SettingsWindow : Window
         base.OnClosed(e);
     }
 
-    private void Window_SourceInitialized(object? sender, EventArgs e) =>
+    private void Window_SourceInitialized(object? sender, EventArgs e)
+    {
         WindowCaptionThemeHelper.Apply(this);
+        WindowIconThemeHelper.Apply(this, Application.Current.Resources);
+    }
 
     private void ResetToDefaults_Click(object sender, RoutedEventArgs e) =>
         ViewModel.ResetToDefaults();

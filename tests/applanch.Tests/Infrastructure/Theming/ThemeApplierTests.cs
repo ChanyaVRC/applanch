@@ -97,6 +97,24 @@ public class ThemeApplierTests
     }
 
     [Fact]
+    public void ApplyTheme_WithWindow_AppliesThemedIcon()
+    {
+        RunInSta(() =>
+        {
+            var resources = new ResourceDictionary();
+            var manager = new ThemeApplier(
+                () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.LightThemeId },
+                BuildConfiguration());
+            var window = new Window();
+
+            manager.ApplyTheme(resources, [window]);
+
+            Assert.NotNull(window.Icon);
+            Assert.Equal(WindowIconThemeHelper.LightPaletteIconColor, WindowIconThemeHelper.ResolveIconColor(resources));
+        });
+    }
+
+    [Fact]
     public void ApplyTheme_UsesProvidedPalette()
     {
         var resources = new ResourceDictionary();
@@ -238,6 +256,32 @@ public class ThemeApplierTests
                     })
             ],
             LoadedFromConfig: true);
+
+    private static void RunInSta(Action action)
+    {
+        Exception? captured = null;
+
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+                captured = ex;
+            }
+        });
+
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+
+        if (captured is not null)
+        {
+            throw new Xunit.Sdk.XunitException($"STA test failed: {captured}");
+        }
+    }
 }
 
 
