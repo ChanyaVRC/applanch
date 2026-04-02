@@ -46,6 +46,7 @@ internal sealed class ThemeApplier
         foreach (var window in windows)
         {
             WindowCaptionThemeHelper.Apply(window);
+            WindowIconThemeHelper.Apply(window, resources);
         }
     }
 

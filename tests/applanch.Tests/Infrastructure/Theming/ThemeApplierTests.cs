@@ -40,6 +40,9 @@ public class ThemeApplierTests
 
         var notificationBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationInfoBackground"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#131D31")!, notificationBrush.Color);
+
+        var iconColor = WindowIconThemeHelper.ResolveIconColor(resources);
+        Assert.Equal(WindowIconThemeHelper.DarkPaletteIconColor, iconColor);
     }
 
     [Fact]
@@ -57,6 +60,9 @@ public class ThemeApplierTests
 
         var notificationBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationInfoBackground"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#FFFFFF")!, notificationBrush.Color);
+
+        var iconColor = WindowIconThemeHelper.ResolveIconColor(resources);
+        Assert.Equal(WindowIconThemeHelper.LightPaletteIconColor, iconColor);
     }
 
     [Fact]
