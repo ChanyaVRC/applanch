@@ -19,24 +19,12 @@ public readonly struct LaunchPath : IEquatable<LaunchPath>
             throw new ArgumentException("Launch path must not be empty.", nameof(fullPath));
         }
 
-        var normalizedValue = NormalizePath(fullPath);
+        var normalizedValue = PathNormalization.NormalizeLaunchPath(fullPath);
         var pathType = PathNormalization.GetPathType(normalizedValue, out var parsedUri);
 
         Value = normalizedValue;
         Type = pathType;
         ParsedUri = parsedUri;
-    }
-
-    private static string NormalizePath(string path)
-    {
-        var trimmed = path.Trim();
-        var normalizedPath = PathNormalization.TryNormalizePersistablePath(trimmed, out var persistablePath)
-            ? persistablePath
-            : PathNormalization.NormalizeForComparison(trimmed);
-
-        return PathNormalization.GetPathType(normalizedPath) is PathType.FileSystem
-            ? PathNormalization.NormalizeForComparison(normalizedPath)
-            : normalizedPath;
     }
 
     public static bool TryCreate(string fullPath, out LaunchPath launchPath)

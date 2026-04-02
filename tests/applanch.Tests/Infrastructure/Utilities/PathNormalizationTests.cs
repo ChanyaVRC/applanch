@@ -76,6 +76,25 @@ public class PathNormalizationTests
         Assert.False(PathNormalization.TryParseHttpUrl(url, out _));
     }
 
+    [Fact]
+    public void NormalizeLaunchPath_HttpUrl_TrimsAndKeepsUrl()
+    {
+        var normalized = PathNormalization.NormalizeLaunchPath("  https://example.com/path?q=1  ");
+
+        Assert.Equal("https://example.com/path?q=1", normalized);
+    }
+
+    [Fact]
+    public void NormalizeLaunchPath_FilePath_RemovesTrailingDirectorySeparator()
+    {
+        var tempDir = Path.GetTempPath().TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        var input = $"  {tempDir}{Path.DirectorySeparatorChar}  ";
+
+        var normalized = PathNormalization.NormalizeLaunchPath(input);
+
+        Assert.Equal(tempDir, normalized);
+    }
+
     [Theory]
     [InlineData("https://example.com", 2)]
     [InlineData("http://example.com/path", 2)]

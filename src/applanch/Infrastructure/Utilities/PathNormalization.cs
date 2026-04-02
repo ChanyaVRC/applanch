@@ -139,6 +139,18 @@ internal static class PathNormalization
         return true;
     }
 
+    internal static string NormalizeLaunchPath(string path)
+    {
+        var trimmed = path.Trim();
+        var normalizedPath = TryNormalizePersistablePath(trimmed, out var persistablePath)
+            ? persistablePath
+            : NormalizeForComparison(trimmed);
+
+        return GetPathType(normalizedPath) is PathType.FileSystem
+            ? NormalizeForComparison(normalizedPath)
+            : normalizedPath;
+    }
+
     private static string NormalizePersistablePathCore(string path)
     {
         try
