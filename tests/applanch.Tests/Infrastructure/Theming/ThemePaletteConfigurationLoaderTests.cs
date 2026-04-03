@@ -168,6 +168,41 @@ public sealed class ThemePaletteConfigurationLoaderTests
     }
 
     [Fact]
+    public void TryLoadFromDirectory_WithoutDisplayNames_UsesTitleCasedThemeIdAsFallback()
+    {
+        var root = CreateTempDirectory();
+        var appBase = Path.Combine(root, "appbase");
+        Directory.CreateDirectory(Path.Combine(appBase, "Config"));
+        File.WriteAllText(
+            Path.Combine(appBase, "Config", "theme-palette.json"),
+            """
+            {
+                "themes": [
+                    {
+                        "id": "high__contrast-dark",
+                        "entries": [
+                            { "key": "Brush.Custom", "hex": "#123456" }
+                        ]
+                    }
+                ]
+            }
+            """);
+
+        try
+        {
+            var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out var configuration);
+
+            Assert.True(loaded);
+            var theme = Assert.Single(configuration.Themes, static t => t.Id == "high__contrast-dark");
+            Assert.Equal("High Contrast Dark", theme.DisplayName.Resolve(LanguageOption.English));
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
     public void TryLoadFromDirectory_WhenJsonContainsSystemTheme_LoadsSystemThemeDefinition()
     {
         var root = CreateTempDirectory();

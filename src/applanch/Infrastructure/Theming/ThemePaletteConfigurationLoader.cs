@@ -1,5 +1,5 @@
+using System.Buffers;
 using System.IO;
-using System.Text;
 using System.Text.Json;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Utilities;
@@ -459,27 +459,59 @@ internal static class ThemePaletteConfigurationLoader
             return value;
         }
 
-        var builder = new StringBuilder(value.Length);
+        const int stackBufferLength = 256;
+        char[]? rented = null;
+        var buffer = value.Length <= stackBufferLength
+            ? stackalloc char[value.Length]
+            : (rented = ArrayPool<char>.Shared.Rent(value.Length));
+
+        var written = 0;
         var makeUpper = true;
 
-        foreach (var c in value)
+        try
         {
-            if (c is '-' or '_' or ' ')
+            foreach (var c in value)
             {
-                if (builder.Length > 0 && builder[^1] != ' ')
+                if (c is '-' or '_' or ' ')
                 {
-                    builder.Append(' ');
+                    if (written > 0 && buffer[written - 1] != ' ')
+                    {
+                        buffer[written++] = ' ';
+                    }
+
+                    makeUpper = true;
+                    continue;
                 }
 
-                makeUpper = true;
-                continue;
+                buffer[written++] = makeUpper ? char.ToUpperInvariant(c) : c;
+                makeUpper = false;
             }
 
-            builder.Append(makeUpper ? char.ToUpperInvariant(c) : c);
-            makeUpper = false;
-        }
+            var start = 0;
+            while (start < written && buffer[start] == ' ')
+            {
+                start++;
+            }
 
-        var result = builder.ToString().Trim();
-        return result.Length == 0 ? value : result;
+            var end = written - 1;
+            while (end >= start && buffer[end] == ' ')
+            {
+                end--;
+            }
+
+            if (end < start)
+            {
+                return value;
+            }
+
+            return new string(buffer[start..(end + 1)]);
+        }
+        finally
+        {
+            if (rented is not null)
+            {
+                ArrayPool<char>.Shared.Return(rented);
+            }
+        }
     }
 }
