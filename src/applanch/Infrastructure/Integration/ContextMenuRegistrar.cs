@@ -12,7 +12,8 @@ internal sealed class ContextMenuRegistrar(
     Func<string, string?> shellExtensionComHostPathResolver,
     Action<string, string, string, string, bool> writeRegistryCommand,
     Action<string> registerExplorerCommandServer,
-    bool enableLegacyCleanup = true)
+    bool enableLegacyCleanup = true,
+    Action<string>? deleteRegistrySubKeyTree = null)
 {
     private const string BasePath = @"Software\Classes";
     private const string MenuKeyName = "applanch.register";
@@ -31,6 +32,9 @@ internal sealed class ContextMenuRegistrar(
         new("Directory", "%1", true),
         new("Directory\\Background", "%V", false)
     ];
+
+    private static readonly Action<string> DefaultDeleteSubKeyTree =
+        static keyPath => Registry.CurrentUser.DeleteSubKeyTree(keyPath, throwOnMissingSubKey: false);
 
     public ContextMenuRegistrar()
         : this(static () => Environment.ProcessPath, ResolveShellExtensionComHostPath, WriteRegistryCommand, RegisterExplorerCommandServer, enableLegacyCleanup: true)
@@ -56,6 +60,19 @@ internal sealed class ContextMenuRegistrar(
         foreach (var target in RegistrationTargets)
         {
             RegisterTargetSafely(exePath, target, explorerCommandEnabled && target.SupportsExplorerCommand);
+        }
+    }
+
+    public void Unregister()
+    {
+        var delete = deleteRegistrySubKeyTree ?? DefaultDeleteSubKeyTree;
+
+        DeleteRegistrySafely(delete, $@"{BasePath}\CLSID\{{{ExplorerCommandIds.ClassId}}}");
+        DeleteRegistrySafely(delete, $@"{BasePath}\{ExplorerCommandIds.ProgId}");
+
+        foreach (var target in RegistrationTargets)
+        {
+            DeleteRegistrySafely(delete, $@"{BasePath}\{target.ClassKeyPath}\shell\{MenuKeyName}");
         }
     }
 
@@ -126,6 +143,26 @@ internal sealed class ContextMenuRegistrar(
         catch (IOException ex)
         {
             AppLogger.Instance.Warn($"Registry registration I/O error for {target.ClassKeyPath}: {ex.Message}");
+        }
+    }
+
+    private static void DeleteRegistrySafely(Action<string> delete, string keyPath)
+    {
+        try
+        {
+            delete(keyPath);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            AppLogger.Instance.Warn($"Registry deletion denied for {keyPath}: {ex.Message}");
+        }
+        catch (SecurityException ex)
+        {
+            AppLogger.Instance.Warn($"Registry deletion security error for {keyPath}: {ex.Message}");
+        }
+        catch (IOException ex)
+        {
+            AppLogger.Instance.Warn($"Registry deletion I/O error for {keyPath}: {ex.Message}");
         }
     }
 

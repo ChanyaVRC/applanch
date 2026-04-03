@@ -13,6 +13,7 @@ namespace applanch;
 public sealed partial class App : Application
 {
     internal const string RegisterArgument = "--register";
+    internal const string UnregisterContextMenuArgument = "--unregister-context-menu";
     internal AppEvent Events { get; } = new();
     private AppSettings _settings = new();
     private readonly ThemeApplier _themeApplier = new();
@@ -53,6 +54,12 @@ public sealed partial class App : Application
         ApplyStartupRegistration(_settings);
 
         if (TryHandleRegisterArgument(e.Args))
+        {
+            Shutdown();
+            return;
+        }
+
+        if (TryHandleUnregisterContextMenuArgument(e.Args))
         {
             Shutdown();
             return;
@@ -167,6 +174,17 @@ public sealed partial class App : Application
             LauncherStore.Add(path);
         }
 
+        return true;
+    }
+
+    private bool TryHandleUnregisterContextMenuArgument(string[] args)
+    {
+        if (args.Length < 1 || !string.Equals(args[0], UnregisterContextMenuArgument, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        _contextMenuRegistrar.Unregister();
         return true;
     }
 }

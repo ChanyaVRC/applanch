@@ -243,6 +243,70 @@ public class ContextMenuRegistrarTests
     }
 
     [Fact]
+    public void Unregister_DeletesAllExpectedKeys()
+    {
+        var deleter = new RecordingRegistryKeyDeleter();
+        var registrar = new ContextMenuRegistrar(() => null, static _ => null, static (_, _, _, _, _) => { }, static _ => { }, enableLegacyCleanup: false, deleter.Delete);
+
+        registrar.Unregister();
+
+        Assert.Equal(7, deleter.Calls.Count);
+        Assert.Contains(deleter.Calls, static k => k.Contains($@"Classes\CLSID\{{{ExplorerCommandClassId}}}", StringComparison.Ordinal));
+        Assert.Contains(deleter.Calls, static k => k.Contains($@"Classes\{ExplorerCommandProgId}", StringComparison.Ordinal));
+        Assert.Contains(deleter.Calls, static k => k.Contains(@"Classes\AllFileSystemObjects\shell\applanch.register", StringComparison.Ordinal));
+        Assert.Contains(deleter.Calls, static k => k.Contains(@"Classes\*\shell\applanch.register", StringComparison.Ordinal));
+        Assert.Contains(deleter.Calls, static k => k.Contains(@"Classes\exefile\shell\applanch.register", StringComparison.Ordinal));
+        Assert.Contains(deleter.Calls, static k => k.Contains(@"Classes\Directory\shell\applanch.register", StringComparison.Ordinal));
+        Assert.Contains(deleter.Calls, static k => k.Contains(@"Classes\Directory\Background\shell\applanch.register", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Unregister_WhenDeleterThrowsUnauthorizedAccess_DoesNotThrow()
+    {
+        var registrar = new ContextMenuRegistrar(
+            () => null, static _ => null, static (_, _, _, _, _) => { }, static _ => { }, enableLegacyCleanup: false,
+            static _ => throw new UnauthorizedAccessException("Simulated denial"));
+
+        var exception = Record.Exception(registrar.Unregister);
+
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public void Unregister_WhenDeleterThrowsSecurityException_DoesNotThrow()
+    {
+        var registrar = new ContextMenuRegistrar(
+            () => null, static _ => null, static (_, _, _, _, _) => { }, static _ => { }, enableLegacyCleanup: false,
+            static _ => throw new System.Security.SecurityException("Simulated security error"));
+
+        var exception = Record.Exception(registrar.Unregister);
+
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public void Unregister_WhenDeleterThrowsIOException_DoesNotThrow()
+    {
+        var registrar = new ContextMenuRegistrar(
+            () => null, static _ => null, static (_, _, _, _, _) => { }, static _ => { }, enableLegacyCleanup: false,
+            static _ => throw new IOException("Simulated IO error"));
+
+        var exception = Record.Exception(registrar.Unregister);
+
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public void Unregister_WhenDeleterThrowsUnexpected_Throws()
+    {
+        var registrar = new ContextMenuRegistrar(
+            () => null, static _ => null, static (_, _, _, _, _) => { }, static _ => { }, enableLegacyCleanup: false,
+            static _ => throw new InvalidOperationException("Simulated unexpected error"));
+
+        Assert.Throws<InvalidOperationException>(registrar.Unregister);
+    }
+
+    [Fact]
     public void ResolveShellExtensionComHostPath_UsesPublishedArtifactsDirectory_WhenArtifactsExistNextToExecutable()
     {
         var rootDirectory = CreateTemporaryDirectory();
