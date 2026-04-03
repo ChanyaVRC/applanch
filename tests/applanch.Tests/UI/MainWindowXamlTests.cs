@@ -16,9 +16,9 @@ public class MainWindowXamlTests
         Assert.Contains("SnapsToDevicePixels=\"True\"", xaml);
         Assert.Contains("TextOptions.TextFormattingMode=\"Display\"", xaml);
         Assert.Contains("TextOptions.TextRenderingMode=\"Auto\"", xaml);
-        Assert.Contains("Button_DeleteForMissingItem", xaml);
-        Assert.Contains("DeleteNotificationButton_Click", xaml);
-        Assert.Contains("FloatingNotification.DeleteVisibility", xaml);
+        Assert.Contains("FloatingNotification.ActionText", xaml);
+        Assert.Contains("NotificationActionButton_Click", xaml);
+        Assert.Contains("FloatingNotification.ActionVisibility", xaml);
     }
 
     [Fact]

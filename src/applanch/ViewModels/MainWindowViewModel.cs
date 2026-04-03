@@ -9,6 +9,7 @@ using applanch.Helpers;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
+using applanch.Infrastructure.Updates;
 
 namespace applanch.ViewModels;
 
@@ -246,6 +247,31 @@ public sealed class MainWindowViewModel : ObservableObject
         ApplyLaunchItemSort();
         RefreshFilteredView();
         OnPropertyChanged(nameof(EmptyMessageVisibility));
+    }
+
+    internal void ApplyUpdateAvailability(AppUpdateInfo? update)
+    {
+        UpdateBanner.ApplyAvailability(update, _settings.UpdateInstallBehavior);
+    }
+
+    internal void RevealManualUpdateActions()
+    {
+        UpdateBanner.RevealManualActions();
+    }
+
+    internal void DismissUpdateBanner()
+    {
+        UpdateBanner.Dismiss();
+    }
+
+    internal void ShowFloatingNotification(string message, NotificationIconType iconType, string? actionText = null, Action? action = null)
+    {
+        FloatingNotification.Show(message, iconType, actionText, action);
+    }
+
+    internal void ClearFloatingNotification()
+    {
+        FloatingNotification.Clear();
     }
 
     private void RefreshHttpItemIcons()

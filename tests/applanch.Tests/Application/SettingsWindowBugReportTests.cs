@@ -62,7 +62,7 @@ public class SettingsWindowBugReportTests
     {
         var vm = new SettingsWindowViewModel(new AppSettings(), new AppEvent());
 
-        var text = SettingsWindow.CreateDiagnosticsText(vm);
+        var text = vm.CreateDiagnosticsText();
 
         Assert.Contains("App version:", text);
         Assert.Contains("OS:", text);

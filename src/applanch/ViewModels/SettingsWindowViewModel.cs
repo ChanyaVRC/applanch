@@ -1,6 +1,10 @@
+using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Text;
 using applanch.Events;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch.ViewModels;
 
@@ -213,6 +217,21 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
         NotifyAllProperties();
         Commit();
+    }
+
+    internal string CreateDiagnosticsText()
+    {
+        var builder = new StringBuilder(256);
+        builder.AppendLine($"App version: {AppVersionProvider.GetDisplayVersion()}");
+        builder.AppendLine($"OS: {RuntimeInformation.OSDescription.Trim()}");
+        builder.AppendLine($".NET: {RuntimeInformation.FrameworkDescription}");
+        builder.AppendLine($"UI culture: {CultureInfo.CurrentUICulture.Name}");
+        builder.AppendLine($"Culture: {CultureInfo.CurrentCulture.Name}");
+        builder.AppendLine($"Log folder: {AppLogger.LogDirectoryPath}");
+        builder.AppendLine($"Update check on startup: {CheckForUpdatesOnStartup}");
+        builder.AppendLine($"Update install behavior: {(UpdateInstallBehavior)UpdateInstallBehaviorIndex}");
+        builder.AppendLine($"Debug update mode: {DebugUpdate}");
+        return builder.ToString();
     }
 
     private void LoadFields(AppSettings settings)

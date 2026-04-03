@@ -3,10 +3,15 @@ using System.IO;
 using System.Globalization;
 using System.Windows;
 using applanch.Events;
+using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Integration;
+using applanch.Infrastructure.Launch;
+using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
+using applanch.Infrastructure.Updates;
 using applanch.Infrastructure.Utilities;
+using applanch.ViewModels;
 
 namespace applanch;
 
@@ -116,7 +121,7 @@ public sealed partial class App : Application
 
     private void ShowMainWindow()
     {
-        MainWindow = new MainWindow(_settings);
+        MainWindow = CreateMainWindow(_settings);
         _themeApplier.ApplyTheme(Resources, [MainWindow]);
 
         if (_settings.StartMinimizedOnLaunch)
@@ -125,6 +130,39 @@ public sealed partial class App : Application
         }
 
         MainWindow.Show();
+    }
+
+    private static MainWindow CreateMainWindow(AppSettings settings)
+    {
+        var interactionService = CreateInteractionService();
+        var updateServiceFactory = CreateUpdateServiceFactory();
+
+        return new MainWindow(
+            CreateMainWindowViewModel(settings),
+            CreateItemLaunchService(),
+            interactionService,
+            updateServiceFactory,
+            settings);
+    }
+
+    private static MainWindowViewModel CreateMainWindowViewModel(AppSettings settings)
+    {
+        return new MainWindowViewModel(new AppResolverAdapter(), new LauncherStoreAdapter(), settings);
+    }
+
+    private static ItemLaunchService CreateItemLaunchService()
+    {
+        return new ItemLaunchService();
+    }
+
+    private static UserInteractionService CreateInteractionService()
+    {
+        return new UserInteractionService();
+    }
+
+    private static Func<AppSettings, IAppUpdateService> CreateUpdateServiceFactory()
+    {
+        return static settings => new GitHubAppUpdateService(settings.DebugUpdate);
     }
 
     private static void ApplyLanguage(LanguageOption language)

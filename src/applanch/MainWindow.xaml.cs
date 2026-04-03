@@ -10,7 +10,6 @@ using applanch.Events;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Items;
 using applanch.Infrastructure.Launch;
-using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
 using applanch.Infrastructure.Updates;
@@ -43,24 +42,25 @@ public sealed partial class MainWindow : Window
     private readonly Storyboard _slideOutStoryboard;
     private readonly Storyboard _countdownStoryboard;
     private readonly AppEvent? _appEvent;
+    private readonly Func<AppSettings, IAppUpdateService> _updateServiceFactory;
     private MainWindowViewModel ViewModel { get; }
 
     public MainWindow()
-        : this(AppSettings.Load())
-    {
-    }
-
-    internal MainWindow(AppSettings settings)
         : this(
-            new MainWindowViewModel(new AppResolverAdapter(), new LauncherStoreAdapter(), settings),
+            new MainWindowViewModel(),
             new ItemLaunchService(),
             new UserInteractionService(),
-            new GitHubAppUpdateService(settings.DebugUpdate),
-            settings)
+            static settings => new GitHubAppUpdateService(settings.DebugUpdate),
+            AppSettings.Load())
     {
     }
 
-    internal MainWindow(MainWindowViewModel viewModel, IItemLaunchService itemLaunchService, IUserInteractionService interactionService, IAppUpdateService updateService, AppSettings settings)
+    internal MainWindow(
+        MainWindowViewModel viewModel,
+        IItemLaunchService itemLaunchService,
+        IUserInteractionService interactionService,
+        Func<AppSettings, IAppUpdateService> updateServiceFactory,
+        AppSettings settings)
     {
         InitializeComponent();
         ViewModel = viewModel;
@@ -71,7 +71,8 @@ public sealed partial class MainWindow : Window
         _contextMenuHandler = new LaunchItemContextMenuHandler(_interactionService, this);
         _inlineRenameHandler = new InlineRenameHandler();
         _dragDropResolver = new LaunchListDragDropResolver();
-        _updateWorkflow = new UpdateWorkflow(updateService);
+        _updateServiceFactory = updateServiceFactory;
+        _updateWorkflow = new UpdateWorkflow(_updateServiceFactory(settings));
         _floatingNotificationCoordinator = new FloatingNotificationCoordinator();
         _settings = settings;
         _floatingNotificationTimer = new DispatcherTimer
@@ -132,23 +133,13 @@ public sealed partial class MainWindow : Window
     private void ApplyUpdateAvailability(AppUpdateInfo? update)
     {
         _pendingUpdate = update;
+        ViewModel.ApplyUpdateAvailability(update);
 
         if (update is null)
         {
-            ViewModel.UpdateBanner.Message = string.Empty;
-            ViewModel.UpdateBanner.BannerVisibility = Visibility.Collapsed;
-            ViewModel.UpdateBanner.HeaderButtonVisibility = Visibility.Collapsed;
-            ViewModel.UpdateBanner.ActionButtonVisibility = Visibility.Visible;
             _lastAutoApplyAttemptedVersion = null;
             return;
         }
-
-        ViewModel.UpdateBanner.Message = string.Format(Strings.UpdateMessage, update.NewVersion, update.CurrentVersion);
-
-        var presentation = ResolveUpdatePresentation(_settings.UpdateInstallBehavior);
-        ViewModel.UpdateBanner.BannerVisibility = presentation.BannerVisibility;
-        ViewModel.UpdateBanner.HeaderButtonVisibility = presentation.HeaderButtonVisibility;
-        ViewModel.UpdateBanner.ActionButtonVisibility = presentation.ActionButtonVisibility;
 
         switch (_settings.UpdateInstallBehavior)
         {
@@ -168,30 +159,6 @@ public sealed partial class MainWindow : Window
                 break;
         }
     }
-
-    internal static UpdatePresentation ResolveUpdatePresentation(UpdateInstallBehavior behavior)
-    {
-        return behavior switch
-        {
-            UpdateInstallBehavior.NotifyOnly => new UpdatePresentation(
-                Visibility.Visible,
-                Visibility.Collapsed,
-                Visibility.Collapsed),
-            UpdateInstallBehavior.AutomaticallyApply => new UpdatePresentation(
-                Visibility.Collapsed,
-                Visibility.Collapsed,
-                Visibility.Collapsed),
-            _ => new UpdatePresentation(
-                Visibility.Visible,
-                Visibility.Visible,
-                Visibility.Visible),
-        };
-    }
-
-    internal readonly record struct UpdatePresentation(
-        Visibility BannerVisibility,
-        Visibility HeaderButtonVisibility,
-        Visibility ActionButtonVisibility);
 
     internal void ApplySettingsFromAppRefresh(AppSettings settings)
     {
@@ -240,7 +207,7 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        _settingsWindow = new SettingsWindow(this, _settings);
+        _settingsWindow = new SettingsWindow(this, _settings, _interactionService);
         _settingsWindow.Closed += OnSettingsWindowClosed;
         _settingsWindow.Show();
     }
@@ -261,7 +228,7 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        _updateWorkflow.SetUpdateService(new GitHubAppUpdateService(_settings.DebugUpdate));
+        _updateWorkflow.SetUpdateService(_updateServiceFactory(_settings));
         _appEvent?.Invoke(AppEvents.UpdateCheckRequested);
     }
 
@@ -292,7 +259,10 @@ public sealed partial class MainWindow : Window
             ShowFloatingNotification(
                 workflowResult.Execution.Message,
                 workflowResult.Execution.Icon,
-                deleteAction: ShouldOfferDeleteActionForLaunchFailure(workflowResult.Execution)
+                actionText: ShouldOfferDeleteActionForLaunchFailure(workflowResult.Execution)
+                    ? Strings.Button_DeleteForMissingItem
+                    : null,
+                action: ShouldOfferDeleteActionForLaunchFailure(workflowResult.Execution)
                     ? () => DeleteItemWithUndo(item)
                     : null);
             return;
@@ -342,7 +312,8 @@ public sealed partial class MainWindow : Window
         ShowFloatingNotification(
             string.Format(Strings.Notification_ItemDeleted, item.DisplayName),
             MessageBoxImage.Information,
-            undoAction: () =>
+            Strings.Button_Undo,
+            () =>
             {
                 ViewModel.InsertItem(item, workflowResult.DeletedIndex);
                 ShowFloatingNotification(
@@ -384,9 +355,7 @@ public sealed partial class MainWindow : Window
             {
                 if (isAutomatic)
                 {
-                    ViewModel.UpdateBanner.BannerVisibility = Visibility.Visible;
-                    ViewModel.UpdateBanner.HeaderButtonVisibility = Visibility.Visible;
-                    ViewModel.UpdateBanner.ActionButtonVisibility = Visibility.Visible;
+                    ViewModel.RevealManualUpdateActions();
                 }
 
                 ShowFloatingNotification(string.Format(Strings.UpdateFailed, result.ErrorMessage), MessageBoxImage.Error);
@@ -403,7 +372,7 @@ public sealed partial class MainWindow : Window
 
     private void DismissUpdateButton_Click(object sender, RoutedEventArgs e)
     {
-        ViewModel.UpdateBanner.BannerVisibility = Visibility.Collapsed;
+        ViewModel.DismissUpdateBanner();
     }
 
     private void FloatingNotificationTimer_Tick(object? sender, EventArgs e)
@@ -411,16 +380,10 @@ public sealed partial class MainWindow : Window
         HideFloatingNotification();
     }
 
-    private void UndoButton_Click(object sender, RoutedEventArgs e)
+    private void NotificationActionButton_Click(object sender, RoutedEventArgs e)
     {
         HideFloatingNotification();
-        ViewModel.FloatingNotification.UndoAction?.Invoke();
-    }
-
-    private void DeleteNotificationButton_Click(object sender, RoutedEventArgs e)
-    {
-        HideFloatingNotification();
-        ViewModel.FloatingNotification.DeleteAction?.Invoke();
+        ViewModel.FloatingNotification.Action?.Invoke();
     }
 
     internal static bool ShouldOfferDeleteActionForLaunchFailure(LaunchExecutionResult execution)
@@ -428,12 +391,9 @@ public sealed partial class MainWindow : Window
         return !execution.IsSuccess && execution.FailureKind == LaunchFailureKind.MissingTarget;
     }
 
-    private void ShowFloatingNotification(string message, MessageBoxImage icon, Action? undoAction = null, Action? deleteAction = null)
+    private void ShowFloatingNotification(string message, MessageBoxImage icon, string? actionText = null, Action? action = null)
     {
-        ViewModel.FloatingNotification.Message = message;
-        ViewModel.FloatingNotification.IconType = FloatingNotificationCoordinator.MapIcon(icon);
-        ViewModel.FloatingNotification.UndoAction = undoAction;
-        ViewModel.FloatingNotification.DeleteAction = deleteAction;
+        ViewModel.ShowFloatingNotification(message, FloatingNotificationCoordinator.MapIcon(icon), actionText, action);
         FloatingNotificationBanner.Visibility = Visibility.Visible;
         _floatingNotificationCoordinator.BeginShow();
         _slideInStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
@@ -477,10 +437,7 @@ public sealed partial class MainWindow : Window
 
     private void ClearFloatingNotification()
     {
-        ViewModel.FloatingNotification.Message = string.Empty;
-        ViewModel.FloatingNotification.IconType = NotificationIconType.None;
-        ViewModel.FloatingNotification.UndoAction = null;
-        ViewModel.FloatingNotification.DeleteAction = null;
+        ViewModel.ClearFloatingNotification();
     }
 
     // ── Context menu handlers ───────────────────────────────
@@ -865,7 +822,10 @@ public sealed partial class MainWindow : Window
             ShowFloatingNotification(
                 string.Format(Strings.Error_FileNotFound, path.Value),
                 MessageBoxImage.Warning,
-                deleteAction: ShouldOfferDeleteActionForMissingPath(path)
+                actionText: ShouldOfferDeleteActionForMissingPath(path)
+                    ? Strings.Button_DeleteForMissingItem
+                    : null,
+                action: ShouldOfferDeleteActionForMissingPath(path)
                     ? () => DeleteItemWithUndo(item)
                     : null);
             return;

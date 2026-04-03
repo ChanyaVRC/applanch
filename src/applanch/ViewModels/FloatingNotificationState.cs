@@ -6,8 +6,8 @@ public sealed class FloatingNotificationState : ObservableObject
 {
     private string _message = string.Empty;
     private NotificationIconType _iconType;
-    private Action? _undoAction;
-    private Action? _deleteAction;
+    private string _actionText = string.Empty;
+    private Action? _action;
 
     public string Message
     {
@@ -21,31 +21,39 @@ public sealed class FloatingNotificationState : ObservableObject
         internal set => SetField(ref _iconType, value);
     }
 
-    public Action? UndoAction
+    public string ActionText
     {
-        get => _undoAction;
+        get => _actionText;
+        internal set => SetField(ref _actionText, value);
+    }
+
+    public Action? Action
+    {
+        get => _action;
         internal set
         {
-            if (SetField(ref _undoAction, value))
+            if (SetField(ref _action, value))
             {
-                OnPropertyChanged(nameof(UndoVisibility));
+                OnPropertyChanged(nameof(ActionVisibility));
             }
         }
     }
 
-    public Action? DeleteAction
+    public Visibility ActionVisibility => _action is null ? Visibility.Collapsed : Visibility.Visible;
+
+    internal void Show(string message, NotificationIconType iconType, string? actionText = null, Action? action = null)
     {
-        get => _deleteAction;
-        internal set
-        {
-            if (SetField(ref _deleteAction, value))
-            {
-                OnPropertyChanged(nameof(DeleteVisibility));
-            }
-        }
+        Message = message;
+        IconType = iconType;
+        ActionText = actionText ?? string.Empty;
+        Action = action;
     }
 
-    public Visibility UndoVisibility => _undoAction is null ? Visibility.Collapsed : Visibility.Visible;
-
-    public Visibility DeleteVisibility => _deleteAction is null ? Visibility.Collapsed : Visibility.Visible;
+    internal void Clear()
+    {
+        Message = string.Empty;
+        IconType = NotificationIconType.None;
+        ActionText = string.Empty;
+        Action = null;
+    }
 }
