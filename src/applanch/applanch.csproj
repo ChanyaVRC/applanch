@@ -35,6 +35,10 @@
     <Content Include="Config\UserDefined\launch-fallbacks\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="unregister-context-menu.cmd">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
 
     <Compile Remove="Properties\Resources.Designer.cs" />
 
