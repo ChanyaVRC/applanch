@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Text;
 using applanch.Infrastructure.Launch.AppIdResolvers;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Launch;
 
@@ -16,23 +17,25 @@ internal sealed class LaunchFallbackResolver(LaunchFallbackConfiguration configu
         return new LaunchFallbackResolver(configuration);
     }
 
-    public bool TryCreatePreferred(string launchPath, bool runAsAdministrator, out ProcessStartInfo fallback, out string fallbackName)
+    public bool TryCreatePreferred(LaunchPath launchPath, bool runAsAdministrator, out ProcessStartInfo fallback, out string fallbackName)
     {
         return TryCreateCore(launchPath, runAsAdministrator, "always", out fallback, out fallbackName);
     }
 
-    public bool TryCreate(string launchPath, bool runAsAdministrator, out ProcessStartInfo fallback, out string fallbackName)
+    public bool TryCreate(LaunchPath launchPath, bool runAsAdministrator, out ProcessStartInfo fallback, out string fallbackName)
     {
         return TryCreateCore(launchPath, runAsAdministrator, "access-denied", out fallback, out fallbackName);
     }
 
     private bool TryCreateCore(
-        string launchPath,
+        LaunchPath launchPath,
         bool runAsAdministrator,
         string requiredTrigger,
         out ProcessStartInfo fallback,
         out string fallbackName)
     {
+        var launchPathValue = launchPath.Value;
+
         foreach (var rule in _rules)
         {
             if (!rule.Enabled)
@@ -45,7 +48,7 @@ internal sealed class LaunchFallbackResolver(LaunchFallbackConfiguration configu
                 continue;
             }
 
-            if (!RuleMatchesPath(rule, launchPath))
+            if (!RuleMatchesPath(rule, launchPathValue))
             {
                 continue;
             }
@@ -88,7 +91,7 @@ internal sealed class LaunchFallbackResolver(LaunchFallbackConfiguration configu
 
     private static bool TryCreateFromRule(
         LaunchFallbackRuleConfiguration rule,
-        string launchPath,
+        LaunchPath launchPath,
         bool runAsAdministrator,
         out ProcessStartInfo fallback)
     {
@@ -107,7 +110,7 @@ internal sealed class LaunchFallbackResolver(LaunchFallbackConfiguration configu
 
     private static bool TryCreateUriTemplateFallback(
         LaunchFallbackRuleConfiguration rule,
-        string launchPath,
+        LaunchPath launchPath,
         bool runAsAdministrator,
         out ProcessStartInfo fallback)
     {
@@ -147,7 +150,7 @@ internal sealed class LaunchFallbackResolver(LaunchFallbackConfiguration configu
 
     private static bool TryCreateCommandTemplateFallback(
         LaunchFallbackRuleConfiguration rule,
-        string launchPath,
+        LaunchPath launchPath,
         bool runAsAdministrator,
         out ProcessStartInfo fallback)
     {
@@ -211,32 +214,33 @@ internal sealed class LaunchFallbackResolver(LaunchFallbackConfiguration configu
         return false;
     }
 
-    private static Dictionary<string, string>? BuildTemplateValues(LaunchFallbackRuleConfiguration rule, string launchPath)
+    private static Dictionary<string, string>? BuildTemplateValues(LaunchFallbackRuleConfiguration rule, LaunchPath launchPath)
     {
+        var launchPathValue = launchPath.Value;
         var appId = ResolveAppId(rule, launchPath);
         if (appId is null)
         {
             return null;
         }
 
-        var launchDirectory = Path.GetDirectoryName(launchPath) ?? string.Empty;
-        var launchFileName = Path.GetFileName(launchPath);
-        var launchFileStem = Path.GetFileNameWithoutExtension(launchPath);
+        var launchDirectory = Path.GetDirectoryName(launchPathValue) ?? string.Empty;
+        var launchFileName = Path.GetFileName(launchPathValue);
+        var launchFileStem = Path.GetFileNameWithoutExtension(launchPathValue);
         return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             ["appId"] = appId,
             ["product"] = rule.Product,
             ["patchline"] = rule.Patchline,
-            ["launchPath"] = launchPath,
+            ["launchPath"] = launchPathValue,
             ["launchDirectory"] = launchDirectory,
             ["launchFileName"] = launchFileName,
             ["launchFileStem"] = launchFileStem,
-            ["launchPathQuoted"] = Quote(launchPath),
+            ["launchPathQuoted"] = Quote(launchPathValue),
             ["launchDirectoryQuoted"] = Quote(launchDirectory),
         };
     }
 
-    private static string? ResolveAppId(LaunchFallbackRuleConfiguration rule, string launchPath)
+    private static string? ResolveAppId(LaunchFallbackRuleConfiguration rule, LaunchPath launchPath)
     {
         // Try static appId first
         if (!string.IsNullOrWhiteSpace(rule.AppId))

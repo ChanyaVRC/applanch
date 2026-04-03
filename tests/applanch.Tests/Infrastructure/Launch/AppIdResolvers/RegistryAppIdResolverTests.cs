@@ -1,4 +1,5 @@
 using applanch.Infrastructure.Launch.AppIdResolvers;
+using applanch.Infrastructure.Utilities;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Launch.AppIdResolvers;
@@ -13,7 +14,7 @@ public class RegistryAppIdResolverTests
     {
         var resolver = new RegistryAppIdResolver(source);
 
-        var result = resolver.TryResolve(@"C:\game.exe", out var appId);
+        var result = resolver.TryResolve(new LaunchPath(@"C:\game.exe"), out var appId);
 
         Assert.False(result);
         Assert.Equal(string.Empty, appId);
@@ -24,7 +25,7 @@ public class RegistryAppIdResolverTests
     {
         var resolver = new RegistryAppIdResolver("registry:HKEY_BOGUS:SOFTWARE:Value");
 
-        var result = resolver.TryResolve(@"C:\game.exe", out _);
+        var result = resolver.TryResolve(new LaunchPath(@"C:\game.exe"), out _);
 
         Assert.False(result);
     }
@@ -40,7 +41,7 @@ public class RegistryAppIdResolverTests
         // Parsing succeeds for all known hive names; registry read returns false because key doesn't exist
         var resolver = new RegistryAppIdResolver(source);
 
-        var result = resolver.TryResolve(@"C:\game.exe", out var appId);
+        var result = resolver.TryResolve(new LaunchPath(@"C:\game.exe"), out var appId);
 
         Assert.False(result);
         Assert.Equal(string.Empty, appId);

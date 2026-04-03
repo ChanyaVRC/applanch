@@ -1,4 +1,5 @@
 using applanch.Infrastructure.Launch;
+using applanch.Infrastructure.Utilities;
 using applanch.Tests.TestSupport;
 using Xunit;
 
@@ -26,7 +27,7 @@ public class LaunchFallbackResolverTests
 
         var resolver = new LaunchFallbackResolver(configuration);
 
-        var matched = resolver.TryCreate(@"C:\Games\Game.exe", runAsAdministrator: false, out var fallback, out var fallbackName);
+        var matched = resolver.TryCreate(new LaunchPath(@"C:\Games\Game.exe"), runAsAdministrator: false, out var fallback, out var fallbackName);
 
         Assert.True(matched);
         Assert.Equal("Epic sample", fallbackName);
@@ -55,7 +56,7 @@ public class LaunchFallbackResolverTests
 
         var resolver = new LaunchFallbackResolver(configuration);
 
-        var matched = resolver.TryCreate(@"C:\Games\Game.exe", runAsAdministrator: true, out var fallback, out _);
+        var matched = resolver.TryCreate(new LaunchPath(@"C:\Games\Game.exe"), runAsAdministrator: true, out var fallback, out _);
 
         Assert.True(matched);
         Assert.Equal("runas", fallback.Verb);
@@ -90,7 +91,7 @@ public class LaunchFallbackResolverTests
 
             var resolver = new LaunchFallbackResolver(configuration);
 
-            var matched = resolver.TryCreate(@"C:\Games\Space Game\Game.exe", runAsAdministrator: false, out var fallback, out var fallbackName);
+            var matched = resolver.TryCreate(new LaunchPath(@"C:\Games\Space Game\Game.exe"), runAsAdministrator: false, out var fallback, out var fallbackName);
 
             Assert.True(matched);
             Assert.Equal("Generic launcher", fallbackName);
@@ -135,7 +136,7 @@ public class LaunchFallbackResolverTests
 
         var resolver = new LaunchFallbackResolver(configuration);
 
-        var matched = resolver.TryCreate(gamePath, runAsAdministrator: false, out var fallback, out var fallbackName);
+        var matched = resolver.TryCreate(new LaunchPath(gamePath), runAsAdministrator: false, out var fallback, out var fallbackName);
 
         Assert.True(matched);
         Assert.Equal("Riot generic", fallbackName);
@@ -178,7 +179,7 @@ public class LaunchFallbackResolverTests
 
         var resolver = new LaunchFallbackResolver(configuration);
 
-        var matched = resolver.TryCreate(gamePath, runAsAdministrator: false, out var fallback, out var fallbackName);
+        var matched = resolver.TryCreate(new LaunchPath(gamePath), runAsAdministrator: false, out var fallback, out var fallbackName);
 
         Assert.True(matched);
         Assert.Equal("Steam generic", fallbackName);

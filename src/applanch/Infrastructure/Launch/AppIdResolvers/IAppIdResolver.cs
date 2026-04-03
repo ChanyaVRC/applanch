@@ -1,3 +1,5 @@
+using applanch.Infrastructure.Utilities;
+
 namespace applanch.Infrastructure.Launch.AppIdResolvers;
 
 /// <summary>
@@ -11,5 +13,5 @@ internal interface IAppIdResolver
     /// <param name="launchPath">The path to the launched executable.</param>
     /// <param name="appId">The resolved application ID when successful.</param>
     /// <returns>True if resolution succeeded; otherwise, false.</returns>
-    bool TryResolve(string launchPath, out string appId);
+    bool TryResolve(LaunchPath launchPath, out string appId);
 }

@@ -1,4 +1,5 @@
 using System.IO;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Launch.AppIdResolvers;
 
@@ -7,16 +8,17 @@ namespace applanch.Infrastructure.Launch.AppIdResolvers;
 /// </summary>
 internal sealed class SteamManifestAppIdResolver : IAppIdResolver
 {
-    public bool TryResolve(string launchPath, out string appId)
+    public bool TryResolve(LaunchPath launchPath, out string appId)
     {
         appId = string.Empty;
+        var launchPathValue = launchPath.Value;
 
-        if (!TryFindContainingDirectory(launchPath, "steamapps", out var steamAppsRoot))
+        if (!TryFindContainingDirectory(launchPathValue, "steamapps", out var steamAppsRoot))
         {
             return false;
         }
 
-        return TryResolveSteamAppId(launchPath, steamAppsRoot, out appId);
+        return TryResolveSteamAppId(launchPathValue, steamAppsRoot, out appId);
     }
 
     private static bool TryResolveSteamAppId(string launchPath, string steamAppsRoot, out string appId)

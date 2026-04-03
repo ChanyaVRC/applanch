@@ -1,4 +1,5 @@
 using applanch.Infrastructure.Launch.AppIdResolvers;
+using applanch.Infrastructure.Utilities;
 using applanch.Tests.TestSupport;
 using Xunit;
 
@@ -32,7 +33,7 @@ public class SteamManifestAppIdResolverTests
         var exePath = WriteSteamLayout(dir, "MyGame", "440");
         var resolver = new SteamManifestAppIdResolver();
 
-        var result = resolver.TryResolve(exePath, out var appId);
+        var result = resolver.TryResolve(new LaunchPath(exePath), out var appId);
 
         Assert.True(result);
         Assert.Equal("440", appId);
@@ -46,7 +47,7 @@ public class SteamManifestAppIdResolverTests
         File.WriteAllText(exePath, string.Empty);
         var resolver = new SteamManifestAppIdResolver();
 
-        var result = resolver.TryResolve(exePath, out _);
+        var result = resolver.TryResolve(new LaunchPath(exePath), out _);
 
         Assert.False(result);
     }
@@ -62,7 +63,7 @@ public class SteamManifestAppIdResolverTests
         File.WriteAllText(exePath, string.Empty);
         var resolver = new SteamManifestAppIdResolver();
 
-        var result = resolver.TryResolve(exePath, out _);
+        var result = resolver.TryResolve(new LaunchPath(exePath), out _);
 
         Assert.False(result);
     }
@@ -85,7 +86,7 @@ public class SteamManifestAppIdResolverTests
             """);
         var resolver = new SteamManifestAppIdResolver();
 
-        var result = resolver.TryResolve(exePath, out _);
+        var result = resolver.TryResolve(new LaunchPath(exePath), out _);
 
         Assert.False(result);
     }
@@ -107,7 +108,7 @@ public class SteamManifestAppIdResolverTests
             """);
         var resolver = new SteamManifestAppIdResolver();
 
-        var result = resolver.TryResolve(exePath, out var appId);
+        var result = resolver.TryResolve(new LaunchPath(exePath), out var appId);
 
         Assert.True(result);
         Assert.Equal("220", appId);

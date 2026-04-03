@@ -1,17 +1,18 @@
 using System.Diagnostics;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Launch;
 
 internal interface ILaunchFallbackResolver
 {
     bool TryCreatePreferred(
-        string launchPath,
+        LaunchPath launchPath,
         bool runAsAdministrator,
         out ProcessStartInfo fallback,
         out string fallbackName);
 
     bool TryCreate(
-        string launchPath,
+        LaunchPath launchPath,
         bool runAsAdministrator,
         out ProcessStartInfo fallback,
         out string fallbackName);

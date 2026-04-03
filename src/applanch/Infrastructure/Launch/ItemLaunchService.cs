@@ -46,7 +46,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
                 LaunchFailureKind.MissingTarget);
         }
 
-        if (_fallbackResolver.TryCreatePreferred(path, runAsAdministrator, out var preferredFallback, out var preferredFallbackName))
+        if (_fallbackResolver.TryCreatePreferred(launchPath, runAsAdministrator, out var preferredFallback, out var preferredFallbackName))
         {
             try
             {
@@ -93,7 +93,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
         }
         catch (Exception ex)
         {
-            if (IsAccessDenied(ex) && _fallbackResolver.TryCreate(path, runAsAdministrator, out var fallback, out var fallbackName))
+            if (IsAccessDenied(ex) && _fallbackResolver.TryCreate(launchPath, runAsAdministrator, out var fallback, out var fallbackName))
             {
                 try
                 {

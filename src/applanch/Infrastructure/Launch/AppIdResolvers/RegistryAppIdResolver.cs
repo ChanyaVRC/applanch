@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Launch.AppIdResolvers;
 
@@ -16,7 +17,7 @@ internal sealed class RegistryAppIdResolver : IAppIdResolver
         _source = source;
     }
 
-    public bool TryResolve(string launchPath, out string appId)
+    public bool TryResolve(LaunchPath launchPath, out string appId)
     {
         appId = string.Empty;
 

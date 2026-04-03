@@ -1,3 +1,5 @@
+using applanch.Infrastructure.Utilities;
+
 namespace applanch.Infrastructure.Launch.AppIdResolvers;
 
 /// <summary>
@@ -12,7 +14,7 @@ internal sealed class StaticAppIdResolver : IAppIdResolver
         _appId = appId;
     }
 
-    public bool TryResolve(string launchPath, out string appId)
+    public bool TryResolve(LaunchPath launchPath, out string appId)
     {
         if (string.IsNullOrWhiteSpace(_appId))
         {
