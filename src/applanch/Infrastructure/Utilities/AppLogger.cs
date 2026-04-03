@@ -1,13 +1,14 @@
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 namespace applanch.Infrastructure.Utilities;
 
 internal sealed class AppLogger : IDisposable
 {
-    private static readonly string LogDirectory = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "applanch");
+    private const string LogDirectoryOverrideEnvironmentVariable = "APPLANCH_LOG_DIRECTORY";
+
+    private static readonly string LogDirectory = ResolveLogDirectory();
 
     private static readonly string LogFilePath = Path.Combine(LogDirectory, "app.log");
     private static readonly long MaxLogSize = 1024 * 1024; // 1 MB
@@ -109,6 +110,41 @@ internal sealed class AppLogger : IDisposable
     {
         var fileName = file is not null ? Path.GetFileNameWithoutExtension(file) : null;
         return fileName is not null ? $"{fileName}.{caller}" : caller ?? "Unknown";
+    }
+
+    internal static string ResolveLogDirectory(string? overrideDirectory = null, string? processName = null)
+    {
+        if (!string.IsNullOrWhiteSpace(overrideDirectory))
+        {
+            return overrideDirectory;
+        }
+
+        var configuredDirectory = Environment.GetEnvironmentVariable(LogDirectoryOverrideEnvironmentVariable);
+        if (!string.IsNullOrWhiteSpace(configuredDirectory))
+        {
+            return configuredDirectory;
+        }
+
+        if (IsLikelyTestProcess(processName))
+        {
+            return Path.Combine(Path.GetTempPath(), "applanch-test-logs");
+        }
+
+        return Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "applanch");
+    }
+
+    internal static bool IsLikelyTestProcess(string? processName = null)
+    {
+        var effectiveProcessName = processName;
+        if (string.IsNullOrWhiteSpace(effectiveProcessName))
+        {
+            effectiveProcessName = Process.GetCurrentProcess().ProcessName;
+        }
+
+        return !string.IsNullOrWhiteSpace(effectiveProcessName) &&
+            effectiveProcessName.IndexOf("testhost", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 }
 
