@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.Versioning;
 using Windows.Management.Deployment;
@@ -70,7 +69,7 @@ internal sealed class SparsePackageRegistrar(
     private static bool ShouldAttemptRegistration()
     {
 #if DEBUG
-        if (Debugger.IsAttached && !IsDebugRegistrationExplicitlyEnabled())
+        if (System.Diagnostics.Debugger.IsAttached && !IsDebugRegistrationExplicitlyEnabled())
         {
             return false;
         }
@@ -123,7 +122,6 @@ internal sealed class SparsePackageRegistrar(
             var options = new AddPackageOptions
             {
                 ExternalLocationUri = new Uri("file:///" + externalLocation.Replace('\\', '/').TrimEnd('/')),
-                AllowUnsigned = true,
             };
 
             var result = await manager.AddPackageByUriAsync(new Uri(msixPath), options);
@@ -134,6 +132,7 @@ internal sealed class SparsePackageRegistrar(
             }
 
             AppLogger.Instance.Warn($"Sparse package registration failed: 0x{result.ExtendedErrorCode.HResult:X8} – {result.ErrorText}");
+            AppLogger.Instance.Warn("If the MSIX is unsigned, run scripts/setup-dev-signing.ps1 (as Admin) then rebuild with scripts/build-sparse-package.ps1.");
             return false;
         }
         catch (Exception ex)

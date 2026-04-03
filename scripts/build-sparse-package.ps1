@@ -58,4 +58,39 @@ Copy-Item (Join-Path $assetSourceDir 'applanch150.png') $assetsDir -Force
 & $makeappx pack /nv /o /d $staging /p $OutputMsix
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+# Sign the MSIX with the local dev certificate if one is available.
+# Run .\scripts\setup-dev-signing.ps1 (once, as Admin) to create it.
+$devCert = Get-ChildItem 'Cert:\CurrentUser\My' |
+    Where-Object { $_.Subject -eq 'CN=applanch' -and $_.NotAfter -gt (Get-Date) -and $_.HasPrivateKey } |
+    Sort-Object NotAfter -Descending |
+    Select-Object -First 1
+
+if ($devCert) {
+    $kitsRoot = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows Kits\Installed Roots' -ErrorAction SilentlyContinue).KitsRoot10
+    $signtool = if ($kitsRoot) {
+        Get-ChildItem (Join-Path $kitsRoot 'bin') -Recurse -Filter 'signtool.exe' -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -like '*x64*' } |
+            Sort-Object FullName -Descending |
+            Select-Object -First 1 -ExpandProperty FullName
+    }
+
+    if ($signtool -and (Test-Path $signtool)) {
+        Write-Host "Signing MSIX with dev certificate ($($devCert.Thumbprint))..."
+        & $signtool sign /fd SHA256 /sha1 $devCert.Thumbprint /tr http://timestamp.digicert.com /td SHA256 /v $OutputMsix
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "signtool signing failed (exit $LASTEXITCODE). The MSIX remains unsigned."
+        }
+        else {
+            Write-Host "MSIX signed successfully."
+        }
+    }
+    else {
+        Write-Warning "signtool.exe not found; MSIX will remain unsigned. Install the Windows SDK."
+    }
+}
+else {
+    Write-Host "No dev signing certificate found. MSIX is unsigned."
+    Write-Host "Run .\scripts\setup-dev-signing.ps1 (as Admin) to enable signing without Developer Mode."
+}
+
 Write-Host "Sparse MSIX built: $OutputMsix ($([System.IO.FileInfo]$OutputMsix).Length bytes)"

@@ -145,3 +145,6 @@ Desktop.ini
 
 # Generated package binaries
 *.msix
+
+# Local code-signing certificates
+*.pfx
