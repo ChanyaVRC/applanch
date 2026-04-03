@@ -28,21 +28,70 @@ internal static class LaunchItemNormalization
 
     public static string NormalizeCategory(string? category)
     {
-        if (string.IsNullOrWhiteSpace(category))
+        if (category is null)
         {
             return LauncherStore.LauncherEntry.DefaultCategory;
         }
 
-        var trimmed = category.Trim();
+        var trimmed = category.AsSpan().Trim();
+        if (trimmed.IsEmpty)
+        {
+            return LauncherStore.LauncherEntry.DefaultCategory;
+        }
 
-        return KnownDefaultCategories.Contains(trimmed)
-            ? LauncherStore.LauncherEntry.DefaultCategory
-            : trimmed;
+        if (IsKnownDefaultCategory(trimmed))
+        {
+            return LauncherStore.LauncherEntry.DefaultCategory;
+        }
+
+        return trimmed.Length == category.Length ? category : trimmed.ToString();
     }
 
-    public static string NormalizeArguments(string? arguments) =>
-        string.IsNullOrWhiteSpace(arguments) ? string.Empty : arguments.Trim();
+    public static string NormalizeArguments(string? arguments)
+    {
+        if (arguments is null)
+        {
+            return string.Empty;
+        }
 
-    public static string NormalizeDisplayName(string? displayName, string path) =>
-        string.IsNullOrWhiteSpace(displayName) ? Path.GetFileNameWithoutExtension(path) : displayName.Trim();
+        var trimmed = arguments.AsSpan().Trim();
+        if (trimmed.IsEmpty)
+        {
+            return string.Empty;
+        }
+
+        return trimmed.Length == arguments.Length ? arguments : trimmed.ToString();
+    }
+
+    public static string NormalizeDisplayName(string? displayName, string path)
+    {
+        if (displayName is null)
+        {
+            return GetDisplayNameFromPath(path);
+        }
+
+        var trimmed = displayName.AsSpan().Trim();
+        if (trimmed.IsEmpty)
+        {
+            return GetDisplayNameFromPath(path);
+        }
+
+        return trimmed.Length == displayName.Length ? displayName : trimmed.ToString();
+    }
+
+    private static bool IsKnownDefaultCategory(ReadOnlySpan<char> category)
+    {
+        foreach (var known in KnownDefaultCategories)
+        {
+            if (category.Equals(known, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static string GetDisplayNameFromPath(string path) =>
+        Path.GetFileNameWithoutExtension(path.AsSpan()).ToString();
 }

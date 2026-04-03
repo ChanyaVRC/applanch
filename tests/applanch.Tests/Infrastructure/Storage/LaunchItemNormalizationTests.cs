@@ -78,6 +78,32 @@ public class LaunchItemNormalizationTests
             CultureInfo.CurrentCulture = previous;
         }
     }
+
+    [Theory]
+    [InlineData("  Uncategorized  ", "en")]
+    [InlineData("  未分類  ", "en")]
+    [InlineData("  Uncategorized  ", "ja")]
+    [InlineData("  未分類  ", "ja")]
+    public void NormalizeCategory_KnownDefaultCategoryWithWhitespace_MapsToCurrentDefaultCategory(
+        string storedCategory, string activeCulture)
+    {
+        var previous = CultureInfo.CurrentUICulture;
+        try
+        {
+            var culture = new CultureInfo(activeCulture);
+            CultureInfo.CurrentUICulture = culture;
+            CultureInfo.CurrentCulture = culture;
+
+            var result = LaunchItemNormalization.NormalizeCategory(storedCategory);
+
+            Assert.Equal(LauncherStore.LauncherEntry.DefaultCategory, result);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previous;
+            CultureInfo.CurrentCulture = previous;
+        }
+    }
 }
 
 
