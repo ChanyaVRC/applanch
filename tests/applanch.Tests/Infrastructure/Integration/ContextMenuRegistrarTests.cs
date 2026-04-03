@@ -34,7 +34,8 @@ public class ContextMenuRegistrarTests
 
         registrar.EnsureRegistered();
 
-        Assert.Equal(4, writer.Calls.Count);
+        Assert.Equal(5, writer.Calls.Count);
+        Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\AllFilesystemObjects\\shell\\applanch.register", StringComparison.Ordinal));
         Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\*\\shell\\applanch.register", StringComparison.Ordinal));
         Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\exefile\\shell\\applanch.register", StringComparison.Ordinal));
         Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\Directory\\shell\\applanch.register", StringComparison.Ordinal));
@@ -52,7 +53,7 @@ public class ContextMenuRegistrarTests
         var exception = Record.Exception(registrar.EnsureRegistered);
 
         Assert.Null(exception);
-        Assert.Equal(4, writer.CallCount);
+        Assert.Equal(5, writer.CallCount);
     }
 
     [Fact]
@@ -64,7 +65,7 @@ public class ContextMenuRegistrarTests
         var exception = Record.Exception(registrar.EnsureRegistered);
 
         Assert.Null(exception);
-        Assert.Equal(4, writer.CallCount);
+        Assert.Equal(5, writer.CallCount);
     }
 
     [Fact]
@@ -76,7 +77,7 @@ public class ContextMenuRegistrarTests
         var exception = Record.Exception(registrar.EnsureRegistered);
 
         Assert.Null(exception);
-        Assert.Equal(4, writer.CallCount);
+        Assert.Equal(5, writer.CallCount);
     }
 
     [Fact]

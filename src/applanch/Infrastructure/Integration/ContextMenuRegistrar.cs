@@ -12,6 +12,9 @@ internal sealed class ContextMenuRegistrar(Func<string?> executablePathProvider,
     private static string MenuText => AppResources.ContextMenu_Register;
     private static readonly RegistrationTarget[] RegistrationTargets =
     [
+        // Windows 11 aggregates context-menu sources differently; registering
+        // the same verb under AllFilesystemObjects improves discoverability.
+        new("AllFilesystemObjects", "%1"),
         new("*", "%1"),
         new("exefile", "%1"),
         new("Directory", "%1"),
