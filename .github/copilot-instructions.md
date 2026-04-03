@@ -42,6 +42,7 @@
 
 ## Testing Expectations
 
+- Prefer ideal design over existing tests. If a test encodes the wrong behavior, fix or remove the test — do not let it constrain the design.
 - For iterative development, run focused tests first for touched areas, then run the full test suite before committing behavior changes.
 - For UI/WPF behavior changes, add or update at least one regression test that verifies event flow and state transitions.
 
