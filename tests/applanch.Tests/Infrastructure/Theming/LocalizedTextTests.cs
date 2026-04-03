@@ -1,6 +1,6 @@
-using System.Globalization;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
+using applanch.Tests.TestSupport;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Theming;
@@ -81,27 +81,5 @@ public sealed class LocalizedTextTests
             });
 
         Assert.Equal("Default", localized.Resolve(LanguageOption.English));
-    }
-
-    private sealed class CultureScope : IDisposable
-    {
-        private readonly CultureInfo _originalUiCulture;
-        private readonly CultureInfo _originalCulture;
-
-        public CultureScope(string cultureName)
-        {
-            _originalUiCulture = CultureInfo.CurrentUICulture;
-            _originalCulture = CultureInfo.CurrentCulture;
-
-            var culture = CultureInfo.GetCultureInfo(cultureName);
-            CultureInfo.CurrentUICulture = culture;
-            CultureInfo.CurrentCulture = culture;
-        }
-
-        public void Dispose()
-        {
-            CultureInfo.CurrentUICulture = _originalUiCulture;
-            CultureInfo.CurrentCulture = _originalCulture;
-        }
     }
 }

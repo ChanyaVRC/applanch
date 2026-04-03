@@ -1,6 +1,6 @@
-using System.Globalization;
 using Xunit;
 using applanch.Infrastructure.Storage;
+using applanch.Tests.TestSupport;
 
 namespace applanch.Tests.Infrastructure.Storage;
 
@@ -61,23 +61,11 @@ public class LaunchItemNormalizationTests
     public void NormalizeCategory_KnownDefaultCategoryInAnyLocale_MapsToCurrentDefaultCategory(
         string storedCategory, string activeCulture)
     {
-        var previousUiCulture = CultureInfo.CurrentUICulture;
-        var previousCulture = CultureInfo.CurrentCulture;
-        try
-        {
-            var culture = new CultureInfo(activeCulture);
-            CultureInfo.CurrentUICulture = culture;
-            CultureInfo.CurrentCulture = culture;
+        using var cultureScope = new CultureScope(activeCulture);
 
-            var result = LaunchItemNormalization.NormalizeCategory(storedCategory);
+        var result = LaunchItemNormalization.NormalizeCategory(storedCategory);
 
-            Assert.Equal(LauncherStore.LauncherEntry.DefaultCategory, result);
-        }
-        finally
-        {
-            CultureInfo.CurrentUICulture = previousUiCulture;
-            CultureInfo.CurrentCulture = previousCulture;
-        }
+        Assert.Equal(LauncherStore.LauncherEntry.DefaultCategory, result);
     }
 
     [Theory]
@@ -88,23 +76,11 @@ public class LaunchItemNormalizationTests
     public void NormalizeCategory_KnownDefaultCategoryWithWhitespace_MapsToCurrentDefaultCategory(
         string storedCategory, string activeCulture)
     {
-        var previousUiCulture = CultureInfo.CurrentUICulture;
-        var previousCulture = CultureInfo.CurrentCulture;
-        try
-        {
-            var culture = new CultureInfo(activeCulture);
-            CultureInfo.CurrentUICulture = culture;
-            CultureInfo.CurrentCulture = culture;
+        using var cultureScope = new CultureScope(activeCulture);
 
-            var result = LaunchItemNormalization.NormalizeCategory(storedCategory);
+        var result = LaunchItemNormalization.NormalizeCategory(storedCategory);
 
-            Assert.Equal(LauncherStore.LauncherEntry.DefaultCategory, result);
-        }
-        finally
-        {
-            CultureInfo.CurrentUICulture = previousUiCulture;
-            CultureInfo.CurrentCulture = previousCulture;
-        }
+        Assert.Equal(LauncherStore.LauncherEntry.DefaultCategory, result);
     }
 }
 
