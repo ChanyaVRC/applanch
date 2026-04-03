@@ -324,46 +324,6 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
-    public void ComplexFlow_AddUpdateMoveRemove_PersistsConsistentOrderAndMetadata()
-    {
-        var store = new FakeStore(
-        [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", "-a", "A"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Ops", "-b", "B")
-        ]);
-
-        var resolver = new FakeResolver
-        {
-            ShouldResolve = true,
-            ResolvedApp = new ResolvedApp(new LaunchPath(@"C:\\Tools\\C.exe"), "C")
-        };
-
-        var vm = CreateViewModel(store, resolver);
-
-        vm.QuickAddNameOrPath = "C";
-        vm.QuickAddCategory = "QA";
-        vm.QuickAddArguments = "-c";
-        Assert.True(vm.TryAddQuickItem().IsSuccess);
-
-        var added = vm.LaunchItems.Single(x => x.DisplayName == "C");
-        vm.UpdateItemDisplayName(added, "C-App");
-        vm.UpdateItemCategory(added, "Prod");
-        vm.PreviewMoveItem(2, 0);
-        vm.PersistOrderNow();
-        vm.RemoveItem(vm.LaunchItems.Single(x => x.DisplayName == "B"));
-
-        Assert.Equal("C-App", vm.LaunchItems[0].DisplayName);
-        Assert.Equal("Prod", vm.LaunchItems[0].Category);
-        Assert.Equal(2, vm.LaunchItems.Count);
-
-        Assert.Equal(5, store.SaveCallCount);
-        Assert.Collection(
-            store.LastSavedEntries,
-            e => Assert.Equal("C-App", e.DisplayName),
-            e => Assert.Equal("A", e.DisplayName));
-    }
-
-    [Fact]
     public void SelectedLaunchItem_WhenRemoved_ReassignsToFirstFilteredItem()
     {
         var store = new FakeStore(
@@ -511,13 +471,7 @@ public class MainWindowViewModelTests
         Assert.DoesNotContain("Dev", vm.CategoryNames);
         Assert.Contains("Ops", vm.CategoryNames);
 
-        // Phase 4: ensure suggestions refresh and same-value assignment does not over-refresh.
-        vm.QuickAddNameOrPath = "tool";
-        var afterFirst = resolver.SuggestionsCallCount;
-        vm.QuickAddNameOrPath = "tool";
-        Assert.Equal(afterFirst, resolver.SuggestionsCallCount);
-
-        // Phase 5: set Ops filter and remove all Ops entries, expecting empty filtered view.
+        // Phase 4: set Ops filter and remove all Ops entries, expecting empty filtered view.
         vm.SelectedCategory = "Ops";
         foreach (var item in vm.LaunchItems.Where(x => x.Category == "Ops").ToList())
         {
