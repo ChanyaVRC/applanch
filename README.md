@@ -69,6 +69,61 @@ dotnet format applanch.slnx --verify-no-changes --no-restore --verbosity minimal
 dotnet run --project src/applanch/applanch.csproj
 ```
 
+### Build Sparse MSIX (Context Menu Package)
+
+Use this when you need to register the Windows 11 simplified context menu integration.
+
+1. Build app binaries first.
+
+```powershell
+dotnet build applanch.slnx -c Debug
+```
+
+2. Build the sparse package.
+
+```powershell
+.\scripts\build-sparse-package.ps1
+```
+
+3. The output is generated at `artifacts/sparse-package/applanch.msix` by default.
+
+To place the package next to the app executable (for local registration tests), pass `-OutputMsix` explicitly.
+
+```powershell
+.\scripts\build-sparse-package.ps1 -OutputMsix .\src\applanch\bin\Debug\net10.0-windows10.0.22000.0\applanch.msix
+```
+
+### Set Up MSIX Build From Scratch (New Dev Machine)
+
+If this is your first setup on a machine, follow these steps once.
+
+1. Install prerequisites.
+- .NET SDK 10
+- Windows SDK (including `makeappx.exe` and `signtool.exe`)
+
+2. Build once to restore tools and verify the workspace.
+
+```powershell
+dotnet build applanch.slnx -c Debug
+```
+
+3. Set up a local dev code-signing certificate (run PowerShell as Administrator).
+
+```powershell
+.\scripts\setup-dev-signing.ps1
+```
+
+4. Build sparse MSIX.
+
+```powershell
+.\scripts\build-sparse-package.ps1
+```
+
+Notes:
+- `build-sparse-package.ps1` automatically signs the package when `CN=applanch` dev cert exists in `CurrentUser\My`.
+- For release/CD signing with OV/EV certificates, use `scripts/sign-msix.ps1` with `MSIX_SIGNING_CERT_BASE64` and `MSIX_SIGNING_CERT_PASSWORD`.
+- If signing is unavailable, sparse package registration may fail depending on your machine policy.
+
 ## Project Structure
 
 - `src/applanch`: WPF application

@@ -69,6 +69,61 @@ dotnet format applanch.slnx --verify-no-changes --no-restore --verbosity minimal
 dotnet run --project src/applanch/applanch.csproj
 ```
 
+### スパース MSIX（コンテキストメニュー用）の作成
+
+Windows 11 の簡易コンテキストメニュー連携を使う場合に実行します。
+
+1. 先にアプリ本体をビルド
+
+```powershell
+dotnet build applanch.slnx -c Debug
+```
+
+2. スパース MSIX を作成
+
+```powershell
+.\scripts\build-sparse-package.ps1
+```
+
+3. 既定の出力先は `artifacts/sparse-package/applanch.msix`
+
+ローカル登録テスト用に exe と同じ場所へ出したい場合は `-OutputMsix` を指定します。
+
+```powershell
+.\scripts\build-sparse-package.ps1 -OutputMsix .\src\applanch\bin\Debug\net10.0-windows10.0.22000.0\applanch.msix
+```
+
+### 新しい開発環境で一から MSIX 作成を有効化する手順
+
+新しい PC で初回のみ実施してください。
+
+1. 前提ツールをインストール
+- .NET SDK 10
+- Windows SDK（`makeappx.exe` と `signtool.exe` を含む）
+
+2. まずは通常ビルドで環境確認
+
+```powershell
+dotnet build applanch.slnx -c Debug
+```
+
+3. 開発用コード署名証明書をセットアップ（管理者 PowerShell で実行）
+
+```powershell
+.\scripts\setup-dev-signing.ps1
+```
+
+4. スパース MSIX を作成
+
+```powershell
+.\scripts\build-sparse-package.ps1
+```
+
+補足:
+- `build-sparse-package.ps1` は `CurrentUser\My` に `CN=applanch` 証明書がある場合、自動で MSIX に署名します。
+- OV/EV 証明書を使ったリリース署名は `scripts/sign-msix.ps1` と `MSIX_SIGNING_CERT_BASE64` / `MSIX_SIGNING_CERT_PASSWORD` を利用します。
+- 署名なしでは、端末ポリシーによってスパースパッケージ登録が失敗する場合があります。
+
 ## プロジェクト構成
 
 - src/applanch: WPF アプリ本体
