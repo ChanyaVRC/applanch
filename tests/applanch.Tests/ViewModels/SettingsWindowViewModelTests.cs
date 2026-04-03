@@ -40,7 +40,7 @@ public class SettingsWindowViewModelTests
         var settings = new AppSettings
         {
             ThemeId = ThemePaletteConfigurationLoader.DarkThemeId,
-            CloseOnLaunch = false,
+            PostLaunchBehavior = PostLaunchBehavior.KeepOpen,
             CheckForUpdatesOnStartup = false,
             UpdateInstallBehavior = UpdateInstallBehavior.NotifyOnly,
             DebugUpdate = true,
@@ -53,7 +53,7 @@ public class SettingsWindowViewModelTests
         var vm = Make(settings);
 
         Assert.Equal(2, vm.ThemeIndex);
-        Assert.False(vm.CloseOnLaunch);
+        Assert.Equal((int)PostLaunchBehavior.KeepOpen, vm.PostLaunchBehaviorIndex);
         Assert.False(vm.CheckForUpdatesOnStartup);
         Assert.Equal((int)UpdateInstallBehavior.NotifyOnly, vm.UpdateInstallBehaviorIndex);
         Assert.True(vm.DebugUpdate);
@@ -113,31 +113,6 @@ public class SettingsWindowViewModelTests
         Assert.Null(committed);
     }
 
-    // ── CloseOnLaunch ──────────────────────────────────────
-
-    [Fact]
-    public void CloseOnLaunch_Change_FiresPropertyChanged()
-    {
-        var vm = Make(settings: new AppSettings { CloseOnLaunch = true });
-        var raised = new List<string?>();
-        vm.PropertyChanged += (_, e) => raised.Add(e.PropertyName);
-
-        vm.CloseOnLaunch = false;
-
-        Assert.Contains(nameof(vm.CloseOnLaunch), raised);
-    }
-
-    [Fact]
-    public void CloseOnLaunch_SameValue_DoesNotSave()
-    {
-        AppSettings? committed = null;
-        var vm = Make(settings: new AppSettings { CloseOnLaunch = true }, onCommit: s => committed = s);
-
-        vm.CloseOnLaunch = true;
-
-        Assert.Null(committed);
-    }
-
     // ── Commit ─────────────────────────────────────────────
 
     [Fact]
@@ -157,15 +132,15 @@ public class SettingsWindowViewModelTests
     {
         AppSettings? committed = null;
         var vm = Make(
-            settings: new AppSettings { ThemeId = ThemePaletteConfigurationLoader.SystemThemeId, CloseOnLaunch = true, CheckForUpdatesOnStartup = true, DebugUpdate = false },
+            settings: new AppSettings { ThemeId = ThemePaletteConfigurationLoader.SystemThemeId, PostLaunchBehavior = PostLaunchBehavior.CloseApp, CheckForUpdatesOnStartup = true, DebugUpdate = false },
             onCommit: s => committed = s);
 
         vm.ThemeIndex = 2;
-        vm.CloseOnLaunch = false;
+        vm.PostLaunchBehaviorIndex = (int)PostLaunchBehavior.KeepOpen;
 
         var last = Assert.IsType<AppSettings>(committed);
         Assert.Equal(ThemePaletteConfigurationLoader.DarkThemeId, last.ThemeId);
-        Assert.False(last.CloseOnLaunch);
+        Assert.Equal(PostLaunchBehavior.KeepOpen, last.PostLaunchBehavior);
     }
 
     [Fact]
@@ -178,7 +153,6 @@ public class SettingsWindowViewModelTests
 
         var last = Assert.IsType<AppSettings>(committed);
         Assert.Equal(PostLaunchBehavior.MinimizeWindow, last.PostLaunchBehavior);
-        Assert.False(last.CloseOnLaunch);
     }
 
     [Fact]
@@ -295,16 +269,6 @@ public class SettingsWindowViewModelTests
         Assert.Equal(AppListSortMode.CategoryThenName, committed!.AppListSortMode);
     }
 
-    [Fact]
-    public void PostLaunchBehaviorIndex_CloseApp_SetsCloseOnLaunchTrue()
-    {
-        var vm = Make(settings: new AppSettings { CloseOnLaunch = false });
-
-        vm.PostLaunchBehaviorIndex = (int)PostLaunchBehavior.CloseApp;
-
-        Assert.True(vm.CloseOnLaunch);
-    }
-
     // ── ResetToDefaults ────────────────────────────────────
 
     [Fact]
@@ -315,7 +279,7 @@ public class SettingsWindowViewModelTests
         {
             ThemeId = ThemePaletteConfigurationLoader.DarkThemeId,
             Language = LanguageOption.Japanese,
-            CloseOnLaunch = false,
+            PostLaunchBehavior = PostLaunchBehavior.KeepOpen,
             CheckForUpdatesOnStartup = false,
             UpdateInstallBehavior = UpdateInstallBehavior.NotifyOnly,
             DebugUpdate = true,
@@ -335,7 +299,7 @@ public class SettingsWindowViewModelTests
 
         Assert.Equal(0, vm.ThemeIndex);
         Assert.Equal((int)defaults.Language, vm.LanguageIndex);
-        Assert.Equal(defaults.CloseOnLaunch, vm.CloseOnLaunch);
+        Assert.Equal((int)PostLaunchBehavior.CloseApp, vm.PostLaunchBehaviorIndex);
         Assert.Equal(defaults.CheckForUpdatesOnStartup, vm.CheckForUpdatesOnStartup);
         Assert.Equal((int)defaults.UpdateInstallBehavior, vm.UpdateInstallBehaviorIndex);
         Assert.Equal(defaults.DebugUpdate, vm.DebugUpdate);
@@ -364,8 +328,7 @@ public class SettingsWindowViewModelTests
 
         Assert.NotNull(committed);
         Assert.Equal(ThemePaletteConfigurationLoader.SystemThemeId, committed!.ThemeId);
-        Assert.Contains(nameof(vm.ThemeIndex), raised);
-        Assert.Contains(nameof(vm.LanguageIndex), raised);
+        Assert.Contains(string.Empty, raised);
     }
 
     [Fact]
@@ -377,7 +340,6 @@ public class SettingsWindowViewModelTests
         {
             ThemeId = ThemePaletteConfigurationLoader.DarkThemeId,
             PostLaunchBehavior = PostLaunchBehavior.MinimizeWindow,
-            CloseOnLaunch = false,
             CheckForUpdatesOnStartup = false,
             FetchHttpIcons = false,
             AllowPrivateNetworkHttpIconRequests = true,
@@ -388,7 +350,6 @@ public class SettingsWindowViewModelTests
 
         Assert.Equal(2, vm.ThemeIndex);
         Assert.Equal((int)PostLaunchBehavior.MinimizeWindow, vm.PostLaunchBehaviorIndex);
-        Assert.False(vm.CloseOnLaunch);
         Assert.False(vm.CheckForUpdatesOnStartup);
         Assert.False(vm.FetchHttpIcons);
         Assert.True(vm.AllowPrivateNetworkHttpIconRequests);

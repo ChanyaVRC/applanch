@@ -12,7 +12,6 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     private AppSettings _current;
     private string _themeId = ThemePaletteConfigurationLoader.SystemThemeId;
     private PostLaunchBehavior _postLaunchBehavior;
-    private bool _closeOnLaunch;
     private bool _checkForUpdatesOnStartup;
     private UpdateInstallBehavior _updateInstallBehavior;
     private bool _debugUpdate;
@@ -91,23 +90,6 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         _themeOptions.FirstOrDefault(option => string.Equals(option.ThemeId, _themeId, StringComparison.OrdinalIgnoreCase))?.DisplayName
         ?? string.Empty;
 
-    public bool CloseOnLaunch
-    {
-        get => _closeOnLaunch;
-        set
-        {
-            if (_closeOnLaunch == value)
-            {
-                return;
-            }
-
-            _closeOnLaunch = value;
-            _postLaunchBehavior = value ? PostLaunchBehavior.CloseApp : PostLaunchBehavior.KeepOpen;
-            OnPropertyChanged();
-            Commit();
-        }
-    }
-
     public int PostLaunchBehaviorIndex
     {
         get => (int)_postLaunchBehavior;
@@ -119,9 +101,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             }
 
             _postLaunchBehavior = (PostLaunchBehavior)value;
-            _closeOnLaunch = _postLaunchBehavior == PostLaunchBehavior.CloseApp;
             OnPropertyChanged();
-            OnPropertyChanged(nameof(CloseOnLaunch));
             Commit();
         }
     }
@@ -239,7 +219,6 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     {
         _themeId = settings.ThemeId;
         _postLaunchBehavior = settings.ResolvePostLaunchBehavior();
-        _closeOnLaunch = settings.CloseOnLaunch;
         _checkForUpdatesOnStartup = settings.CheckForUpdatesOnStartup;
         _updateInstallBehavior = settings.UpdateInstallBehavior;
         _debugUpdate = settings.DebugUpdate;
@@ -255,27 +234,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         _language = settings.Language;
     }
 
-    private void NotifyAllProperties()
-    {
-        OnPropertyChanged(nameof(SelectedThemeId));
-        OnPropertyChanged(nameof(SelectedThemeDisplayName));
-        OnPropertyChanged(nameof(ThemeIndex));
-        OnPropertyChanged(nameof(PostLaunchBehaviorIndex));
-        OnPropertyChanged(nameof(CloseOnLaunch));
-        OnPropertyChanged(nameof(CheckForUpdatesOnStartup));
-        OnPropertyChanged(nameof(UpdateInstallBehaviorIndex));
-        OnPropertyChanged(nameof(DebugUpdate));
-        OnPropertyChanged(nameof(StartMinimizedOnLaunch));
-        OnPropertyChanged(nameof(LaunchAtWindowsStartup));
-        OnPropertyChanged(nameof(FetchHttpIcons));
-        OnPropertyChanged(nameof(AllowPrivateNetworkHttpIconRequests));
-        OnPropertyChanged(nameof(ConfirmBeforeLaunch));
-        OnPropertyChanged(nameof(ConfirmBeforeDelete));
-        OnPropertyChanged(nameof(CategorySortModeIndex));
-        OnPropertyChanged(nameof(AppListSortModeIndex));
-        OnPropertyChanged(nameof(RunAsAdministrator));
-        OnPropertyChanged(nameof(LanguageIndex));
-    }
+    private void NotifyAllProperties() => OnPropertyChanged(string.Empty);
 
     private bool SetFieldAndCommit<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
     {
@@ -296,7 +255,6 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         {
             ThemeId = _themeId,
             PostLaunchBehavior = _postLaunchBehavior,
-            CloseOnLaunch = _closeOnLaunch,
             CheckForUpdatesOnStartup = _checkForUpdatesOnStartup,
             UpdateInstallBehavior = _updateInstallBehavior,
             DebugUpdate = _debugUpdate,
@@ -338,9 +296,14 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             return -1;
         }
 
-        return _themeOptions
-            .Select(static (option, index) => (option, index))
-            .FirstOrDefault(x => string.Equals(x.Item1.ThemeId, _themeId, StringComparison.OrdinalIgnoreCase), (_themeOptions[0], 0))
-            .Item2;
+        for (var i = 0; i < _themeOptions.Count; i++)
+        {
+            if (string.Equals(_themeOptions[i].ThemeId, _themeId, StringComparison.OrdinalIgnoreCase))
+            {
+                return i;
+            }
+        }
+
+        return 0;
     }
 }
