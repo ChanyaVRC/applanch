@@ -139,3 +139,23 @@ jobs:
           name: coverage-report
           path: TestResults/**/coverage.cobertura.xml
           if-no-files-found: warn
+
+  sparse-package:
+    needs: prepare
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build sparse MSIX package
+        shell: pwsh
+        run: ./scripts/build-sparse-package.ps1
+
+      - name: Upload sparse package
+        uses: actions/upload-artifact@v4
+        with:
+          name: sparse-package
+          path: src/applanch/Assets/applanch.msix
+          if-no-files-found: error
