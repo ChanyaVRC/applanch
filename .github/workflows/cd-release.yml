@@ -97,6 +97,23 @@ jobs:
         shell: pwsh
         run: ./scripts/build-sparse-package.ps1 -OutputMsix publish/${{ matrix.runtime }}/applanch.msix
 
+      - name: Validate MSIX signing secrets
+        shell: pwsh
+        env:
+          MSIX_SIGNING_CERT_BASE64: ${{ secrets.MSIX_SIGNING_CERT_BASE64 }}
+          MSIX_SIGNING_CERT_PASSWORD: ${{ secrets.MSIX_SIGNING_CERT_PASSWORD }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:MSIX_SIGNING_CERT_BASE64) -or [string]::IsNullOrWhiteSpace($env:MSIX_SIGNING_CERT_PASSWORD)) {
+            throw "Required secrets are missing: MSIX_SIGNING_CERT_BASE64 and/or MSIX_SIGNING_CERT_PASSWORD"
+          }
+
+      - name: Sign sparse MSIX package
+        shell: pwsh
+        env:
+          MSIX_SIGNING_CERT_BASE64: ${{ secrets.MSIX_SIGNING_CERT_BASE64 }}
+          MSIX_SIGNING_CERT_PASSWORD: ${{ secrets.MSIX_SIGNING_CERT_PASSWORD }}
+        run: ./scripts/sign-msix.ps1 -MsixPath publish/${{ matrix.runtime }}/applanch.msix
+
       - name: Archive and checksum
         shell: pwsh
         run: ./scripts/archive-release-assets.ps1 -AppVersion '${{ needs.metadata.outputs.app_version }}' -Runtime '${{ matrix.runtime }}'
