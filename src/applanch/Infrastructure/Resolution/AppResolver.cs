@@ -78,93 +78,26 @@ internal static partial class AppResolver
         return false;
     }
 
-    public static IReadOnlyList<string> GetSuggestions(string input, int maxResults = 8)
+    #region TryResolve helpers
+
+    private static int ScoreDisplayName(string displayName, string input)
     {
-        if (maxResults <= 0)
+        if (string.IsNullOrWhiteSpace(input))
         {
-            return [];
+            return 0;
         }
 
-        var trimmed = input?.Trim() ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(trimmed))
+        if (string.Equals(displayName, input, StringComparison.OrdinalIgnoreCase))
         {
-            return [.. InstalledAppDisplayNamesCache.Value.Take(maxResults)];
+            return 100;
         }
 
-        var installedApps = InstalledAppsCache.Value;
-        var candidates = new List<SuggestionCandidate>(installedApps.Count + KnownAliases.Count + maxResults);
-
-        foreach (var app in installedApps)
+        if (displayName.StartsWith(input, StringComparison.OrdinalIgnoreCase))
         {
-            var score = ScoreDisplayName(app.DisplayName, trimmed);
-            if (score <= 0)
-            {
-                continue;
-            }
-
-            candidates.Add(new(app.DisplayName, score, 2));
+            return 80;
         }
 
-        foreach (var alias in KnownAliases.Keys)
-        {
-            var score = ScoreDisplayName(alias, trimmed);
-            if (score <= 0)
-            {
-                continue;
-            }
-
-            candidates.Add(new(alias, score, 1));
-        }
-
-        foreach (var pathSuggestion in GetPathSuggestions(trimmed, maxResults))
-        {
-            candidates.Add(pathSuggestion);
-        }
-
-        var bestByText = new Dictionary<string, SuggestionCandidate>(StringComparer.OrdinalIgnoreCase);
-        foreach (var candidate in candidates)
-        {
-            if (!bestByText.TryGetValue(candidate.Text, out var existing) ||
-                CompareSuggestionRank(candidate, existing) > 0)
-            {
-                bestByText[candidate.Text] = candidate;
-            }
-        }
-
-        return SelectTopSuggestions(bestByText.Values, maxResults);
-    }
-
-    private static int CompareSuggestionRank(in SuggestionCandidate left, in SuggestionCandidate right)
-    {
-        if (left.Score != right.Score)
-        {
-            return left.Score.CompareTo(right.Score);
-        }
-
-        if (left.SourcePriority != right.SourcePriority)
-        {
-            return left.SourcePriority.CompareTo(right.SourcePriority);
-        }
-
-        return -string.Compare(left.Text, right.Text, StringComparison.CurrentCultureIgnoreCase);
-    }
-
-    private static IReadOnlyList<string> SelectTopSuggestions(Dictionary<string, SuggestionCandidate>.ValueCollection candidates, int maxResults)
-    {
-        return [.. candidates
-            .OrderByDescending(static x => x, SuggestionRankComparer.Instance)
-            .Take(maxResults)
-            .Select(static x => x.Text)];
-    }
-
-    private sealed class SuggestionRankComparer : IComparer<SuggestionCandidate>
-    {
-        internal static readonly SuggestionRankComparer Instance = new();
-
-        public int Compare(SuggestionCandidate x, SuggestionCandidate y)
-        {
-            return CompareSuggestionRank(x, y);
-        }
+        return displayName.Contains(input, StringComparison.OrdinalIgnoreCase) ? 50 : 0;
     }
 
     private static IEnumerable<string> ExpandCandidates(string input)
@@ -220,80 +153,6 @@ internal static partial class AppResolver
         resolvedApp = default;
         return false;
     }
-
-    private static IEnumerable<SuggestionCandidate> GetPathSuggestions(string input, int maxResults)
-    {
-        if (!TryResolvePathSuggestionInput(input, out var directory, out var prefix))
-        {
-            yield break;
-        }
-
-        if (!Platform.TryEnumerateFileSystemEntries(directory, out var entries))
-        {
-            yield break;
-        }
-
-        var producedCount = 0;
-        foreach (var entry in entries)
-        {
-            if (!TryCreatePathSuggestion(entry, prefix, out var suggestion))
-            {
-                continue;
-            }
-
-            yield return suggestion;
-
-            producedCount++;
-            if (producedCount >= maxResults)
-            {
-                yield break;
-            }
-        }
-    }
-
-    private static bool TryResolvePathSuggestionInput(string input, out string directory, out string prefix)
-    {
-        directory = string.Empty;
-        prefix = string.Empty;
-
-        if (!LooksLikePath(input))
-        {
-            return false;
-        }
-
-        if (Directory.Exists(input))
-        {
-            directory = input;
-            return true;
-        }
-
-        directory = Path.GetDirectoryName(input) ?? string.Empty;
-        prefix = Path.GetFileName(input);
-
-        return !string.IsNullOrWhiteSpace(directory) && Directory.Exists(directory);
-    }
-
-    private static bool TryCreatePathSuggestion(string entry, string prefix, out SuggestionCandidate suggestion)
-    {
-        suggestion = default;
-
-        var name = Path.GetFileName(entry);
-        if (string.IsNullOrEmpty(name))
-        {
-            return false;
-        }
-
-        var score = ScoreDisplayName(name, prefix);
-        if (score <= 0)
-        {
-            return false;
-        }
-
-        suggestion = new SuggestionCandidate(entry, score + 10, 0);
-        return true;
-    }
-
-    private static bool LooksLikePath(string input) => input.IndexOfAny(['\\', '/', ':']) >= 0;
 
     private static string NormalizeResolvedDirectoryPath(string path)
         => PathNormalization.NormalizeDirectoryPath(path);
@@ -352,26 +211,6 @@ internal static partial class AppResolver
         return string.Empty;
     }
 
-    private static int ScoreDisplayName(string displayName, string input)
-    {
-        if (string.IsNullOrWhiteSpace(input))
-        {
-            return 0;
-        }
-
-        if (string.Equals(displayName, input, StringComparison.OrdinalIgnoreCase))
-        {
-            return 100;
-        }
-
-        if (displayName.StartsWith(input, StringComparison.OrdinalIgnoreCase))
-        {
-            return 80;
-        }
-
-        return displayName.Contains(input, StringComparison.OrdinalIgnoreCase) ? 50 : 0;
-    }
-
     private static bool TryGetFirstExecutableInDirectory(string directory, [NotNullWhen(true)] out string? executablePath)
     {
         executablePath = null;
@@ -391,6 +230,177 @@ internal static partial class AppResolver
 
         return !string.IsNullOrWhiteSpace(executablePath) && File.Exists(executablePath);
     }
+
+    #endregion
+
+    public static IReadOnlyList<string> GetSuggestions(string input, int maxResults = 8)
+    {
+        if (maxResults <= 0)
+        {
+            return [];
+        }
+
+        var trimmed = input?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(trimmed))
+        {
+            return [.. InstalledAppDisplayNamesCache.Value.Take(maxResults)];
+        }
+
+        var installedApps = InstalledAppsCache.Value;
+        var candidates = new List<SuggestionCandidate>(installedApps.Count + KnownAliases.Count + maxResults);
+
+        foreach (var app in installedApps)
+        {
+            var score = ScoreDisplayName(app.DisplayName, trimmed);
+            if (score <= 0)
+            {
+                continue;
+            }
+
+            candidates.Add(new(app.DisplayName, score, 2));
+        }
+
+        foreach (var alias in KnownAliases.Keys)
+        {
+            var score = ScoreDisplayName(alias, trimmed);
+            if (score <= 0)
+            {
+                continue;
+            }
+
+            candidates.Add(new(alias, score, 1));
+        }
+
+        foreach (var pathSuggestion in GetPathSuggestions(trimmed, maxResults))
+        {
+            candidates.Add(pathSuggestion);
+        }
+
+        var bestByText = new Dictionary<string, SuggestionCandidate>(StringComparer.OrdinalIgnoreCase);
+        foreach (var candidate in candidates)
+        {
+            if (!bestByText.TryGetValue(candidate.Text, out var existing) ||
+                CompareSuggestionRank(candidate, existing) > 0)
+            {
+                bestByText[candidate.Text] = candidate;
+            }
+        }
+
+        return SelectTopSuggestions(bestByText.Values, maxResults);
+    }
+
+    #region GetSuggestions helpers
+
+    private static bool LooksLikePath(string input) => input.IndexOfAny(['\\', '/', ':']) >= 0;
+
+    private static bool TryResolvePathSuggestionInput(string input, out string directory, out string prefix)
+    {
+        directory = string.Empty;
+        prefix = string.Empty;
+
+        if (!LooksLikePath(input))
+        {
+            return false;
+        }
+
+        if (Directory.Exists(input))
+        {
+            directory = input;
+            return true;
+        }
+
+        directory = Path.GetDirectoryName(input) ?? string.Empty;
+        prefix = Path.GetFileName(input);
+
+        return !string.IsNullOrWhiteSpace(directory) && Directory.Exists(directory);
+    }
+
+    private static bool TryCreatePathSuggestion(string entry, string prefix, out SuggestionCandidate suggestion)
+    {
+        suggestion = default;
+
+        var name = Path.GetFileName(entry);
+        if (string.IsNullOrEmpty(name))
+        {
+            return false;
+        }
+
+        var score = ScoreDisplayName(name, prefix);
+        if (score <= 0)
+        {
+            return false;
+        }
+
+        suggestion = new SuggestionCandidate(entry, score + 10, 0);
+        return true;
+    }
+
+    private static IEnumerable<SuggestionCandidate> GetPathSuggestions(string input, int maxResults)
+    {
+        if (!TryResolvePathSuggestionInput(input, out var directory, out var prefix))
+        {
+            yield break;
+        }
+
+        if (!Platform.TryEnumerateFileSystemEntries(directory, out var entries))
+        {
+            yield break;
+        }
+
+        var producedCount = 0;
+        foreach (var entry in entries)
+        {
+            if (!TryCreatePathSuggestion(entry, prefix, out var suggestion))
+            {
+                continue;
+            }
+
+            yield return suggestion;
+
+            producedCount++;
+            if (producedCount >= maxResults)
+            {
+                yield break;
+            }
+        }
+    }
+
+    private static IReadOnlyList<string> SelectTopSuggestions(Dictionary<string, SuggestionCandidate>.ValueCollection candidates, int maxResults)
+    {
+        return [.. candidates
+            .OrderByDescending(static x => x, SuggestionRankComparer.Instance)
+            .Take(maxResults)
+            .Select(static x => x.Text)];
+    }
+
+    private static int CompareSuggestionRank(in SuggestionCandidate left, in SuggestionCandidate right)
+    {
+        if (left.Score != right.Score)
+        {
+            return left.Score.CompareTo(right.Score);
+        }
+
+        if (left.SourcePriority != right.SourcePriority)
+        {
+            return left.SourcePriority.CompareTo(right.SourcePriority);
+        }
+
+        return -string.Compare(left.Text, right.Text, StringComparison.CurrentCultureIgnoreCase);
+    }
+
+    private sealed class SuggestionRankComparer : IComparer<SuggestionCandidate>
+    {
+        internal static readonly SuggestionRankComparer Instance = new();
+
+        public int Compare(SuggestionCandidate x, SuggestionCandidate y)
+        {
+            return CompareSuggestionRank(x, y);
+        }
+    }
+
+    #endregion
+
+    #region Registry helpers
 
     private static bool TryExtractExecutablePath(RegistryKey appKey, [NotNullWhen(true)] out string? path)
     {
@@ -531,5 +541,7 @@ internal static partial class AppResolver
 
         return -1;
     }
+
+    #endregion
 }
 
