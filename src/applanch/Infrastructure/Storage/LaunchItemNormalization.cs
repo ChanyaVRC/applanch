@@ -93,5 +93,5 @@ internal static class LaunchItemNormalization
     }
 
     private static string GetDisplayNameFromPath(string path) =>
-        Path.GetFileNameWithoutExtension(path.AsSpan()).ToString();
+        Path.GetFileNameWithoutExtension(path);
 }
