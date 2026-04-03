@@ -44,20 +44,20 @@ internal static partial class AppResolver
         if (PathNormalization.TryParseRegisteredUrl(trimmed, out var uri))
         {
             var displayName = string.IsNullOrWhiteSpace(uri.Host) ? trimmed : uri.Host;
-            resolvedApp = new ResolvedApp(trimmed, displayName);
+            resolvedApp = new ResolvedApp(new LaunchPath(trimmed), displayName);
             return true;
         }
 
         if (File.Exists(trimmed))
         {
-            resolvedApp = new ResolvedApp(trimmed, Path.GetFileNameWithoutExtension(trimmed));
+            resolvedApp = new ResolvedApp(new LaunchPath(trimmed), Path.GetFileNameWithoutExtension(trimmed));
             return true;
         }
 
         if (Directory.Exists(trimmed))
         {
             var normalizedDirectoryPath = NormalizeResolvedDirectoryPath(trimmed);
-            resolvedApp = new ResolvedApp(normalizedDirectoryPath, GetDirectoryDisplayName(normalizedDirectoryPath));
+            resolvedApp = new ResolvedApp(new LaunchPath(normalizedDirectoryPath), GetDirectoryDisplayName(normalizedDirectoryPath));
             return true;
         }
 
@@ -208,7 +208,7 @@ internal static partial class AppResolver
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(best.Path))
+        if (!string.IsNullOrWhiteSpace(best.Path.Value))
         {
             resolvedApp = best;
             return true;

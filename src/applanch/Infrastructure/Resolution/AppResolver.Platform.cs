@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Resolution;
 
@@ -21,7 +22,7 @@ internal static partial class AppResolver
             {
                 if (_appPathsCache.TryGetValue(candidate, out var cached))
                 {
-                    if (File.Exists(cached.Path))
+                    if (File.Exists(cached.Path.Value))
                     {
                         resolvedApp = cached;
                         return true;
@@ -38,7 +39,7 @@ internal static partial class AppResolver
                     !string.IsNullOrWhiteSpace(resolvedPath) &&
                     File.Exists(resolvedPath))
                 {
-                    resolvedApp = new ResolvedApp(resolvedPath, Path.GetFileNameWithoutExtension(resolvedPath));
+                    resolvedApp = new ResolvedApp(new LaunchPath(resolvedPath), Path.GetFileNameWithoutExtension(resolvedPath));
 
                     lock (_appPathsCacheLock)
                     {
@@ -62,7 +63,7 @@ internal static partial class AppResolver
                 var resolvedPath = buffer.ToString();
                 if (File.Exists(resolvedPath))
                 {
-                    resolvedApp = new ResolvedApp(resolvedPath, Path.GetFileNameWithoutExtension(resolvedPath));
+                    resolvedApp = new ResolvedApp(new LaunchPath(resolvedPath), Path.GetFileNameWithoutExtension(resolvedPath));
                     return true;
                 }
             }
@@ -80,7 +81,7 @@ internal static partial class AppResolver
                 LoadInstalledAppsFromUninstallRoot(hive, @"Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall", result);
             }
 
-            return [.. result.DistinctBy(static x => x.Path, StringComparer.OrdinalIgnoreCase)];
+            return [.. result.DistinctBy(static x => x.Path)];
         }
 
         public bool TryEnumerateFileSystemEntries(string directory, [NotNullWhen(true)] out IEnumerable<string>? entries)
@@ -168,7 +169,7 @@ internal static partial class AppResolver
                 if (!TryExtractExecutablePath(key, out var path))
                     continue;
 
-                target.Add(new ResolvedApp(path, displayName));
+                target.Add(new ResolvedApp(new LaunchPath(path), displayName));
             }
         }
     }

@@ -52,7 +52,7 @@ public class MainWindowViewModelTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new ResolvedApp(existingPath, "App")
+            ResolvedApp = new ResolvedApp(new LaunchPath(existingPath), "App")
         };
 
         var vm = CreateViewModel(store, resolver);
@@ -71,7 +71,7 @@ public class MainWindowViewModelTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new ResolvedApp(@"C:\\Tools\\NewApp.exe", "NewApp")
+            ResolvedApp = new ResolvedApp(new LaunchPath(@"C:\\Tools\\NewApp.exe"), "NewApp")
         };
 
         var vm = CreateViewModel(resolver: resolver);
@@ -307,7 +307,7 @@ public class MainWindowViewModelTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new ResolvedApp(@"C:\\Tools\\B.exe", "B")
+            ResolvedApp = new ResolvedApp(new LaunchPath(@"C:\\Tools\\B.exe"), "B")
         };
 
         var vm = CreateViewModel(store, resolver);
@@ -335,7 +335,7 @@ public class MainWindowViewModelTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new ResolvedApp(@"C:\\Tools\\C.exe", "C")
+            ResolvedApp = new ResolvedApp(new LaunchPath(@"C:\\Tools\\C.exe"), "C")
         };
 
         var vm = CreateViewModel(store, resolver);
@@ -421,7 +421,7 @@ public class MainWindowViewModelTests
 
         // Phase 2: resolve succeeds and adds a new item.
         resolver.ShouldResolve = true;
-        resolver.ResolvedApp = new ResolvedApp(@"C:\\Tools\\D.exe", "D");
+        resolver.ResolvedApp = new ResolvedApp(new LaunchPath(@"C:\\Tools\\D.exe"), "D");
         vm.QuickAddNameOrPath = "d";
         vm.QuickAddCategory = "Sandbox";
         vm.QuickAddArguments = "--initial";
@@ -431,7 +431,7 @@ public class MainWindowViewModelTests
         Assert.Equal(4, vm.LaunchItems.Count);
 
         // Phase 3: duplicate add fails and does not persist.
-        resolver.ResolvedApp = new ResolvedApp(@"C:\\Tools\\D.exe", "D");
+        resolver.ResolvedApp = new ResolvedApp(new LaunchPath(@"C:\\Tools\\D.exe"), "D");
         vm.QuickAddNameOrPath = "duplicate-d";
         var duplicateResult = vm.TryAddQuickItem();
         Assert.False(duplicateResult.IsSuccess);
@@ -633,7 +633,7 @@ public class MainWindowViewModelTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new ResolvedApp(@"C:\\Tools\\NewApp.exe", "NewApp")
+            ResolvedApp = new ResolvedApp(new LaunchPath(@"C:\\Tools\\NewApp.exe"), "NewApp")
         };
         var vm = CreateViewModel(resolver: resolver);
         vm.QuickAddNameOrPath = "newapp";

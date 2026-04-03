@@ -52,7 +52,7 @@ public class QuickAddWorkflowTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(existingPath, "App"),
+            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(new applanch.Infrastructure.Utilities.LaunchPath(existingPath), "App"),
         };
         var workflow = new QuickAddWorkflow(resolver);
         var existingItems =
@@ -72,7 +72,7 @@ public class QuickAddWorkflowTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(@"C:\\Tools\\.\\App.exe", "App"),
+            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\\Tools\\.\\App.exe"), "App"),
         };
         var workflow = new QuickAddWorkflow(resolver);
         var existingItems =
@@ -92,7 +92,7 @@ public class QuickAddWorkflowTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(@"c:\\Tools\\App.exe", "App"),
+            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(new applanch.Infrastructure.Utilities.LaunchPath(@"c:\\Tools\\App.exe"), "App"),
         };
         var workflow = new QuickAddWorkflow(resolver);
         var existingItems =
@@ -112,7 +112,7 @@ public class QuickAddWorkflowTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(@"C:\\Tools\\Folder\\", "Folder"),
+            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\\Tools\\Folder\\"), "Folder"),
         };
         var workflow = new QuickAddWorkflow(resolver);
         var existingItems =
@@ -131,7 +131,7 @@ public class QuickAddWorkflowTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(@"C:\\Tools\\NewApp.exe", "NewApp"),
+            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\\Tools\\NewApp.exe"), "NewApp"),
         };
         var workflow = new QuickAddWorkflow(resolver);
 
@@ -150,7 +150,7 @@ public class QuickAddWorkflowTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(@"C:/Tools/NewApp.exe", "NewApp"),
+            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(new applanch.Infrastructure.Utilities.LaunchPath(@"C:/Tools/NewApp.exe"), "NewApp"),
         };
         var workflow = new QuickAddWorkflow(resolver);
 
@@ -168,7 +168,7 @@ public class QuickAddWorkflowTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(url, "example.com"),
+            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(new applanch.Infrastructure.Utilities.LaunchPath(url), "example.com"),
         };
         var workflow = new QuickAddWorkflow(resolver);
 

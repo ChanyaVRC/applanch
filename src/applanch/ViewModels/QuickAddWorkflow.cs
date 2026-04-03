@@ -1,6 +1,5 @@
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Integration;
-using applanch.Infrastructure.Utilities;
 
 namespace applanch.ViewModels;
 
@@ -38,34 +37,18 @@ internal sealed class QuickAddWorkflow(IAppResolver appResolver, ILaunchItemIcon
                 QuickAddMessageSeverity.Warning);
         }
 
-        if (existingItems.Any(item => IsSamePath(item.FullPath.Value, resolvedApp.Path)))
+        if (existingItems.Any(item => item.FullPath == resolvedApp.Path))
         {
             return QuickAddResult.Failed(Properties.Resources.Error_AlreadyRegistered, QuickAddMessageSeverity.Information);
         }
 
-        var normalizedResolvedPath = NormalizePath(resolvedApp.Path);
-
         newItem = new LaunchItemViewModel(
-            new LaunchPath(normalizedResolvedPath),
+            resolvedApp.Path,
             quickAddCategory,
             quickAddArguments,
             resolvedApp.DisplayName,
             iconProvider);
 
         return QuickAddResult.Success();
-    }
-
-    private static bool IsSamePath(string left, string right)
-    {
-        var normalizedLeft = NormalizePath(left);
-        var normalizedRight = NormalizePath(right);
-        return string.Equals(normalizedLeft, normalizedRight, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static string NormalizePath(string path)
-    {
-        return PathNormalization.TryNormalizePersistablePath(path, out var normalizedPath)
-            ? normalizedPath
-            : PathNormalization.NormalizeForComparison(path);
     }
 }

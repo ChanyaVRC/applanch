@@ -33,7 +33,7 @@ public class AppResolverTests
         var ok = AppResolver.TryResolve(url, out var resolved);
 
         Assert.True(ok);
-        Assert.Equal(url, resolved.Path);
+        Assert.Equal(url, resolved.Path.Value);
         Assert.Equal(expectedDisplayName, resolved.DisplayName);
     }
 
@@ -49,7 +49,7 @@ public class AppResolverTests
             var ok = AppResolver.TryResolve(filePath, out var resolved);
 
             Assert.True(ok);
-            Assert.Equal(filePath, resolved.Path);
+            Assert.Equal(filePath, resolved.Path.Value);
             Assert.Equal("MyTool", resolved.DisplayName);
         }
         finally
@@ -70,7 +70,7 @@ public class AppResolverTests
             var ok = AppResolver.TryResolve(targetDir, out var resolved);
 
             Assert.True(ok);
-            Assert.Equal(targetDir, resolved.Path);
+            Assert.Equal(targetDir, resolved.Path.Value);
             Assert.Equal("target-folder", resolved.DisplayName);
         }
         finally
@@ -92,7 +92,7 @@ public class AppResolverTests
             var ok = AppResolver.TryResolve(input, out var resolved);
 
             Assert.True(ok);
-            Assert.Equal(targetDir, resolved.Path);
+            Assert.Equal(targetDir, resolved.Path.Value);
             Assert.Equal("target-folder", resolved.DisplayName);
         }
         finally
@@ -113,7 +113,7 @@ public class AppResolverTests
             var ok = AppResolver.TryResolve(driveRoot!, out var resolved);
 
             Assert.True(ok);
-            Assert.Equal(driveRoot, resolved.Path);
+            Assert.Equal(driveRoot, resolved.Path.Value);
             var driveName = driveRoot!.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             var expectedDisplayName = driveName;
 
@@ -151,7 +151,7 @@ public class AppResolverTests
             var ok = AppResolver.TryResolve(driveSpecifier, out var resolved);
 
             Assert.True(ok);
-            Assert.Equal(driveRoot, resolved.Path);
+            Assert.Equal(driveRoot, resolved.Path.Value);
         }
         finally
         {
@@ -457,7 +457,7 @@ public class AppResolverTests
 
             Assert.True(ok);
             var resolved = (ResolvedApp)args[1]!;
-            Assert.Equal(exePath, resolved.Path);
+            Assert.Equal(exePath, resolved.Path.Value);
             Assert.Equal(Path.GetFileNameWithoutExtension(exePath), resolved.DisplayName);
         }
         finally
@@ -658,7 +658,7 @@ public class AppResolverTests
             method!.Invoke(null, [Registry.CurrentUser, rootPath, target]);
 
             var appResult = Assert.Single(target);
-            Assert.Equal(exePath, appResult.Path);
+            Assert.Equal(exePath, appResult.Path.Value);
             Assert.Equal("Installed Tool", appResult.DisplayName);
         }
         finally
