@@ -1,3 +1,5 @@
+using System.IO;
+using System.Net.Http;
 using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Updates;
@@ -49,7 +51,19 @@ internal sealed class UpdateWorkflow
         catch (Exception ex)
         {
             AppLogger.Instance.Error(ex, "Update apply failed");
-            return UpdateApplyResult.Failed(ex.Message);
+            return UpdateApplyResult.Failed(MapFailureReason(ex), ex.Message);
         }
+    }
+
+    private static UpdateApplyFailureReason MapFailureReason(Exception ex)
+    {
+        return ex switch
+        {
+            HttpRequestException => UpdateApplyFailureReason.Network,
+            UnauthorizedAccessException => UpdateApplyFailureReason.Permission,
+            InvalidDataException => UpdateApplyFailureReason.InvalidPackage,
+            IOException => UpdateApplyFailureReason.Io,
+            _ => UpdateApplyFailureReason.Unknown,
+        };
     }
 }

@@ -58,6 +58,7 @@ public class UpdateWorkflowTests
         var result = await workflow.ApplyUpdateSafeAsync(update);
 
         Assert.True(result.IsSuccess);
+        Assert.Equal(UpdateApplyFailureReason.None, result.FailureReason);
         Assert.Equal(string.Empty, result.ErrorMessage);
     }
 
@@ -73,7 +74,38 @@ public class UpdateWorkflowTests
         var result = await workflow.ApplyUpdateSafeAsync(update);
 
         Assert.False(result.IsSuccess);
+        Assert.Equal(UpdateApplyFailureReason.Unknown, result.FailureReason);
         Assert.Contains("apply failed", result.ErrorMessage, System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task ApplyUpdateSafeAsync_ReturnsNetworkFailureReason_WhenHttpThrows()
+    {
+        var update = new AppUpdateInfo("2.0.0", "1.0.0", "https://example.com/a.zip", "https://example.com/r");
+        var workflow = new UpdateWorkflow(new FakeAppUpdateService
+        {
+            ThrowHttpOnApply = true,
+        });
+
+        var result = await workflow.ApplyUpdateSafeAsync(update);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(UpdateApplyFailureReason.Network, result.FailureReason);
+    }
+
+    [Fact]
+    public async Task ApplyUpdateSafeAsync_ReturnsIoFailureReason_WhenIoThrows()
+    {
+        var update = new AppUpdateInfo("2.0.0", "1.0.0", "https://example.com/a.zip", "https://example.com/r");
+        var workflow = new UpdateWorkflow(new FakeAppUpdateService
+        {
+            ThrowIoOnApply = true,
+        });
+
+        var result = await workflow.ApplyUpdateSafeAsync(update);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(UpdateApplyFailureReason.Io, result.FailureReason);
     }
 
     [Fact]
@@ -118,6 +150,8 @@ public class UpdateWorkflowTests
         internal bool ThrowOnApply { get; init; }
         internal bool ThrowCanceledOnCheck { get; init; }
         internal bool ThrowCanceledOnApply { get; init; }
+        internal bool ThrowHttpOnApply { get; init; }
+        internal bool ThrowIoOnApply { get; init; }
 
         public Task<AppUpdateInfo?> CheckForUpdateAsync(System.Threading.CancellationToken cancellationToken = default)
         {
@@ -139,6 +173,16 @@ public class UpdateWorkflowTests
             if (ThrowCanceledOnApply)
             {
                 throw new OperationCanceledException("apply canceled", cancellationToken);
+            }
+
+            if (ThrowHttpOnApply)
+            {
+                throw new HttpRequestException("network failed");
+            }
+
+            if (ThrowIoOnApply)
+            {
+                throw new IOException("io failed");
             }
 
             if (ThrowOnApply)
