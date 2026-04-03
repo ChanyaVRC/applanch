@@ -17,6 +17,7 @@ public sealed partial class App : Application
     private AppSettings _settings = new();
     private readonly ThemeApplier _themeApplier = new();
     private readonly ContextMenuRegistrar _contextMenuRegistrar = new();
+    private readonly SparsePackageRegistrar _sparsePackageRegistrar = new();
     private readonly StartupRegistrationService _startupRegistrationService = new();
 
     protected override void OnStartup(StartupEventArgs e)
@@ -83,6 +84,10 @@ public sealed partial class App : Application
 
         LauncherStore.EnsureStorageDirectory();
         _contextMenuRegistrar.EnsureRegistered();
+        if (!_sparsePackageRegistrar.IsAlreadyRegistered())
+        {
+            _ = _sparsePackageRegistrar.TryEnsureRegisteredAsync();
+        }
     }
 
     internal void Refresh(AppSettings settings)
