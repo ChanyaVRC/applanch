@@ -97,6 +97,16 @@ To place the package next to the app executable (for local registration tests), 
 
 If this is your first setup on a machine, follow these steps once.
 
+Quick start (recommended):
+
+```powershell
+.\scripts\setup-dev-environment.ps1 -SetupDevSigning -BuildSparseMsix
+```
+
+The script checks prerequisites, runs initial Debug build, sets up local dev signing,
+and builds a sparse MSIX package.
+If needed, it prompts for UAC elevation during the dev-signing step.
+
 1. Install prerequisites.
 - .NET SDK 10
 - Windows SDK (including `makeappx.exe` and `signtool.exe`)

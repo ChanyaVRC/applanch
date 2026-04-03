@@ -97,6 +97,16 @@ dotnet build applanch.slnx -c Debug
 
 新しい PC で初回のみ実施してください。
 
+クイックスタート（推奨）:
+
+```powershell
+.\scripts\setup-dev-environment.ps1 -SetupDevSigning -BuildSparseMsix
+```
+
+このスクリプトは、前提チェック、初回 Debug ビルド、開発用証明書セットアップ、
+スパース MSIX 作成までをまとめて実行します。
+必要に応じて、開発用証明書セットアップ時に UAC 昇格確認が表示されます。
+
 1. 前提ツールをインストール
 - .NET SDK 10
 - Windows SDK（`makeappx.exe` と `signtool.exe` を含む）

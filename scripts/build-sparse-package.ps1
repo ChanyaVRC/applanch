@@ -76,12 +76,43 @@ if ($devCert) {
 
     if ($signtool -and (Test-Path $signtool)) {
         Write-Host "Signing MSIX with dev certificate ($($devCert.Thumbprint))..."
-        & $signtool sign /fd SHA256 /sha1 $devCert.Thumbprint /tr http://timestamp.digicert.com /td SHA256 /v $OutputMsix
-        if ($LASTEXITCODE -ne 0) {
-            Write-Warning "signtool signing failed (exit $LASTEXITCODE). The MSIX remains unsigned."
+        $timestampServers = @(
+            'http://timestamp.digicert.com',
+            'http://timestamp.sectigo.com',
+            'http://timestamp.acs.microsoft.com'
+        )
+
+        $signedWithTimestamp = $false
+        foreach ($timestampServer in $timestampServers) {
+            & $signtool sign /fd SHA256 /sha1 $devCert.Thumbprint /tr $timestampServer /td SHA256 /v $OutputMsix
+            if ($LASTEXITCODE -eq 0) {
+                $signedWithTimestamp = $true
+                Write-Host "MSIX signed successfully with timestamp server: $timestampServer"
+                break
+            }
+
+            Write-Warning "Timestamp signing via '$timestampServer' failed (exit $LASTEXITCODE)."
+        }
+
+        if (-not $signedWithTimestamp) {
+            Write-Warning "All timestamp servers failed. Falling back to signing without timestamp for local development."
+            & $signtool sign /fd SHA256 /sha1 $devCert.Thumbprint /v $OutputMsix
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "signtool signing failed (exit $LASTEXITCODE). The MSIX remains unsigned."
+            }
+            else {
+                Write-Host "MSIX signed successfully without timestamp (dev-only fallback)."
+            }
         }
         else {
-            Write-Host "MSIX signed successfully."
+            $global:LASTEXITCODE = 0
+        }
+
+        if ($LASTEXITCODE -eq 0) {
+            & $signtool verify /pa /v $OutputMsix | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "signtool verify failed (exit $LASTEXITCODE)."
+            }
         }
     }
     else {
@@ -93,4 +124,10 @@ else {
     Write-Host "Run .\scripts\setup-dev-signing.ps1 (as Admin) to enable signing without Developer Mode."
 }
 
-Write-Host "Sparse MSIX built: $OutputMsix ($([System.IO.FileInfo]$OutputMsix).Length bytes)"
+$outputInfo = Get-Item $OutputMsix
+Write-Host "Sparse MSIX built: $($outputInfo.FullName) ($($outputInfo.Length) bytes)"
+
+# Non-fatal signing warnings should not fail caller scripts.
+if ($LASTEXITCODE -ne 0) {
+    $global:LASTEXITCODE = 0
+}
