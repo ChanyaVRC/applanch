@@ -54,7 +54,7 @@ internal static class LaunchFallbackConfigurationLoader
 
         if (!loadedAny)
         {
-            AppLogger.Instance.Warn("Launch fallback config not found.");
+            AppLogger.Instance.Info("Launch fallback config not found.");
         }
 
         return merged;

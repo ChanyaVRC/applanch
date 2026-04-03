@@ -170,7 +170,7 @@ internal static class ThemePaletteConfigurationLoader
         var path = Path.Combine(appBaseDirectory, "Config", "theme-palette.json");
         if (!File.Exists(path))
         {
-            AppLogger.Instance.Warn($"Theme palette config not found: {path}");
+            AppLogger.Instance.Info($"Theme palette config not found: {path}");
             configuration = FallbackConfiguration;
             return false;
         }
