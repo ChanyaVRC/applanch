@@ -1,4 +1,4 @@
-using System.Globalization;
+using applanch.Tests.TestSupport;
 using Xunit;
 
 namespace applanch.Tests.Localization;
@@ -21,23 +21,10 @@ public class LocalizedStringsTests
     [InlineData("ja", "未分類")]
     public void Indexer_ReturnsLocalizedResourceValue(string cultureName, string expected)
     {
-        var previousUi = CultureInfo.CurrentUICulture;
-        var previousCulture = CultureInfo.CurrentCulture;
+        using var cultureScope = new CultureScope(cultureName);
 
-        try
-        {
-            var culture = new CultureInfo(cultureName);
-            CultureInfo.CurrentUICulture = culture;
-            CultureInfo.CurrentCulture = culture;
+        var value = LocalizedStrings.Instance[nameof(AppResources.DefaultCategory)];
 
-            var value = LocalizedStrings.Instance[nameof(AppResources.DefaultCategory)];
-
-            Assert.Equal(expected, value);
-        }
-        finally
-        {
-            CultureInfo.CurrentUICulture = previousUi;
-            CultureInfo.CurrentCulture = previousCulture;
-        }
+        Assert.Equal(expected, value);
     }
 }
