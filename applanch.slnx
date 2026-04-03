@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="src/applanch.ShellExtension/applanch.ShellExtension.csproj" />
   <Project Path="src/applanch.ResourceGenerator/applanch.ResourceGenerator.csproj" />
   <Project Path="src/applanch/applanch.csproj" />
   <Project Path="tests/applanch.Tests/applanch.Tests.csproj" />

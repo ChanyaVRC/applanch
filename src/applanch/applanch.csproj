@@ -18,8 +18,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Shared\ShellIntegration\ExplorerCommandIds.cs"
+             Link="ShellIntegration\ExplorerCommandIds.cs" />
     <ProjectReference Include="..\applanch.ResourceGenerator\applanch.ResourceGenerator.csproj"
                       OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\applanch.ShellExtension\applanch.ShellExtension.csproj"
                       ReferenceOutputAssembly="false" />
     <AdditionalFiles Include="Properties\Resources.resx" />
     <Content Include="Config\launch-fallbacks.json">
@@ -44,5 +48,24 @@
       <LastGenOutput></LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+
+  <Target Name="CopyShellExtensionArtifacts" AfterTargets="Build">
+    <MSBuild Projects="..\applanch.ShellExtension\applanch.ShellExtension.csproj"
+             Targets="GetTargetPath"
+             Properties="Configuration=$(Configuration);TargetFramework=$(TargetFramework)">
+      <Output TaskParameter="TargetOutputs" ItemName="ShellExtensionManagedAssembly" />
+    </MSBuild>
+
+    <ItemGroup>
+      <ShellExtensionArtifacts Include="@(ShellExtensionManagedAssembly)" />
+      <ShellExtensionArtifacts Include="$([System.IO.Path]::Combine($([System.IO.Path]::GetDirectoryName('%(ShellExtensionManagedAssembly.Identity)')), 'applanch.ShellExtension.comhost.dll'))" />
+      <ShellExtensionArtifacts Include="$([System.IO.Path]::ChangeExtension('%(ShellExtensionManagedAssembly.Identity)', '.deps.json'))" />
+      <ShellExtensionArtifacts Include="$([System.IO.Path]::ChangeExtension('%(ShellExtensionManagedAssembly.Identity)', '.runtimeconfig.json'))" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(ShellExtensionArtifacts)"
+          DestinationFolder="$(OutDir)"
+          SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

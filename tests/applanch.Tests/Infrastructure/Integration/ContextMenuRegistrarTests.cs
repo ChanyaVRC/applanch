@@ -7,6 +7,9 @@ namespace applanch.Tests.Infrastructure.Integration;
 
 public class ContextMenuRegistrarTests
 {
+    private const string ExplorerCommandClassId = "6F1D4B72-8A6C-4B95-98B2-5A7A1A3E52A0";
+    private const string ExplorerCommandProgId = "applanch.ExplorerCommand";
+
     [Fact]
     public void Constructor_Default_CanCreateInstance()
     {
@@ -19,18 +22,21 @@ public class ContextMenuRegistrarTests
     public void EnsureRegistered_NoExecutablePath_DoesNothing()
     {
         var writer = new RecordingRegistryCommandWriter();
-        var registrar = new ContextMenuRegistrar(() => null, writer.WriteCommand, enableLegacyCleanup: false);
+        var explorerRegistrar = new RecordingExplorerCommandRegistrar();
+        var registrar = new ContextMenuRegistrar(() => null, static _ => null, writer.WriteCommand, explorerRegistrar.Register, enableLegacyCleanup: false);
 
         registrar.EnsureRegistered();
 
         Assert.Empty(writer.Calls);
+        Assert.Empty(explorerRegistrar.Calls);
     }
 
     [Fact]
-    public void EnsureRegistered_WritesExpectedTargets()
+    public void EnsureRegistered_WritesExpectedTargets_WhenShellExtensionIsUnavailable()
     {
         var writer = new RecordingRegistryCommandWriter();
-        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand, enableLegacyCleanup: false);
+        var explorerRegistrar = new RecordingExplorerCommandRegistrar();
+        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", static _ => null, writer.WriteCommand, explorerRegistrar.Register, enableLegacyCleanup: false);
 
         registrar.EnsureRegistered();
 
@@ -42,13 +48,58 @@ public class ContextMenuRegistrarTests
         Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\Directory\\Background\\shell\\applanch.register", StringComparison.Ordinal));
 
         Assert.All(writer.Calls, static c => Assert.Contains(App.RegisterArgument, c.Command));
+        Assert.All(writer.Calls, static c => Assert.False(c.EnableExplorerCommand));
+        Assert.Empty(explorerRegistrar.Calls);
+    }
+
+    [Fact]
+    public void EnsureRegistered_EnablesExplorerCommand_ForSupportedTargetsWhenShellExtensionIsAvailable()
+    {
+        var writer = new RecordingRegistryCommandWriter();
+        var explorerRegistrar = new RecordingExplorerCommandRegistrar();
+        var registrar = new ContextMenuRegistrar(
+            () => @"C:\\Apps\\applanch.exe",
+            static _ => @"C:\\Apps\\applanch.ShellExtension.comhost.dll",
+            writer.WriteCommand,
+            explorerRegistrar.Register,
+            enableLegacyCleanup: false);
+
+        registrar.EnsureRegistered();
+
+        Assert.Single(explorerRegistrar.Calls);
+        Assert.Equal(@"C:\\Apps\\applanch.ShellExtension.comhost.dll", explorerRegistrar.Calls[0]);
+
+        Assert.Equal(4, writer.Calls.Count(static c => c.EnableExplorerCommand));
+        Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\AllFileSystemObjects\\shell\\applanch.register", StringComparison.Ordinal) && c.EnableExplorerCommand);
+        Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\*\\shell\\applanch.register", StringComparison.Ordinal) && c.EnableExplorerCommand);
+        Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\exefile\\shell\\applanch.register", StringComparison.Ordinal) && c.EnableExplorerCommand);
+        Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\Directory\\shell\\applanch.register", StringComparison.Ordinal) && c.EnableExplorerCommand);
+        Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\Directory\\Background\\shell\\applanch.register", StringComparison.Ordinal) && !c.EnableExplorerCommand);
+    }
+
+    [Fact]
+    public void EnsureRegistered_WhenExplorerCommandRegistrationThrowsKnownRegistryError_FallsBackToLegacyRegistration()
+    {
+        var writer = new RecordingRegistryCommandWriter();
+        var registrar = new ContextMenuRegistrar(
+            () => @"C:\\Apps\\applanch.exe",
+            static _ => @"C:\\Apps\\applanch.ShellExtension.comhost.dll",
+            writer.WriteCommand,
+            static _ => throw new UnauthorizedAccessException("Simulated explorer command registration failure"),
+            enableLegacyCleanup: false);
+
+        var exception = Record.Exception(registrar.EnsureRegistered);
+
+        Assert.Null(exception);
+        Assert.Equal(5, writer.Calls.Count);
+        Assert.All(writer.Calls, static c => Assert.False(c.EnableExplorerCommand));
     }
 
     [Fact]
     public void EnsureRegistered_WhenWriterThrows_DoesNotThrow()
     {
         var writer = new ThrowingRegistryCommandWriter(new UnauthorizedAccessException("Simulated registry permission error"));
-        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand, enableLegacyCleanup: false);
+        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", static _ => null, writer.WriteCommand, static _ => { }, enableLegacyCleanup: false);
 
         var exception = Record.Exception(registrar.EnsureRegistered);
 
@@ -60,7 +111,7 @@ public class ContextMenuRegistrarTests
     public void EnsureRegistered_WhenWriterThrowsSecurityException_DoesNotThrow()
     {
         var writer = new ThrowingRegistryCommandWriter(new System.Security.SecurityException("Simulated security policy error"));
-        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand, enableLegacyCleanup: false);
+        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", static _ => null, writer.WriteCommand, static _ => { }, enableLegacyCleanup: false);
 
         var exception = Record.Exception(registrar.EnsureRegistered);
 
@@ -72,7 +123,7 @@ public class ContextMenuRegistrarTests
     public void EnsureRegistered_WhenWriterThrowsIOException_DoesNotThrow()
     {
         var writer = new ThrowingRegistryCommandWriter(new IOException("Simulated IO error"));
-        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand, enableLegacyCleanup: false);
+        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", static _ => null, writer.WriteCommand, static _ => { }, enableLegacyCleanup: false);
 
         var exception = Record.Exception(registrar.EnsureRegistered);
 
@@ -84,13 +135,13 @@ public class ContextMenuRegistrarTests
     public void EnsureRegistered_WhenWriterThrowsUnexpected_Throws()
     {
         var writer = new ThrowingRegistryCommandWriter(new InvalidOperationException("Simulated registry write failure"));
-        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand, enableLegacyCleanup: false);
+        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", static _ => null, writer.WriteCommand, static _ => { }, enableLegacyCleanup: false);
 
         Assert.Throws<InvalidOperationException>(registrar.EnsureRegistered);
     }
 
     [Fact]
-    public void WriteRegistryCommand_CreatesExpectedValues()
+    public void WriteRegistryCommand_CreatesExpectedValues_WhenExplorerCommandIsDisabled()
     {
         var testKeyPath = @"Software\\applanch-tests\\registrar-" + Guid.NewGuid().ToString("N");
         var expectedCommand = "\"C:\\Apps\\applanch.exe\" --register \"%1\"";
@@ -105,13 +156,16 @@ public class ContextMenuRegistrarTests
                 testKeyPath,
                 "Menu Text",
                 @"C:\Apps\applanch.exe",
-                expectedCommand
+                expectedCommand,
+                false
             ]);
 
             using var shellKey = Registry.CurrentUser.OpenSubKey(testKeyPath);
             Assert.NotNull(shellKey);
             Assert.Equal("Menu Text", shellKey!.GetValue(string.Empty) as string);
             Assert.Equal(@"C:\Apps\applanch.exe", shellKey.GetValue("Icon") as string);
+            Assert.Null(shellKey.GetValue("ExplorerCommandHandler"));
+            Assert.Null(shellKey.GetValue("MultiSelectModel"));
 
             using var commandKey = shellKey.OpenSubKey("command");
             Assert.NotNull(commandKey);
@@ -120,6 +174,71 @@ public class ContextMenuRegistrarTests
         finally
         {
             Registry.CurrentUser.DeleteSubKeyTree(testKeyPath, false);
+        }
+    }
+
+    [Fact]
+    public void WriteRegistryCommand_CreatesExplorerCommandValues_WhenEnabled()
+    {
+        var testKeyPath = @"Software\\applanch-tests\\registrar-" + Guid.NewGuid().ToString("N");
+
+        try
+        {
+            var method = typeof(ContextMenuRegistrar).GetMethod("WriteRegistryCommand", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            Assert.NotNull(method);
+
+            method!.Invoke(null,
+            [
+                testKeyPath,
+                "Menu Text",
+                @"C:\Apps\applanch.exe",
+                "\"C:\\Apps\\applanch.exe\" --register \"%1\"",
+                true
+            ]);
+
+            using var shellKey = Registry.CurrentUser.OpenSubKey(testKeyPath);
+            Assert.NotNull(shellKey);
+            Assert.Equal($"{{{ExplorerCommandClassId}}}", shellKey!.GetValue("ExplorerCommandHandler") as string);
+            Assert.Equal("Single", shellKey.GetValue("MultiSelectModel") as string);
+        }
+        finally
+        {
+            Registry.CurrentUser.DeleteSubKeyTree(testKeyPath, false);
+        }
+    }
+
+    [Fact]
+    public void RegisterExplorerCommandServer_CreatesExpectedComKeys()
+    {
+        var classKeyPath = $@"Software\Classes\CLSID\{{{ExplorerCommandClassId}}}";
+        var progIdKeyPath = $@"Software\Classes\{ExplorerCommandProgId}";
+        var shellExtensionComHostPath = @"C:\Apps\applanch.ShellExtension.comhost.dll";
+
+        try
+        {
+            var method = typeof(ContextMenuRegistrar).GetMethod("RegisterExplorerCommandServer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            Assert.NotNull(method);
+
+            method!.Invoke(null, [shellExtensionComHostPath]);
+
+            using var classKey = Registry.CurrentUser.OpenSubKey(classKeyPath);
+            Assert.NotNull(classKey);
+            Assert.Equal("Applanch Explorer Command", classKey!.GetValue(string.Empty) as string);
+            Assert.Equal(ExplorerCommandProgId, classKey.GetValue("ProgId") as string);
+
+            using var inProcServerKey = Registry.CurrentUser.OpenSubKey(classKeyPath + "\\InprocServer32");
+            Assert.NotNull(inProcServerKey);
+            Assert.Equal(shellExtensionComHostPath, inProcServerKey!.GetValue(string.Empty) as string);
+            Assert.Equal("Both", inProcServerKey.GetValue("ThreadingModel") as string);
+
+            using var progIdKey = Registry.CurrentUser.OpenSubKey(progIdKeyPath);
+            Assert.NotNull(progIdKey);
+            Assert.Equal($"{{{ExplorerCommandClassId}}}", progIdKey!.GetValue("CLSID") as string);
+        }
+        finally
+        {
+            Registry.CurrentUser.DeleteSubKeyTree(classKeyPath, false);
+            Registry.CurrentUser.DeleteSubKeyTree(progIdKeyPath, false);
         }
     }
 }

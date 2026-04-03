@@ -101,6 +101,9 @@
       },
       "applanch": {
         "type": "Project"
+      },
+      "applanch.shellextension": {
+        "type": "Project"
       }
     }
   }

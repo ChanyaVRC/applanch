@@ -18,5 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\applanch\applanch.csproj" />
+    <ProjectReference Include="..\..\src\applanch.ShellExtension\applanch.ShellExtension.csproj" />
   </ItemGroup>
 </Project>
