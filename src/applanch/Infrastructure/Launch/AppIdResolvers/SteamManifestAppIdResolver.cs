@@ -74,37 +74,38 @@ internal sealed class SteamManifestAppIdResolver : IAppIdResolver
 
     private static string ExtractQuotedValue(string line)
     {
-        var text = line.AsSpan();
+        var remaining = line.AsSpan();
 
-        // Skip the first quoted token (key) and read the second one (value).
-        var firstOpen = text.IndexOf('"');
-        if (firstOpen < 0)
+        // Skip key token and then read value token.
+        if (!TryReadNextQuotedToken(ref remaining, out _)
+            || !TryReadNextQuotedToken(ref remaining, out var valueToken))
         {
             return string.Empty;
         }
 
-        text = text[(firstOpen + 1)..];
-        var firstClose = text.IndexOf('"');
-        if (firstClose < 0)
+        return valueToken.ToString();
+    }
+
+    private static bool TryReadNextQuotedToken(ref ReadOnlySpan<char> text, out ReadOnlySpan<char> token)
+    {
+        token = default;
+
+        var openQuoteIndex = text.IndexOf('"');
+        if (openQuoteIndex < 0)
         {
-            return string.Empty;
+            return false;
         }
 
-        text = text[(firstClose + 1)..];
-        var valueOpen = text.IndexOf('"');
-        if (valueOpen < 0)
+        var afterOpenQuote = text[(openQuoteIndex + 1)..];
+        var closeQuoteIndex = afterOpenQuote.IndexOf('"');
+        if (closeQuoteIndex < 0)
         {
-            return string.Empty;
+            return false;
         }
 
-        text = text[(valueOpen + 1)..];
-        var valueClose = text.IndexOf('"');
-        if (valueClose < 0)
-        {
-            return string.Empty;
-        }
-
-        return text[..valueClose].ToString();
+        token = afterOpenQuote[..closeQuoteIndex];
+        text = afterOpenQuote[(closeQuoteIndex + 1)..];
+        return true;
     }
 
     private static bool TryFindContainingDirectory(string filePath, string targetDirectoryName, out string directoryPath)
