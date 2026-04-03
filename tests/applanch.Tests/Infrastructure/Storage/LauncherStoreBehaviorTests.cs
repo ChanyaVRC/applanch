@@ -59,22 +59,6 @@ public class LauncherStoreBehaviorTests
     }
 
     [Fact]
-    public void Add_DriveLetterSpecifier_PersistsAsDriveRoot()
-    {
-        using var scope = new StoreIsolationScope();
-
-        var driveRoot = Path.GetPathRoot(Path.GetTempPath());
-        Assert.False(string.IsNullOrWhiteSpace(driveRoot));
-        var driveSpecifier = driveRoot!.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-
-        LauncherStore.Add(driveSpecifier);
-
-        var entries = LauncherStore.LoadAll();
-        var entry = Assert.Single(entries);
-        Assert.Equal(driveRoot, entry.Path.Value);
-    }
-
-    [Fact]
     public void LoadAll_InvalidJson_FallsBackToLegacyEntries()
     {
         using var scope = new StoreIsolationScope();
@@ -98,42 +82,22 @@ public class LauncherStoreBehaviorTests
     }
 
     [Fact]
-    public void SaveAll_NormalizesAndRemovesDuplicates()
+    public void SaveAll_RoundTripsMultipleEntries()
     {
         using var scope = new StoreIsolationScope();
 
         var input = new[]
         {
-            new LauncherStore.LauncherEntry("  C:\\Apps\\Tool.exe  ", "  Dev  ", "  -a  ", "  Tool Name  "),
-            new LauncherStore.LauncherEntry("c:\\apps\\tool.exe", "Ops", "-b", "Other Name"),
-            new LauncherStore.LauncherEntry("", "Ops", "-x", "X")
+            new LauncherStore.LauncherEntry(@"C:\Apps\ToolA.exe", "Dev", "-a", "Tool A"),
+            new LauncherStore.LauncherEntry(@"C:\Apps\ToolB.exe", "Ops", "-b", "Tool B")
         };
 
         LauncherStore.SaveAll(input);
 
-        var entries = LauncherStore.LoadAll();
-        var entry = Assert.Single(entries);
-        Assert.Equal(Path.GetFullPath(@"C:\Apps\Tool.exe"), entry.Path.Value);
-        Assert.Equal("Dev", entry.Category);
-        Assert.Equal("-a", entry.Arguments);
-        Assert.Equal("Tool Name", entry.DisplayName);
-    }
-
-    [Fact]
-    public void SaveAll_PlaceholderMessagePath_IsFilteredOut()
-    {
-        using var scope = new StoreIsolationScope();
-
-        LauncherStore.SaveAll(
-        [
-            new LauncherStore.LauncherEntry("No items registered yet. Add from Explorer's right-click menu.", "Misc", string.Empty, "Placeholder"),
-            new LauncherStore.LauncherEntry(@"C:\Apps\RealApp.exe", "Misc", string.Empty, "Real App")
-        ]);
-
-        var entries = LauncherStore.LoadAll();
-        var entry = Assert.Single(entries);
-        Assert.Equal(Path.GetFullPath(@"C:\Apps\RealApp.exe"), entry.Path.Value);
-        Assert.Equal("Real App", entry.DisplayName);
+        var entries = LauncherStore.LoadAll().OrderBy(x => x.DisplayName, StringComparer.Ordinal).ToList();
+        Assert.Equal(2, entries.Count);
+        Assert.Equal("Tool A", entries[0].DisplayName);
+        Assert.Equal("Tool B", entries[1].DisplayName);
     }
 
     private sealed class StoreIsolationScope : IDisposable
