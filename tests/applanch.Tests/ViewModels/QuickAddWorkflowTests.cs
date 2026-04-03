@@ -1,3 +1,5 @@
+using applanch.Infrastructure.Resolution;
+using applanch.Infrastructure.Utilities;
 using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;
 using Xunit;
@@ -52,11 +54,10 @@ public class QuickAddWorkflowTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(new applanch.Infrastructure.Utilities.LaunchPath(existingPath), "App"),
+            ResolvedApp = Resolved(existingPath, "App"),
         };
         var workflow = new QuickAddWorkflow(resolver);
-        var existingItems =
-            new[] { new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(existingPath), "Dev", string.Empty, "App") };
+        var existingItems = new[] { Item(existingPath, "Dev", string.Empty, "App") };
 
         var result = workflow.TryCreateLaunchItem("app", "Dev", string.Empty, existingItems, out var newItem);
 
@@ -72,11 +73,10 @@ public class QuickAddWorkflowTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\\Tools\\.\\App.exe"), "App"),
+            ResolvedApp = Resolved(@"C:\\Tools\\.\\App.exe", "App"),
         };
         var workflow = new QuickAddWorkflow(resolver);
-        var existingItems =
-            new[] { new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(existingPath), "Dev", string.Empty, "App") };
+        var existingItems = new[] { Item(existingPath, "Dev", string.Empty, "App") };
 
         var result = workflow.TryCreateLaunchItem("app", "Dev", string.Empty, existingItems, out var newItem);
 
@@ -92,11 +92,10 @@ public class QuickAddWorkflowTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(new applanch.Infrastructure.Utilities.LaunchPath(@"c:\\Tools\\App.exe"), "App"),
+            ResolvedApp = Resolved(@"c:\\Tools\\App.exe", "App"),
         };
         var workflow = new QuickAddWorkflow(resolver);
-        var existingItems =
-            new[] { new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(existingPath), "Dev", string.Empty, "App") };
+        var existingItems = new[] { Item(existingPath, "Dev", string.Empty, "App") };
 
         var result = workflow.TryCreateLaunchItem("app", "Dev", string.Empty, existingItems, out var newItem);
 
@@ -112,11 +111,10 @@ public class QuickAddWorkflowTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\\Tools\\Folder\\"), "Folder"),
+            ResolvedApp = Resolved(@"C:\\Tools\\Folder\\", "Folder"),
         };
         var workflow = new QuickAddWorkflow(resolver);
-        var existingItems =
-            new[] { new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(existingPath), "Dev", string.Empty, "Folder") };
+        var existingItems = new[] { Item(existingPath, "Dev", string.Empty, "Folder") };
 
         var result = workflow.TryCreateLaunchItem("folder", "Dev", string.Empty, existingItems, out var newItem);
 
@@ -131,7 +129,7 @@ public class QuickAddWorkflowTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\\Tools\\NewApp.exe"), "NewApp"),
+            ResolvedApp = Resolved(@"C:\\Tools\\NewApp.exe", "NewApp"),
         };
         var workflow = new QuickAddWorkflow(resolver);
 
@@ -150,7 +148,7 @@ public class QuickAddWorkflowTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(new applanch.Infrastructure.Utilities.LaunchPath(@"C:/Tools/NewApp.exe"), "NewApp"),
+            ResolvedApp = Resolved(@"C:/Tools/NewApp.exe", "NewApp"),
         };
         var workflow = new QuickAddWorkflow(resolver);
 
@@ -168,7 +166,7 @@ public class QuickAddWorkflowTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new applanch.Infrastructure.Resolution.ResolvedApp(new applanch.Infrastructure.Utilities.LaunchPath(url), "example.com"),
+            ResolvedApp = Resolved(url, "example.com"),
         };
         var workflow = new QuickAddWorkflow(resolver);
 
@@ -192,5 +190,15 @@ public class QuickAddWorkflowTests
 
         Assert.Equal(new[] { "a", "b" }, result);
         Assert.Equal(1, resolver.SuggestionsCallCount);
+    }
+
+    private static ResolvedApp Resolved(string path, string displayName)
+    {
+        return new ResolvedApp(new LaunchPath(path), displayName);
+    }
+
+    private static LaunchItemViewModel Item(string path, string category, string arguments, string displayName)
+    {
+        return new LaunchItemViewModel(new LaunchPath(path), category, arguments, displayName);
     }
 }

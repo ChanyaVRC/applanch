@@ -52,7 +52,7 @@ public class MainWindowViewModelTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new ResolvedApp(new LaunchPath(existingPath), "App")
+            ResolvedApp = Resolved(existingPath, "App")
         };
 
         var vm = CreateViewModel(store, resolver);
@@ -71,7 +71,7 @@ public class MainWindowViewModelTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new ResolvedApp(new LaunchPath(@"C:\\Tools\\NewApp.exe"), "NewApp")
+            ResolvedApp = Resolved(@"C:\\Tools\\NewApp.exe", "NewApp")
         };
 
         var vm = CreateViewModel(resolver: resolver);
@@ -307,7 +307,7 @@ public class MainWindowViewModelTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new ResolvedApp(new LaunchPath(@"C:\\Tools\\B.exe"), "B")
+            ResolvedApp = Resolved(@"C:\\Tools\\B.exe", "B")
         };
 
         var vm = CreateViewModel(store, resolver);
@@ -381,7 +381,7 @@ public class MainWindowViewModelTests
 
         // Phase 2: resolve succeeds and adds a new item.
         resolver.ShouldResolve = true;
-        resolver.ResolvedApp = new ResolvedApp(new LaunchPath(@"C:\\Tools\\D.exe"), "D");
+        resolver.ResolvedApp = Resolved(@"C:\\Tools\\D.exe", "D");
         vm.QuickAddNameOrPath = "d";
         vm.QuickAddCategory = "Sandbox";
         vm.QuickAddArguments = "--initial";
@@ -391,7 +391,7 @@ public class MainWindowViewModelTests
         Assert.Equal(4, vm.LaunchItems.Count);
 
         // Phase 3: duplicate add fails and does not persist.
-        resolver.ResolvedApp = new ResolvedApp(new LaunchPath(@"C:\\Tools\\D.exe"), "D");
+        resolver.ResolvedApp = Resolved(@"C:\\Tools\\D.exe", "D");
         vm.QuickAddNameOrPath = "duplicate-d";
         var duplicateResult = vm.TryAddQuickItem();
         Assert.False(duplicateResult.IsSuccess);
@@ -587,7 +587,7 @@ public class MainWindowViewModelTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = new ResolvedApp(new LaunchPath(@"C:\\Tools\\NewApp.exe"), "NewApp")
+            ResolvedApp = Resolved(@"C:\\Tools\\NewApp.exe", "NewApp")
         };
         var vm = CreateViewModel(resolver: resolver);
         vm.QuickAddNameOrPath = "newapp";
@@ -614,7 +614,7 @@ public class MainWindowViewModelTests
         ]);
 
         var vm = CreateViewModel(store: store);
-        var itemB = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\\Tools\\B.exe"), "B", "Dev", string.Empty);
+        var itemB = Item(@"C:\\Tools\\B.exe", "B", "Dev", string.Empty);
 
         vm.InsertItem(itemB, 1);
 
@@ -632,8 +632,8 @@ public class MainWindowViewModelTests
         ]);
 
         var vm = CreateViewModel(store: store);
-        var itemHead = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\\Tools\\Head.exe"), "Head", "Dev", string.Empty);
-        var itemTail = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\\Tools\\Tail.exe"), "Tail", "Dev", string.Empty);
+        var itemHead = Item(@"C:\\Tools\\Head.exe", "Head", "Dev", string.Empty);
+        var itemTail = Item(@"C:\\Tools\\Tail.exe", "Tail", "Dev", string.Empty);
 
         vm.InsertItem(itemHead, -100);
         vm.InsertItem(itemTail, 999);
@@ -743,6 +743,16 @@ public class MainWindowViewModelTests
     private static MainWindowViewModel CreateViewModel(FakeStore? store = null, FakeResolver? resolver = null, AppSettings? settings = null, ILaunchItemIconProvider? iconProvider = null)
     {
         return new MainWindowViewModel(resolver ?? new FakeResolver(), store ?? new FakeStore([]), settings ?? new AppSettings(), iconProvider);
+    }
+
+    private static ResolvedApp Resolved(string path, string displayName)
+    {
+        return new ResolvedApp(new LaunchPath(path), displayName);
+    }
+
+    private static LaunchItemViewModel Item(string path, string displayName, string category, string arguments)
+    {
+        return new LaunchItemViewModel(new LaunchPath(path), category, arguments, displayName);
     }
 
     private sealed class TrackingIconProvider : ILaunchItemIconProvider
