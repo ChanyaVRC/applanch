@@ -362,19 +362,41 @@ public sealed class MainWindowViewModel : ObservableObject
 
     private void RebuildCategoryLists()
     {
-        var defaultCategory = LauncherStore.LauncherEntry.DefaultCategory;
-        var categories = CollectDistinctNonEmptyCategories();
-        if (_settings.CategorySortMode != CategorySortMode.AsAdded)
-        {
-            categories.Sort(StringComparer.CurrentCulture);
-        }
-
-        if (categories.Remove(defaultCategory))
-            categories.Add(defaultCategory);
-
+        var categories = BuildCategoryNames();
         ReplaceCollection(CategoryNames, categories);
         ReplaceCollection(FilterCategoryNames, [AllCategoriesLabel, .. categories]);
+        EnsureSelectedCategoryIsValid();
+    }
 
+    private List<string> BuildCategoryNames()
+    {
+        var categories = CollectDistinctNonEmptyCategories();
+        SortCategoriesIfNeeded(categories);
+        MoveDefaultCategoryToLast(categories);
+        return categories;
+    }
+
+    private void SortCategoriesIfNeeded(List<string> categories)
+    {
+        if (_settings.CategorySortMode == CategorySortMode.AsAdded)
+        {
+            return;
+        }
+
+        categories.Sort(StringComparer.CurrentCulture);
+    }
+
+    private static void MoveDefaultCategoryToLast(List<string> categories)
+    {
+        var defaultCategory = LauncherStore.LauncherEntry.DefaultCategory;
+        if (categories.Remove(defaultCategory))
+        {
+            categories.Add(defaultCategory);
+        }
+    }
+
+    private void EnsureSelectedCategoryIsValid()
+    {
         if (!FilterCategoryNames.Contains(SelectedCategory))
         {
             SelectedCategory = AllCategoriesLabel;

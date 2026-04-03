@@ -30,9 +30,9 @@ public sealed class LaunchItemViewModel : ObservableObject
         FullPath = fullPath;
         _dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
         _iconProvider = iconProvider ?? LaunchItemIconProvider.Shared;
-        _displayName = LaunchItemNormalization.NormalizeDisplayName(displayName, fullPath.Value);
-        _category = LaunchItemNormalization.NormalizeCategory(category);
-        _arguments = LaunchItemNormalization.NormalizeArguments(arguments);
+        _displayName = NormalizeDisplayName(displayName);
+        _category = NormalizeCategory(category);
+        _arguments = NormalizeArguments(arguments);
 
         RefreshIcon();
     }
@@ -40,17 +40,7 @@ public sealed class LaunchItemViewModel : ObservableObject
     public string DisplayName
     {
         get => _displayName;
-        set
-        {
-            var normalized = LaunchItemNormalization.NormalizeDisplayName(value, FullPath.Value);
-            if (_displayName == normalized)
-            {
-                return;
-            }
-
-            _displayName = normalized;
-            OnPropertyChanged();
-        }
+        set => SetNormalizedString(ref _displayName, value, NormalizeDisplayName, nameof(DisplayName));
     }
 
     public bool IsRenaming
@@ -77,33 +67,34 @@ public sealed class LaunchItemViewModel : ObservableObject
     public string Arguments
     {
         get => _arguments;
-        set
-        {
-            var normalized = LaunchItemNormalization.NormalizeArguments(value);
-            if (_arguments == normalized)
-            {
-                return;
-            }
-
-            _arguments = normalized;
-            OnPropertyChanged();
-        }
+        set => SetNormalizedString(ref _arguments, value, NormalizeArguments, nameof(Arguments));
     }
 
     public string Category
     {
         get => _category;
-        set
-        {
-            var normalized = LaunchItemNormalization.NormalizeCategory(value);
-            if (_category == normalized)
-            {
-                return;
-            }
+        set => SetNormalizedString(ref _category, value, NormalizeCategory, nameof(Category));
+    }
 
-            _category = normalized;
-            OnPropertyChanged();
+    private string NormalizeDisplayName(string value) =>
+        LaunchItemNormalization.NormalizeDisplayName(value, FullPath.Value);
+
+    private static string NormalizeCategory(string value) =>
+        LaunchItemNormalization.NormalizeCategory(value);
+
+    private static string NormalizeArguments(string value) =>
+        LaunchItemNormalization.NormalizeArguments(value);
+
+    private void SetNormalizedString(ref string field, string value, Func<string, string> normalize, string propertyName)
+    {
+        var normalized = normalize(value);
+        if (field == normalized)
+        {
+            return;
         }
+
+        field = normalized;
+        OnPropertyChanged(propertyName);
     }
 
     internal void RefreshIcon()
