@@ -33,6 +33,17 @@ public class UpdateWorkflowTests
     }
 
     [Fact]
+    public async Task CheckForUpdateSafeAsync_PropagatesCancellation()
+    {
+        var workflow = new UpdateWorkflow(new FakeAppUpdateService
+        {
+            ThrowCanceledOnCheck = true,
+        });
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() => workflow.CheckForUpdateSafeAsync());
+    }
+
+    [Fact]
     public async Task ApplyUpdateSafeAsync_ReturnsSuccess_WhenServiceSucceeds()
     {
         var update = new AppUpdateInfo("2.0.0", "1.0.0", "https://example.com/a.zip", "https://example.com/r");
@@ -60,6 +71,18 @@ public class UpdateWorkflowTests
     }
 
     [Fact]
+    public async Task ApplyUpdateSafeAsync_PropagatesCancellation()
+    {
+        var update = new AppUpdateInfo("2.0.0", "1.0.0", "https://example.com/a.zip", "https://example.com/r");
+        var workflow = new UpdateWorkflow(new FakeAppUpdateService
+        {
+            ThrowCanceledOnApply = true,
+        });
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() => workflow.ApplyUpdateSafeAsync(update));
+    }
+
+    [Fact]
     public async Task SetUpdateService_ReplacesBehavior()
     {
         var update = new AppUpdateInfo("2.0.0", "1.0.0", "https://example.com/a.zip", "https://example.com/r");
@@ -79,9 +102,16 @@ public class UpdateWorkflowTests
         internal AppUpdateInfo? CheckResult { get; init; }
         internal bool ThrowOnCheck { get; init; }
         internal bool ThrowOnApply { get; init; }
+        internal bool ThrowCanceledOnCheck { get; init; }
+        internal bool ThrowCanceledOnApply { get; init; }
 
         public Task<AppUpdateInfo?> CheckForUpdateAsync(System.Threading.CancellationToken cancellationToken = default)
         {
+            if (ThrowCanceledOnCheck)
+            {
+                throw new OperationCanceledException("check canceled", cancellationToken);
+            }
+
             if (ThrowOnCheck)
             {
                 throw new InvalidOperationException("check failed");
@@ -92,6 +122,11 @@ public class UpdateWorkflowTests
 
         public Task ApplyUpdateAsync(AppUpdateInfo update, System.Threading.CancellationToken cancellationToken = default)
         {
+            if (ThrowCanceledOnApply)
+            {
+                throw new OperationCanceledException("apply canceled", cancellationToken);
+            }
+
             if (ThrowOnApply)
             {
                 throw new InvalidOperationException("apply failed");

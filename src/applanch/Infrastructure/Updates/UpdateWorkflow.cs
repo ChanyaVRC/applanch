@@ -17,6 +17,10 @@ internal sealed class UpdateWorkflow(IAppUpdateService updateService)
         {
             return await _updateService.CheckForUpdateAsync(cancellationToken).ConfigureAwait(false);
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             AppLogger.Instance.Error(ex, "Update check failed");
@@ -30,6 +34,10 @@ internal sealed class UpdateWorkflow(IAppUpdateService updateService)
         {
             await _updateService.ApplyUpdateAsync(update, cancellationToken).ConfigureAwait(false);
             return UpdateApplyResult.Success();
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
