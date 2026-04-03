@@ -10,16 +10,6 @@ internal static partial class AppResolver
 {
     private static readonly WindowsAppResolverPlatform Platform = new();
 
-    private static readonly Dictionary<string, string[]> KnownAliases = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["vscode"] = ["code", "code.exe"],
-        ["visual studio code"] = ["code", "code.exe"],
-        ["code"] = ["code", "code.exe"],
-        ["notepad"] = ["notepad.exe"],
-        ["powershell"] = ["powershell.exe", "pwsh.exe"],
-        ["cmd"] = ["cmd.exe"]
-    };
-
     private static readonly Lazy<IReadOnlyList<ResolvedApp>> InstalledAppsCache =
         new(() => Platform.LoadInstalledApps(), isThreadSafe: true);
 
@@ -102,14 +92,6 @@ internal static partial class AppResolver
 
     private static IEnumerable<string> ExpandCandidates(string input)
     {
-        if (KnownAliases.TryGetValue(input, out var aliases))
-        {
-            foreach (var alias in aliases)
-            {
-                yield return alias;
-            }
-        }
-
         yield return input;
 
         if (!Path.HasExtension(input))
@@ -247,7 +229,7 @@ internal static partial class AppResolver
         }
 
         var installedApps = InstalledAppsCache.Value;
-        var candidates = new List<SuggestionCandidate>(installedApps.Count + KnownAliases.Count + maxResults);
+        var candidates = new List<SuggestionCandidate>(installedApps.Count + maxResults);
 
         foreach (var app in installedApps)
         {
@@ -258,17 +240,6 @@ internal static partial class AppResolver
             }
 
             candidates.Add(new(app.DisplayName, score, 2));
-        }
-
-        foreach (var alias in KnownAliases.Keys)
-        {
-            var score = ScoreDisplayName(alias, trimmed);
-            if (score <= 0)
-            {
-                continue;
-            }
-
-            candidates.Add(new(alias, score, 1));
         }
 
         foreach (var pathSuggestion in GetPathSuggestions(trimmed, maxResults))

@@ -298,7 +298,7 @@ public class AppResolverTests
     }
 
     [Fact]
-    public void ExpandCandidates_ForKnownAlias_IncludesAliasAndExe()
+    public void ExpandCandidates_ForInputWithoutExtension_IncludesInputAndExe()
     {
         var method = typeof(AppResolver).GetMethod("ExpandCandidates", BindingFlags.NonPublic | BindingFlags.Static);
         Assert.NotNull(method);
@@ -306,10 +306,9 @@ public class AppResolverTests
         var sequence = (IEnumerable)method!.Invoke(null, ["vscode"])!;
         var list = sequence.Cast<string>().ToList();
 
-        Assert.Contains("code", list);
-        Assert.Contains("code.exe", list);
         Assert.Contains("vscode", list);
         Assert.Contains("vscode.exe", list);
+        Assert.Equal(2, list.Count);
     }
 
     [Fact]
