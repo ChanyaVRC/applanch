@@ -2,9 +2,9 @@ namespace applanch.Infrastructure.Storage;
 
 internal sealed class LauncherStoreAdapter : ILauncherStore
 {
-    public IReadOnlyList<LauncherStore.LauncherEntry> LoadAll() => LauncherStore.LoadAll();
+    public IReadOnlyList<LauncherEntry> LoadAll() => LauncherStore.LoadAll();
 
-    public void SaveAll(IEnumerable<LauncherStore.LauncherEntry> entries) =>
+    public void SaveAll(IEnumerable<LauncherEntry> entries) =>
         LauncherStore.SaveAll(entries);
 }
 

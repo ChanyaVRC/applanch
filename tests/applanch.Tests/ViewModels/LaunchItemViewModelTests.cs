@@ -44,7 +44,7 @@ public class LaunchItemViewModelTests
 
         vm.Category = "   ";
 
-        Assert.Equal(LauncherStore.LauncherEntry.DefaultCategory, vm.Category);
+        Assert.Equal(LauncherEntry.DefaultCategory, vm.Category);
     }
 
     [Fact]

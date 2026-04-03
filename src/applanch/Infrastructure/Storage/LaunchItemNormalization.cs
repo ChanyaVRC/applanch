@@ -30,18 +30,18 @@ internal static class LaunchItemNormalization
     {
         if (category is null)
         {
-            return LauncherStore.LauncherEntry.DefaultCategory;
+            return LauncherEntry.DefaultCategory;
         }
 
         var trimmed = category.AsSpan().Trim();
         if (trimmed.IsEmpty)
         {
-            return LauncherStore.LauncherEntry.DefaultCategory;
+            return LauncherEntry.DefaultCategory;
         }
 
         if (IsKnownDefaultCategory(trimmed))
         {
-            return LauncherStore.LauncherEntry.DefaultCategory;
+            return LauncherEntry.DefaultCategory;
         }
 
         return trimmed.Length == category.Length ? category : trimmed.ToString();

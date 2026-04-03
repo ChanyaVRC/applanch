@@ -105,8 +105,8 @@ public class LauncherStoreBehaviorTests
 
         var input = new[]
         {
-            new LauncherStore.LauncherEntry(@"C:\Apps\ToolA.exe", "Dev", "-a", "Tool A"),
-            new LauncherStore.LauncherEntry(@"C:\Apps\ToolB.exe", "Ops", "-b", "Tool B")
+            new LauncherEntry(@"C:\Apps\ToolA.exe", "Dev", "-a", "Tool A"),
+            new LauncherEntry(@"C:\Apps\ToolB.exe", "Ops", "-b", "Tool B")
         };
 
         LauncherStore.SaveAll(input);

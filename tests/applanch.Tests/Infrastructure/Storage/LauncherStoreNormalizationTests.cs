@@ -58,7 +58,7 @@ public class LauncherStoreNormalizationTests
 
         var entries = new[]
         {
-            new LauncherStore.LauncherEntry(driveSpecifier, "Misc", string.Empty, "Drive")
+            new LauncherEntry(driveSpecifier, "Misc", string.Empty, "Drive")
         };
 
         var normalized = InvokeNormalizeEntries(entries).ToList();
@@ -72,7 +72,7 @@ public class LauncherStoreNormalizationTests
     {
         var entries = new[]
         {
-            new LauncherStore.LauncherEntry("\\Temp\\Tool.exe", "Misc", string.Empty, "Tool")
+            new LauncherEntry("\\Temp\\Tool.exe", "Misc", string.Empty, "Tool")
         };
 
         var normalized = InvokeNormalizeEntries(entries);
@@ -96,9 +96,9 @@ public class LauncherStoreNormalizationTests
     {
         var entries = new[]
         {
-            new LauncherStore.LauncherEntry("  C:\\Apps\\Tool.exe  ", "  Dev  ", "  -a  ", "  Tool Name  "),
-            new LauncherStore.LauncherEntry("c:\\apps\\tool.exe", "", "", ""),
-            new LauncherStore.LauncherEntry("", "Ops", "-x", "X")
+            new LauncherEntry("  C:\\Apps\\Tool.exe  ", "  Dev  ", "  -a  ", "  Tool Name  "),
+            new LauncherEntry("c:\\apps\\tool.exe", "", "", ""),
+            new LauncherEntry("", "Ops", "-x", "X")
         };
 
         var normalized = InvokeNormalizeEntries(entries).ToList();
@@ -126,8 +126,8 @@ public class LauncherStoreNormalizationTests
         {
             var entries = new[]
             {
-                new LauncherStore.LauncherEntry(placeholderPath, "Misc", string.Empty, "Placeholder"),
-                new LauncherStore.LauncherEntry(@"C:\Apps\Tool.exe", "Misc", string.Empty, "Tool"),
+                new LauncherEntry(placeholderPath, "Misc", string.Empty, "Placeholder"),
+                new LauncherEntry(@"C:\Apps\Tool.exe", "Misc", string.Empty, "Tool"),
             };
 
             var normalized = InvokeNormalizeEntries(entries).ToList();
@@ -160,8 +160,8 @@ public class LauncherStoreNormalizationTests
         {
             var entries = new[]
             {
-                new LauncherStore.LauncherEntry(placeholderPath, "Misc", string.Empty, "Placeholder"),
-                new LauncherStore.LauncherEntry(@"C:\Apps\Tool.exe", "Misc", string.Empty, "Tool"),
+                new LauncherEntry(placeholderPath, "Misc", string.Empty, "Placeholder"),
+                new LauncherEntry(@"C:\Apps\Tool.exe", "Misc", string.Empty, "Tool"),
             };
 
             var normalized = InvokeNormalizeEntries(entries).ToList();
@@ -189,11 +189,11 @@ public class LauncherStoreNormalizationTests
         return success;
     }
 
-    private static IReadOnlyList<LauncherStore.LauncherEntry> InvokeNormalizeEntries(IEnumerable<LauncherStore.LauncherEntry> value)
+    private static IReadOnlyList<LauncherEntry> InvokeNormalizeEntries(IEnumerable<LauncherEntry> value)
     {
         var method = typeof(LauncherStore).GetMethod("NormalizeEntries", BindingFlags.NonPublic | BindingFlags.Static);
         Assert.NotNull(method);
-        return (IReadOnlyList<LauncherStore.LauncherEntry>)method!.Invoke(null, [value])!;
+        return (IReadOnlyList<LauncherEntry>)method!.Invoke(null, [value])!;
     }
 }
 

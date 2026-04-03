@@ -27,7 +27,7 @@ public sealed class MainWindowViewModel : ObservableObject
     private bool _refreshingSuggestions;
     private bool _suspendPersistence;
     private string _quickAddNameOrPath = string.Empty;
-    private string _quickAddCategory = LauncherStore.LauncherEntry.DefaultCategory;
+    private string _quickAddCategory = LauncherEntry.DefaultCategory;
     private string _quickAddArguments = string.Empty;
 
     public MainWindowViewModel()
@@ -388,7 +388,7 @@ public sealed class MainWindowViewModel : ObservableObject
 
     private static void MoveDefaultCategoryToLast(List<string> categories)
     {
-        var defaultCategory = LauncherStore.LauncherEntry.DefaultCategory;
+        var defaultCategory = LauncherEntry.DefaultCategory;
         if (categories.Remove(defaultCategory))
         {
             categories.Add(defaultCategory);
@@ -445,14 +445,14 @@ public sealed class MainWindowViewModel : ObservableObject
         QuickAddNameOrPath = string.Empty;
         QuickAddArguments = string.Empty;
         QuickAddCategory = IsAllCategorySelected
-            ? LauncherStore.LauncherEntry.DefaultCategory
+            ? LauncherEntry.DefaultCategory
             : SelectedCategory;
     }
 
     private bool IsAllCategorySelected =>
         SelectedCategory == AllCategoriesLabel;
 
-    private static LauncherStore.LauncherEntry ToLauncherEntry(LaunchItemViewModel item) =>
+    private static LauncherEntry ToLauncherEntry(LaunchItemViewModel item) =>
         new(item.FullPath, item.Category, item.Arguments, item.DisplayName);
 
     private void SetSelectedLaunchItem(LaunchItemViewModel? value)

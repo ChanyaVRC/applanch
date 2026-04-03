@@ -46,7 +46,7 @@ public class MainWindowViewModelTests
         var existingPath = @"C:\\Tools\\App.exe";
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(existingPath, "Dev", string.Empty, "App")
+            new LauncherEntry(existingPath, "Dev", string.Empty, "App")
         ]);
 
         var resolver = new FakeResolver
@@ -93,8 +93,8 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A"),
+            new LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B")
         ]);
 
         var vm = CreateViewModel(store: store);
@@ -119,8 +119,8 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A"),
+            new LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B")
         ]);
 
         var vm = CreateViewModel(store: store);
@@ -138,7 +138,7 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
         ]);
 
         var vm = CreateViewModel(store: store);
@@ -154,7 +154,7 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
         ]);
 
         var vm = CreateViewModel(store: store);
@@ -171,7 +171,7 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", "-a", "A")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", "-a", "A")
         ]);
 
         var vm = CreateViewModel(store: store);
@@ -188,8 +188,8 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", "-a", "A"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Ops", "-b", "B")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", "-a", "A"),
+            new LauncherEntry(@"C:\\Tools\\B.exe", "Ops", "-b", "B")
         ]);
 
         var vm = CreateViewModel(store: store);
@@ -210,8 +210,8 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", "-a", "A"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Ops", "-b", "B")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", "-a", "A"),
+            new LauncherEntry(@"C:\\Tools\\B.exe", "Ops", "-b", "B")
         ]);
 
         var vm = CreateViewModel(store: store);
@@ -232,8 +232,8 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", "-a", "A"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Ops", "-b", "B")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", "-a", "A"),
+            new LauncherEntry(@"C:\\Tools\\B.exe", "Ops", "-b", "B")
         ]);
 
         var vm = CreateViewModel(store: store);
@@ -266,8 +266,8 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Ops", string.Empty, "B")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A"),
+            new LauncherEntry(@"C:\\Tools\\B.exe", "Ops", string.Empty, "B")
         ]);
 
         var vm = CreateViewModel(store: store);
@@ -283,8 +283,8 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Ops", string.Empty, "B")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A"),
+            new LauncherEntry(@"C:\\Tools\\B.exe", "Ops", string.Empty, "B")
         ]);
 
         var vm = CreateViewModel(store: store);
@@ -301,7 +301,7 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
         ]);
 
         var resolver = new FakeResolver
@@ -328,9 +328,9 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Ops", string.Empty, "C")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A"),
+            new LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B"),
+            new LauncherEntry(@"C:\\Tools\\C.exe", "Ops", string.Empty, "C")
         ]);
 
         var vm = CreateViewModel(store: store);
@@ -363,9 +363,9 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", "-a", "A"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Ops", "-b", "B"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "QA", "-c", "C")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", "-a", "A"),
+            new LauncherEntry(@"C:\\Tools\\B.exe", "Ops", "-b", "B"),
+            new LauncherEntry(@"C:\\Tools\\C.exe", "QA", "-c", "C")
         ]);
 
         var resolver = new FakeResolver();
@@ -437,10 +437,10 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\Alpha.exe", "Dev", string.Empty, "Alpha"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\Beta.exe", "Dev", string.Empty, "Beta"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\Gamma.exe", "Ops", string.Empty, "Gamma"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\Delta.exe", "Ops", string.Empty, "Delta")
+            new LauncherEntry(@"C:\\Tools\\Alpha.exe", "Dev", string.Empty, "Alpha"),
+            new LauncherEntry(@"C:\\Tools\\Beta.exe", "Dev", string.Empty, "Beta"),
+            new LauncherEntry(@"C:\\Tools\\Gamma.exe", "Ops", string.Empty, "Gamma"),
+            new LauncherEntry(@"C:\\Tools\\Delta.exe", "Ops", string.Empty, "Delta")
         ]);
 
         var resolver = new FakeResolver
@@ -490,7 +490,7 @@ public class MainWindowViewModelTests
         {
             var store = new FakeStore(
             [
-                new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
+                new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
             ]);
 
             var vm = CreateViewModel(store: store);
@@ -513,7 +513,7 @@ public class MainWindowViewModelTests
         {
             var store = new FakeStore(
             [
-                new LauncherStore.LauncherEntry(new LaunchPath(@"C:\\Tools\\A.exe"), AppResources.DefaultCategory, string.Empty, "A")
+                new LauncherEntry(new LaunchPath(@"C:\\Tools\\A.exe"), AppResources.DefaultCategory, string.Empty, "A")
             ]);
 
             var vm = CreateViewModel(store: store);
@@ -583,8 +583,8 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Dev", string.Empty, "C")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A"),
+            new LauncherEntry(@"C:\\Tools\\C.exe", "Dev", string.Empty, "C")
         ]);
 
         var vm = CreateViewModel(store: store);
@@ -602,7 +602,7 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
         ]);
 
         var vm = CreateViewModel(store: store);
@@ -621,9 +621,9 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Ops", string.Empty, "A"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Neko", string.Empty, "C")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Ops", string.Empty, "A"),
+            new LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B"),
+            new LauncherEntry(@"C:\\Tools\\C.exe", "Neko", string.Empty, "C")
         ]);
 
         var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.AsAdded });
@@ -634,12 +634,12 @@ public class MainWindowViewModelTests
     [Fact]
     public void CategorySortMode_AsAdded_DefaultCategoryPinnedLast()
     {
-        var defaultCategory = LauncherStore.LauncherEntry.DefaultCategory;
+        var defaultCategory = LauncherEntry.DefaultCategory;
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", defaultCategory, string.Empty, "A"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Ops", string.Empty, "C")
+            new LauncherEntry(@"C:\\Tools\\A.exe", defaultCategory, string.Empty, "A"),
+            new LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B"),
+            new LauncherEntry(@"C:\\Tools\\C.exe", "Ops", string.Empty, "C")
         ]);
 
         var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.AsAdded });
@@ -650,12 +650,12 @@ public class MainWindowViewModelTests
     [Fact]
     public void CategorySortMode_Alphabetical_DefaultCategoryPinnedLast()
     {
-        var defaultCategory = LauncherStore.LauncherEntry.DefaultCategory;
+        var defaultCategory = LauncherEntry.DefaultCategory;
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", defaultCategory, string.Empty, "A"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Ops", string.Empty, "C")
+            new LauncherEntry(@"C:\\Tools\\A.exe", defaultCategory, string.Empty, "A"),
+            new LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B"),
+            new LauncherEntry(@"C:\\Tools\\C.exe", "Ops", string.Empty, "C")
         ]);
 
         var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.Alphabetical });
@@ -668,9 +668,9 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Ops", string.Empty, "Zeta"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "Alpha"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\C.exe", "Dev", string.Empty, "Kappa")
+            new LauncherEntry(@"C:\\Tools\\B.exe", "Ops", string.Empty, "Zeta"),
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "Alpha"),
+            new LauncherEntry(@"C:\\Tools\\C.exe", "Dev", string.Empty, "Kappa")
         ]);
 
         var vm = CreateViewModel(store: store, settings: new AppSettings { AppListSortMode = AppListSortMode.Name });
@@ -683,8 +683,8 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Ops", string.Empty, "A"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B")
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Ops", string.Empty, "A"),
+            new LauncherEntry(@"C:\\Tools\\B.exe", "Dev", string.Empty, "B")
         ]);
 
         var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.AsAdded });
@@ -700,8 +700,8 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherStore.LauncherEntry("https://example.com", "Web", string.Empty, "Example"),
-            new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
+            new LauncherEntry("https://example.com", "Web", string.Empty, "Example"),
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
         ]);
         var iconProvider = new TrackingIconProvider();
         var vm = CreateViewModel(store: store, iconProvider: iconProvider);

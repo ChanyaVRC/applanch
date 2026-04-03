@@ -11,7 +11,7 @@ public class LaunchItemNormalizationTests
     {
         var result = LaunchItemNormalization.NormalizeCategory("   ");
 
-        Assert.Equal(LauncherStore.LauncherEntry.DefaultCategory, result);
+        Assert.Equal(LauncherEntry.DefaultCategory, result);
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class LaunchItemNormalizationTests
 
         var result = LaunchItemNormalization.NormalizeCategory(storedCategory);
 
-        Assert.Equal(LauncherStore.LauncherEntry.DefaultCategory, result);
+        Assert.Equal(LauncherEntry.DefaultCategory, result);
     }
 
     [Theory]
@@ -80,7 +80,7 @@ public class LaunchItemNormalizationTests
 
         var result = LaunchItemNormalization.NormalizeCategory(storedCategory);
 
-        Assert.Equal(LauncherStore.LauncherEntry.DefaultCategory, result);
+        Assert.Equal(LauncherEntry.DefaultCategory, result);
     }
 }
 
