@@ -13,7 +13,8 @@ internal sealed class ContextMenuRegistrar(
     Action<string, string, string, string, bool> writeRegistryCommand,
     Action<string> registerExplorerCommandServer,
     bool enableLegacyCleanup = true,
-    Action<string>? deleteRegistrySubKeyTree = null)
+    Action<string>? deleteRegistrySubKeyTree = null,
+    Func<bool>? isExplorerCommandAllowed = null)
 {
     private const string BasePath = @"Software\Classes";
     private const string MenuKeyName = "applanch.register";
@@ -37,7 +38,7 @@ internal sealed class ContextMenuRegistrar(
         static keyPath => Registry.CurrentUser.DeleteSubKeyTree(keyPath, throwOnMissingSubKey: false);
 
     public ContextMenuRegistrar()
-        : this(static () => Environment.ProcessPath, ResolveShellExtensionComHostPath, WriteRegistryCommand, RegisterExplorerCommandServer, enableLegacyCleanup: true)
+        : this(static () => Environment.ProcessPath, ResolveShellExtensionComHostPath, WriteRegistryCommand, RegisterExplorerCommandServer, enableLegacyCleanup: true, deleteRegistrySubKeyTree: null, isExplorerCommandAllowed: SparsePackageRegistrar.IsPackageRegistered)
     {
     }
 
@@ -80,6 +81,12 @@ internal sealed class ContextMenuRegistrar(
     {
         try
         {
+            if (!(isExplorerCommandAllowed?.Invoke() ?? true))
+            {
+                AppLogger.Instance.Info("Windows 11 explorer command registration skipped: sparse package identity is not registered.");
+                return false;
+            }
+
             var shellExtensionComHostPath = shellExtensionComHostPathResolver(exePath);
             if (string.IsNullOrWhiteSpace(shellExtensionComHostPath))
             {

@@ -80,6 +80,7 @@ public class ContextMenuRegistrarTests
     [Fact]
     public void EnsureRegistered_WhenExplorerCommandRegistrationThrowsKnownRegistryError_FallsBackToLegacyRegistration()
     {
+        // precondition: shell extension is available
         var writer = new RecordingRegistryCommandWriter();
         var registrar = new ContextMenuRegistrar(
             () => @"C:\\Apps\\applanch.exe",
@@ -91,6 +92,27 @@ public class ContextMenuRegistrarTests
         var exception = Record.Exception(registrar.EnsureRegistered);
 
         Assert.Null(exception);
+        Assert.Equal(5, writer.Calls.Count);
+        Assert.All(writer.Calls, static c => Assert.False(c.EnableExplorerCommand));
+    }
+
+    [Fact]
+    public void EnsureRegistered_SkipsExplorerCommand_WhenPackageIsNotRegistered()
+    {
+        var writer = new RecordingRegistryCommandWriter();
+        var explorerRegistrar = new RecordingExplorerCommandRegistrar();
+        var registrar = new ContextMenuRegistrar(
+            () => @"C:\\Apps\\applanch.exe",
+            static _ => @"C:\\Apps\\applanch.ShellExtension.comhost.dll",
+            writer.WriteCommand,
+            explorerRegistrar.Register,
+            enableLegacyCleanup: false,
+            deleteRegistrySubKeyTree: null,
+            isExplorerCommandAllowed: static () => false);
+
+        registrar.EnsureRegistered();
+
+        Assert.Empty(explorerRegistrar.Calls);
         Assert.Equal(5, writer.Calls.Count);
         Assert.All(writer.Calls, static c => Assert.False(c.EnableExplorerCommand));
     }

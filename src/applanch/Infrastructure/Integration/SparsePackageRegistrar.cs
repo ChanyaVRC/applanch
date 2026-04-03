@@ -29,6 +29,9 @@ internal sealed class SparsePackageRegistrar(
     public bool IsAlreadyRegistered()
         => isPackageRegisteredChecker(PackageName, PackagePublisher);
 
+    internal static bool IsPackageRegistered()
+        => IsRegistered(PackageName, PackagePublisher);
+
     public Task<bool> TryEnsureRegisteredAsync()
     {
         if (!shouldAttemptRegistration())
