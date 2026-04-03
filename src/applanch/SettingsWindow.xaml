@@ -211,10 +211,26 @@
                 BorderBrush="{DynamicResource Brush.ItemBorder}"
                 BorderThickness="0,1,0,0"
                 Padding="20,12">
-            <Button HorizontalAlignment="Left"
-                    Style="{StaticResource RoundedButtonStyle}"
-                    Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_ResetToDefaults]}"
-                    Click="ResetToDefaults_Click"/>
+            <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0"
+                HorizontalAlignment="Left"
+                Style="{StaticResource RoundedButtonStyle}"
+                Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_ResetToDefaults]}"
+                Click="ResetToDefaults_Click"/>
+
+            <Button Grid.Column="2"
+                HorizontalAlignment="Right"
+                Style="{StaticResource RoundedButtonStyle}"
+                Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_ReportBug]}"
+                ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_ReportBug]}"
+                Click="ReportBug_Click"/>
+            </Grid>
         </Border>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto"

@@ -2,7 +2,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using applanch.Infrastructure.Storage;
@@ -27,7 +26,7 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
     private readonly bool _debugUpdate;
 
     public GitHubAppUpdateService()
-        : this(CreateDefaultHttpClient(), GetAssemblyVersion(), AppSettings.Load().DebugUpdate)
+        : this(CreateDefaultHttpClient(), AppVersionProvider.GetDisplayVersion(), AppSettings.Load().DebugUpdate)
     {
     }
 
@@ -184,7 +183,7 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
     private static HttpClient CreateDefaultHttpClient()
     {
         var client = new HttpClient();
-        client.DefaultRequestHeaders.UserAgent.ParseAdd($"applanch/{GetAssemblyVersion()}");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd($"applanch/{AppVersionProvider.GetDisplayVersion()}");
         return client;
     }
 
@@ -235,21 +234,5 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
         UpdatePackage,
     }
 
-    private static string GetAssemblyVersion()
-    {
-        var version = Assembly.GetExecutingAssembly()
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-
-        if (version is not null)
-        {
-            var plusIndex = version.IndexOf('+');
-            if (plusIndex >= 0)
-            {
-                version = version[..plusIndex];
-            }
-        }
-
-        return version ?? "0.0.0";
-    }
 }
 

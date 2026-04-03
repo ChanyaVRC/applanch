@@ -253,6 +253,38 @@
   <data name="Button_ResetToDefaults" xml:space="preserve">
     <value>デフォルト設定に戻す</value>
   </data>
+  <data name="Button_ReportBug" xml:space="preserve">
+    <value>バグを報告</value>
+  </data>
+  <data name="ToolTip_ReportBug" xml:space="preserve">
+    <value>ブラウザで GitHub Issues を開く</value>
+  </data>
+  <data name="BugReport_IssueTitle" xml:space="preserve">
+    <value>[Bug] </value>
+  </data>
+  <data name="BugReport_IssueBodyTemplate" xml:space="preserve">
+    <value>## 概要
+&lt;!-- 発生した内容を記載してください。 --&gt;
+
+## 再現手順
+1.
+2.
+3.
+
+## 期待される動作
+
+## 実際の動作
+
+## 環境
+- アプリバージョン: {0}
+- OS: {1}
+- OSアーキテクチャ: {2}
+- プロセスアーキテクチャ: {3}
+- .NET: {4}
+- UIカルチャ: {5}
+- カルチャ: {6}
+</value>
+  </data>
   <data name="Prompt_ChangeCategory" xml:space="preserve">
     <value>カテゴリを変更</value>
   </data>
@@ -296,6 +328,9 @@
   </data>
   <data name="Error_LaunchFailedWithMessage" xml:space="preserve">
     <value>起動に失敗しました。&#xA;{0}</value>
+  </data>
+  <data name="Error_OpenBugReport" xml:space="preserve">
+    <value>ブラウザでバグ報告ページを開けませんでした。</value>
   </data>
   <data name="AllCategories" xml:space="preserve">
     <value>すべて</value>
