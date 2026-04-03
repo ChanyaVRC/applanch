@@ -56,7 +56,7 @@
   <Target Name="CopyShellExtensionArtifactsForPublish" AfterTargets="Publish">
     <MSBuild Projects="..\applanch.ShellExtension\applanch.ShellExtension.csproj"
              Targets="GetTargetPath"
-             Properties="Configuration=$(Configuration);TargetFramework=$(TargetFramework)">
+             Properties="Configuration=$(Configuration);TargetFramework=$(TargetFramework);RuntimeIdentifier=;SelfContained=false">
       <Output TaskParameter="TargetOutputs" ItemName="ShellExtensionManagedAssembly" />
     </MSBuild>
 
