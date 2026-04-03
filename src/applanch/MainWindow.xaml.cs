@@ -5,7 +5,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Threading;
 using applanch.Events;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Items;
@@ -31,16 +30,10 @@ public sealed partial class MainWindow : Window
     private readonly InlineRenameHandler _inlineRenameHandler;
     private readonly LaunchListDragDropResolver _dragDropResolver;
     private readonly UpdateWorkflow _updateWorkflow;
-    private readonly FloatingNotificationCoordinator _floatingNotificationCoordinator;
+    private readonly FloatingNotificationPresenter _floatingNotificationPresenter;
+    private readonly UpdateAvailabilityCoordinator _updateAvailabilityCoordinator;
     private AppSettings _settings;
-    private AppUpdateInfo? _pendingUpdate;
-    private string? _lastAutoApplyAttemptedVersion;
-    private bool _isAutoApplyingUpdate;
     private SettingsWindow? _settingsWindow;
-    private readonly DispatcherTimer _floatingNotificationTimer;
-    private readonly Storyboard _slideInStoryboard;
-    private readonly Storyboard _slideOutStoryboard;
-    private readonly Storyboard _countdownStoryboard;
     private readonly AppEvent? _appEvent;
     private readonly Func<AppSettings, IAppUpdateService> _updateServiceFactory;
     private MainWindowViewModel ViewModel { get; }
@@ -73,17 +66,14 @@ public sealed partial class MainWindow : Window
         _dragDropResolver = new LaunchListDragDropResolver();
         _updateServiceFactory = updateServiceFactory;
         _updateWorkflow = new UpdateWorkflow(_updateServiceFactory(settings));
-        _floatingNotificationCoordinator = new FloatingNotificationCoordinator();
+        _updateAvailabilityCoordinator = new UpdateAvailabilityCoordinator();
         _settings = settings;
-        _floatingNotificationTimer = new DispatcherTimer
-        {
-            Interval = FloatingNotificationDuration
-        };
-        _floatingNotificationTimer.Tick += FloatingNotificationTimer_Tick;
-        _slideInStoryboard = (Storyboard)Resources["FloatingNotificationSlideInStoryboard"];
-        _slideOutStoryboard = (Storyboard)Resources["FloatingNotificationSlideOutStoryboard"];
-        _countdownStoryboard = (Storyboard)Resources["FloatingNotificationCountdownStoryboard"];
-        _slideOutStoryboard.Completed += OnHideAnimationCompleted;
+        _floatingNotificationPresenter = FloatingNotificationPresenter.Create(
+            this,
+            FloatingNotificationBanner,
+            FloatingNotificationProgressScale,
+            FloatingNotificationDuration,
+            ClearFloatingNotification);
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         _appEvent = (Application.Current as App)?.Events;
@@ -98,6 +88,7 @@ public sealed partial class MainWindow : Window
         _appEvent?.Unregister(AppEvents.Refresh, OnAppRefreshRequested);
         _appEvent?.Unregister(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
         _appEvent?.Unregister(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
+        _floatingNotificationPresenter.Dispose();
         base.OnClosed(e);
     }
 
@@ -132,31 +123,17 @@ public sealed partial class MainWindow : Window
 
     private void ApplyUpdateAvailability(AppUpdateInfo? update)
     {
-        _pendingUpdate = update;
         ViewModel.ApplyUpdateAvailability(update);
 
         if (update is null)
         {
-            _lastAutoApplyAttemptedVersion = null;
+            _ = _updateAvailabilityCoordinator.ShouldAutoApply(update, _settings.UpdateInstallBehavior);
             return;
         }
 
-        switch (_settings.UpdateInstallBehavior)
+        if (_updateAvailabilityCoordinator.ShouldAutoApply(update, _settings.UpdateInstallBehavior))
         {
-            case UpdateInstallBehavior.NotifyOnly:
-                break;
-            case UpdateInstallBehavior.AutomaticallyApply:
-                if (!_isAutoApplyingUpdate &&
-                    !string.Equals(_lastAutoApplyAttemptedVersion, update.NewVersion, StringComparison.Ordinal))
-                {
-                    _lastAutoApplyAttemptedVersion = update.NewVersion;
-                    _ = ApplyPendingUpdateAsync(isAutomatic: true);
-                }
-
-                break;
-            case UpdateInstallBehavior.Manual:
-            default:
-                break;
+            _ = ApplyUpdateAsync(update, isAutomatic: true);
         }
     }
 
@@ -170,7 +147,7 @@ public sealed partial class MainWindow : Window
         }
         else
         {
-            ApplyUpdateAvailability(_pendingUpdate);
+            ApplyUpdateAvailability(_updateAvailabilityCoordinator.PendingUpdate);
         }
 
         ViewModel.ApplySettings(settings);
@@ -327,24 +304,24 @@ public sealed partial class MainWindow : Window
 
     private async void UpdateButton_Click(object sender, RoutedEventArgs e)
     {
-        await ApplyPendingUpdateAsync(isAutomatic: false).ConfigureAwait(false);
-    }
-
-    private async Task ApplyPendingUpdateAsync(bool isAutomatic)
-    {
-        if (_pendingUpdate is null)
+        if (_updateAvailabilityCoordinator.PendingUpdate is not { } update)
         {
             return;
         }
 
+        await ApplyUpdateAsync(update, isAutomatic: false).ConfigureAwait(false);
+    }
+
+    private async Task ApplyUpdateAsync(AppUpdateInfo update, bool isAutomatic)
+    {
         if (isAutomatic)
         {
-            _isAutoApplyingUpdate = true;
+            _updateAvailabilityCoordinator.BeginAutomaticApply();
         }
 
         try
         {
-            var result = await _updateWorkflow.ApplyUpdateSafeAsync(_pendingUpdate).ConfigureAwait(false);
+            var result = await _updateWorkflow.ApplyUpdateSafeAsync(update).ConfigureAwait(false);
             if (result.IsSuccess)
             {
                 Dispatcher.Invoke(() => Application.Current.Shutdown());
@@ -365,7 +342,7 @@ public sealed partial class MainWindow : Window
         {
             if (isAutomatic)
             {
-                _isAutoApplyingUpdate = false;
+                _updateAvailabilityCoordinator.EndAutomaticApply();
             }
         }
     }
@@ -373,11 +350,6 @@ public sealed partial class MainWindow : Window
     private void DismissUpdateButton_Click(object sender, RoutedEventArgs e)
     {
         ViewModel.DismissUpdateBanner();
-    }
-
-    private void FloatingNotificationTimer_Tick(object? sender, EventArgs e)
-    {
-        HideFloatingNotification();
     }
 
     private void NotificationActionButton_Click(object sender, RoutedEventArgs e)
@@ -394,45 +366,12 @@ public sealed partial class MainWindow : Window
     private void ShowFloatingNotification(string message, MessageBoxImage icon, string? actionText = null, Action? action = null)
     {
         ViewModel.ShowFloatingNotification(message, FloatingNotificationCoordinator.MapIcon(icon), actionText, action);
-        FloatingNotificationBanner.Visibility = Visibility.Visible;
-        _floatingNotificationCoordinator.BeginShow();
-        _slideInStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
-        _countdownStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
-        _floatingNotificationTimer.Stop();
-        _floatingNotificationTimer.Start();
+        _floatingNotificationPresenter.Show();
     }
 
     private void HideFloatingNotification()
     {
-        var isBannerVisible = FloatingNotificationBanner.Visibility == Visibility.Visible;
-        var shouldAnimateHide = _floatingNotificationCoordinator.BeginHide(isBannerVisible);
-        _floatingNotificationTimer.Stop();
-
-        if (isBannerVisible)
-        {
-            var frozenProgressScale = FloatingNotificationProgressState.CaptureVisibleScale(FloatingNotificationProgressScale.ScaleX);
-            _countdownStoryboard.Stop(this);
-            FloatingNotificationProgressScale.ScaleX = frozenProgressScale;
-        }
-
-        if (!shouldAnimateHide)
-        {
-            ClearFloatingNotification();
-            return;
-        }
-
-        _slideOutStoryboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
-    }
-
-    private void OnHideAnimationCompleted(object? sender, EventArgs e)
-    {
-        if (!_floatingNotificationCoordinator.CanCompleteHide())
-        {
-            return;
-        }
-
-        FloatingNotificationBanner.Visibility = Visibility.Collapsed;
-        ClearFloatingNotification();
+        _floatingNotificationPresenter.Hide();
     }
 
     private void ClearFloatingNotification()
