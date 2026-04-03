@@ -6,6 +6,12 @@ namespace applanch.Tests.Infrastructure.Updates;
 public class UpdateWorkflowTests
 {
     [Fact]
+    public void Constructor_WhenServiceIsNull_ThrowsArgumentNullException()
+    {
+        Assert.Throws<ArgumentNullException>(() => new UpdateWorkflow(null!));
+    }
+
+    [Fact]
     public async Task CheckForUpdateSafeAsync_ReturnsUpdate_WhenServiceSucceeds()
     {
         var expected = new AppUpdateInfo("2.0.0", "1.0.0", "https://example.com/a.zip", "https://example.com/r");
@@ -95,6 +101,14 @@ public class UpdateWorkflowTests
         var result = await workflow.ApplyUpdateSafeAsync(update);
 
         Assert.True(result.IsSuccess);
+    }
+
+    [Fact]
+    public void SetUpdateService_WhenServiceIsNull_ThrowsArgumentNullException()
+    {
+        var workflow = new UpdateWorkflow(new FakeAppUpdateService());
+
+        Assert.Throws<ArgumentNullException>(() => workflow.SetUpdateService(null!));
     }
 
     private sealed class FakeAppUpdateService : IAppUpdateService

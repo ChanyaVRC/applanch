@@ -2,12 +2,19 @@ using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Updates;
 
-internal sealed class UpdateWorkflow(IAppUpdateService updateService)
+internal sealed class UpdateWorkflow
 {
-    private IAppUpdateService _updateService = updateService;
+    private IAppUpdateService _updateService;
+
+    internal UpdateWorkflow(IAppUpdateService updateService)
+    {
+        ArgumentNullException.ThrowIfNull(updateService);
+        _updateService = updateService;
+    }
 
     internal void SetUpdateService(IAppUpdateService updateService)
     {
+        ArgumentNullException.ThrowIfNull(updateService);
         _updateService = updateService;
     }
 
