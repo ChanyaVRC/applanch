@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.Versioning;
 using Windows.Management.Deployment;
@@ -13,14 +14,16 @@ internal sealed class SparsePackageRegistrar(
     Func<string?> msixPathProvider,
     Func<string?> externalLocationProvider,
     Func<string, string, bool> isPackageRegisteredChecker,
+    Func<bool> shouldAttemptRegistration,
     Func<string, string, Task<bool>> registerPackageAsync)
 {
     private const string PackageName = "Applanch";
     private const string PackagePublisher = "CN=applanch";
     private const string SparsePackageFileName = "applanch.msix";
+    private const string DebugRegistrationOverrideEnvironmentVariable = "APPLANCH_ENABLE_SPARSE_PACKAGE_REGISTRATION_IN_DEBUG";
 
     public SparsePackageRegistrar()
-        : this(ResolveMsixPath, ResolveExternalLocation, IsRegistered, RegisterAsync)
+        : this(ResolveMsixPath, ResolveExternalLocation, IsRegistered, ShouldAttemptRegistration, RegisterAsync)
     {
     }
 
@@ -29,6 +32,12 @@ internal sealed class SparsePackageRegistrar(
 
     public Task<bool> TryEnsureRegisteredAsync()
     {
+        if (!shouldAttemptRegistration())
+        {
+            AppLogger.Instance.Info($"Sparse package registration skipped while a debugger is attached. Set {DebugRegistrationOverrideEnvironmentVariable}=1 to force registration during F5 sessions.");
+            return Task.FromResult(false);
+        }
+
         var msixPath = msixPathProvider();
         var externalLocation = externalLocationProvider();
         if (string.IsNullOrWhiteSpace(msixPath) || string.IsNullOrWhiteSpace(externalLocation))
@@ -56,6 +65,27 @@ internal sealed class SparsePackageRegistrar(
     {
         var dir = Path.GetDirectoryName(Environment.ProcessPath);
         return string.IsNullOrWhiteSpace(dir) ? null : dir;
+    }
+
+    private static bool ShouldAttemptRegistration()
+    {
+#if DEBUG
+        if (Debugger.IsAttached && !IsDebugRegistrationExplicitlyEnabled())
+        {
+            return false;
+        }
+#endif
+
+        return true;
+    }
+
+    private static bool IsDebugRegistrationExplicitlyEnabled()
+    {
+        var value = Environment.GetEnvironmentVariable(DebugRegistrationOverrideEnvironmentVariable);
+        return value is not null &&
+            (string.Equals(value, "1", StringComparison.OrdinalIgnoreCase) ||
+             string.Equals(value, "true", StringComparison.OrdinalIgnoreCase) ||
+             string.Equals(value, "yes", StringComparison.OrdinalIgnoreCase));
     }
 
     [SupportedOSPlatform("windows10.0.19041.0")]
