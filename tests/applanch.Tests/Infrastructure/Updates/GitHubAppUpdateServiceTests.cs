@@ -16,8 +16,6 @@ public class GitHubAppUpdateServiceTests
     [InlineData("0.9.0", "1.0.0", false)]
     [InlineData("1.0.0-rc1", "1.0.0", false)]
     [InlineData("1.0.0", "1.0.0-rc1", true)]
-    [InlineData("invalid", "1.0.0", false)]
-    [InlineData("1.0.0", "invalid", false)]
     public void IsNewer_ReturnsExpected(string candidate, string current, bool expected)
     {
         Assert.Equal(expected, GitHubAppUpdateService.IsNewer(candidate, current));

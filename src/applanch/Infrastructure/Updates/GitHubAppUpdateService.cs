@@ -156,16 +156,8 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
 
     public void Dispose() => _httpClient.Dispose();
 
-    internal static bool IsNewer(string candidate, string current)
-    {
-        if (!SemanticVersion.TryParse(candidate, out var candidateVersion) ||
-            !SemanticVersion.TryParse(current, out var currentVersion))
-        {
-            return false;
-        }
-
-        return candidateVersion.CompareTo(currentVersion) > 0;
-    }
+    internal static bool IsNewer(string candidate, string current) =>
+        SemanticVersion.Parse(candidate).CompareTo(SemanticVersion.Parse(current)) > 0;
 
     private static void WriteUpdateScript(string scriptPath, string currentExePath, string extractDir, string targetDir)
     {
