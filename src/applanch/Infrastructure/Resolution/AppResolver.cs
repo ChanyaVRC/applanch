@@ -125,18 +125,13 @@ internal static partial class AppResolver
         foreach (var candidate in candidates)
         {
             if (!bestByText.TryGetValue(candidate.Text, out var existing) ||
-                IsHigherRank(candidate, existing))
+                CompareSuggestionRank(candidate, existing) > 0)
             {
                 bestByText[candidate.Text] = candidate;
             }
         }
 
         return SelectTopSuggestions(bestByText.Values, maxResults);
-    }
-
-    private static bool IsHigherRank(in SuggestionCandidate left, in SuggestionCandidate right)
-    {
-        return CompareSuggestionRank(left, right) > 0;
     }
 
     private static int CompareSuggestionRank(in SuggestionCandidate left, in SuggestionCandidate right)
@@ -157,11 +152,19 @@ internal static partial class AppResolver
     private static IReadOnlyList<string> SelectTopSuggestions(Dictionary<string, SuggestionCandidate>.ValueCollection candidates, int maxResults)
     {
         return [.. candidates
-            .OrderByDescending(static x => x.Score)
-            .ThenByDescending(static x => x.SourcePriority)
-            .ThenBy(static x => x.Text, StringComparer.CurrentCultureIgnoreCase)
+            .OrderByDescending(static x => x, SuggestionRankComparer.Instance)
             .Take(maxResults)
             .Select(static x => x.Text)];
+    }
+
+    private sealed class SuggestionRankComparer : IComparer<SuggestionCandidate>
+    {
+        internal static readonly SuggestionRankComparer Instance = new();
+
+        public int Compare(SuggestionCandidate x, SuggestionCandidate y)
+        {
+            return CompareSuggestionRank(x, y);
+        }
     }
 
     private static IEnumerable<string> ExpandCandidates(string input)

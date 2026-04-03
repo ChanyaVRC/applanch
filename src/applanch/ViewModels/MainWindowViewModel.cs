@@ -88,17 +88,7 @@ public sealed class MainWindowViewModel : ObservableObject
     public LaunchItemViewModel? SelectedLaunchItem
     {
         get => _selectedLaunchItem;
-        set
-        {
-            if (ReferenceEquals(_selectedLaunchItem, value))
-            {
-                return;
-            }
-
-            _selectedLaunchItem = value;
-            OnPropertyChanged(nameof(SelectedLaunchItem));
-            OnPropertyChanged(nameof(SelectedLaunchItemVisibility));
-        }
+        set => SetSelectedLaunchItem(value);
     }
 
     public Visibility SelectedLaunchItemVisibility => SelectedLaunchItem is null ? Visibility.Collapsed : Visibility.Visible;
@@ -113,13 +103,11 @@ public sealed class MainWindowViewModel : ObservableObject
                 return;
             }
 
-            if (_quickAddNameOrPath == value)
+            if (!SetField(ref _quickAddNameOrPath, value))
             {
                 return;
             }
 
-            _quickAddNameOrPath = value;
-            OnPropertyChanged(nameof(QuickAddNameOrPath));
             RefreshQuickAddSuggestions();
         }
     }
@@ -323,10 +311,7 @@ public sealed class MainWindowViewModel : ObservableObject
         {
             RebuildCategoryLists();
             RefreshFilteredView();
-            if (!_suspendPersistence)
-            {
-                PersistCurrentOrder();
-            }
+            PersistCurrentOrderIfNeeded();
 
             OnPropertyChanged(nameof(EmptyMessageVisibility));
             return;
@@ -335,10 +320,7 @@ public sealed class MainWindowViewModel : ObservableObject
         if (e.PropertyName is nameof(LaunchItemViewModel.Arguments)
                              or nameof(LaunchItemViewModel.DisplayName))
         {
-            if (!_suspendPersistence)
-            {
-                PersistCurrentOrder();
-            }
+            PersistCurrentOrderIfNeeded();
         }
     }
 
@@ -450,6 +432,24 @@ public sealed class MainWindowViewModel : ObservableObject
 
     private static LauncherStore.LauncherEntry ToLauncherEntry(LaunchItemViewModel item) =>
         new(item.FullPath, item.Category, item.Arguments, item.DisplayName);
+
+    private void SetSelectedLaunchItem(LaunchItemViewModel? value)
+    {
+        if (!SetField(ref _selectedLaunchItem, value))
+        {
+            return;
+        }
+
+        OnPropertyChanged(nameof(SelectedLaunchItemVisibility));
+    }
+
+    private void PersistCurrentOrderIfNeeded()
+    {
+        if (!_suspendPersistence)
+        {
+            PersistCurrentOrder();
+        }
+    }
 
     private void UnsubscribeRemovedItems(IList? oldItems)
     {
