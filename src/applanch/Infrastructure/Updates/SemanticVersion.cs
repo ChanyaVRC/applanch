@@ -9,48 +9,24 @@ internal readonly record struct SemanticVersion(int Major, int Minor, int Patch,
         result = default;
 
         var span = input.AsSpan();
-        var prereleaseSeparatorIndex = span.IndexOf('-');
-        var numericSpan = prereleaseSeparatorIndex >= 0 ? span[..prereleaseSeparatorIndex] : span;
 
-        if (!TryReadNthDotSegment(numericSpan, 0, out var majorSegment) ||
-            !TryReadNthDotSegment(numericSpan, 1, out var minorSegment) ||
-            !TryReadNthDotSegment(numericSpan, 2, out var patchSegment) ||
-            !int.TryParse(majorSegment, out var major) ||
-            !int.TryParse(minorSegment, out var minor) ||
-            !int.TryParse(patchSegment, out var patch))
+        Span<Range> prereleaseParts = stackalloc Range[2];
+        var prereleasePartCount = span.Split(prereleaseParts, '-');
+        var numericSpan = span[prereleaseParts[0]];
+
+        Span<Range> segments = stackalloc Range[4];
+        var segmentCount = numericSpan.Split(segments, '.');
+
+        if (segmentCount < 3 ||
+            !int.TryParse(numericSpan[segments[0]], out var major) ||
+            !int.TryParse(numericSpan[segments[1]], out var minor) ||
+            !int.TryParse(numericSpan[segments[2]], out var patch))
         {
             return false;
         }
 
-        var prerelease = prereleaseSeparatorIndex >= 0 ? input[(prereleaseSeparatorIndex + 1)..] : string.Empty;
+        var prerelease = prereleasePartCount > 1 ? span[prereleaseParts[1]].ToString() : string.Empty;
         result = new SemanticVersion(major, minor, patch, prerelease);
-        return true;
-    }
-
-    private static bool TryReadNthDotSegment(ReadOnlySpan<char> text, int segmentIndex, out ReadOnlySpan<char> segment)
-    {
-        segment = text;
-        var currentIndex = 0;
-
-        while (currentIndex < segmentIndex)
-        {
-            var separatorIndex = segment.IndexOf('.');
-            if (separatorIndex < 0)
-            {
-                segment = default;
-                return false;
-            }
-
-            segment = segment[(separatorIndex + 1)..];
-            currentIndex++;
-        }
-
-        var nextSeparatorIndex = segment.IndexOf('.');
-        if (nextSeparatorIndex >= 0)
-        {
-            segment = segment[..nextSeparatorIndex];
-        }
-
         return true;
     }
 
