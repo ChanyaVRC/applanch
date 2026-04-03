@@ -533,7 +533,7 @@ public class MainWindowViewModelTests
 
             var store = new FakeStore(
             [
-                new LauncherStore.LauncherEntry(@"C:\\Tools\\A.exe", AppResources.DefaultCategory, string.Empty, "A")
+                new LauncherStore.LauncherEntry(new LaunchPath(@"C:\\Tools\\A.exe"), AppResources.DefaultCategory, string.Empty, "A")
             ]);
 
             var vm = CreateViewModel(store: store);
