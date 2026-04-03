@@ -94,7 +94,7 @@ public class AppEventTests
         var appEvent = new AppEvent();
         AppUpdateInfo? notified = null;
         appEvent.Register(AppEvents.UpdateAvailabilityChanged, update => notified = update);
-        var updateInfo = new AppUpdateInfo("2.0.0", "1.0.0", "https://example.com/download", "https://example.com/release");
+        var updateInfo = new AppUpdateInfo("2.0.0", "1.0.0", new Uri("https://example.com/download"), new Uri("https://example.com/release"));
 
         appEvent.Invoke(AppEvents.UpdateAvailabilityChanged, updateInfo);
 

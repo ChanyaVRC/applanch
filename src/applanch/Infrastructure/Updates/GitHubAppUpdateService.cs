@@ -80,8 +80,15 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
             return null;
         }
 
+        if (!Uri.TryCreate(asset.BrowserDownloadUrl, UriKind.Absolute, out var assetDownloadUrl) ||
+            !Uri.TryCreate(release.HtmlUrl, UriKind.Absolute, out var releaseUrl))
+        {
+            log.Warn("Release metadata contains invalid URL values.");
+            return null;
+        }
+
         log.Info($"Update available: {latestVersion}, download URL: {asset.BrowserDownloadUrl}");
-        return new AppUpdateInfo(latestVersion, _currentVersion, asset.BrowserDownloadUrl, release.HtmlUrl);
+        return new AppUpdateInfo(latestVersion, _currentVersion, assetDownloadUrl, releaseUrl);
     }
 
     public async Task ApplyUpdateAsync(AppUpdateInfo update, CancellationToken cancellationToken = default)
@@ -110,7 +117,7 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
         log.Info("Update script launched, shutting down for replacement");
     }
 
-    internal async Task<string> DownloadAndExtractAsync(string assetUrl, string tempDir, CancellationToken cancellationToken = default)
+    internal async Task<string> DownloadAndExtractAsync(Uri assetUrl, string tempDir, CancellationToken cancellationToken = default)
     {
         var log = AppLogger.Instance;
         log.Info($"Downloading from {assetUrl}");
@@ -124,10 +131,9 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
         Directory.CreateDirectory(tempDir);
 
         var zipPath = Path.Combine(tempDir, "update.zip");
-        var assetUri = new Uri(assetUrl, UriKind.Absolute);
         using (var response = await SendWithRetryAsync(static (client, requestUrl, ct) =>
             client.GetAsync(requestUrl, HttpCompletionOption.ResponseHeadersRead, ct),
-            assetUri,
+            assetUrl,
             RetryOperation.UpdatePackage,
             cancellationToken).ConfigureAwait(false))
         {

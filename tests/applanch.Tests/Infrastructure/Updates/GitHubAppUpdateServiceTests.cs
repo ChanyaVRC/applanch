@@ -67,6 +67,7 @@ public class GitHubAppUpdateServiceTests
         Assert.NotNull(result);
         Assert.Equal("2.0.0", result.NewVersion);
         Assert.Equal("1.0.0", result.CurrentVersion);
+        Assert.Equal(new Uri($"https://github.com/ChanyaVRC/applanch/releases/download/v2.0.0/applanch-2.0.0-{rid}.zip"), result.AssetDownloadUrl);
     }
 
     [Fact]
@@ -169,7 +170,7 @@ public class GitHubAppUpdateServiceTests
         using var tempDirectory = TemporaryDirectory.Create("applanch-test");
 
         // Act
-        var extractDir = await service.DownloadAndExtractAsync("https://example.com/test.zip", tempDirectory.Path);
+        var extractDir = await service.DownloadAndExtractAsync(new Uri("https://example.com/test.zip"), tempDirectory.Path);
 
         // Assert
         Assert.True(Directory.Exists(extractDir));
@@ -194,7 +195,7 @@ public class GitHubAppUpdateServiceTests
         var service = new GitHubAppUpdateService(client, "1.0.0");
 
         using var tempDirectory = TemporaryDirectory.Create("applanch-test");
-        var extractDir = await service.DownloadAndExtractAsync("https://example.com/test.zip", tempDirectory.Path);
+        var extractDir = await service.DownloadAndExtractAsync(new Uri("https://example.com/test.zip"), tempDirectory.Path);
 
         Assert.True(Directory.Exists(extractDir));
         Assert.True(File.Exists(Path.Combine(extractDir, "hello.txt")));
