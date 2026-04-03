@@ -74,7 +74,7 @@ public class AppLanguageTests
             {
                 method.Invoke(null, [LanguageOption.English]);
 
-                Assert.Equal("No items registered yet. Add from Explorer's right-click menu.", applanch.Properties.Resources.EmptyMessage);
+                Assert.Equal("No items registered yet. Add from Explorer's right-click menu.", AppResources.EmptyMessage);
             }
             finally
             {
@@ -99,7 +99,7 @@ public class AppLanguageTests
             {
                 method.Invoke(null, [LanguageOption.Japanese]);
 
-                Assert.Equal("登録項目がまだありません。エクスプローラーの右クリックから追加してください。", applanch.Properties.Resources.EmptyMessage);
+                Assert.Equal("登録項目がまだありません。エクスプローラーの右クリックから追加してください。", AppResources.EmptyMessage);
             }
             finally
             {

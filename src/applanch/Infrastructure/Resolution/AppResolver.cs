@@ -11,7 +11,7 @@ internal static partial class AppResolver
     private static readonly WindowsAppResolverPlatform Platform = new();
 
     private static readonly Lazy<IReadOnlyList<ResolvedApp>> InstalledAppsCache =
-        new(() => Platform.LoadInstalledApps(), isThreadSafe: true);
+        new(Platform.LoadInstalledApps, isThreadSafe: true);
 
     private static readonly Lazy<IReadOnlyList<string>> InstalledAppDisplayNamesCache =
         new(() =>

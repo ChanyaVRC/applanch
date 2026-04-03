@@ -75,7 +75,7 @@ public class UpdateWorkflowTests
 
         Assert.False(result.IsSuccess);
         Assert.Equal(UpdateApplyFailureReason.Unknown, result.FailureReason);
-        Assert.Contains("apply failed", result.ErrorMessage, System.StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("apply failed", result.ErrorMessage, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

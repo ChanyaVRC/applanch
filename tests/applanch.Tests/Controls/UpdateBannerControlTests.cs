@@ -80,7 +80,7 @@ public class UpdateBannerControlTests
     {
         var method = typeof(UpdateBannerControl).GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.NotNull(method);
-        method!.Invoke(control, [new Button(), new RoutedEventArgs(Button.ClickEvent)]);
+        method!.Invoke(control, [new Button(), new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent)]);
     }
 
     private static void RunInSta(Action action)

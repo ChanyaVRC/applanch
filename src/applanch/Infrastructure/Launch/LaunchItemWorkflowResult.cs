@@ -8,10 +8,10 @@ internal readonly record struct LaunchItemWorkflowResult(
     PostLaunchBehavior PostLaunchBehavior)
 {
     public static LaunchItemWorkflowResult Cancelled() =>
-        new(true, LaunchExecutionResult.Success(), Storage.PostLaunchBehavior.KeepOpen);
+        new(true, LaunchExecutionResult.Success(), PostLaunchBehavior.KeepOpen);
 
     public static LaunchItemWorkflowResult Failed(LaunchExecutionResult execution) =>
-        new(false, execution, Storage.PostLaunchBehavior.KeepOpen);
+        new(false, execution, PostLaunchBehavior.KeepOpen);
 
     public static LaunchItemWorkflowResult Succeeded(PostLaunchBehavior postLaunchBehavior) =>
         new(false, LaunchExecutionResult.Success(), postLaunchBehavior);

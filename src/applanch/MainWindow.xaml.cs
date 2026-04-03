@@ -307,7 +307,7 @@ public sealed partial class MainWindow : Window
             var result = await _updateWorkflow.ApplyUpdateSafeAsync(update).ConfigureAwait(false);
             if (result.IsSuccess)
             {
-                Dispatcher.Invoke(() => Application.Current.Shutdown());
+                Dispatcher.Invoke(Application.Current.Shutdown);
                 return;
             }
 
