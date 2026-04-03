@@ -236,6 +236,18 @@
   <data name="Setting_CheckForUpdatesDesc" xml:space="preserve">
     <value>無効にすると、起動時にアップデートの確認を行いません。</value>
   </data>
+  <data name="Setting_UpdateInstallBehavior" xml:space="preserve">
+    <value>アップデート検出時の動作</value>
+  </data>
+  <data name="UpdateInstallBehavior_NotifyOnly" xml:space="preserve">
+    <value>通知のみ</value>
+  </data>
+  <data name="UpdateInstallBehavior_Manual" xml:space="preserve">
+    <value>更新操作を表示する</value>
+  </data>
+  <data name="UpdateInstallBehavior_Auto" xml:space="preserve">
+    <value>自動で適用する</value>
+  </data>
   <data name="Section_Debug" xml:space="preserve">
     <value>デバッグ</value>
   </data>
@@ -244,6 +256,12 @@
   </data>
   <data name="Setting_DebugUpdateDesc" xml:space="preserve">
     <value>有効にすると、現在のバージョンに関わらず最新リリースへのアップデートを常に提示します。</value>
+  </data>
+  <data name="Button_CopyDiagnostics" xml:space="preserve">
+    <value>診断情報をコピー</value>
+  </data>
+  <data name="Button_OpenLogFolder" xml:space="preserve">
+    <value>ログの場所を開く</value>
   </data>
 
   <!-- Prompt dialog -->
@@ -331,6 +349,12 @@
   </data>
   <data name="Error_OpenBugReport" xml:space="preserve">
     <value>ブラウザでバグ報告ページを開けませんでした。</value>
+  </data>
+  <data name="Error_OpenLogFolder" xml:space="preserve">
+    <value>ログフォルダーを開けませんでした。</value>
+  </data>
+  <data name="Notification_DiagnosticsCopied" xml:space="preserve">
+    <value>診断情報をクリップボードへコピーしました。</value>
   </data>
   <data name="AllCategories" xml:space="preserve">
     <value>すべて</value>

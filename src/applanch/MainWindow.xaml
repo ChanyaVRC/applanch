@@ -791,6 +791,7 @@
                                       Margin="0,8,0,0"
                                       Message="{Binding UpdateBanner.Message}"
                                       Visibility="{Binding UpdateBanner.BannerVisibility}"
+                                      UpdateActionButtonVisibility="{Binding UpdateBanner.ActionButtonVisibility}"
                                       UpdateRequested="UpdateButton_Click"
                                       DismissRequested="DismissUpdateButton_Click"/>
 

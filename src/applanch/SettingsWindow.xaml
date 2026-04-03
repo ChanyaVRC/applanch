@@ -446,6 +446,28 @@
                                FontSize="11"
                                Foreground="{DynamicResource Brush.TextTertiary}"
                                TextWrapping="Wrap"/>
+
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_UpdateInstallBehavior]}"
+                                   FontSize="13"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource Brush.TextPrimary}"/>
+                        <ComboBox Grid.Column="1"
+                                  Width="200"
+                                  Margin="12,0,0,0"
+                                  HorizontalAlignment="Left"
+                                  Style="{StaticResource RoundedComboBoxStyle}"
+                                  SelectedIndex="{Binding UpdateInstallBehaviorIndex}">
+                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[UpdateInstallBehavior_NotifyOnly]}"/>
+                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[UpdateInstallBehavior_Manual]}"/>
+                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[UpdateInstallBehavior_Auto]}"/>
+                        </ComboBox>
+                    </Grid>
                 </StackPanel>
             </Border>
 
@@ -469,6 +491,24 @@
                                FontSize="11"
                                Foreground="{DynamicResource Brush.TextTertiary}"
                                TextWrapping="Wrap"/>
+
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0"
+                                Style="{StaticResource RoundedButtonStyle}"
+                                Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_CopyDiagnostics]}"
+                                Click="CopyDiagnostics_Click"/>
+
+                        <Button Grid.Column="2"
+                                Style="{StaticResource RoundedButtonStyle}"
+                                Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_OpenLogFolder]}"
+                                Click="OpenLogFolder_Click"/>
+                    </Grid>
                 </StackPanel>
             </Border>
         </StackPanel>

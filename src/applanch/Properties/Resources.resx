@@ -236,6 +236,18 @@
   <data name="Setting_CheckForUpdatesDesc" xml:space="preserve">
     <value>When disabled, Applanch won't check for updates on startup.</value>
   </data>
+  <data name="Setting_UpdateInstallBehavior" xml:space="preserve">
+    <value>When an update is found</value>
+  </data>
+  <data name="UpdateInstallBehavior_NotifyOnly" xml:space="preserve">
+    <value>Notify only</value>
+  </data>
+  <data name="UpdateInstallBehavior_Manual" xml:space="preserve">
+    <value>Show update action</value>
+  </data>
+  <data name="UpdateInstallBehavior_Auto" xml:space="preserve">
+    <value>Apply automatically</value>
+  </data>
   <data name="Section_Debug" xml:space="preserve">
     <value>Debug</value>
   </data>
@@ -244,6 +256,12 @@
   </data>
   <data name="Setting_DebugUpdateDesc" xml:space="preserve">
     <value>When enabled, always offers to update to the latest release regardless of current version.</value>
+  </data>
+  <data name="Button_CopyDiagnostics" xml:space="preserve">
+    <value>Copy diagnostics</value>
+  </data>
+  <data name="Button_OpenLogFolder" xml:space="preserve">
+    <value>Open log folder</value>
   </data>
 
   <!-- Prompt dialog -->
@@ -331,6 +349,12 @@
   </data>
   <data name="Error_OpenBugReport" xml:space="preserve">
     <value>Could not open the bug report page in your browser.</value>
+  </data>
+  <data name="Error_OpenLogFolder" xml:space="preserve">
+    <value>Could not open the log folder.</value>
+  </data>
+  <data name="Notification_DiagnosticsCopied" xml:space="preserve">
+    <value>Diagnostics copied to clipboard.</value>
   </data>
   <data name="AllCategories" xml:space="preserve">
     <value>All</value>

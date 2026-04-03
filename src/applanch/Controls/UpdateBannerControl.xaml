@@ -69,7 +69,8 @@
                     Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Banner_UpdateButton]}"
                     Style="{StaticResource BannerFlatActionButtonStyle}"
                     Click="UpdateButton_Click"
-                    Height="28"/>
+                    Height="28"
+                    Visibility="{Binding UpdateActionButtonVisibility, ElementName=Root}"/>
             <Button Grid.Column="3"
                     Content="✕"
                     Click="DismissButton_Click"

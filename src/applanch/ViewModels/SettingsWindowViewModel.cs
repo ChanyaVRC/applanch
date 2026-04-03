@@ -14,6 +14,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     private PostLaunchBehavior _postLaunchBehavior;
     private bool _closeOnLaunch;
     private bool _checkForUpdatesOnStartup;
+    private UpdateInstallBehavior _updateInstallBehavior;
     private bool _debugUpdate;
     private bool _startMinimizedOnLaunch;
     private bool _launchAtWindowsStartup;
@@ -131,6 +132,12 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         set => SetFieldAndCommit(ref _checkForUpdatesOnStartup, value);
     }
 
+    public int UpdateInstallBehaviorIndex
+    {
+        get => (int)_updateInstallBehavior;
+        set => SetFieldAndCommit(ref _updateInstallBehavior, (UpdateInstallBehavior)value);
+    }
+
     public bool DebugUpdate
     {
         get => _debugUpdate;
@@ -234,6 +241,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         _postLaunchBehavior = settings.ResolvePostLaunchBehavior();
         _closeOnLaunch = settings.CloseOnLaunch;
         _checkForUpdatesOnStartup = settings.CheckForUpdatesOnStartup;
+        _updateInstallBehavior = settings.UpdateInstallBehavior;
         _debugUpdate = settings.DebugUpdate;
         _startMinimizedOnLaunch = settings.StartMinimizedOnLaunch;
         _launchAtWindowsStartup = settings.LaunchAtWindowsStartup;
@@ -255,6 +263,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         OnPropertyChanged(nameof(PostLaunchBehaviorIndex));
         OnPropertyChanged(nameof(CloseOnLaunch));
         OnPropertyChanged(nameof(CheckForUpdatesOnStartup));
+        OnPropertyChanged(nameof(UpdateInstallBehaviorIndex));
         OnPropertyChanged(nameof(DebugUpdate));
         OnPropertyChanged(nameof(StartMinimizedOnLaunch));
         OnPropertyChanged(nameof(LaunchAtWindowsStartup));
@@ -289,6 +298,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             PostLaunchBehavior = _postLaunchBehavior,
             CloseOnLaunch = _closeOnLaunch,
             CheckForUpdatesOnStartup = _checkForUpdatesOnStartup,
+            UpdateInstallBehavior = _updateInstallBehavior,
             DebugUpdate = _debugUpdate,
             StartMinimizedOnLaunch = _startMinimizedOnLaunch,
             LaunchAtWindowsStartup = _launchAtWindowsStartup,

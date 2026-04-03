@@ -42,6 +42,7 @@ public class SettingsWindowViewModelTests
             ThemeId = ThemePaletteConfigurationLoader.DarkThemeId,
             CloseOnLaunch = false,
             CheckForUpdatesOnStartup = false,
+            UpdateInstallBehavior = UpdateInstallBehavior.NotifyOnly,
             DebugUpdate = true,
             FetchHttpIcons = false,
             AllowPrivateNetworkHttpIconRequests = true,
@@ -54,6 +55,7 @@ public class SettingsWindowViewModelTests
         Assert.Equal(2, vm.ThemeIndex);
         Assert.False(vm.CloseOnLaunch);
         Assert.False(vm.CheckForUpdatesOnStartup);
+        Assert.Equal((int)UpdateInstallBehavior.NotifyOnly, vm.UpdateInstallBehaviorIndex);
         Assert.True(vm.DebugUpdate);
         Assert.False(vm.FetchHttpIcons);
         Assert.True(vm.AllowPrivateNetworkHttpIconRequests);
@@ -191,6 +193,17 @@ public class SettingsWindowViewModelTests
     }
 
     [Fact]
+    public void UpdateInstallBehaviorIndex_Change_UpdatesSavedSettings()
+    {
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
+
+        vm.UpdateInstallBehaviorIndex = (int)UpdateInstallBehavior.AutomaticallyApply;
+
+        Assert.Equal(UpdateInstallBehavior.AutomaticallyApply, committed!.UpdateInstallBehavior);
+    }
+
+    [Fact]
     public void LanguageIndex_Change_ReloadsThemeOptionsImmediately()
     {
         var appEvent = new AppEvent();
@@ -304,6 +317,7 @@ public class SettingsWindowViewModelTests
             Language = LanguageOption.Japanese,
             CloseOnLaunch = false,
             CheckForUpdatesOnStartup = false,
+            UpdateInstallBehavior = UpdateInstallBehavior.NotifyOnly,
             DebugUpdate = true,
             StartMinimizedOnLaunch = true,
             LaunchAtWindowsStartup = true,
@@ -323,6 +337,7 @@ public class SettingsWindowViewModelTests
         Assert.Equal((int)defaults.Language, vm.LanguageIndex);
         Assert.Equal(defaults.CloseOnLaunch, vm.CloseOnLaunch);
         Assert.Equal(defaults.CheckForUpdatesOnStartup, vm.CheckForUpdatesOnStartup);
+        Assert.Equal((int)defaults.UpdateInstallBehavior, vm.UpdateInstallBehaviorIndex);
         Assert.Equal(defaults.DebugUpdate, vm.DebugUpdate);
         Assert.Equal(defaults.StartMinimizedOnLaunch, vm.StartMinimizedOnLaunch);
         Assert.Equal(defaults.LaunchAtWindowsStartup, vm.LaunchAtWindowsStartup);

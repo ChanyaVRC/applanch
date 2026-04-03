@@ -17,10 +17,23 @@ public sealed partial class UpdateBannerControl : UserControl
             typeof(UpdateBannerControl),
             new PropertyMetadata(string.Empty));
 
+    public static readonly DependencyProperty UpdateActionButtonVisibilityProperty =
+        DependencyProperty.Register(
+            nameof(UpdateActionButtonVisibility),
+            typeof(Visibility),
+            typeof(UpdateBannerControl),
+            new PropertyMetadata(Visibility.Visible));
+
     public string Message
     {
         get => (string)GetValue(MessageProperty);
         set => SetValue(MessageProperty, value);
+    }
+
+    public Visibility UpdateActionButtonVisibility
+    {
+        get => (Visibility)GetValue(UpdateActionButtonVisibilityProperty);
+        set => SetValue(UpdateActionButtonVisibilityProperty, value);
     }
 
     public event RoutedEventHandler? UpdateRequested;

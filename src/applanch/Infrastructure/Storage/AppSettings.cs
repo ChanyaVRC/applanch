@@ -11,6 +11,7 @@ internal sealed record AppSettings
     public bool CloseOnLaunch { get; init; } = true;
     public string ThemeId { get; init; } = ThemePaletteConfigurationLoader.SystemThemeId;
     public bool CheckForUpdatesOnStartup { get; init; } = true;
+    public UpdateInstallBehavior UpdateInstallBehavior { get; init; } = UpdateInstallBehavior.Manual;
     public bool StartMinimizedOnLaunch { get; init; } = false;
     public bool LaunchAtWindowsStartup { get; init; } = false;
     public bool FetchHttpIcons { get; init; } = true;

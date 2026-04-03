@@ -1,4 +1,7 @@
 using applanch.Tests.TestSupport;
+using applanch.Events;
+using applanch.Infrastructure.Storage;
+using applanch.ViewModels;
 using Xunit;
 
 namespace applanch.Tests.Application;
@@ -41,5 +44,30 @@ public class SettingsWindowBugReportTests
         var expectedEncodedTitle = Uri.EscapeDataString(AppResources.BugReport_IssueTitle);
 
         Assert.Contains($"title={expectedEncodedTitle}", uri.AbsoluteUri);
+    }
+
+    [Fact]
+    public void CreateOpenLogFolderStartInfo_OpensExplorerWithLogDirectory()
+    {
+        var startInfo = SettingsWindow.CreateOpenLogFolderStartInfo();
+
+        Assert.Equal("explorer.exe", startInfo.FileName);
+        Assert.StartsWith("/select,\"", startInfo.Arguments);
+        Assert.Contains("app.log\"", startInfo.Arguments);
+        Assert.True(startInfo.UseShellExecute);
+    }
+
+    [Fact]
+    public void CreateDiagnosticsText_ContainsExpectedFields()
+    {
+        var vm = new SettingsWindowViewModel(new AppSettings(), new AppEvent());
+
+        var text = SettingsWindow.CreateDiagnosticsText(vm);
+
+        Assert.Contains("App version:", text);
+        Assert.Contains("OS:", text);
+        Assert.Contains(".NET:", text);
+        Assert.Contains("Log folder:", text);
+        Assert.Contains("Update install behavior:", text);
     }
 }

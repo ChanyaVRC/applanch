@@ -7,6 +7,7 @@ public sealed class UpdateBannerState : ObservableObject
     private string _message = string.Empty;
     private Visibility _bannerVisibility = Visibility.Collapsed;
     private Visibility _headerButtonVisibility = Visibility.Collapsed;
+    private Visibility _actionButtonVisibility = Visibility.Visible;
 
     public string Message
     {
@@ -24,5 +25,11 @@ public sealed class UpdateBannerState : ObservableObject
     {
         get => _headerButtonVisibility;
         internal set => SetField(ref _headerButtonVisibility, value);
+    }
+
+    public Visibility ActionButtonVisibility
+    {
+        get => _actionButtonVisibility;
+        internal set => SetField(ref _actionButtonVisibility, value);
     }
 }

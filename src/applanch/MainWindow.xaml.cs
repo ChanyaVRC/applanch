@@ -34,6 +34,8 @@ public sealed partial class MainWindow : Window
     private readonly FloatingNotificationCoordinator _floatingNotificationCoordinator;
     private AppSettings _settings;
     private AppUpdateInfo? _pendingUpdate;
+    private string? _lastAutoApplyAttemptedVersion;
+    private bool _isAutoApplyingUpdate;
     private SettingsWindow? _settingsWindow;
     private readonly DispatcherTimer _floatingNotificationTimer;
     private readonly Storyboard _slideInStoryboard;
@@ -131,13 +133,60 @@ public sealed partial class MainWindow : Window
             ViewModel.UpdateBanner.Message = string.Empty;
             ViewModel.UpdateBanner.BannerVisibility = Visibility.Collapsed;
             ViewModel.UpdateBanner.HeaderButtonVisibility = Visibility.Collapsed;
+            ViewModel.UpdateBanner.ActionButtonVisibility = Visibility.Visible;
+            _lastAutoApplyAttemptedVersion = null;
             return;
         }
 
         ViewModel.UpdateBanner.Message = string.Format(Strings.UpdateMessage, update.NewVersion, update.CurrentVersion);
-        ViewModel.UpdateBanner.BannerVisibility = Visibility.Visible;
-        ViewModel.UpdateBanner.HeaderButtonVisibility = Visibility.Visible;
+
+        var presentation = ResolveUpdatePresentation(_settings.UpdateInstallBehavior);
+        ViewModel.UpdateBanner.BannerVisibility = presentation.BannerVisibility;
+        ViewModel.UpdateBanner.HeaderButtonVisibility = presentation.HeaderButtonVisibility;
+        ViewModel.UpdateBanner.ActionButtonVisibility = presentation.ActionButtonVisibility;
+
+        switch (_settings.UpdateInstallBehavior)
+        {
+            case UpdateInstallBehavior.NotifyOnly:
+                break;
+            case UpdateInstallBehavior.AutomaticallyApply:
+                if (!_isAutoApplyingUpdate &&
+                    !string.Equals(_lastAutoApplyAttemptedVersion, update.NewVersion, StringComparison.Ordinal))
+                {
+                    _lastAutoApplyAttemptedVersion = update.NewVersion;
+                    _ = ApplyPendingUpdateAsync(isAutomatic: true);
+                }
+
+                break;
+            case UpdateInstallBehavior.Manual:
+            default:
+                break;
+        }
     }
+
+    internal static UpdatePresentation ResolveUpdatePresentation(UpdateInstallBehavior behavior)
+    {
+        return behavior switch
+        {
+            UpdateInstallBehavior.NotifyOnly => new UpdatePresentation(
+                Visibility.Visible,
+                Visibility.Collapsed,
+                Visibility.Collapsed),
+            UpdateInstallBehavior.AutomaticallyApply => new UpdatePresentation(
+                Visibility.Collapsed,
+                Visibility.Collapsed,
+                Visibility.Collapsed),
+            _ => new UpdatePresentation(
+                Visibility.Visible,
+                Visibility.Visible,
+                Visibility.Visible),
+        };
+    }
+
+    internal readonly record struct UpdatePresentation(
+        Visibility BannerVisibility,
+        Visibility HeaderButtonVisibility,
+        Visibility ActionButtonVisibility);
 
     internal void ApplySettingsFromAppRefresh(AppSettings settings)
     {
@@ -146,6 +195,10 @@ public sealed partial class MainWindow : Window
         if (!settings.DebugUpdate)
         {
             ApplyUpdateAvailability(null);
+        }
+        else
+        {
+            ApplyUpdateAvailability(_pendingUpdate);
         }
 
         ViewModel.ApplySettings(settings);
@@ -304,20 +357,49 @@ public sealed partial class MainWindow : Window
 
     private async void UpdateButton_Click(object sender, RoutedEventArgs e)
     {
+        await ApplyPendingUpdateAsync(isAutomatic: false).ConfigureAwait(false);
+    }
+
+    private async Task ApplyPendingUpdateAsync(bool isAutomatic)
+    {
         if (_pendingUpdate is null)
         {
             return;
         }
 
-        var result = await _updateWorkflow.ApplyUpdateSafeAsync(_pendingUpdate).ConfigureAwait(false);
-        if (result.IsSuccess)
+        if (isAutomatic)
         {
-            Dispatcher.Invoke(() => Application.Current.Shutdown());
-            return;
+            _isAutoApplyingUpdate = true;
         }
 
-        Dispatcher.Invoke(() =>
-            ShowFloatingNotification(string.Format(Strings.UpdateFailed, result.ErrorMessage), MessageBoxImage.Error));
+        try
+        {
+            var result = await _updateWorkflow.ApplyUpdateSafeAsync(_pendingUpdate).ConfigureAwait(false);
+            if (result.IsSuccess)
+            {
+                Dispatcher.Invoke(() => Application.Current.Shutdown());
+                return;
+            }
+
+            Dispatcher.Invoke(() =>
+            {
+                if (isAutomatic)
+                {
+                    ViewModel.UpdateBanner.BannerVisibility = Visibility.Visible;
+                    ViewModel.UpdateBanner.HeaderButtonVisibility = Visibility.Visible;
+                    ViewModel.UpdateBanner.ActionButtonVisibility = Visibility.Visible;
+                }
+
+                ShowFloatingNotification(string.Format(Strings.UpdateFailed, result.ErrorMessage), MessageBoxImage.Error);
+            });
+        }
+        finally
+        {
+            if (isAutomatic)
+            {
+                _isAutoApplyingUpdate = false;
+            }
+        }
     }
 
     private void DismissUpdateButton_Click(object sender, RoutedEventArgs e)
