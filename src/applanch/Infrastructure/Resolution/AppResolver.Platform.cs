@@ -1,9 +1,9 @@
+using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Win32;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Text;
 using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Resolution;
@@ -56,16 +56,24 @@ internal static partial class AppResolver
 
         public bool TryResolveFromPath(string candidate, out ResolvedApp resolvedApp)
         {
-            var buffer = new StringBuilder(4096);
-            var result = SearchPath(null, candidate, null, buffer.Length, buffer, out _);
-            if (result > 0 && result < buffer.Length)
+            const int bufferLength = 4096;
+            var buffer = ArrayPool<char>.Shared.Rent(bufferLength);
+            try
             {
-                var resolvedPath = buffer.ToString();
-                if (File.Exists(resolvedPath))
+                var result = SearchPath(null, candidate, null, bufferLength, buffer, out _);
+                if (result > 0 && result < bufferLength)
                 {
-                    resolvedApp = new ResolvedApp(new LaunchPath(resolvedPath), Path.GetFileNameWithoutExtension(resolvedPath));
-                    return true;
+                    var resolvedPath = new string(buffer, 0, result);
+                    if (File.Exists(resolvedPath))
+                    {
+                        resolvedApp = new ResolvedApp(new LaunchPath(resolvedPath), Path.GetFileNameWithoutExtension(resolvedPath));
+                        return true;
+                    }
                 }
+            }
+            finally
+            {
+                ArrayPool<char>.Shared.Return(buffer);
             }
 
             resolvedApp = default;
@@ -180,7 +188,7 @@ internal static partial class AppResolver
         string lpFileName,
         string? lpExtension,
         int nBufferLength,
-        StringBuilder lpBuffer,
+        char[] lpBuffer,
         out IntPtr lpFilePart);
 }
 
