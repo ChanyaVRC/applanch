@@ -20,6 +20,7 @@ x86/
 bin/
 obj/
 out/
+/publish/
 
 # Visual Studio cache/options directory
 .vs/
