@@ -44,7 +44,7 @@ internal sealed record AppSettings
             var loaded = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
             var normalized = Normalize(loaded);
 
-            if (!string.Equals(loaded.ThemeId, normalized.ThemeId, StringComparison.Ordinal))
+            if (loaded != normalized)
             {
                 try
                 {
