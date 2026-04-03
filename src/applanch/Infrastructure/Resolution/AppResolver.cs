@@ -481,21 +481,21 @@ internal static partial class AppResolver
 
     private static string ExtractExecutablePathCandidate(string raw)
     {
-        var cleaned = raw.Trim();
+        var cleaned = raw.AsSpan().Trim();
 
-        if (cleaned.StartsWith('"'))
+        if (cleaned.Length > 0 && cleaned[0] == '"')
         {
-            var closingQuoteIndex = cleaned.IndexOf('"', 1);
-            if (closingQuoteIndex > 1)
+            var closingQuoteIndex = cleaned[1..].IndexOf('"');
+            if (closingQuoteIndex >= 0)
             {
-                return cleaned[1..closingQuoteIndex].Trim();
+                return cleaned[1..(closingQuoteIndex + 1)].Trim().ToString();
             }
         }
 
         var exeIndex = FindExecutableExtensionIndex(cleaned);
         if (exeIndex >= 0)
         {
-            return cleaned[..(exeIndex + 4)].Trim().Trim('"');
+            return cleaned[..(exeIndex + 4)].Trim().Trim('"').ToString();
         }
 
         var commaIndex = cleaned.IndexOf(',');
@@ -510,19 +510,21 @@ internal static partial class AppResolver
             cleaned = cleaned[..firstWhitespace];
         }
 
-        return cleaned.Trim().Trim('"');
+        return cleaned.Trim().Trim('"').ToString();
     }
 
-    private static int FindExecutableExtensionIndex(string value)
+    private static int FindExecutableExtensionIndex(ReadOnlySpan<char> value)
     {
         var searchStart = 0;
         while (searchStart < value.Length)
         {
-            var index = value.IndexOf(".exe", searchStart, StringComparison.OrdinalIgnoreCase);
-            if (index < 0)
+            var relativeIndex = value[searchStart..].IndexOf(".exe", StringComparison.OrdinalIgnoreCase);
+            if (relativeIndex < 0)
             {
                 return -1;
             }
+
+            var index = searchStart + relativeIndex;
 
             var nextIndex = index + 4;
             if (nextIndex >= value.Length)
