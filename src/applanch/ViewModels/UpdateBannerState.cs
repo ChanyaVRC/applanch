@@ -10,6 +10,10 @@ public sealed class UpdateBannerState : ObservableObject
     private Visibility _bannerVisibility = Visibility.Collapsed;
     private Visibility _headerButtonVisibility = Visibility.Collapsed;
     private Visibility _actionButtonVisibility = Visibility.Visible;
+    private AppUpdateInfo? _pendingUpdate;
+    private string? _lastAutoApplyAttemptedVersion;
+    private bool _isAutoApplyingUpdate;
+    private bool _shouldAutoApplyPendingUpdate;
 
     public string Message
     {
@@ -35,14 +39,26 @@ public sealed class UpdateBannerState : ObservableObject
         internal set => SetField(ref _actionButtonVisibility, value);
     }
 
+    internal bool ShouldAutoApplyPendingUpdate
+    {
+        get => _shouldAutoApplyPendingUpdate;
+        private set => SetField(ref _shouldAutoApplyPendingUpdate, value);
+    }
+
+    internal AppUpdateInfo? PendingUpdate => _pendingUpdate;
+
     internal void ApplyAvailability(AppUpdateInfo? update, UpdateInstallBehavior behavior)
     {
+        _pendingUpdate = update;
+
         if (update is null)
         {
             Message = string.Empty;
             BannerVisibility = Visibility.Collapsed;
             HeaderButtonVisibility = Visibility.Collapsed;
             ActionButtonVisibility = Visibility.Visible;
+            _lastAutoApplyAttemptedVersion = null;
+            ShouldAutoApplyPendingUpdate = false;
             return;
         }
 
@@ -51,6 +67,27 @@ public sealed class UpdateBannerState : ObservableObject
         BannerVisibility = presentation.BannerVisibility;
         HeaderButtonVisibility = presentation.HeaderButtonVisibility;
         ActionButtonVisibility = presentation.ActionButtonVisibility;
+
+        if (behavior != UpdateInstallBehavior.AutomaticallyApply)
+        {
+            ShouldAutoApplyPendingUpdate = false;
+            return;
+        }
+
+        if (_isAutoApplyingUpdate)
+        {
+            ShouldAutoApplyPendingUpdate = false;
+            return;
+        }
+
+        if (string.Equals(_lastAutoApplyAttemptedVersion, update.NewVersion, StringComparison.Ordinal))
+        {
+            ShouldAutoApplyPendingUpdate = false;
+            return;
+        }
+
+        _lastAutoApplyAttemptedVersion = update.NewVersion;
+        ShouldAutoApplyPendingUpdate = true;
     }
 
     internal void RevealManualActions()
@@ -61,6 +98,16 @@ public sealed class UpdateBannerState : ObservableObject
     }
 
     internal void Dismiss() => BannerVisibility = Visibility.Collapsed;
+
+    internal void BeginAutomaticApply()
+    {
+        _isAutoApplyingUpdate = true;
+    }
+
+    internal void EndAutomaticApply()
+    {
+        _isAutoApplyingUpdate = false;
+    }
 
     internal static UpdateBannerPresentation ResolvePresentation(UpdateInstallBehavior behavior)
     {

@@ -11,14 +11,24 @@ public class MainWindowXamlTests
         var xamlPath = Path.Combine(projectRoot, "src", "applanch", "MainWindow.xaml");
         var xaml = File.ReadAllText(xamlPath);
 
-        Assert.Contains("x:Name=\"FloatingNotificationBanner\"", xaml);
+        Assert.Contains("controls:FloatingNotificationControl", xaml);
+        Assert.Contains("x:Name=\"FloatingNotification\"", xaml);
+        Assert.Contains("ActionRequested=\"FloatingNotification_ActionRequested\"", xaml);
+        Assert.Contains("Hidden=\"FloatingNotification_Hidden\"", xaml);
+    }
+
+    [Fact]
+    public void FloatingNotificationControl_UsesCrispTextRenderingSettings()
+    {
+        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        var xamlPath = Path.Combine(projectRoot, "src", "applanch", "Controls", "FloatingNotificationControl.xaml");
+        var xaml = File.ReadAllText(xamlPath);
+
         Assert.Contains("UseLayoutRounding=\"True\"", xaml);
         Assert.Contains("SnapsToDevicePixels=\"True\"", xaml);
         Assert.Contains("TextOptions.TextFormattingMode=\"Display\"", xaml);
         Assert.Contains("TextOptions.TextRenderingMode=\"Auto\"", xaml);
-        Assert.Contains("FloatingNotification.ActionText", xaml);
-        Assert.Contains("NotificationActionButton_Click", xaml);
-        Assert.Contains("FloatingNotification.ActionVisibility", xaml);
+        Assert.Contains("Visibility=\"{Binding ActionVisibility, ElementName=Root}\"", xaml);
     }
 
     [Fact]

@@ -2,21 +2,18 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Resources;
 using System.Windows;
 using System.Windows.Data;
 using applanch.Helpers;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Updates;
 
 namespace applanch.ViewModels;
 
 public sealed class MainWindowViewModel : ObservableObject
 {
-    private static string AllCategoriesLabel => AppResources.AllCategories;
-    private static readonly HashSet<string> KnownAllCategoriesLabels = BuildKnownAllCategoriesLabels();
+    private static string AllCategoriesLabel => LaunchCategoryCatalog.AllCategoriesLabel;
     private const int QuickAddSuggestionsLimit = 10;
 
     private readonly QuickAddWorkflow _quickAddWorkflow;
@@ -249,31 +246,6 @@ public sealed class MainWindowViewModel : ObservableObject
         OnPropertyChanged(nameof(EmptyMessageVisibility));
     }
 
-    internal void ApplyUpdateAvailability(AppUpdateInfo? update)
-    {
-        UpdateBanner.ApplyAvailability(update, _settings.UpdateInstallBehavior);
-    }
-
-    internal void RevealManualUpdateActions()
-    {
-        UpdateBanner.RevealManualActions();
-    }
-
-    internal void DismissUpdateBanner()
-    {
-        UpdateBanner.Dismiss();
-    }
-
-    internal void ShowFloatingNotification(string message, NotificationIconType iconType, string? actionText = null, Action? action = null)
-    {
-        FloatingNotification.Show(message, iconType, actionText, action);
-    }
-
-    internal void ClearFloatingNotification()
-    {
-        FloatingNotification.Clear();
-    }
-
     private void RefreshHttpItemIcons()
     {
         foreach (var item in LaunchItems)
@@ -388,37 +360,10 @@ public sealed class MainWindowViewModel : ObservableObject
 
     private void RebuildCategoryLists()
     {
-        var categories = BuildCategoryNames();
+        var categories = LaunchCategoryCatalog.BuildCategoryNames(LaunchItems, _settings.CategorySortMode);
         ReplaceCollection(CategoryNames, categories);
         ReplaceCollection(FilterCategoryNames, [AllCategoriesLabel, .. categories]);
         EnsureSelectedCategoryIsValid();
-    }
-
-    private List<string> BuildCategoryNames()
-    {
-        var categories = CollectDistinctNonEmptyCategories();
-        SortCategoriesIfNeeded(categories);
-        MoveDefaultCategoryToLast(categories);
-        return categories;
-    }
-
-    private void SortCategoriesIfNeeded(List<string> categories)
-    {
-        if (_settings.CategorySortMode == CategorySortMode.AsAdded)
-        {
-            return;
-        }
-
-        categories.Sort(StringComparer.CurrentCulture);
-    }
-
-    private static void MoveDefaultCategoryToLast(List<string> categories)
-    {
-        var defaultCategory = LauncherEntry.DefaultCategory;
-        if (categories.Remove(defaultCategory))
-        {
-            categories.Add(defaultCategory);
-        }
     }
 
     private void EnsureSelectedCategoryIsValid()
@@ -429,42 +374,8 @@ public sealed class MainWindowViewModel : ObservableObject
         }
     }
 
-    private List<string> CollectDistinctNonEmptyCategories()
-    {
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-        var categories = new List<string>();
-
-        foreach (var item in LaunchItems)
-        {
-            if (string.IsNullOrWhiteSpace(item.Category) || !seen.Add(item.Category))
-            {
-                continue;
-            }
-
-            categories.Add(item.Category);
-        }
-
-        return categories;
-    }
-
     private static bool IsAllCategoriesLabel(string category) =>
-        KnownAllCategoriesLabels.Contains(category);
-
-    private static HashSet<string> BuildKnownAllCategoriesLabels()
-    {
-        var resourceManager = new ResourceManager(typeof(AppResources).FullName!, typeof(AppResources).Assembly);
-        var labels = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var culture in LanguageOptionMap.EnumerateSupportedCultures(includeInvariantCulture: true))
-        {
-            var value = resourceManager.GetString(nameof(AppResources.AllCategories), culture);
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                labels.Add(value);
-            }
-        }
-
-        return labels;
-    }
+        LaunchCategoryCatalog.IsAllCategoriesLabel(category);
 
     private void ResetQuickAddFieldsAfterAdd()
     {

@@ -1,4 +1,6 @@
 using System.Windows;
+using applanch.Infrastructure.Storage;
+using applanch.Infrastructure.Updates;
 using applanch.ViewModels;
 using Xunit;
 
@@ -74,5 +76,59 @@ public class UpdateBannerStateTests
         state.BannerVisibility = Visibility.Visible;
 
         Assert.Empty(changed);
+    }
+
+    [Fact]
+    public void ApplyAvailability_AutoMode_FirstObservation_MarksAutoApplyPending()
+    {
+        var state = new UpdateBannerState();
+
+        state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.AutomaticallyApply);
+
+        Assert.True(state.ShouldAutoApplyPendingUpdate);
+    }
+
+    [Fact]
+    public void ApplyAvailability_SameVersionAfterAttempt_ClearsAutoApplyPending()
+    {
+        var state = new UpdateBannerState();
+        state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.AutomaticallyApply);
+
+        state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.AutomaticallyApply);
+
+        Assert.False(state.ShouldAutoApplyPendingUpdate);
+    }
+
+    [Fact]
+    public void ApplyAvailability_WhileAutomaticApplyRunning_ClearsAutoApplyPending()
+    {
+        var state = new UpdateBannerState();
+        state.BeginAutomaticApply();
+
+        state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.AutomaticallyApply);
+
+        Assert.False(state.ShouldAutoApplyPendingUpdate);
+    }
+
+    [Fact]
+    public void ApplyAvailability_WithNullUpdate_ResetsPendingUpdateBannerAndAutoApplyFlag()
+    {
+        var state = new UpdateBannerState();
+        state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.Manual);
+
+        state.ApplyAvailability(null, UpdateInstallBehavior.Manual);
+
+        Assert.Null(state.PendingUpdate);
+        Assert.Equal(Visibility.Collapsed, state.BannerVisibility);
+        Assert.False(state.ShouldAutoApplyPendingUpdate);
+    }
+
+    private static AppUpdateInfo CreateUpdate(string version)
+    {
+        return new AppUpdateInfo(
+            version,
+            "1.0.0",
+            new Uri("https://example.com/download.zip"),
+            new Uri("https://example.com/release"));
     }
 }

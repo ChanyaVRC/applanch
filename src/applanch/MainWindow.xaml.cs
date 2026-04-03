@@ -20,7 +20,6 @@ namespace applanch;
 
 public sealed partial class MainWindow : Window
 {
-    private static readonly TimeSpan FloatingNotificationDuration = TimeSpan.FromSeconds(4);
     private readonly DragReorderState _dragReorderState = new();
     private readonly IItemLaunchService _itemLaunchService;
     private readonly IUserInteractionService _interactionService;
@@ -30,8 +29,6 @@ public sealed partial class MainWindow : Window
     private readonly InlineRenameHandler _inlineRenameHandler;
     private readonly LaunchListDragDropResolver _dragDropResolver;
     private readonly UpdateWorkflow _updateWorkflow;
-    private readonly FloatingNotificationPresenter _floatingNotificationPresenter;
-    private readonly UpdateAvailabilityCoordinator _updateAvailabilityCoordinator;
     private AppSettings _settings;
     private SettingsWindow? _settingsWindow;
     private readonly AppEvent? _appEvent;
@@ -66,14 +63,7 @@ public sealed partial class MainWindow : Window
         _dragDropResolver = new LaunchListDragDropResolver();
         _updateServiceFactory = updateServiceFactory;
         _updateWorkflow = new UpdateWorkflow(_updateServiceFactory(settings));
-        _updateAvailabilityCoordinator = new UpdateAvailabilityCoordinator();
         _settings = settings;
-        _floatingNotificationPresenter = FloatingNotificationPresenter.Create(
-            this,
-            FloatingNotificationBanner,
-            FloatingNotificationProgressScale,
-            FloatingNotificationDuration,
-            ClearFloatingNotification);
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         _appEvent = (Application.Current as App)?.Events;
@@ -88,7 +78,6 @@ public sealed partial class MainWindow : Window
         _appEvent?.Unregister(AppEvents.Refresh, OnAppRefreshRequested);
         _appEvent?.Unregister(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
         _appEvent?.Unregister(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
-        _floatingNotificationPresenter.Dispose();
         base.OnClosed(e);
     }
 
@@ -123,17 +112,11 @@ public sealed partial class MainWindow : Window
 
     private void ApplyUpdateAvailability(AppUpdateInfo? update)
     {
-        ViewModel.ApplyUpdateAvailability(update);
+        ViewModel.UpdateBanner.ApplyAvailability(update, _settings.UpdateInstallBehavior);
 
-        if (update is null)
+        if (ViewModel.UpdateBanner.ShouldAutoApplyPendingUpdate && ViewModel.UpdateBanner.PendingUpdate is { } pendingUpdate)
         {
-            _ = _updateAvailabilityCoordinator.ShouldAutoApply(update, _settings.UpdateInstallBehavior);
-            return;
-        }
-
-        if (_updateAvailabilityCoordinator.ShouldAutoApply(update, _settings.UpdateInstallBehavior))
-        {
-            _ = ApplyUpdateAsync(update, isAutomatic: true);
+            _ = ApplyUpdateAsync(pendingUpdate, isAutomatic: true);
         }
     }
 
@@ -147,7 +130,7 @@ public sealed partial class MainWindow : Window
         }
         else
         {
-            ApplyUpdateAvailability(_updateAvailabilityCoordinator.PendingUpdate);
+            ApplyUpdateAvailability(ViewModel.UpdateBanner.PendingUpdate);
         }
 
         ViewModel.ApplySettings(settings);
@@ -304,7 +287,7 @@ public sealed partial class MainWindow : Window
 
     private async void UpdateButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_updateAvailabilityCoordinator.PendingUpdate is not { } update)
+        if (ViewModel.UpdateBanner.PendingUpdate is not { } update)
         {
             return;
         }
@@ -316,7 +299,7 @@ public sealed partial class MainWindow : Window
     {
         if (isAutomatic)
         {
-            _updateAvailabilityCoordinator.BeginAutomaticApply();
+            ViewModel.UpdateBanner.BeginAutomaticApply();
         }
 
         try
@@ -332,7 +315,7 @@ public sealed partial class MainWindow : Window
             {
                 if (isAutomatic)
                 {
-                    ViewModel.RevealManualUpdateActions();
+                    ViewModel.UpdateBanner.RevealManualActions();
                 }
 
                 ShowFloatingNotification(string.Format(Strings.UpdateFailed, result.ErrorMessage), MessageBoxImage.Error);
@@ -342,17 +325,17 @@ public sealed partial class MainWindow : Window
         {
             if (isAutomatic)
             {
-                _updateAvailabilityCoordinator.EndAutomaticApply();
+                ViewModel.UpdateBanner.EndAutomaticApply();
             }
         }
     }
 
     private void DismissUpdateButton_Click(object sender, RoutedEventArgs e)
     {
-        ViewModel.DismissUpdateBanner();
+        ViewModel.UpdateBanner.Dismiss();
     }
 
-    private void NotificationActionButton_Click(object sender, RoutedEventArgs e)
+    private void FloatingNotification_ActionRequested(object sender, RoutedEventArgs e)
     {
         HideFloatingNotification();
         ViewModel.FloatingNotification.Action?.Invoke();
@@ -365,18 +348,23 @@ public sealed partial class MainWindow : Window
 
     private void ShowFloatingNotification(string message, MessageBoxImage icon, string? actionText = null, Action? action = null)
     {
-        ViewModel.ShowFloatingNotification(message, FloatingNotificationCoordinator.MapIcon(icon), actionText, action);
-        _floatingNotificationPresenter.Show();
+        ViewModel.FloatingNotification.Show(message, MapNotificationIcon(icon), actionText, action);
+        FloatingNotification.ShowNotification();
     }
 
     private void HideFloatingNotification()
     {
-        _floatingNotificationPresenter.Hide();
+        FloatingNotification.HideNotification();
+    }
+
+    private void FloatingNotification_Hidden(object sender, RoutedEventArgs e)
+    {
+        ClearFloatingNotification();
     }
 
     private void ClearFloatingNotification()
     {
-        ViewModel.ClearFloatingNotification();
+        ViewModel.FloatingNotification.Clear();
     }
 
     // ── Context menu handlers ───────────────────────────────
@@ -750,6 +738,17 @@ public sealed partial class MainWindow : Window
     internal static bool ShouldOfferDeleteActionForMissingPath(LaunchPath launchPath)
     {
         return !launchPath.IsUrl && !Path.Exists(launchPath.Value);
+    }
+
+    private static NotificationIconType MapNotificationIcon(MessageBoxImage icon)
+    {
+        return icon switch
+        {
+            MessageBoxImage.Error => NotificationIconType.Error,
+            MessageBoxImage.Warning => NotificationIconType.Warning,
+            MessageBoxImage.Information => NotificationIconType.Info,
+            _ => NotificationIconType.None,
+        };
     }
 
     private void OpenItemLocation(LaunchItemViewModel item)
