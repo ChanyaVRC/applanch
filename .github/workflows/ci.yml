@@ -151,11 +151,11 @@ jobs:
 
       - name: Build sparse MSIX package
         shell: pwsh
-        run: ./scripts/build-sparse-package.ps1
+        run: ./scripts/build-sparse-package.ps1 -OutputMsix artifacts/sparse-package/applanch.msix
 
       - name: Upload sparse package
         uses: actions/upload-artifact@v4
         with:
           name: sparse-package
-          path: src/applanch/Assets/applanch.msix
+          path: artifacts/sparse-package/applanch.msix
           if-no-files-found: error

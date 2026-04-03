@@ -5,17 +5,17 @@
 .DESCRIPTION
     Stages the Package.appxmanifest and icon assets then calls makeappx.exe to create
     applanch.msix. Run this script whenever Package.appxmanifest or the icon assets change.
-    The resulting applanch.msix is committed to the repository as a static asset.
+    The generated package is treated as a build artifact (not source-controlled).
 .PARAMETER SourceManifest
     Path to the source Package.appxmanifest (default: src\applanch\Assets\Package.appxmanifest).
 .PARAMETER OutputMsix
-    Output path for applanch.msix (default: src\applanch\Assets\applanch.msix).
+    Output path for applanch.msix (default: artifacts\sparse-package\applanch.msix).
 .EXAMPLE
     .\scripts\build-sparse-package.ps1
 #>
 param(
     [string]$SourceManifest = "$PSScriptRoot\..\src\applanch\Assets\Package.appxmanifest",
-    [string]$OutputMsix = "$PSScriptRoot\..\src\applanch\Assets\applanch.msix"
+    [string]$OutputMsix = "$PSScriptRoot\..\artifacts\sparse-package\applanch.msix"
 )
 
 $ErrorActionPreference = 'Stop'
@@ -39,6 +39,14 @@ if (-not $makeappx -or -not (Test-Path $makeappx)) {
 $staging = Join-Path ([System.IO.Path]::GetTempPath()) 'applanch-sparse'
 $assetsDir = Join-Path $staging 'Assets'
 New-Item -ItemType Directory -Force $assetsDir | Out-Null
+
+$outputDirectory = Split-Path -Path $OutputMsix -Parent
+if ([string]::IsNullOrWhiteSpace($outputDirectory)) {
+    Write-Error "OutputMsix must include a directory path."
+    exit 1
+}
+
+New-Item -ItemType Directory -Force $outputDirectory | Out-Null
 
 # Copy manifest and icon assets.
 Copy-Item $SourceManifest (Join-Path $staging 'AppxManifest.xml') -Force

@@ -142,3 +142,6 @@ FakesAssemblies/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Generated package binaries
+*.msix
