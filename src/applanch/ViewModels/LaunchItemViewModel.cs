@@ -30,9 +30,9 @@ public sealed class LaunchItemViewModel : ObservableObject
         FullPath = fullPath;
         _dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
         _iconProvider = iconProvider ?? LaunchItemIconProvider.Shared;
-        _displayName = NormalizeDisplayName(displayName);
-        _category = NormalizeCategory(category);
-        _arguments = NormalizeArguments(arguments);
+        _displayName = LaunchItemNormalization.NormalizeDisplayName(displayName, FullPath.Value);
+        _category = LaunchItemNormalization.NormalizeCategory(category);
+        _arguments = LaunchItemNormalization.NormalizeArguments(arguments);
 
         RefreshIcon();
     }
@@ -40,7 +40,11 @@ public sealed class LaunchItemViewModel : ObservableObject
     public string DisplayName
     {
         get => _displayName;
-        set => SetNormalizedString(ref _displayName, value, NormalizeDisplayName, nameof(DisplayName));
+        set => SetNormalizedString(
+            ref _displayName,
+            value,
+            valueToNormalize => LaunchItemNormalization.NormalizeDisplayName(valueToNormalize, FullPath.Value),
+            nameof(DisplayName));
     }
 
     public bool IsRenaming
@@ -67,23 +71,14 @@ public sealed class LaunchItemViewModel : ObservableObject
     public string Arguments
     {
         get => _arguments;
-        set => SetNormalizedString(ref _arguments, value, NormalizeArguments, nameof(Arguments));
+        set => SetNormalizedString(ref _arguments, value, LaunchItemNormalization.NormalizeArguments, nameof(Arguments));
     }
 
     public string Category
     {
         get => _category;
-        set => SetNormalizedString(ref _category, value, NormalizeCategory, nameof(Category));
+        set => SetNormalizedString(ref _category, value, LaunchItemNormalization.NormalizeCategory, nameof(Category));
     }
-
-    private string NormalizeDisplayName(string value) =>
-        LaunchItemNormalization.NormalizeDisplayName(value, FullPath.Value);
-
-    private static string NormalizeCategory(string value) =>
-        LaunchItemNormalization.NormalizeCategory(value);
-
-    private static string NormalizeArguments(string value) =>
-        LaunchItemNormalization.NormalizeArguments(value);
 
     private void SetNormalizedString(ref string field, string value, Func<string, string> normalize, string propertyName)
     {
