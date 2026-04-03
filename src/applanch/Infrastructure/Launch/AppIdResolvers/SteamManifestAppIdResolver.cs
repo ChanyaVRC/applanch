@@ -31,8 +31,9 @@ internal sealed class SteamManifestAppIdResolver : IAppIdResolver
             return false;
         }
 
-        var relative = launchPath[commonRoot.Length..];
-        var gameDirectory = relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)[0];
+        var relativeSpan = launchPath.AsSpan(commonRoot.Length);
+        var sepIndex = relativeSpan.IndexOfAny(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        var gameDirectory = (sepIndex >= 0 ? relativeSpan[..sepIndex] : relativeSpan).ToString();
         if (string.IsNullOrWhiteSpace(gameDirectory))
         {
             return false;

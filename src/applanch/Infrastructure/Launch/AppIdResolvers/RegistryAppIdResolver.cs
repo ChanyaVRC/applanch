@@ -27,15 +27,17 @@ internal sealed class RegistryAppIdResolver : IAppIdResolver
         }
 
         // Parse format: registry:HIVE:KeyPath:ValueName
-        var parts = _source.Split(':', 4, StringSplitOptions.None);
-        if (parts.Length != 4 || !string.Equals(parts[0], "registry", StringComparison.OrdinalIgnoreCase))
+        Span<Range> parts = stackalloc Range[4];
+        var sourceSpan = _source.AsSpan();
+        if (sourceSpan.Split(parts, ':') != 4 ||
+            !sourceSpan[parts[0]].Equals("registry", StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }
 
-        var hive = parts[1].Trim();
-        var keyPath = parts[2].Trim();
-        var valueName = parts[3].Trim();
+        var hive = sourceSpan[parts[1]].Trim().ToString();
+        var keyPath = sourceSpan[parts[2]].Trim().ToString();
+        var valueName = sourceSpan[parts[3]].Trim().ToString();
 
         RegistryHive registryHive = hive.ToUpperInvariant() switch
         {
