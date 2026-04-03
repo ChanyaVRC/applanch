@@ -197,20 +197,20 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
     private static async Task<byte[]?> ReadLimitedContentAsync(HttpContent content)
     {
         await using var responseStream = await content.ReadAsStreamAsync().ConfigureAwait(false);
-        using var buffer = new MemoryStream();
-        var readBuffer = ArrayPool<byte>.Shared.Rent(81920);
+        var rented = ArrayPool<byte>.Shared.Rent(MaxFaviconBytes + 1);
+        var totalRead = 0;
         try
         {
             while (true)
             {
-                var bytesRead = await responseStream.ReadAsync(readBuffer).ConfigureAwait(false);
+                var bytesRead = await responseStream.ReadAsync(rented.AsMemory(totalRead)).ConfigureAwait(false);
                 if (bytesRead == 0)
                 {
-                    return buffer.ToArray();
+                    return rented.AsSpan(0, totalRead).ToArray();
                 }
 
-                buffer.Write(readBuffer, 0, bytesRead);
-                if (buffer.Length > MaxFaviconBytes)
+                totalRead += bytesRead;
+                if (totalRead > MaxFaviconBytes)
                 {
                     return null;
                 }
@@ -218,7 +218,7 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
         }
         finally
         {
-            ArrayPool<byte>.Shared.Return(readBuffer);
+            ArrayPool<byte>.Shared.Return(rented);
         }
     }
 
