@@ -8,18 +8,49 @@ internal readonly record struct SemanticVersion(int Major, int Minor, int Patch,
     {
         result = default;
 
-        var parts = input.Split('-', 2);
-        var segments = parts[0].Split('.');
+        var span = input.AsSpan();
+        var prereleaseSeparatorIndex = span.IndexOf('-');
+        var numericSpan = prereleaseSeparatorIndex >= 0 ? span[..prereleaseSeparatorIndex] : span;
 
-        if (segments.Length < 3 ||
-            !int.TryParse(segments[0], out var major) ||
-            !int.TryParse(segments[1], out var minor) ||
-            !int.TryParse(segments[2], out var patch))
+        if (!TryReadNthDotSegment(numericSpan, 0, out var majorSegment) ||
+            !TryReadNthDotSegment(numericSpan, 1, out var minorSegment) ||
+            !TryReadNthDotSegment(numericSpan, 2, out var patchSegment) ||
+            !int.TryParse(majorSegment, out var major) ||
+            !int.TryParse(minorSegment, out var minor) ||
+            !int.TryParse(patchSegment, out var patch))
         {
             return false;
         }
 
-        result = new SemanticVersion(major, minor, patch, parts.Length > 1 ? parts[1] : string.Empty);
+        var prerelease = prereleaseSeparatorIndex >= 0 ? input[(prereleaseSeparatorIndex + 1)..] : string.Empty;
+        result = new SemanticVersion(major, minor, patch, prerelease);
+        return true;
+    }
+
+    private static bool TryReadNthDotSegment(ReadOnlySpan<char> text, int segmentIndex, out ReadOnlySpan<char> segment)
+    {
+        segment = text;
+        var currentIndex = 0;
+
+        while (currentIndex < segmentIndex)
+        {
+            var separatorIndex = segment.IndexOf('.');
+            if (separatorIndex < 0)
+            {
+                segment = default;
+                return false;
+            }
+
+            segment = segment[(separatorIndex + 1)..];
+            currentIndex++;
+        }
+
+        var nextSeparatorIndex = segment.IndexOf('.');
+        if (nextSeparatorIndex >= 0)
+        {
+            segment = segment[..nextSeparatorIndex];
+        }
+
         return true;
     }
 

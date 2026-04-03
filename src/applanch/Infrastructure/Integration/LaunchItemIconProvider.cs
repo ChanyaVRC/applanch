@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Buffers;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -197,20 +198,27 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
     {
         await using var responseStream = await content.ReadAsStreamAsync().ConfigureAwait(false);
         using var buffer = new MemoryStream();
-        var readBuffer = new byte[81920];
-        while (true)
+        var readBuffer = ArrayPool<byte>.Shared.Rent(81920);
+        try
         {
-            var bytesRead = await responseStream.ReadAsync(readBuffer).ConfigureAwait(false);
-            if (bytesRead == 0)
+            while (true)
             {
-                return buffer.ToArray();
-            }
+                var bytesRead = await responseStream.ReadAsync(readBuffer).ConfigureAwait(false);
+                if (bytesRead == 0)
+                {
+                    return buffer.ToArray();
+                }
 
-            buffer.Write(readBuffer, 0, bytesRead);
-            if (buffer.Length > MaxFaviconBytes)
-            {
-                return null;
+                buffer.Write(readBuffer, 0, bytesRead);
+                if (buffer.Length > MaxFaviconBytes)
+                {
+                    return null;
+                }
             }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(readBuffer);
         }
     }
 

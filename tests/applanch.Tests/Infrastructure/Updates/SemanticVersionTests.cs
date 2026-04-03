@@ -39,6 +39,26 @@ public class SemanticVersionTests
     }
 
     [Fact]
+    public void TryParse_ExtraNumericSegments_PreservesCurrentBehavior()
+    {
+        var result = SemanticVersion.TryParse("1.2.3.4", out var version);
+
+        Assert.True(result);
+        Assert.Equal(1, version.Major);
+        Assert.Equal(2, version.Minor);
+        Assert.Equal(3, version.Patch);
+    }
+
+    [Fact]
+    public void TryParse_TrailingDash_ParsesAsStable()
+    {
+        var result = SemanticVersion.TryParse("1.2.3-", out var version);
+
+        Assert.True(result);
+        Assert.Equal(string.Empty, version.Prerelease);
+    }
+
+    [Fact]
     public void TryParse_TooFewNumericSegments_ReturnsFalse()
     {
         Assert.False(SemanticVersion.TryParse("1.2", out _));

@@ -113,4 +113,27 @@ public class SteamManifestAppIdResolverTests
         Assert.True(result);
         Assert.Equal("220", appId);
     }
+
+    [Fact]
+    public void TryResolve_MalformedAppIdLine_ReturnsFalse()
+    {
+        using var dir = TemporaryDirectory.Create("steam-test");
+        var steamApps = Path.Combine(dir.Path, "steamapps");
+        var exePath = Path.Combine(steamApps, "common", "MyGame", "game.exe");
+        Directory.CreateDirectory(Path.GetDirectoryName(exePath)!);
+        File.WriteAllText(exePath, string.Empty);
+        File.WriteAllText(Path.Combine(steamApps, "appmanifest_440.acf"),
+            """
+            "AppState"
+            {
+                "appid"
+                "installdir"   "MyGame"
+            }
+            """);
+        var resolver = new SteamManifestAppIdResolver();
+
+        var result = resolver.TryResolve(new LaunchPath(exePath), out _);
+
+        Assert.False(result);
+    }
 }

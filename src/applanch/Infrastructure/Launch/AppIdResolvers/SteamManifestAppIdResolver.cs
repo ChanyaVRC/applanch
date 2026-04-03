@@ -74,8 +74,37 @@ internal sealed class SteamManifestAppIdResolver : IAppIdResolver
 
     private static string ExtractQuotedValue(string line)
     {
-        var parts = line.Split('"', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        return parts.Length >= 2 ? parts[^1] : string.Empty;
+        var text = line.AsSpan();
+
+        // Skip the first quoted token (key) and read the second one (value).
+        var firstOpen = text.IndexOf('"');
+        if (firstOpen < 0)
+        {
+            return string.Empty;
+        }
+
+        text = text[(firstOpen + 1)..];
+        var firstClose = text.IndexOf('"');
+        if (firstClose < 0)
+        {
+            return string.Empty;
+        }
+
+        text = text[(firstClose + 1)..];
+        var valueOpen = text.IndexOf('"');
+        if (valueOpen < 0)
+        {
+            return string.Empty;
+        }
+
+        text = text[(valueOpen + 1)..];
+        var valueClose = text.IndexOf('"');
+        if (valueClose < 0)
+        {
+            return string.Empty;
+        }
+
+        return text[..valueClose].ToString();
     }
 
     private static bool TryFindContainingDirectory(string filePath, string targetDirectoryName, out string directoryPath)
