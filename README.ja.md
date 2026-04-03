@@ -134,6 +134,42 @@ dotnet build applanch.slnx -c Debug
 - OV/EV 証明書を使ったリリース署名は `scripts/sign-msix.ps1` と `MSIX_SIGNING_CERT_BASE64` / `MSIX_SIGNING_CERT_PASSWORD` を利用します。
 - 署名なしでは、端末ポリシーによってスパースパッケージ登録が失敗する場合があります。
 
+### コンテキストメニューのポリシー要件
+
+Windows 11 の簡易コンテキストメニューには、スパース MSIX 登録（`Add-AppxPackage -ExternalLocation`）が必要です。
+この操作は**システム全体のポリシー**で制御されており、アプリ単位の例外は存在しません。
+
+エラー `0x80073D2E` で登録が失敗する場合は、以下のいずれかの方法を使用してください。
+
+**方法 1 — 開発者モード（個人開発者向けの最も簡単な方法）**
+
+Windows の設定 → システム → 開発者向け → 開発者モード → オン
+
+**方法 2 — AppModelUnlock レジストリキー（MDM 非管理端末、管理者権限が必要）**
+
+```powershell
+$path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock'
+Set-ItemProperty -Path $path -Name AllowAllTrustedApps               -Value 1 -Type DWord
+Set-ItemProperty -Path $path -Name AllowDevelopmentWithoutDevLicense  -Value 1 -Type DWord
+```
+
+「開発者モード」をオンにすると内部的にこれらのキーが設定されます。
+MDM 管理端末では `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Appx` のポリシーキーがこれらを上書きするため、IT 部門の対応なしでは方法 2 は効果がありません。
+
+**方法 3 — グループポリシー / MDM（企業・管理端末向け）**
+
+IT 管理者に Intune（または非管理端末ではローカルグループポリシー）で以下を設定してもらってください。
+
+`コンピューターの構成 → 管理用テンプレート → Windows コンポーネント → アプリパッケージの展開`
+
+- *すべての信頼されたアプリのインストールを許可する* → **有効**
+- *統合開発環境 (IDE) からの Windows ストア アプリの開発とインストールを許可する* → **有効**
+
+**フォールバック — 従来のコンテキストメニュー**
+
+上記のいずれも適用できない場合でも、COM ベースの HKCU レジストリ登録は有効なため、
+「その他のオプションを確認」（従来のコンテキストメニュー）からコマンドを実行できます。
+
 ## プロジェクト構成
 
 - src/applanch: WPF アプリ本体

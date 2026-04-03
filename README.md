@@ -134,6 +134,42 @@ Notes:
 - For release/CD signing with OV/EV certificates, use `scripts/sign-msix.ps1` with `MSIX_SIGNING_CERT_BASE64` and `MSIX_SIGNING_CERT_PASSWORD`.
 - If signing is unavailable, sparse package registration may fail depending on your machine policy.
 
+### Context Menu Policy Requirements
+
+The Windows 11 simplified context menu requires sparse MSIX registration (`Add-AppxPackage -ExternalLocation`).
+This operation is governed by a **system-wide policy** with no per-app exception mechanism.
+
+If registration fails with error `0x80073D2E`, use one of the following approaches:
+
+**Option 1 — Developer Mode (simplest for individual developers)**
+
+Enable via Windows Settings → System → For developers → Developer Mode → On.
+
+**Option 2 — AppModelUnlock registry keys (non-MDM machines, requires admin)**
+
+```powershell
+$path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock'
+Set-ItemProperty -Path $path -Name AllowAllTrustedApps           -Value 1 -Type DWord
+Set-ItemProperty -Path $path -Name AllowDevelopmentWithoutDevLicense -Value 1 -Type DWord
+```
+
+This is what Developer Mode sets internally.
+On MDM-managed machines the `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Appx` keys override these, so Option 2 will have no effect without IT involvement.
+
+**Option 3 — Group Policy / MDM (corporate/managed machines)**
+
+Ask your IT admin to set these via Intune (or local Group Policy on unmanaged machines):
+
+`Computer Configuration → Administrative Templates → Windows Components → App Package Deployment`
+
+- *Allow all trusted apps to install* → **Enabled**
+- *Allows development of Windows Store apps and installing them from an integrated development environment (IDE)* → **Enabled**
+
+**Fallback — Legacy context menu**
+
+If none of the above is possible, the COM-based registration (HKCU registry) still provides
+the context menu entry under *Show more options* (classic context menu).
+
 ## Project Structure
 
 - `src/applanch`: WPF application
