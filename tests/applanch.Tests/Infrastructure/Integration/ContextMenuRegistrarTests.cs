@@ -19,7 +19,7 @@ public class ContextMenuRegistrarTests
     public void EnsureRegistered_NoExecutablePath_DoesNothing()
     {
         var writer = new RecordingRegistryCommandWriter();
-        var registrar = new ContextMenuRegistrar(() => null, writer.WriteCommand);
+        var registrar = new ContextMenuRegistrar(() => null, writer.WriteCommand, enableLegacyCleanup: false);
 
         registrar.EnsureRegistered();
 
@@ -30,12 +30,12 @@ public class ContextMenuRegistrarTests
     public void EnsureRegistered_WritesExpectedTargets()
     {
         var writer = new RecordingRegistryCommandWriter();
-        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand);
+        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand, enableLegacyCleanup: false);
 
         registrar.EnsureRegistered();
 
         Assert.Equal(5, writer.Calls.Count);
-        Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\AllFilesystemObjects\\shell\\applanch.register", StringComparison.Ordinal));
+        Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\AllFileSystemObjects\\shell\\applanch.register", StringComparison.Ordinal));
         Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\*\\shell\\applanch.register", StringComparison.Ordinal));
         Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\exefile\\shell\\applanch.register", StringComparison.Ordinal));
         Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\Directory\\shell\\applanch.register", StringComparison.Ordinal));
@@ -48,7 +48,7 @@ public class ContextMenuRegistrarTests
     public void EnsureRegistered_WhenWriterThrows_DoesNotThrow()
     {
         var writer = new ThrowingRegistryCommandWriter(new UnauthorizedAccessException("Simulated registry permission error"));
-        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand);
+        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand, enableLegacyCleanup: false);
 
         var exception = Record.Exception(registrar.EnsureRegistered);
 
@@ -60,7 +60,7 @@ public class ContextMenuRegistrarTests
     public void EnsureRegistered_WhenWriterThrowsSecurityException_DoesNotThrow()
     {
         var writer = new ThrowingRegistryCommandWriter(new System.Security.SecurityException("Simulated security policy error"));
-        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand);
+        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand, enableLegacyCleanup: false);
 
         var exception = Record.Exception(registrar.EnsureRegistered);
 
@@ -72,7 +72,7 @@ public class ContextMenuRegistrarTests
     public void EnsureRegistered_WhenWriterThrowsIOException_DoesNotThrow()
     {
         var writer = new ThrowingRegistryCommandWriter(new IOException("Simulated IO error"));
-        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand);
+        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand, enableLegacyCleanup: false);
 
         var exception = Record.Exception(registrar.EnsureRegistered);
 
@@ -84,7 +84,7 @@ public class ContextMenuRegistrarTests
     public void EnsureRegistered_WhenWriterThrowsUnexpected_Throws()
     {
         var writer = new ThrowingRegistryCommandWriter(new InvalidOperationException("Simulated registry write failure"));
-        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand);
+        var registrar = new ContextMenuRegistrar(() => @"C:\\Apps\\applanch.exe", writer.WriteCommand, enableLegacyCleanup: false);
 
         Assert.Throws<InvalidOperationException>(registrar.EnsureRegistered);
     }

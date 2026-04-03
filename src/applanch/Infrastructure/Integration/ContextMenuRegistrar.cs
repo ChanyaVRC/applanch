@@ -5,16 +5,20 @@ using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Integration;
 
-internal sealed class ContextMenuRegistrar(Func<string?> executablePathProvider, Action<string, string, string, string> writeRegistryCommand)
+internal sealed class ContextMenuRegistrar(
+    Func<string?> executablePathProvider,
+    Action<string, string, string, string> writeRegistryCommand,
+    bool enableLegacyCleanup = true)
 {
     private const string BasePath = @"Software\Classes";
     private const string MenuKeyName = "applanch.register";
+    private const string LegacyMisspelledFileSystemObjectsKeyPath = @"Software\Classes\AllFilesystemObjects\shell\applanch.register";
     private static string MenuText => AppResources.ContextMenu_Register;
     private static readonly RegistrationTarget[] RegistrationTargets =
     [
         // Windows 11 aggregates context-menu sources differently; registering
-        // the same verb under AllFilesystemObjects improves discoverability.
-        new("AllFilesystemObjects", "%1"),
+        // the same verb under AllFileSystemObjects improves discoverability.
+        new("AllFileSystemObjects", "%1"),
         new("*", "%1"),
         new("exefile", "%1"),
         new("Directory", "%1"),
@@ -22,12 +26,17 @@ internal sealed class ContextMenuRegistrar(Func<string?> executablePathProvider,
     ];
 
     public ContextMenuRegistrar()
-        : this(static () => Environment.ProcessPath, WriteRegistryCommand)
+        : this(static () => Environment.ProcessPath, WriteRegistryCommand, enableLegacyCleanup: true)
     {
     }
 
     public void EnsureRegistered()
     {
+        if (enableLegacyCleanup)
+        {
+            CleanupLegacyRegistrationSafely();
+        }
+
         var exePath = executablePathProvider();
         if (string.IsNullOrWhiteSpace(exePath))
         {
@@ -38,6 +47,26 @@ internal sealed class ContextMenuRegistrar(Func<string?> executablePathProvider,
         foreach (var target in RegistrationTargets)
         {
             RegisterTargetSafely(exePath, target);
+        }
+    }
+
+    private void CleanupLegacyRegistrationSafely()
+    {
+        try
+        {
+            Registry.CurrentUser.DeleteSubKeyTree(LegacyMisspelledFileSystemObjectsKeyPath, throwOnMissingSubKey: false);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            AppLogger.Instance.Warn($"Registry cleanup denied for legacy context menu key: {ex.Message}");
+        }
+        catch (SecurityException ex)
+        {
+            AppLogger.Instance.Warn($"Registry cleanup security error for legacy context menu key: {ex.Message}");
+        }
+        catch (IOException ex)
+        {
+            AppLogger.Instance.Warn($"Registry cleanup I/O error for legacy context menu key: {ex.Message}");
         }
     }
 
