@@ -18,13 +18,13 @@ public sealed partial class SettingsWindow : Window
     private readonly AppEvent _appEvent;
     private SettingsWindowViewModel ViewModel { get; }
 
-    public SettingsWindow(Window owner)
+    internal SettingsWindow(Window owner, AppSettings settings)
     {
         InitializeComponent();
         Owner = owner;
         _appEvent = ((App)Application.Current).Events;
         ViewModel = new SettingsWindowViewModel(
-            AppSettings.Load(),
+            settings,
             _appEvent);
         _appEvent.Register(AppEvents.Refresh, OnAppRefreshRequested);
         DataContext = ViewModel;
@@ -156,13 +156,7 @@ public sealed partial class SettingsWindow : Window
 
     private void OnAppRefreshRequested(AppSettings settings)
     {
-        if (!Dispatcher.CheckAccess())
-        {
-            Dispatcher.Invoke(() => ViewModel.ApplyExternalSettings(settings));
-            return;
-        }
-
-        ViewModel.ApplyExternalSettings(settings);
+        Dispatcher.InvokeIfRequired(() => ViewModel.ApplyExternalSettings(settings));
     }
 
     public bool SettingsChanged => ViewModel.SettingsChanged;

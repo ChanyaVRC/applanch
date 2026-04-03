@@ -8,7 +8,6 @@ namespace applanch.Infrastructure.Storage;
 internal sealed record AppSettings
 {
     public bool DebugUpdate { get; init; } = false;
-    public bool CloseOnLaunch { get; init; } = true;
     public string ThemeId { get; init; } = ThemePaletteConfigurationLoader.SystemThemeId;
     public bool CheckForUpdatesOnStartup { get; init; } = true;
     public UpdateInstallBehavior UpdateInstallBehavior { get; init; } = UpdateInstallBehavior.Manual;
@@ -22,7 +21,7 @@ internal sealed record AppSettings
     public AppListSortMode AppListSortMode { get; init; } = AppListSortMode.Manual;
     public bool RunAsAdministrator { get; init; } = false;
     public LanguageOption Language { get; init; } = LanguageOption.System;
-    public PostLaunchBehavior? PostLaunchBehavior { get; init; }
+    public PostLaunchBehavior PostLaunchBehavior { get; init; } = PostLaunchBehavior.CloseApp;
 
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
@@ -76,7 +75,10 @@ internal sealed record AppSettings
     {
         var themeId = NormalizeThemeId(settings.ThemeId);
 
-        return settings with { ThemeId = themeId };
+        return settings with
+        {
+            ThemeId = themeId,
+        };
     }
 
     private static string NormalizeThemeId(string? themeId)
@@ -89,7 +91,5 @@ internal sealed record AppSettings
         return ThemePaletteConfigurationLoader.SystemThemeId;
     }
 
-    public PostLaunchBehavior ResolvePostLaunchBehavior() =>
-        PostLaunchBehavior ?? (CloseOnLaunch ? Infrastructure.Storage.PostLaunchBehavior.CloseApp : Infrastructure.Storage.PostLaunchBehavior.KeepOpen);
 }
 

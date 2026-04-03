@@ -10,6 +10,7 @@ using applanch.Events;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Items;
 using applanch.Infrastructure.Launch;
+using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
 using applanch.Infrastructure.Updates;
@@ -45,11 +46,21 @@ public sealed partial class MainWindow : Window
     private MainWindowViewModel ViewModel { get; }
 
     public MainWindow()
-        : this(new MainWindowViewModel(), new ItemLaunchService(), new UserInteractionService(), new GitHubAppUpdateService())
+        : this(AppSettings.Load())
     {
     }
 
-    internal MainWindow(MainWindowViewModel viewModel, IItemLaunchService itemLaunchService, IUserInteractionService interactionService, IAppUpdateService updateService)
+    internal MainWindow(AppSettings settings)
+        : this(
+            new MainWindowViewModel(new AppResolverAdapter(), new LauncherStoreAdapter(), settings),
+            new ItemLaunchService(),
+            new UserInteractionService(),
+            new GitHubAppUpdateService(settings.DebugUpdate),
+            settings)
+    {
+    }
+
+    internal MainWindow(MainWindowViewModel viewModel, IItemLaunchService itemLaunchService, IUserInteractionService interactionService, IAppUpdateService updateService, AppSettings settings)
     {
         InitializeComponent();
         ViewModel = viewModel;
@@ -62,7 +73,7 @@ public sealed partial class MainWindow : Window
         _dragDropResolver = new LaunchListDragDropResolver();
         _updateWorkflow = new UpdateWorkflow(updateService);
         _floatingNotificationCoordinator = new FloatingNotificationCoordinator();
-        _settings = AppSettings.Load();
+        _settings = settings;
         _floatingNotificationTimer = new DispatcherTimer
         {
             Interval = FloatingNotificationDuration
@@ -115,13 +126,7 @@ public sealed partial class MainWindow : Window
 
     private void OnUpdateAvailabilityChanged(AppUpdateInfo? update)
     {
-        if (!Dispatcher.CheckAccess())
-        {
-            Dispatcher.Invoke(() => ApplyUpdateAvailability(update));
-            return;
-        }
-
-        ApplyUpdateAvailability(update);
+        Dispatcher.InvokeIfRequired(() => ApplyUpdateAvailability(update));
     }
 
     private void ApplyUpdateAvailability(AppUpdateInfo? update)
@@ -206,13 +211,7 @@ public sealed partial class MainWindow : Window
 
     private void OnAppRefreshRequested(AppSettings settings)
     {
-        if (!Dispatcher.CheckAccess())
-        {
-            Dispatcher.Invoke(() => ApplySettingsFromAppRefresh(settings));
-            return;
-        }
-
-        ApplySettingsFromAppRefresh(settings);
+        Dispatcher.InvokeIfRequired(() => ApplySettingsFromAppRefresh(settings));
     }
 
     private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -225,7 +224,7 @@ public sealed partial class MainWindow : Window
 
     private void ScrollLaunchListToTop()
     {
-        if (FindVisualChild<ScrollViewer>(LaunchListBox) is ScrollViewer scrollViewer)
+        if (VisualTreeUtilities.FindVisualChild<ScrollViewer>(LaunchListBox) is ScrollViewer scrollViewer)
         {
             scrollViewer.ScrollToTop();
         }
@@ -241,7 +240,7 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        _settingsWindow = new SettingsWindow(this);
+        _settingsWindow = new SettingsWindow(this, _settings);
         _settingsWindow.Closed += OnSettingsWindowClosed;
         _settingsWindow.Show();
     }
@@ -262,7 +261,7 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        _updateWorkflow.SetUpdateService(new GitHubAppUpdateService());
+        _updateWorkflow.SetUpdateService(new GitHubAppUpdateService(_settings.DebugUpdate));
         _appEvent?.Invoke(AppEvents.UpdateCheckRequested);
     }
 
@@ -488,18 +487,18 @@ public sealed partial class MainWindow : Window
 
     private void ContextMenu_Item_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is not MenuItem { Tag: string action })
+        if (sender is not MenuItem { Tag: LaunchItemContextMenuAction action })
         {
             return;
         }
 
         switch (action)
         {
-            case "Rename":
+            case LaunchItemContextMenuAction.Rename:
                 _contextMenuHandler.BeginRename(sender);
                 break;
 
-            case "EditCategory":
+            case LaunchItemContextMenuAction.EditCategory:
                 _contextMenuHandler.EditCategory(
                     sender,
                     ViewModel.CategoryNames,
@@ -507,7 +506,7 @@ public sealed partial class MainWindow : Window
                     ViewModel.UpdateItemCategory);
                 break;
 
-            case "EditArguments":
+            case LaunchItemContextMenuAction.EditArguments:
                 _contextMenuHandler.EditValue(
                     sender,
                     Strings.Prompt_ChangeArguments,
@@ -515,7 +514,7 @@ public sealed partial class MainWindow : Window
                     ViewModel.UpdateItemArguments);
                 break;
 
-            case "OpenLocation":
+            case LaunchItemContextMenuAction.OpenLocation:
                 if (LaunchItemContextMenuHandler.GetTargetItem(sender) is { } openLocationTarget)
                 {
                     OpenItemLocation(openLocationTarget);
@@ -523,7 +522,7 @@ public sealed partial class MainWindow : Window
 
                 break;
 
-            case "Delete":
+            case LaunchItemContextMenuAction.Delete:
                 if (LaunchItemContextMenuHandler.GetTargetItem(sender) is { } deleteTarget)
                 {
                     DeleteItemWithUndo(deleteTarget);
@@ -568,7 +567,7 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        _dragReorderState.DraggedItem = FindAncestor<ListBoxItem>(source)?.DataContext as LaunchItemViewModel;
+        _dragReorderState.DraggedItem = VisualTreeUtilities.FindAncestor<ListBoxItem>(source)?.DataContext as LaunchItemViewModel;
     }
 
     private void LaunchListBox_PreviewMouseMove(object sender, MouseEventArgs e)
@@ -603,7 +602,7 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        if (FindVisualChild<ScrollViewer>(listBox) is not ScrollViewer scrollViewer)
+        if (VisualTreeUtilities.FindVisualChild<ScrollViewer>(listBox) is not ScrollViewer scrollViewer)
         {
             return;
         }
@@ -778,42 +777,6 @@ public sealed partial class MainWindow : Window
     }
 
     // ── Static utilities ────────────────────────────────────
-
-    private static T? FindAncestor<T>(DependencyObject current) where T : DependencyObject
-    {
-        while (current is not null)
-        {
-            if (current is T typed)
-            {
-                return typed;
-            }
-
-            current = VisualTreeHelper.GetParent(current);
-        }
-
-        return null;
-    }
-
-    private static T? FindVisualChild<T>(DependencyObject current) where T : DependencyObject
-    {
-        var childrenCount = VisualTreeHelper.GetChildrenCount(current);
-        for (var i = 0; i < childrenCount; i++)
-        {
-            var child = VisualTreeHelper.GetChild(current, i);
-            if (child is T typed)
-            {
-                return typed;
-            }
-
-            var nested = FindVisualChild<T>(child);
-            if (nested is not null)
-            {
-                return nested;
-            }
-        }
-
-        return null;
-    }
 
     internal static TranslateTransform EnsureTranslateTransform(UIElement element)
     {

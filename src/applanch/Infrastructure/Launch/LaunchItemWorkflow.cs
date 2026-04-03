@@ -21,6 +21,6 @@ internal sealed class LaunchItemWorkflow(IItemLaunchService itemLaunchService)
             return LaunchItemWorkflowResult.Failed(execution);
         }
 
-        return LaunchItemWorkflowResult.Succeeded(settings.ResolvePostLaunchBehavior());
+        return LaunchItemWorkflowResult.Succeeded(settings.PostLaunchBehavior);
     }
 }

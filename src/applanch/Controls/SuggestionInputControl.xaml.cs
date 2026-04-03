@@ -3,8 +3,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Threading;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch.Controls;
 
@@ -245,7 +245,7 @@ public sealed partial class SuggestionInputControl : UserControl
             return;
         }
 
-        if (FindAncestor<ComboBoxItem>(source)?.DataContext is string selectedText
+        if (VisualTreeUtilities.FindAncestor<ComboBoxItem>(source)?.DataContext is string selectedText
             && !string.IsNullOrWhiteSpace(selectedText))
         {
             ApplySelectedText(comboBox, selectedText);
@@ -410,18 +410,4 @@ public sealed partial class SuggestionInputControl : UserControl
             .ToArray();
     }
 
-    private static T? FindAncestor<T>(DependencyObject current) where T : DependencyObject
-    {
-        while (current is not null)
-        {
-            if (current is T typed)
-            {
-                return typed;
-            }
-
-            current = VisualTreeHelper.GetParent(current);
-        }
-
-        return null;
-    }
 }

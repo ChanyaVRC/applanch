@@ -218,7 +218,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     private void LoadFields(AppSettings settings)
     {
         _themeId = settings.ThemeId;
-        _postLaunchBehavior = settings.ResolvePostLaunchBehavior();
+        _postLaunchBehavior = settings.PostLaunchBehavior;
         _checkForUpdatesOnStartup = settings.CheckForUpdatesOnStartup;
         _updateInstallBehavior = settings.UpdateInstallBehavior;
         _debugUpdate = settings.DebugUpdate;

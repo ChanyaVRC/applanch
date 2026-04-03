@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using applanch.ViewModels;
 
 namespace applanch.Infrastructure.Utilities;
@@ -63,7 +62,7 @@ internal sealed class LaunchListDragDropResolver
         }
 
         var targetContainer = listBox.InputHitTest(listPosition) is DependencyObject hit
-            ? FindAncestor<ListBoxItem>(hit)
+            ? VisualTreeUtilities.FindAncestor<ListBoxItem>(hit)
             : null;
         if (targetContainer?.DataContext is not LaunchItemViewModel targetData)
         {
@@ -96,18 +95,4 @@ internal sealed class LaunchListDragDropResolver
         return -1;
     }
 
-    private static T? FindAncestor<T>(DependencyObject current) where T : DependencyObject
-    {
-        while (current is not null)
-        {
-            if (current is T typed)
-            {
-                return typed;
-            }
-
-            current = VisualTreeHelper.GetParent(current);
-        }
-
-        return null;
-    }
 }

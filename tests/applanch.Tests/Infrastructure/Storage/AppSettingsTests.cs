@@ -37,27 +37,21 @@ public class AppSettingsTests
     }
 
     [Fact]
-    public void ResolvePostLaunchBehavior_UsesExplicitValue_WhenProvided()
+    public void Normalize_PreservesPostLaunchBehavior()
     {
-        var settings = new AppSettings
-        {
-            PostLaunchBehavior = PostLaunchBehavior.MinimizeWindow,
-            CloseOnLaunch = true,
-        };
+        var settings = new AppSettings { PostLaunchBehavior = PostLaunchBehavior.MinimizeWindow };
 
-        var behavior = settings.ResolvePostLaunchBehavior();
+        var normalized = AppSettings.Normalize(settings);
 
-        Assert.Equal(PostLaunchBehavior.MinimizeWindow, behavior);
+        Assert.Equal(PostLaunchBehavior.MinimizeWindow, normalized.PostLaunchBehavior);
     }
 
     [Fact]
-    public void ResolvePostLaunchBehavior_FallsBackToCloseOnLaunch_WhenNotProvided()
+    public void Defaults_UseCloseAppPostLaunchBehavior()
     {
-        var closeSettings = new AppSettings { CloseOnLaunch = true };
-        var keepOpenSettings = new AppSettings { CloseOnLaunch = false };
+        var settings = new AppSettings();
 
-        Assert.Equal(PostLaunchBehavior.CloseApp, closeSettings.ResolvePostLaunchBehavior());
-        Assert.Equal(PostLaunchBehavior.KeepOpen, keepOpenSettings.ResolvePostLaunchBehavior());
+        Assert.Equal(PostLaunchBehavior.CloseApp, settings.PostLaunchBehavior);
     }
 
     [Fact]

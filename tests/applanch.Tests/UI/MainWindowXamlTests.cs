@@ -41,6 +41,6 @@ public class MainWindowXamlTests
         var xaml = File.ReadAllText(xamlPath);
 
         Assert.Contains("Menu_OpenFileLocation", xaml);
-        Assert.Contains("Tag=\"OpenLocation\"", xaml);
+        Assert.Contains("Tag=\"{x:Static local:LaunchItemContextMenuAction.OpenLocation}\"", xaml);
     }
 }

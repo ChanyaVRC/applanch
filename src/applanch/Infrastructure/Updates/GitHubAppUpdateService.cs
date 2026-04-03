@@ -26,7 +26,12 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
     private readonly bool _debugUpdate;
 
     public GitHubAppUpdateService()
-        : this(CreateDefaultHttpClient(), AppVersionProvider.GetDisplayVersion(), AppSettings.Load().DebugUpdate)
+        : this(AppSettings.Load().DebugUpdate)
+    {
+    }
+
+    public GitHubAppUpdateService(bool debugUpdate)
+        : this(CreateDefaultHttpClient(), AppVersionProvider.GetDisplayVersion(), debugUpdate)
     {
     }
 

@@ -1023,20 +1023,20 @@
                                     <Border.ContextMenu>
                                         <ContextMenu>
                                             <MenuItem Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_Rename]}"
-                                                      Tag="Rename"
+                                                      Tag="{x:Static local:LaunchItemContextMenuAction.Rename}"
                                                       Click="ContextMenu_Item_Click"/>
                                             <MenuItem Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_ChangeCategory]}"
-                                                      Tag="EditCategory"
+                                                      Tag="{x:Static local:LaunchItemContextMenuAction.EditCategory}"
                                                       Click="ContextMenu_Item_Click"/>
                                             <MenuItem Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_ChangeArguments]}"
-                                                      Tag="EditArguments"
+                                                      Tag="{x:Static local:LaunchItemContextMenuAction.EditArguments}"
                                                       Click="ContextMenu_Item_Click"/>
                                             <MenuItem Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_OpenFileLocation]}"
-                                                      Tag="OpenLocation"
+                                                      Tag="{x:Static local:LaunchItemContextMenuAction.OpenLocation}"
                                                       Click="ContextMenu_Item_Click"/>
                                             <Separator/>
                                             <MenuItem Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_Delete]}"
-                                                      Tag="Delete"
+                                                      Tag="{x:Static local:LaunchItemContextMenuAction.Delete}"
                                                       Click="ContextMenu_Item_Click"/>
                                         </ContextMenu>
                                     </Border.ContextMenu>
