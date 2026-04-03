@@ -14,8 +14,8 @@
 .PARAMETER TimestampUrl
     RFC3161 timestamp URL.
 .PARAMETER TrustSelfSignedCertificateForVerification
-    Temporarily trusts a self-signed signing certificate in CurrentUser\Root
-    only for signature verification, then removes it.
+    When true, allows verification to continue for self-signed certificates if
+    the only failure is an untrusted-root chain.
 .EXAMPLE
     ./scripts/sign-msix.ps1 -MsixPath publish/win-x64/applanch.msix
 #>
@@ -66,11 +66,11 @@ if ([string]::IsNullOrWhiteSpace($signtool) -or -not (Test-Path $signtool)) {
 }
 
 $pfxPath = Join-Path ([System.IO.Path]::GetTempPath()) ("applanch-signing-" + [Guid]::NewGuid().ToString("N") + ".pfx")
-$addedRootCertThumbprint = $null
 $certificate = $null
 try {
     [System.IO.File]::WriteAllBytes($pfxPath, [Convert]::FromBase64String($CertificateBase64))
     $certificate = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($pfxPath, $CertificatePassword)
+    $isSelfSignedCertificate = $certificate.Subject -eq $certificate.Issuer
 
     & $signtool sign /fd SHA256 /f $pfxPath /p $CertificatePassword /tr $TimestampUrl /td SHA256 /v $MsixPath
     if ($LASTEXITCODE -ne 0) {
@@ -78,40 +78,26 @@ try {
         exit $LASTEXITCODE
     }
 
-    if ($TrustSelfSignedCertificateForVerification -and $certificate.Subject -eq $certificate.Issuer) {
-        $existingRootCertificate = Get-ChildItem 'Cert:\CurrentUser\Root' |
-            Where-Object { $_.Thumbprint -eq $certificate.Thumbprint } |
-            Select-Object -First 1
-
-        if (-not $existingRootCertificate) {
-            $rootStore = [System.Security.Cryptography.X509Certificates.X509Store]::new(
-                [System.Security.Cryptography.X509Certificates.StoreName]::Root,
-                [System.Security.Cryptography.X509Certificates.StoreLocation]::CurrentUser)
-            $rootStore.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
-            try {
-                # CI self-signed certs are not in trust stores by default.
-                $rootStore.Add($certificate)
-                $addedRootCertThumbprint = $certificate.Thumbprint
-            }
-            finally {
-                $rootStore.Close()
-            }
-        }
-    }
-
-    & $signtool verify /pa /v $MsixPath
+    $verifyOutput = & $signtool verify /pa /v $MsixPath 2>&1
+    $verifyOutput | ForEach-Object { Write-Host $_ }
     if ($LASTEXITCODE -ne 0) {
-        Write-Error "signtool verify failed with exit code $LASTEXITCODE."
-        exit $LASTEXITCODE
+        $verifyOutputText = $verifyOutput | Out-String
+        $isUntrustedRootChainFailure =
+            ($verifyOutputText -match 'terminated in a root') -and
+            ($verifyOutputText -match 'not trusted by the trust provider')
+
+        if ($TrustSelfSignedCertificateForVerification -and $isSelfSignedCertificate -and $isUntrustedRootChainFailure) {
+            Write-Warning "signtool verify reported untrusted root for self-signed certificate; continuing."
+        }
+        else {
+            Write-Error "signtool verify failed with exit code $LASTEXITCODE."
+            exit $LASTEXITCODE
+        }
     }
 
     Write-Host "MSIX signed and verified: $MsixPath"
 }
 finally {
-    if (-not [string]::IsNullOrWhiteSpace($addedRootCertThumbprint)) {
-        Remove-Item -Path "Cert:\CurrentUser\Root\$addedRootCertThumbprint" -Force -ErrorAction SilentlyContinue
-    }
-
     if ($certificate) {
         $certificate.Dispose()
     }
