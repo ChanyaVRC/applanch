@@ -49,17 +49,32 @@ internal sealed class FaviconCacheResolver : IFaviconCacheResolver
 
     public void TryWrite(Uri faviconUri, byte[] payload)
     {
+        string? tempPath = null;
         try
         {
             Directory.CreateDirectory(_cacheDirectory);
             var path = GetFilePath(faviconUri);
-            var tempPath = path + ".tmp";
+            tempPath = path + ".tmp";
             File.WriteAllBytes(tempPath, payload);
             File.Move(tempPath, path, overwrite: true);
         }
         catch (Exception ex)
         {
             AppLogger.Instance.Warn($"Failed to write favicon cache for '{faviconUri}': {ex.Message}");
+        }
+        finally
+        {
+            if (tempPath is not null && File.Exists(tempPath))
+            {
+                try
+                {
+                    File.Delete(tempPath);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Instance.Warn($"Failed to clean favicon temp file '{tempPath}': {ex.Message}");
+                }
+            }
         }
     }
 
