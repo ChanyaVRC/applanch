@@ -82,6 +82,23 @@ public class LauncherStoreBehaviorTests
     }
 
     [Fact]
+    public void LoadAll_InvalidJson_QuarantinesCorruptedStoreFile()
+    {
+        using var scope = new StoreIsolationScope();
+
+        File.WriteAllText(scope.StoreFilePath, "{ invalid json }");
+
+        var entries = LauncherStore.LoadAll();
+
+        Assert.Empty(entries);
+        Assert.False(File.Exists(scope.StoreFilePath));
+        var quarantined = Directory
+            .EnumerateFiles(Path.GetDirectoryName(scope.StoreFilePath)!, "launch-items.json.bad.*", SearchOption.TopDirectoryOnly)
+            .ToList();
+        Assert.Single(quarantined);
+    }
+
+    [Fact]
     public void SaveAll_RoundTripsMultipleEntries()
     {
         using var scope = new StoreIsolationScope();
@@ -157,6 +174,18 @@ public class LauncherStoreBehaviorTests
             if (File.Exists(path))
             {
                 File.Delete(path);
+            }
+
+            var directory = Path.GetDirectoryName(path);
+            if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory))
+            {
+                return;
+            }
+
+            var fileName = Path.GetFileName(path);
+            foreach (var quarantined in Directory.EnumerateFiles(directory, $"{fileName}.bad.*", SearchOption.TopDirectoryOnly))
+            {
+                File.Delete(quarantined);
             }
         }
 

@@ -41,11 +41,37 @@ internal static class LauncherStore
             entries = NormalizeEntries(parsedEntries);
             return true;
         }
+        catch (JsonException ex)
+        {
+            AppLogger.Instance.Error(ex, "Failed to load launch items from JSON");
+            TryQuarantineCorruptedStoreFile();
+            entries = [];
+            return false;
+        }
         catch (Exception ex)
         {
             AppLogger.Instance.Error(ex, "Failed to load launch items from JSON");
             entries = [];
             return false;
+        }
+    }
+
+    private static void TryQuarantineCorruptedStoreFile()
+    {
+        try
+        {
+            if (!File.Exists(StoreFilePath))
+            {
+                return;
+            }
+
+            var quarantinedPath = $"{StoreFilePath}.bad.{DateTime.UtcNow:yyyyMMddHHmmssfff}";
+            File.Move(StoreFilePath, quarantinedPath);
+            AppLogger.Instance.Warn($"Quarantined corrupted launch items file: '{StoreFilePath}' -> '{quarantinedPath}'");
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Instance.Warn($"Failed to quarantine corrupted launch items file '{StoreFilePath}': {ex.Message}");
         }
     }
 
