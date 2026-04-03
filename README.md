@@ -131,7 +131,7 @@ dotnet build applanch.slnx -c Debug
 
 Notes:
 - `build-sparse-package.ps1` automatically signs the package when `CN=applanch` dev cert exists in `CurrentUser\My`.
-- For release/CD signing with OV/EV certificates, use `scripts/sign-msix.ps1` with `MSIX_SIGNING_CERT_BASE64` and `MSIX_SIGNING_CERT_PASSWORD`.
+- Local or external signing can use `scripts/sign-msix.ps1` with `MSIX_SIGNING_CERT_BASE64` and `MSIX_SIGNING_CERT_PASSWORD`. The GitHub Actions release workflow generates a temporary self-signed certificate (`CN=applanch`) for CI signing.
 - If signing is unavailable, sparse package registration may fail depending on your machine policy.
 
 ### Context Menu Policy Requirements

@@ -131,7 +131,7 @@ dotnet build applanch.slnx -c Debug
 
 補足:
 - `build-sparse-package.ps1` は `CurrentUser\My` に `CN=applanch` 証明書がある場合、自動で MSIX に署名します。
-- OV/EV 証明書を使ったリリース署名は `scripts/sign-msix.ps1` と `MSIX_SIGNING_CERT_BASE64` / `MSIX_SIGNING_CERT_PASSWORD` を利用します。
+- ローカル署名や外部証明書での署名には `scripts/sign-msix.ps1` と `MSIX_SIGNING_CERT_BASE64` / `MSIX_SIGNING_CERT_PASSWORD` を利用できます。GitHub Actions のリリース workflow では、一時的な自己署名証明書 (`CN=applanch`) を生成して CI 署名します。
 - 署名なしでは、端末ポリシーによってスパースパッケージ登録が失敗する場合があります。
 
 ### コンテキストメニューのポリシー要件
