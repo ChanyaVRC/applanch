@@ -75,38 +75,11 @@ internal sealed class SteamManifestAppIdResolver : IAppIdResolver
 
     private static string ExtractQuotedValue(string line)
     {
-        var remaining = line.AsSpan();
-
-        // Skip key token and then read value token.
-        if (!TryReadNextQuotedToken(ref remaining, out _)
-            || !TryReadNextQuotedToken(ref remaining, out var valueToken))
-        {
-            return string.Empty;
-        }
-
-        return valueToken.ToString();
-    }
-
-    private static bool TryReadNextQuotedToken(ref ReadOnlySpan<char> text, out ReadOnlySpan<char> token)
-    {
-        token = default;
-
-        var openQuoteIndex = text.IndexOf('"');
-        if (openQuoteIndex < 0)
-        {
-            return false;
-        }
-
-        var afterOpenQuote = text[(openQuoteIndex + 1)..];
-        var closeQuoteIndex = afterOpenQuote.IndexOf('"');
-        if (closeQuoteIndex < 0)
-        {
-            return false;
-        }
-
-        token = afterOpenQuote[..closeQuoteIndex];
-        text = afterOpenQuote[(closeQuoteIndex + 1)..];
-        return true;
+        // Splitting `"key"  "value"` by '"' yields ["", "key", "  ", "value", ""].
+        // The value token is always at index 3; fewer parts means the line is malformed.
+        var span = line.AsSpan();
+        Span<Range> parts = stackalloc Range[5];
+        return span.Split(parts, '"') >= 4 ? span[parts[3]].ToString() : string.Empty;
     }
 
     private static bool TryFindContainingDirectory(string filePath, string targetDirectoryName, out string directoryPath)
