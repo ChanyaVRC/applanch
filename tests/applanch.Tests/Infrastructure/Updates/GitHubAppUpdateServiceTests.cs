@@ -122,6 +122,34 @@ public class GitHubAppUpdateServiceTests
     }
 
     [Fact]
+    public async Task CheckForUpdateAsync_RetriesTransientRequestFailure()
+    {
+        var rid = System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier;
+        var json = JsonSerializer.Serialize(new
+        {
+            tag_name = "v2.0.0",
+            html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v2.0.0",
+            assets = new[]
+            {
+                new
+                {
+                    name = $"applanch-2.0.0-{rid}.zip",
+                    browser_download_url = $"https://github.com/ChanyaVRC/applanch/releases/download/v2.0.0/applanch-2.0.0-{rid}.zip",
+                },
+            },
+        });
+
+        using var client = new HttpClient(new FailsThenJsonHandler(1, json));
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
+        var service = new GitHubAppUpdateService(client, "1.0.0");
+
+        var result = await service.CheckForUpdateAsync();
+
+        Assert.NotNull(result);
+        Assert.Equal("2.0.0", result.NewVersion);
+    }
+
+    [Fact]
     public async Task DownloadAndExtractAsync_ExtractsFilesFromZip()
     {
         // Arrange: create a valid ZIP in memory
@@ -148,6 +176,69 @@ public class GitHubAppUpdateServiceTests
         var extractedFile = Path.Combine(extractDir, "hello.txt");
         Assert.True(File.Exists(extractedFile));
         Assert.Equal("hello world", File.ReadAllText(extractedFile));
+    }
+
+    [Fact]
+    public async Task DownloadAndExtractAsync_RetriesTransientRequestFailure()
+    {
+        using var zipStream = new MemoryStream();
+        using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            var entry = archive.CreateEntry("hello.txt");
+            using var writer = new StreamWriter(entry.Open());
+            writer.Write("hello world");
+        }
+
+        zipStream.Position = 0;
+        using var client = new HttpClient(new FailsThenZipHandler(1, zipStream.ToArray()));
+        var service = new GitHubAppUpdateService(client, "1.0.0");
+
+        using var tempDirectory = TemporaryDirectory.Create("applanch-test");
+        var extractDir = await service.DownloadAndExtractAsync("https://example.com/test.zip", tempDirectory.Path);
+
+        Assert.True(Directory.Exists(extractDir));
+        Assert.True(File.Exists(Path.Combine(extractDir, "hello.txt")));
+    }
+
+    private sealed class FailsThenJsonHandler(int failuresBeforeSuccess, string responseJson) : HttpMessageHandler
+    {
+        private int _remainingFailures = failuresBeforeSuccess;
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            if (_remainingFailures-- > 0)
+            {
+                throw new HttpRequestException("transient");
+            }
+
+            var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseJson, System.Text.Encoding.UTF8, "application/json"),
+            };
+
+            return Task.FromResult(response);
+        }
+    }
+
+    private sealed class FailsThenZipHandler(int failuresBeforeSuccess, byte[] zipBytes) : HttpMessageHandler
+    {
+        private int _remainingFailures = failuresBeforeSuccess;
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            if (_remainingFailures-- > 0)
+            {
+                throw new HttpRequestException("transient");
+            }
+
+            var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(zipBytes),
+            };
+
+            response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+            return Task.FromResult(response);
+        }
     }
 }
 

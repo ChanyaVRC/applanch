@@ -14,6 +14,8 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
 {
     private const string Owner = "ChanyaVRC";
     private const string Repo = "applanch";
+    private const int MaxRetryAttempts = 3;
+    private static readonly TimeSpan BaseRetryDelay = TimeSpan.FromMilliseconds(200);
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -42,9 +44,12 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
         var log = AppLogger.Instance;
         var url = $"https://api.github.com/repos/{Owner}/{Repo}/releases/latest";
         log.Info($"Fetching latest release from {url}");
-        using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.Accept.ParseAdd("application/vnd.github+json");
-        using var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        using var response = await SendWithRetryAsync(static (client, requestUrl, ct) =>
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            request.Headers.Accept.ParseAdd("application/vnd.github+json");
+            return client.SendAsync(request, ct);
+        }, url, "update metadata", cancellationToken).ConfigureAwait(false);
         log.Info($"API response: {(int)response.StatusCode} {response.StatusCode}");
         response.EnsureSuccessStatusCode();
         var release = await response.Content.ReadFromJsonAsync<GitHubRelease>(JsonOptions, cancellationToken).ConfigureAwait(false);
@@ -119,7 +124,11 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
         Directory.CreateDirectory(tempDir);
 
         var zipPath = Path.Combine(tempDir, "update.zip");
-        using (var response = await _httpClient.GetAsync(assetUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false))
+        using (var response = await SendWithRetryAsync(static (client, requestUrl, ct) =>
+            client.GetAsync(requestUrl, HttpCompletionOption.ResponseHeadersRead, ct),
+            assetUrl,
+            "update package",
+            cancellationToken).ConfigureAwait(false))
         {
             log.Info($"Download response: {(int)response.StatusCode} {response.StatusCode}, Content-Type: {response.Content.Headers.ContentType}");
             response.EnsureSuccessStatusCode();
@@ -170,6 +179,37 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
         var client = new HttpClient();
         client.DefaultRequestHeaders.UserAgent.ParseAdd($"applanch/{GetAssemblyVersion()}");
         return client;
+    }
+
+    private async Task<HttpResponseMessage> SendWithRetryAsync(
+        Func<HttpClient, string, CancellationToken, Task<HttpResponseMessage>> send,
+        string url,
+        string operationName,
+        CancellationToken cancellationToken)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            try
+            {
+                return await send(_httpClient, url, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ShouldRetry(ex, cancellationToken) && attempt < MaxRetryAttempts)
+            {
+                var delay = TimeSpan.FromMilliseconds(BaseRetryDelay.TotalMilliseconds * Math.Pow(2, attempt - 1));
+                AppLogger.Instance.Warn($"Retrying {operationName} after transient error (attempt {attempt}/{MaxRetryAttempts - 1}): {ex.Message}");
+                await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+            }
+        }
+    }
+
+    private static bool ShouldRetry(Exception ex, CancellationToken cancellationToken)
+    {
+        if (ex is OperationCanceledException)
+        {
+            return !cancellationToken.IsCancellationRequested;
+        }
+
+        return ex is HttpRequestException or IOException;
     }
 
     private static string GetAssemblyVersion()
