@@ -88,6 +88,7 @@ try {
 
         if ($TrustSelfSignedCertificateForVerification -and $isSelfSignedCertificate -and $isUntrustedRootChainFailure) {
             Write-Warning "signtool verify reported untrusted root for self-signed certificate; continuing."
+            $global:LASTEXITCODE = 0
         }
         else {
             Write-Error "signtool verify failed with exit code $LASTEXITCODE."
