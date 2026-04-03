@@ -49,7 +49,7 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <Target Name="CopyShellExtensionArtifacts" AfterTargets="Build">
+  <Target Name="CopyShellExtensionArtifactsForPublish" AfterTargets="Publish">
     <MSBuild Projects="..\applanch.ShellExtension\applanch.ShellExtension.csproj"
              Targets="GetTargetPath"
              Properties="Configuration=$(Configuration);TargetFramework=$(TargetFramework)">
@@ -64,7 +64,7 @@
     </ItemGroup>
 
     <Copy SourceFiles="@(ShellExtensionArtifacts)"
-          DestinationFolder="$(OutDir)"
+      DestinationFolder="$(PublishDir)"
           SkipUnchangedFiles="true" />
   </Target>
 

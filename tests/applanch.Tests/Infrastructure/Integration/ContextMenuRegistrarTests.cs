@@ -241,6 +241,93 @@ public class ContextMenuRegistrarTests
             Registry.CurrentUser.DeleteSubKeyTree(progIdKeyPath, false);
         }
     }
+
+    [Fact]
+    public void ResolveShellExtensionComHostPath_UsesPublishedArtifactsDirectory_WhenArtifactsExistNextToExecutable()
+    {
+        var rootDirectory = CreateTemporaryDirectory();
+        string? resolvedPath = null;
+        try
+        {
+            var executableDirectory = Path.Combine(rootDirectory, "publish");
+            Directory.CreateDirectory(executableDirectory);
+            File.WriteAllText(Path.Combine(executableDirectory, "applanch.exe"), string.Empty);
+            CreateShellExtensionArtifacts(executableDirectory);
+
+            resolvedPath = InvokeResolveShellExtensionComHostPath(Path.Combine(executableDirectory, "applanch.exe"));
+
+            Assert.NotNull(resolvedPath);
+            Assert.NotEqual(Path.Combine(executableDirectory, "applanch.ShellExtension.comhost.dll"), resolvedPath);
+            Assert.True(File.Exists(resolvedPath));
+            Assert.True(File.Exists(Path.Combine(Path.GetDirectoryName(resolvedPath!)!, "applanch.ShellExtension.dll")));
+        }
+        finally
+        {
+            DeleteDeploymentDirectory(resolvedPath);
+            Directory.Delete(rootDirectory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void ResolveShellExtensionComHostPath_UsesSiblingProjectOutput_WhenArtifactsAreNotCopiedToAppOutput()
+    {
+        var rootDirectory = CreateTemporaryDirectory();
+        string? resolvedPath = null;
+        try
+        {
+            var executableDirectory = Path.Combine(rootDirectory, "src", "applanch", "bin", "Debug", "net10.0-windows10.0.22000.0");
+            Directory.CreateDirectory(executableDirectory);
+            File.WriteAllText(Path.Combine(executableDirectory, "applanch.exe"), string.Empty);
+
+            var shellExtensionOutputDirectory = Path.Combine(rootDirectory, "src", "applanch.ShellExtension", "bin", "Debug", "net10.0-windows10.0.22000.0");
+            Directory.CreateDirectory(shellExtensionOutputDirectory);
+            CreateShellExtensionArtifacts(shellExtensionOutputDirectory);
+
+            resolvedPath = InvokeResolveShellExtensionComHostPath(Path.Combine(executableDirectory, "applanch.exe"));
+
+            Assert.NotNull(resolvedPath);
+            Assert.True(File.Exists(resolvedPath));
+            Assert.DoesNotContain(Path.Combine("src", "applanch", "bin"), resolvedPath!, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(Path.Combine("src", "applanch.ShellExtension", "bin"), resolvedPath!, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            DeleteDeploymentDirectory(resolvedPath);
+            Directory.Delete(rootDirectory, recursive: true);
+        }
+    }
+
+    private static string InvokeResolveShellExtensionComHostPath(string executablePath)
+    {
+        var method = typeof(ContextMenuRegistrar).GetMethod("ResolveShellExtensionComHostPath", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        Assert.NotNull(method);
+
+        return Assert.IsType<string>(method!.Invoke(null, [executablePath]));
+    }
+
+    private static void CreateShellExtensionArtifacts(string directoryPath)
+    {
+        File.WriteAllText(Path.Combine(directoryPath, "applanch.ShellExtension.dll"), "managed");
+        File.WriteAllText(Path.Combine(directoryPath, "applanch.ShellExtension.comhost.dll"), "comhost");
+        File.WriteAllText(Path.Combine(directoryPath, "applanch.ShellExtension.deps.json"), "{}");
+        File.WriteAllText(Path.Combine(directoryPath, "applanch.ShellExtension.runtimeconfig.json"), "{}");
+    }
+
+    private static string CreateTemporaryDirectory()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "applanch-tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(path);
+        return path;
+    }
+
+    private static void DeleteDeploymentDirectory(string? resolvedPath)
+    {
+        var deploymentDirectory = Path.GetDirectoryName(resolvedPath);
+        if (!string.IsNullOrWhiteSpace(deploymentDirectory) && Directory.Exists(deploymentDirectory))
+        {
+            Directory.Delete(deploymentDirectory, recursive: true);
+        }
+    }
 }
 
 

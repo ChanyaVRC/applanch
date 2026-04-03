@@ -1,5 +1,6 @@
 using Microsoft.Win32;
 using System.IO;
+using System.Security.Cryptography;
 using System.Security;
 using applanch.ShellIntegration;
 using applanch.Infrastructure.Utilities;
@@ -17,6 +18,7 @@ internal sealed class ContextMenuRegistrar(
     private const string MenuKeyName = "applanch.register";
     private const string ShellExtensionAssemblyName = "applanch.ShellExtension";
     private const string ShellExtensionDisplayName = "Applanch Explorer Command";
+    private const string ShellExtensionDeploymentDirectoryName = "ShellExtension";
     private const string LegacyMisspelledFileSystemObjectsKeyPath = @"Software\Classes\AllFilesystemObjects\shell\applanch.register";
     private static string MenuText => AppResources.ContextMenu_Register;
     private static readonly RegistrationTarget[] RegistrationTargets =
@@ -59,15 +61,15 @@ internal sealed class ContextMenuRegistrar(
 
     private bool TryRegisterExplorerCommandServer(string exePath)
     {
-        var shellExtensionComHostPath = shellExtensionComHostPathResolver(exePath);
-        if (string.IsNullOrWhiteSpace(shellExtensionComHostPath))
-        {
-            AppLogger.Instance.Info("Windows 11 explorer command registration skipped because shell-extension artifacts were not found.");
-            return false;
-        }
-
         try
         {
+            var shellExtensionComHostPath = shellExtensionComHostPathResolver(exePath);
+            if (string.IsNullOrWhiteSpace(shellExtensionComHostPath))
+            {
+                AppLogger.Instance.Info("Windows 11 explorer command registration skipped because shell-extension artifacts were not found.");
+                return false;
+            }
+
             registerExplorerCommandServer(shellExtensionComHostPath);
             return true;
         }
@@ -136,23 +138,92 @@ internal sealed class ContextMenuRegistrar(
 
     private static string? ResolveShellExtensionComHostPath(string exePath)
     {
+        var sourceArtifactsDirectory = ResolveShellExtensionArtifactsDirectory(exePath);
+        if (string.IsNullOrWhiteSpace(sourceArtifactsDirectory))
+        {
+            return null;
+        }
+
+        var deploymentDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "applanch",
+            ShellExtensionDeploymentDirectoryName,
+            ComputeShellExtensionDeploymentKey(sourceArtifactsDirectory));
+
+        if (!HasAllRequiredArtifacts(deploymentDirectory))
+        {
+            Directory.CreateDirectory(deploymentDirectory);
+
+            foreach (var sourceArtifactPath in GetRequiredArtifacts(sourceArtifactsDirectory))
+            {
+                var destinationArtifactPath = Path.Combine(deploymentDirectory, Path.GetFileName(sourceArtifactPath));
+                File.Copy(sourceArtifactPath, destinationArtifactPath, overwrite: true);
+            }
+        }
+
+        return Path.Combine(deploymentDirectory, ShellExtensionAssemblyName + ".comhost.dll");
+    }
+
+    private static string? ResolveShellExtensionArtifactsDirectory(string exePath)
+    {
         var executableDirectory = Path.GetDirectoryName(exePath);
+        if (!string.IsNullOrWhiteSpace(executableDirectory) && HasAllRequiredArtifacts(executableDirectory))
+        {
+            return executableDirectory;
+        }
+
         if (string.IsNullOrWhiteSpace(executableDirectory))
         {
             return null;
         }
 
-        var requiredArtifacts = new[]
-        {
-            Path.Combine(executableDirectory, ShellExtensionAssemblyName + ".dll"),
-            Path.Combine(executableDirectory, ShellExtensionAssemblyName + ".comhost.dll"),
-            Path.Combine(executableDirectory, ShellExtensionAssemblyName + ".deps.json"),
-            Path.Combine(executableDirectory, ShellExtensionAssemblyName + ".runtimeconfig.json")
-        };
+        var targetFrameworkDirectory = new DirectoryInfo(executableDirectory);
+        var configurationDirectory = targetFrameworkDirectory?.Parent;
+        var binDirectory = configurationDirectory?.Parent;
+        var applanchProjectDirectory = binDirectory?.Parent;
+        var sourceDirectory = applanchProjectDirectory?.Parent;
 
-        return requiredArtifacts.All(File.Exists)
-            ? requiredArtifacts[1]
+        if (!string.Equals(binDirectory?.Name, "bin", StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(applanchProjectDirectory?.Name, "applanch", StringComparison.OrdinalIgnoreCase) ||
+            sourceDirectory is null)
+        {
+            return null;
+        }
+
+        var siblingProjectOutputDirectory = Path.Combine(
+            sourceDirectory.FullName,
+            ShellExtensionAssemblyName,
+            "bin",
+            configurationDirectory!.Name,
+            targetFrameworkDirectory!.Name);
+
+        return HasAllRequiredArtifacts(siblingProjectOutputDirectory)
+            ? siblingProjectOutputDirectory
             : null;
+    }
+
+    private static bool HasAllRequiredArtifacts(string directoryPath)
+        => GetRequiredArtifacts(directoryPath).All(File.Exists);
+
+    private static string[] GetRequiredArtifacts(string directoryPath)
+        =>
+        [
+            Path.Combine(directoryPath, ShellExtensionAssemblyName + ".dll"),
+            Path.Combine(directoryPath, ShellExtensionAssemblyName + ".comhost.dll"),
+            Path.Combine(directoryPath, ShellExtensionAssemblyName + ".deps.json"),
+            Path.Combine(directoryPath, ShellExtensionAssemblyName + ".runtimeconfig.json")
+        ];
+
+    private static string ComputeShellExtensionDeploymentKey(string sourceArtifactsDirectory)
+    {
+        var fingerprintSource = string.Join(
+            '|',
+            GetRequiredArtifacts(sourceArtifactsDirectory)
+                .Select(static path => new FileInfo(path))
+                .Select(static info => $"{info.FullName}:{info.Length}:{info.LastWriteTimeUtc.Ticks}"));
+
+        var hashBytes = SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(fingerprintSource));
+        return Convert.ToHexString(hashBytes[..8]);
     }
 
     private static void RegisterExplorerCommandServer(string shellExtensionComHostPath)
