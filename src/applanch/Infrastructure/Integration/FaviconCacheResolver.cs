@@ -38,7 +38,14 @@ internal sealed class FaviconCacheResolver : IFaviconCacheResolver
             }
 
             var bytes = File.ReadAllBytes(path);
-            return DecodeImage(bytes);
+            var decoded = DecodeImage(bytes);
+            if (decoded is not null)
+            {
+                return decoded;
+            }
+
+            TryQuarantineCorruptedCache(path);
+            return null;
         }
         catch (Exception ex)
         {
@@ -98,5 +105,24 @@ internal sealed class FaviconCacheResolver : IFaviconCacheResolver
     {
         var hash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(faviconUri.AbsoluteUri)));
         return Path.Combine(_cacheDirectory, $"{hash}.bin");
+    }
+
+    private static void TryQuarantineCorruptedCache(string cachePath)
+    {
+        try
+        {
+            if (!File.Exists(cachePath))
+            {
+                return;
+            }
+
+            var quarantinePath = cachePath + ".bad";
+            File.Move(cachePath, quarantinePath, overwrite: true);
+            AppLogger.Instance.Warn($"Quarantined corrupted favicon cache file: '{cachePath}' -> '{quarantinePath}'");
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Instance.Warn($"Failed to quarantine corrupted favicon cache file '{cachePath}': {ex.Message}");
+        }
     }
 }

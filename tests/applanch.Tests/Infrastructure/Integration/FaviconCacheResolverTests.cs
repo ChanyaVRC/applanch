@@ -9,6 +9,24 @@ namespace applanch.Tests.Infrastructure.Integration;
 public sealed class FaviconCacheResolverTests
 {
     [Fact]
+    public void TryLoad_WhenCachePayloadIsCorrupted_QuarantinesBadFile()
+    {
+        using var tempDirectory = TemporaryDirectory.Create("applanch-favicon-cache-tests");
+        var resolver = new FaviconCacheResolver(tempDirectory.Path);
+        var faviconUri = new Uri("https://example.com/favicon.ico");
+
+        var cachePath = GetCacheFilePath(tempDirectory.Path, faviconUri);
+        Directory.CreateDirectory(tempDirectory.Path);
+        File.WriteAllBytes(cachePath, [0, 1, 2, 3, 4]);
+
+        var loaded = resolver.TryLoad(faviconUri, acceptExpired: true);
+
+        Assert.Null(loaded);
+        Assert.False(File.Exists(cachePath));
+        Assert.True(File.Exists(cachePath + ".bad"));
+    }
+
+    [Fact]
     public void TryWrite_WhenDestinationFileIsLocked_DoesNotLeaveTempFile()
     {
         using var tempDirectory = TemporaryDirectory.Create("applanch-favicon-cache-tests");
