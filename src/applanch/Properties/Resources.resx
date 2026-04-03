@@ -97,7 +97,7 @@
     <value>Delete</value>
   </data>
   <data name="Hint_AddApp" xml:space="preserve">
-    <value>e.g. VSCode / code / notepad / C:\path\app.exe</value>
+    <value>e.g. VSCode / code / notepad / C:\path\app.exe / https://example.com</value>
   </data>
   <data name="Menu_Rename" xml:space="preserve">
     <value>Rename</value>
