@@ -68,12 +68,12 @@ internal sealed class ContextMenuRegistrar(
     {
         var delete = deleteRegistrySubKeyTree ?? DefaultDeleteSubKeyTree;
 
-        DeleteRegistrySafely(delete, $@"{BasePath}\CLSID\{{{ExplorerCommandIds.ClassId}}}");
-        DeleteRegistrySafely(delete, $@"{BasePath}\{ExplorerCommandIds.ProgId}");
+        DeleteRegistrySafely(delete, GetExplorerCommandClassKeyPath());
+        DeleteRegistrySafely(delete, GetExplorerCommandProgIdKeyPath());
 
         foreach (var target in RegistrationTargets)
         {
-            DeleteRegistrySafely(delete, $@"{BasePath}\{target.ClassKeyPath}\shell\{MenuKeyName}");
+            DeleteRegistrySafely(delete, GetTargetMenuKeyPath(target));
         }
     }
 
@@ -97,17 +97,8 @@ internal sealed class ContextMenuRegistrar(
             registerExplorerCommandServer(shellExtensionComHostPath);
             return true;
         }
-        catch (UnauthorizedAccessException ex)
+        catch (Exception ex) when (TryLogKnownRegistryFailure("Explorer command registration", ex))
         {
-            AppLogger.Instance.Warn($"Explorer command registration denied: {ex.Message}");
-        }
-        catch (SecurityException ex)
-        {
-            AppLogger.Instance.Warn($"Explorer command registration security error: {ex.Message}");
-        }
-        catch (IOException ex)
-        {
-            AppLogger.Instance.Warn($"Explorer command registration I/O error: {ex.Message}");
         }
 
         return false;
@@ -119,17 +110,8 @@ internal sealed class ContextMenuRegistrar(
         {
             Registry.CurrentUser.DeleteSubKeyTree(LegacyMisspelledFileSystemObjectsKeyPath, throwOnMissingSubKey: false);
         }
-        catch (UnauthorizedAccessException ex)
+        catch (Exception ex) when (TryLogKnownRegistryFailure("Registry cleanup for legacy context menu key", ex))
         {
-            AppLogger.Instance.Warn($"Registry cleanup denied for legacy context menu key: {ex.Message}");
-        }
-        catch (SecurityException ex)
-        {
-            AppLogger.Instance.Warn($"Registry cleanup security error for legacy context menu key: {ex.Message}");
-        }
-        catch (IOException ex)
-        {
-            AppLogger.Instance.Warn($"Registry cleanup I/O error for legacy context menu key: {ex.Message}");
         }
     }
 
@@ -139,17 +121,8 @@ internal sealed class ContextMenuRegistrar(
         {
             RegisterTarget(exePath, target, enableExplorerCommand);
         }
-        catch (UnauthorizedAccessException ex)
+        catch (Exception ex) when (TryLogKnownRegistryFailure($"Registry registration for {target.ClassKeyPath}", ex))
         {
-            AppLogger.Instance.Warn($"Registry registration denied for {target.ClassKeyPath}: {ex.Message}");
-        }
-        catch (SecurityException ex)
-        {
-            AppLogger.Instance.Warn($"Registry registration security error for {target.ClassKeyPath}: {ex.Message}");
-        }
-        catch (IOException ex)
-        {
-            AppLogger.Instance.Warn($"Registry registration I/O error for {target.ClassKeyPath}: {ex.Message}");
         }
     }
 
@@ -159,25 +132,44 @@ internal sealed class ContextMenuRegistrar(
         {
             delete(keyPath);
         }
-        catch (UnauthorizedAccessException ex)
+        catch (Exception ex) when (TryLogKnownRegistryFailure($"Registry deletion for {keyPath}", ex))
         {
-            AppLogger.Instance.Warn($"Registry deletion denied for {keyPath}: {ex.Message}");
-        }
-        catch (SecurityException ex)
-        {
-            AppLogger.Instance.Warn($"Registry deletion security error for {keyPath}: {ex.Message}");
-        }
-        catch (IOException ex)
-        {
-            AppLogger.Instance.Warn($"Registry deletion I/O error for {keyPath}: {ex.Message}");
         }
     }
 
     private void RegisterTarget(string exePath, RegistrationTarget target, bool enableExplorerCommand)
     {
-        var keyPath = $"{BasePath}\\{target.ClassKeyPath}\\shell\\{MenuKeyName}";
+        var keyPath = GetTargetMenuKeyPath(target);
         var command = $"\"{exePath}\" {App.RegisterArgument} \"{target.ArgumentToken}\"";
         writeRegistryCommand(keyPath, MenuText, exePath, command, enableExplorerCommand);
+    }
+
+    private static string GetTargetMenuKeyPath(RegistrationTarget target)
+        => $"{BasePath}\\{target.ClassKeyPath}\\shell\\{MenuKeyName}";
+
+    private static string GetExplorerCommandClassKeyPath()
+        => $"{BasePath}\\CLSID\\{{{ExplorerCommandIds.ClassId}}}";
+
+    private static string GetExplorerCommandProgIdKeyPath()
+        => $"{BasePath}\\{ExplorerCommandIds.ProgId}";
+
+    private static bool TryLogKnownRegistryFailure(string operation, Exception ex)
+    {
+        var reason = ex switch
+        {
+            UnauthorizedAccessException => "denied",
+            SecurityException => "security error",
+            IOException => "I/O error",
+            _ => null
+        };
+
+        if (reason is null)
+        {
+            return false;
+        }
+
+        AppLogger.Instance.Warn($"{operation} {reason}: {ex.Message}");
+        return true;
     }
 
     private static string? ResolveShellExtensionComHostPath(string exePath)
@@ -272,7 +264,7 @@ internal sealed class ContextMenuRegistrar(
 
     private static void RegisterExplorerCommandServer(string shellExtensionComHostPath)
     {
-        var classKeyPath = $"{BasePath}\\CLSID\\{{{ExplorerCommandIds.ClassId}}}";
+        var classKeyPath = GetExplorerCommandClassKeyPath();
         using (var classKey = Registry.CurrentUser.CreateSubKey(classKeyPath))
         {
             if (classKey is null)
@@ -295,7 +287,7 @@ internal sealed class ContextMenuRegistrar(
             inProcServerKey.SetValue("ThreadingModel", "Both");
         }
 
-        using var progIdKey = Registry.CurrentUser.CreateSubKey($"{BasePath}\\{ExplorerCommandIds.ProgId}");
+        using var progIdKey = Registry.CurrentUser.CreateSubKey(GetExplorerCommandProgIdKeyPath());
         if (progIdKey is null)
         {
             return;

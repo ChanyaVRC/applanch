@@ -29,14 +29,24 @@ internal sealed class StartupRegistrationService
 
         if (enabled)
         {
-            runKey.SetValue(EntryName, Quote(executablePath), RegistryValueKind.String);
+            SetStartupValue(runKey, executablePath);
             return;
         }
 
-        if (runKey.GetValue(EntryName) is not null)
+        RemoveStartupValue(runKey);
+    }
+
+    private static void SetStartupValue(IStartupRunKey runKey, string executablePath)
+        => runKey.SetValue(EntryName, Quote(executablePath), RegistryValueKind.String);
+
+    private static void RemoveStartupValue(IStartupRunKey runKey)
+    {
+        if (runKey.GetValue(EntryName) is null)
         {
-            runKey.DeleteValue(EntryName, throwOnMissingValue: false);
+            return;
         }
+
+        runKey.DeleteValue(EntryName, throwOnMissingValue: false);
     }
 
     private static string Quote(string value) => $"\"{value}\"";

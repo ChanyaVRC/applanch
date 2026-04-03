@@ -25,9 +25,43 @@ public sealed partial class App : Application
     {
         base.OnStartup(e);
 
+        RegisterLifecycleEventHandlers();
+        RegisterGlobalExceptionHandlers();
+
+        AppLogger.Instance.Info("Application starting");
+        InitializeEnvironment();
+
+        _settings = AppSettings.Load();
+        ApplyLanguage(_settings.Language);
+        ApplyStartupRegistration(_settings);
+
+        if (TryHandleStartupArgument(e.Args))
+        {
+            Shutdown();
+            return;
+        }
+
+        ShowMainWindow();
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        AppLogger.Instance.Info("Application exiting");
+        Events.Unregister(AppEvents.Commit, OnSettingsCommitted);
+        Events.Unregister(AppEvents.Refresh, Refresh);
+        SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
+        AppLogger.Instance.Dispose();
+        base.OnExit(e);
+    }
+
+    private void RegisterLifecycleEventHandlers()
+    {
         Events.Register(AppEvents.Commit, OnSettingsCommitted);
         Events.Register(AppEvents.Refresh, Refresh);
+    }
 
+    private void RegisterGlobalExceptionHandlers()
+    {
         DispatcherUnhandledException += (_, args) =>
         {
             AppLogger.Instance.Error(args.Exception, "Unhandled UI exception");
@@ -45,37 +79,11 @@ public sealed partial class App : Application
             AppLogger.Instance.Error(args.Exception, "Unobserved task exception");
             args.SetObserved();
         };
-
-        AppLogger.Instance.Info("Application starting");
-        InitializeEnvironment();
-
-        _settings = AppSettings.Load();
-        ApplyLanguage(_settings.Language);
-        ApplyStartupRegistration(_settings);
-
-        if (TryHandleRegisterArgument(e.Args))
-        {
-            Shutdown();
-            return;
-        }
-
-        if (TryHandleUnregisterContextMenuArgument(e.Args))
-        {
-            Shutdown();
-            return;
-        }
-
-        ShowMainWindow();
     }
 
-    protected override void OnExit(ExitEventArgs e)
+    private bool TryHandleStartupArgument(string[] args)
     {
-        AppLogger.Instance.Info("Application exiting");
-        Events.Unregister(AppEvents.Commit, OnSettingsCommitted);
-        Events.Unregister(AppEvents.Refresh, Refresh);
-        SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
-        AppLogger.Instance.Dispose();
-        base.OnExit(e);
+        return TryHandleRegisterArgument(args) || TryHandleUnregisterContextMenuArgument(args);
     }
 
     private void OnSettingsCommitted(AppSettings settings)
