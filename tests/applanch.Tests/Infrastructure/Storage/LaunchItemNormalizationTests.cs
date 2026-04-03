@@ -61,7 +61,8 @@ public class LaunchItemNormalizationTests
     public void NormalizeCategory_KnownDefaultCategoryInAnyLocale_MapsToCurrentDefaultCategory(
         string storedCategory, string activeCulture)
     {
-        var previous = CultureInfo.CurrentUICulture;
+        var previousUiCulture = CultureInfo.CurrentUICulture;
+        var previousCulture = CultureInfo.CurrentCulture;
         try
         {
             var culture = new CultureInfo(activeCulture);
@@ -74,8 +75,8 @@ public class LaunchItemNormalizationTests
         }
         finally
         {
-            CultureInfo.CurrentUICulture = previous;
-            CultureInfo.CurrentCulture = previous;
+            CultureInfo.CurrentUICulture = previousUiCulture;
+            CultureInfo.CurrentCulture = previousCulture;
         }
     }
 
@@ -87,7 +88,8 @@ public class LaunchItemNormalizationTests
     public void NormalizeCategory_KnownDefaultCategoryWithWhitespace_MapsToCurrentDefaultCategory(
         string storedCategory, string activeCulture)
     {
-        var previous = CultureInfo.CurrentUICulture;
+        var previousUiCulture = CultureInfo.CurrentUICulture;
+        var previousCulture = CultureInfo.CurrentCulture;
         try
         {
             var culture = new CultureInfo(activeCulture);
@@ -100,8 +102,8 @@ public class LaunchItemNormalizationTests
         }
         finally
         {
-            CultureInfo.CurrentUICulture = previous;
-            CultureInfo.CurrentCulture = previous;
+            CultureInfo.CurrentUICulture = previousUiCulture;
+            CultureInfo.CurrentCulture = previousCulture;
         }
     }
 }
