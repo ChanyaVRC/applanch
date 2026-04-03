@@ -71,9 +71,6 @@ jobs:
           name: prepared-workspace
           path: .
 
-      - name: Restore
-        run: dotnet restore applanch.slnx
-
       - name: Check formatting
         run: dotnet format applanch.slnx --verify-no-changes --no-restore --verbosity minimal
 
