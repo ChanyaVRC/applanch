@@ -189,3 +189,8 @@ git push origin master
 git push origin v0.3.1
 ```
 
+## License
+
+This project is licensed under the MIT License.
+See [LICENSE](LICENSE).
+

@@ -189,3 +189,8 @@ git push origin master
 git push origin v0.3.1
 ```
 
+## ライセンス
+
+このプロジェクトは MIT License のもとで提供されます。
+[LICENSE](LICENSE) を参照してください。
+
