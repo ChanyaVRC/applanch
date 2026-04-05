@@ -2,7 +2,7 @@
 
 [English](README.md) | [日本語](README.ja.md)
 
-**[ドキュメント](https://chanyavrc.github.io/applanch/ja/)**
+**[ドキュメント](https://docs.applanch.com/ja/)**
 
 Windows でアプリ、ファイル、フォルダをすばやく起動するための軽量ランチャーです。
 

@@ -2,7 +2,7 @@
 
 [English](README.md) | [日本語](README.ja.md)
 
-**[Documentation](https://chanyavrc.github.io/applanch/)**
+**[Documentation](https://docs.applanch.com/)**
 
 A lightweight Windows launcher for quickly starting apps, files, and folders.
 
