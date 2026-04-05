@@ -31,14 +31,14 @@
 
 例:
 
-| アイテム | 引数 | 効果 |
-|------|------|------|
-| Chrome | `--incognito` | シクレットモードで起動 |
-| メモ帳 | `C:\logs\app.log` | 特定のファイルを開く |
-| PowerShell | `-NoProfile -Command "Get-Date"` | コマンドを直接実行 |
-| カスタムツール | `--env production --verbose` | ツールのフラグを指定 |
+| アイテム | 実行ファイル名 (.exe) | 引数 | 効果 |
+|------|------------------------|------|------|
+| Chrome | `chrome.exe` | `--incognito` | シークレットモードで起動 |
+| メモ帳 | `notepad.exe` | `C:\logs\app.log` | 特定のファイルを開く |
+| PowerShell | `powershell.exe` | `-NoProfile -Command "Get-Date"` | コマンドを直接実行 |
+| カスタムツール | `custom-tool.exe` | `--env production --verbose` | ツールのフラグを指定 |
 
-引数はアイテム起動時にパスの後据にそのまま附加されます。
+引数はアイテム起動時にパスの後ろへそのまま付加されます。
 
 ## カテゴリー
 

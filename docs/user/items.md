@@ -31,12 +31,12 @@ Use **Edit Arguments** to pass command-line arguments to an item when it launche
 
 Examples:
 
-| Item | Arguments | Effect |
-|------|-----------|--------|
-| Chrome | `--incognito` | Opens in incognito mode |
-| Notepad | `C:\logs\app.log` | Opens a specific file |
-| PowerShell | `-NoProfile -Command "Get-Date"` | Runs a command directly |
-| Custom tool | `--env production --verbose` | Sets flags for the tool |
+| Item | Executable (.exe) | Arguments | Effect |
+|------|--------------------|-----------|--------|
+| Chrome | `chrome.exe` | `--incognito` | Opens in incognito mode |
+| Notepad | `notepad.exe` | `C:\logs\app.log` | Opens a specific file |
+| PowerShell | `powershell.exe` | `-NoProfile -Command "Get-Date"` | Runs a command directly |
+| Custom tool | `custom-tool.exe` | `--env production --verbose` | Sets flags for the tool |
 
 Arguments are appended after the path when the item is launched, exactly as entered.
 
