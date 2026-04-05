@@ -69,13 +69,17 @@ function Draw-BadgedRocketMark {
         [single]$Y,
 
         [Parameter(Mandatory = $true)]
-        [single]$Size
+        [single]$Size,
+
+        [bool]$DrawRing = $true
     )
 
     $scale = $Size / 256.0
     $shadowBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(60, 15, 34, 64))
     $badgeBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(39, 72, 122))
-    $ringPen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(140, 255, 255, 255), [single][Math]::Max(1.0, 2.0 * $scale))
+    $ringPen = if ($DrawRing) {
+        New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(140, 255, 255, 255), [single][Math]::Max(1.0, 2.0 * $scale))
+    }
     $rocketBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(255, 255, 255, 240))
 
     try {
@@ -89,13 +93,15 @@ function Draw-BadgedRocketMark {
         $Graphics.FillEllipse($badgeBrush, $badgeX, $badgeY, $badgeSize, $badgeSize)
 
         $ringInset = 2.0 * $scale
-        $Graphics.DrawEllipse(
-            $ringPen,
-            $badgeX + $ringInset,
-            $badgeY + $ringInset,
-            $badgeSize - (2.0 * $ringInset),
-            $badgeSize - (2.0 * $ringInset)
-        )
+        if ($DrawRing) {
+            $Graphics.DrawEllipse(
+                $ringPen,
+                $badgeX + $ringInset,
+                $badgeY + $ringInset,
+                $badgeSize - (2.0 * $ringInset),
+                $badgeSize - (2.0 * $ringInset)
+            )
+        }
 
         $tx = $X + (23.0 * $scale)
         $ty = $Y + (51.0 * $scale)
@@ -116,7 +122,9 @@ function Draw-BadgedRocketMark {
     }
     finally {
         $rocketBrush.Dispose()
-        $ringPen.Dispose()
+        if ($null -ne $ringPen) {
+            $ringPen.Dispose()
+        }
         $badgeBrush.Dispose()
         $shadowBrush.Dispose()
     }
@@ -203,7 +211,7 @@ function New-LightWizardSmallBitmapFromIcon {
         $badgeX = [int](($Width - $badgeDiameter) / 2)
         $badgeY = [int](($Height - $badgeDiameter) / 2) + 1
 
-        Draw-BadgedRocketMark -Graphics $graphics -X ([single]$badgeX) -Y ([single]$badgeY) -Size ([single]$badgeDiameter)
+        Draw-BadgedRocketMark -Graphics $graphics -X ([single]$badgeX) -Y ([single]$badgeY) -Size ([single]$badgeDiameter) -DrawRing:$false
     }
     finally {
         $backgroundBrush.Dispose()
@@ -237,6 +245,8 @@ ArchitecturesAllowed=__ARCH_ALLOWED__
 ArchitecturesInstallIn64BitMode=__ARCH_INSTALL64__
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
+ShowLanguageDialog=auto
+LanguageDetectionMethod=uilanguage
 WizardStyle=modern
 SetupIconFile=__SETUP_ICON_FILE__
 WizardImageFile=__WIZARD_IMAGE_FILE__
@@ -247,8 +257,20 @@ VersionInfoProductName=applanch Installer
 VersionInfoVersion=__APP_VERSION__
 UninstallDisplayIcon={app}\applanch.exe
 
+[Languages]
+Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
+
+[CustomMessages]
+english.CreateDesktopShortcut=Create a desktop shortcut
+english.AdditionalIcons=Additional icons:
+english.LaunchApp=Launch applanch
+japanese.CreateDesktopShortcut=デスクトップ ショートカットを作成する
+japanese.AdditionalIcons=追加アイコン:
+japanese.LaunchApp=applanch を起動する
+
 [Tasks]
-Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional icons:"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopShortcut}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
 Source: "__PUBLISH_DIR__\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
@@ -258,7 +280,7 @@ Name: "{autoprograms}\applanch"; Filename: "{app}\applanch.exe"
 Name: "{autodesktop}\applanch"; Filename: "{app}\applanch.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\applanch.exe"; Description: "Launch applanch"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\applanch.exe"; Description: "{cm:LaunchApp}"; Flags: nowait postinstall skipifsilent
 '@
 
 $installerScript = $scriptTemplate
