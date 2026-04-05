@@ -10,6 +10,7 @@ theme:
   language: en
   favicon: assets/images/applanch-badged.ico
   features:
+    - navigation.indexes
     - navigation.sections
     - navigation.top
     - search.highlight
@@ -35,6 +36,7 @@ plugins:
             Items & Categories: アイテムとカテゴリー
             Settings Reference: 設定リファレンス
             Themes: テーマ
+            Theme JSON Format: テーマ JSON 形式
             Launch Fallbacks: 起動フォールバック
             Windows Integration: Windows 統合
             Updates: 自動更新
@@ -72,7 +74,9 @@ nav:
     - Getting Started: user/getting-started.md
     - Items & Categories: user/items.md
     - Settings Reference: user/settings.md
-    - Themes: user/themes.md
+    - Themes:
+      - user/themes.md
+      - Theme JSON Format: user/theme-format.md
     - Launch Fallbacks: user/launch-fallbacks.md
     - Windows Integration: user/windows-integration.md
     - Updates: user/updates.md

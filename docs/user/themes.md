@@ -17,6 +17,8 @@ Switch themes in [Settings](settings.md) under **Appearance → Theme**.
 Built-in themes are loaded from `Config/theme-palette.json`.
 Add your own themes under `Config/UserDefined/theme-palette/*.json`.
 
+For the full JSON field reference, see [Theme JSON Format](theme-format.md).
+
 ### Adding a Custom Theme
 
 1. Create a JSON file under `Config/UserDefined/theme-palette/` (for example `my-theme.json`).
@@ -43,33 +45,27 @@ Add your own themes under `Config/UserDefined/theme-palette/*.json`.
 
 The file is merged with built-in themes, so you only need to define what you want to add or override.
 
-### Available Brush Keys
-
-| Key | Purpose |
-|-----|---------|
-| `Brush.AppBackground` | Main window background |
-| `Brush.Surface` | Cards, panels, dialog backgrounds |
-| `Brush.SurfaceBorder` | Borders of surface elements |
-| `Brush.TextPrimary` | Primary text color |
-| `Brush.TextSecondary` | Secondary / muted text |
-| `Brush.TextTertiary` | Disabled text, scrollbar thumbs |
-| `Brush.ItemBackground` | Individual item row background |
-| `Brush.ItemBorder` | Individual item row border |
-| `Brush.IconBackground` | Icon placeholder background |
-| `Brush.NotificationInfoBackground` | Info notification background |
-| `Brush.NotificationInfoBorder` | Info notification border |
-| `Brush.NotificationWarningBackground` | Warning notification background |
-| `Brush.NotificationWarningBorder` | Warning notification border |
-| `Brush.NotificationErrorBackground` | Error notification background |
-| `Brush.NotificationErrorBorder` | Error notification border |
-| `Brush.NotificationProgressTrack` | Progress bar track |
-| `Brush.NotificationProgressValue` | Progress bar fill |
-| `Brush.QuickAddInfoText` | Quick-add informational message text |
-| `Brush.QuickAddWarningText` | Quick-add warning message text |
-
 ### Referencing Another Theme
 
 Instead of specifying `entries` directly, set `entriesFrom` to inherit all brush values from an existing theme:
+
+- Use a string value when one theme should always inherit from the same source theme.
+- Use an object with `light` and `dark` when the source theme should change with the Windows light/dark mode.
+- The referenced theme ID can be either a built-in theme such as `light` / `dark`, or a custom theme ID that you defined in another JSON file.
+
+This is useful when you want to add an alias theme or reuse an existing palette without repeating the full `entries` list.
+
+Always inherit from a single theme:
+
+```json
+{
+  "id": "my-light-copy",
+  "displayNames": { "en": "My Light Copy" },
+  "entriesFrom": "light"
+}
+```
+
+Switch the inherited theme based on the Windows color mode:
 
 ```json
 {
@@ -82,5 +78,5 @@ Instead of specifying `entries` directly, set `entriesFrom` to inherit all brush
 }
 ```
 
-When the Windows setting is light, the `light` theme id is used; when dark, the `dark` id is used.
+When the Windows setting is light, the `light` source theme ID is used; when dark, the `dark` source theme ID is used.
 This is how the built-in **Follow system** theme works.
