@@ -50,7 +50,6 @@ if ([string]::IsNullOrWhiteSpace($iscc)) {
 $assetsDirectory = Join-Path (Join-Path $PSScriptRoot '..') 'src\applanch\Assets'
 $setupIconPath = Join-Path $assetsDirectory 'applanch.ico'
 $largeLogoPath = Join-Path $assetsDirectory 'applanch150.png'
-$smallLogoPath = Join-Path $assetsDirectory 'applanch44.png'
 
 if (-not (Test-Path -Path $setupIconPath -PathType Leaf)) {
     Write-Error "Installer icon not found: '$setupIconPath'"
@@ -59,11 +58,6 @@ if (-not (Test-Path -Path $setupIconPath -PathType Leaf)) {
 
 if (-not (Test-Path -Path $largeLogoPath -PathType Leaf)) {
     Write-Error "Installer large logo image not found: '$largeLogoPath'"
-    exit 1
-}
-
-if (-not (Test-Path -Path $smallLogoPath -PathType Leaf)) {
-    Write-Error "Installer small logo image not found: '$smallLogoPath'"
     exit 1
 }
 
@@ -122,11 +116,50 @@ function New-BrandedWizardBitmap {
         $bitmap.Dispose()
     }
 }
+function New-DarkWizardSmallBitmapFromIcon {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$OutputPath,
 
+        [Parameter(Mandatory = $true)]
+        [int]$Width,
+
+        [Parameter(Mandatory = $true)]
+        [int]$Height,
+
+        [Parameter(Mandatory = $true)]
+        [string]$IconPath
+    )
+
+    $bitmap = New-Object System.Drawing.Bitmap $Width, $Height
+    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+    $icon = New-Object System.Drawing.Icon $IconPath
+    $iconBitmap = $icon.ToBitmap()
+    $backgroundBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(26, 36, 56))
+    try {
+        $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::HighQuality
+        $graphics.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+        $graphics.Clear([System.Drawing.Color]::FromArgb(26, 36, 56))
+        $graphics.FillRectangle($backgroundBrush, 0, 0, $Width, $Height)
+
+        $iconSize = [math]::Min(32, [math]::Min($Width - 8, $Height - 8))
+        $iconX = [int](($Width - $iconSize) / 2)
+        $iconY = [int](($Height - $iconSize) / 2)
+        $graphics.DrawImage($iconBitmap, $iconX, $iconY, $iconSize, $iconSize)
+    }
+    finally {
+        $backgroundBrush.Dispose()
+        $iconBitmap.Dispose()
+        $icon.Dispose()
+        $graphics.Dispose()
+        $bitmap.Save($OutputPath, [System.Drawing.Imaging.ImageFormat]::Bmp)
+        $bitmap.Dispose()
+    }
+}
 $wizardImagePath = Join-Path ([System.IO.Path]::GetTempPath()) ("applanch-wizard-large-" + [Guid]::NewGuid().ToString('N') + '.bmp')
 $wizardSmallImagePath = Join-Path ([System.IO.Path]::GetTempPath()) ("applanch-wizard-small-" + [Guid]::NewGuid().ToString('N') + '.bmp')
 New-BrandedWizardBitmap -OutputPath $wizardImagePath -Width 164 -Height 314 -LogoPath $largeLogoPath -IsLargeImage $true
-New-BrandedWizardBitmap -OutputPath $wizardSmallImagePath -Width 55 -Height 55 -LogoPath $smallLogoPath -IsLargeImage $false
+New-DarkWizardSmallBitmapFromIcon -OutputPath $wizardSmallImagePath -Width 55 -Height 55 -IconPath $setupIconPath
 
 $scriptTemplate = @'
 [Setup]
