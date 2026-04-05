@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using applanch.Events;
 using applanch.Infrastructure.Dialogs;
+using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
 using applanch.Infrastructure.Utilities;
@@ -17,6 +18,7 @@ public sealed partial class SettingsWindow : Window
 
     private readonly AppEvent _appEvent;
     private readonly IUserInteractionService _interactionService;
+    private readonly ContextMenuRegistrar _contextMenuRegistrar = new();
     private SettingsWindowViewModel ViewModel { get; }
 
     internal SettingsWindow(Window owner, AppSettings settings, IUserInteractionService interactionService)
@@ -67,6 +69,26 @@ public sealed partial class SettingsWindow : Window
             CreateReportBugStartInfo(),
             ReportBugIssueBaseUri.AbsoluteUri,
             LocalizedStrings.Instance[nameof(AppResources.Error_OpenBugReport)]);
+
+    private void RemoveContextMenuRegistration_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            _contextMenuRegistrar.Unregister();
+            _interactionService.Show(
+                LocalizedStrings.Instance[nameof(AppResources.Notification_ContextMenuEntriesRemoved)],
+                LocalizedStrings.Instance[nameof(AppResources.Window_Settings)],
+                MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Instance.Warn($"Failed to remove context menu entries: {ex.Message}");
+            _interactionService.Show(
+                LocalizedStrings.Instance[nameof(AppResources.Error_RemoveContextMenuEntries)],
+                LocalizedStrings.Instance[nameof(AppResources.Window_Settings)],
+                MessageBoxImage.Warning);
+        }
+    }
 
     private void TryStartProcess(ProcessStartInfo startInfo, string target, string errorMessage)
     {

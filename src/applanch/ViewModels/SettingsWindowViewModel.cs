@@ -23,6 +23,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     private bool _debugUpdate;
     private bool _startMinimizedOnLaunch;
     private bool _launchAtWindowsStartup;
+    private bool _registerContextMenuOnStartup;
     private bool _fetchHttpIcons;
     private bool _allowPrivateNetworkHttpIconRequests;
     private bool _confirmBeforeLaunch;
@@ -133,6 +134,12 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     {
         get => _launchAtWindowsStartup;
         set => SetFieldAndCommit(ref _launchAtWindowsStartup, value);
+    }
+
+    public bool RegisterContextMenuOnStartup
+    {
+        get => _registerContextMenuOnStartup;
+        set => SetFieldAndCommit(ref _registerContextMenuOnStartup, value);
     }
 
     public bool FetchHttpIcons
@@ -259,6 +266,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         _debugUpdate = settings.DebugUpdate;
         _startMinimizedOnLaunch = settings.StartMinimizedOnLaunch;
         _launchAtWindowsStartup = settings.LaunchAtWindowsStartup;
+        _registerContextMenuOnStartup = settings.RegisterContextMenuOnStartup;
         _fetchHttpIcons = settings.FetchHttpIcons;
         _allowPrivateNetworkHttpIconRequests = settings.AllowPrivateNetworkHttpIconRequests;
         _confirmBeforeLaunch = settings.ConfirmBeforeLaunch;
@@ -296,6 +304,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             DebugUpdate = _debugUpdate,
             StartMinimizedOnLaunch = _startMinimizedOnLaunch,
             LaunchAtWindowsStartup = _launchAtWindowsStartup,
+            RegisterContextMenuOnStartup = _registerContextMenuOnStartup,
             FetchHttpIcons = _fetchHttpIcons,
             AllowPrivateNetworkHttpIconRequests = _allowPrivateNetworkHttpIconRequests,
             ConfirmBeforeLaunch = _confirmBeforeLaunch,

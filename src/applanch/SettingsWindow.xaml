@@ -205,6 +205,17 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+            <Style x:Key="SettingsComboBoxStyle"
+                   TargetType="ComboBox"
+                   BasedOn="{StaticResource RoundedComboBoxStyle}">
+                <Setter Property="MinHeight"
+                    Value="30"/>
+                <Setter Property="Padding"
+                    Value="10,3"/>
+                <Setter Property="FontSize"
+                    Value="13"/>
+            </Style>
     </Window.Resources>
 
     <DockPanel>
@@ -272,7 +283,7 @@
                               Grid.Column="1"
                               Width="200"
                               Margin="12,0,0,0"
-                              Style="{StaticResource RoundedComboBoxStyle}"
+                              Style="{StaticResource SettingsComboBoxStyle}"
                               IsEditable="False"
                               Text="{Binding SelectedThemeDisplayName, Mode=OneWay}"
                               ItemsSource="{Binding ThemeOptions}"
@@ -296,9 +307,9 @@
 
                     <ComboBox Grid.Row="2"
                               Grid.Column="1"
-                              Width="200"
+                                                            Width="200"
                               Margin="12,0,0,0"
-                              Style="{StaticResource RoundedComboBoxStyle}"
+                                                            Style="{StaticResource SettingsComboBoxStyle}"
                             SelectedValuePath="Tag"
                             SelectedValue="{Binding SelectedLanguage}">
                         <ComboBoxItem Tag="{x:Static storage:LanguageOption.System}"
@@ -323,31 +334,85 @@
                     BorderThickness="1"
                     CornerRadius="8">
                 <StackPanel>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[SettingGroup_StartupAndIntegration]}"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.TextSecondary}"/>
+
+                    <StackPanel Margin="12,0,0,0">
+
                     <CheckBox Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_StartMinimizedOnLaunch]}"
                               IsChecked="{Binding StartMinimizedOnLaunch}"
+                              Margin="0,10,0,0"
                               Style="{StaticResource SettingsCheckBoxStyle}"/>
                     <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_StartMinimizedOnLaunchDesc]}"
-                               Margin="0,6,0,0"
+                               Margin="0,4,0,0"
                                FontSize="11"
                                Foreground="{DynamicResource Brush.TextTertiary}"
                                TextWrapping="Wrap"/>
 
                     <CheckBox Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_LaunchAtWindowsStartup]}"
                               IsChecked="{Binding LaunchAtWindowsStartup}"
-                              Margin="0,14,0,0"
+                              Margin="0,10,0,0"
                               Style="{StaticResource SettingsCheckBoxStyle}"/>
                     <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_LaunchAtWindowsStartupDesc]}"
-                               Margin="0,6,0,0"
+                               Margin="0,4,0,0"
                                FontSize="11"
                                Foreground="{DynamicResource Brush.TextTertiary}"
                                TextWrapping="Wrap"/>
 
+                    <CheckBox Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_RegisterContextMenuOnStartup]}"
+                              IsChecked="{Binding RegisterContextMenuOnStartup}"
+                              Margin="0,10,0,0"
+                              Style="{StaticResource SettingsCheckBoxStyle}"/>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_RegisterContextMenuOnStartupDesc]}"
+                               Margin="0,4,0,0"
+                               FontSize="11"
+                               Foreground="{DynamicResource Brush.TextTertiary}"
+                               TextWrapping="Wrap"/>
+
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_RemoveContextMenuRegistration]}"
+                                   FontSize="13"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource Brush.TextPrimary}"/>
+                        <Button Grid.Column="1"
+                                Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_Delete]}"
+                                Margin="12,0,0,0"
+                                HorizontalAlignment="Right"
+                                Style="{StaticResource RoundedButtonStyle}"
+                                Click="RemoveContextMenuRegistration_Click"/>
+                    </Grid>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_RemoveContextMenuRegistrationDesc]}"
+                               Margin="0,4,0,0"
+                               FontSize="11"
+                               Foreground="{DynamicResource Brush.TextTertiary}"
+                               TextWrapping="Wrap"/>
+
+                    </StackPanel>
+
+                        <Border Height="1"
+                            Margin="0,14,0,12"
+                            Background="{DynamicResource Brush.ItemBorder}"/>
+
+                        <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[SettingGroup_IconsAndNetwork]}"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.TextSecondary}"/>
+
+                    <StackPanel Margin="12,0,0,0">
+
                     <CheckBox Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_FetchHttpIcons]}"
                               IsChecked="{Binding FetchHttpIcons}"
-                              Margin="0,14,0,0"
+                              Margin="0,10,0,0"
                               Style="{StaticResource SettingsCheckBoxStyle}"/>
                     <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_FetchHttpIconsDesc]}"
-                               Margin="0,6,0,0"
+                               Margin="0,4,0,0"
                                FontSize="11"
                                Foreground="{DynamicResource Brush.TextTertiary}"
                                TextWrapping="Wrap"/>
@@ -358,12 +423,25 @@
                               Margin="0,10,0,0"
                               Style="{StaticResource SettingsCheckBoxStyle}"/>
                     <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_AllowPrivateNetworkHttpIconRequestsDesc]}"
-                               Margin="0,6,0,0"
+                               Margin="0,4,0,0"
                                FontSize="11"
                                Foreground="{DynamicResource Brush.TextTertiary}"
                                TextWrapping="Wrap"/>
 
-                    <Grid Margin="0,14,0,0">
+                    </StackPanel>
+
+                        <Border Height="1"
+                            Margin="0,14,0,12"
+                            Background="{DynamicResource Brush.ItemBorder}"/>
+
+                        <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[SettingGroup_LaunchActions]}"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.TextSecondary}"/>
+
+                    <StackPanel Margin="12,0,0,0">
+
+                    <Grid Margin="0,10,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -377,7 +455,7 @@
                                   Width="200"
                                   Margin="12,0,0,0"
                                   HorizontalAlignment="Left"
-                                  Style="{StaticResource RoundedComboBoxStyle}"
+                                  Style="{StaticResource SettingsComboBoxStyle}"
                                   SelectedValuePath="Tag"
                                   SelectedValue="{Binding SelectedPostLaunchBehavior}">
                             <ComboBoxItem Tag="{x:Static storage:PostLaunchBehavior.CloseApp}"
@@ -391,14 +469,32 @@
 
                     <CheckBox Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_ConfirmBeforeLaunch]}"
                               IsChecked="{Binding ConfirmBeforeLaunch}"
-                              Margin="0,14,0,0"
+                              Margin="0,10,0,0"
                               Style="{StaticResource SettingsCheckBoxStyle}"/>
                     <CheckBox Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_ConfirmBeforeDelete]}"
                               IsChecked="{Binding ConfirmBeforeDelete}"
                               Margin="0,10,0,0"
                               Style="{StaticResource SettingsCheckBoxStyle}"/>
 
-                    <Grid Margin="0,14,0,0">
+                        <CheckBox Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_RunAsAdministrator]}"
+                              IsChecked="{Binding RunAsAdministrator}"
+                            Margin="0,10,0,0"
+                              Style="{StaticResource SettingsCheckBoxStyle}"/>
+
+                    </StackPanel>
+
+                        <Border Height="1"
+                            Margin="0,14,0,12"
+                            Background="{DynamicResource Brush.ItemBorder}"/>
+
+                        <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[SettingGroup_ListsAndSorting]}"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.TextSecondary}"/>
+
+                    <StackPanel Margin="12,0,0,0">
+
+                    <Grid Margin="0,10,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -412,17 +508,17 @@
                                   Width="200"
                                   Margin="12,0,0,0"
                                   HorizontalAlignment="Left"
-                                  Style="{StaticResource RoundedComboBoxStyle}"
+                                  Style="{StaticResource SettingsComboBoxStyle}"
                                   ItemsSource="{Binding QuickAddSuggestionLimitOptions}"
                                   SelectedItem="{Binding QuickAddSuggestionLimit}"/>
                     </Grid>
                     <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_QuickAddSuggestionLimitDesc]}"
-                               Margin="0,6,0,0"
+                               Margin="0,4,0,0"
                                FontSize="11"
                                Foreground="{DynamicResource Brush.TextTertiary}"
                                TextWrapping="Wrap"/>
 
-                    <Grid Margin="0,14,0,0">
+                    <Grid Margin="0,10,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -436,7 +532,7 @@
                                   Width="200"
                                   Margin="12,0,0,0"
                                   HorizontalAlignment="Left"
-                                  Style="{StaticResource RoundedComboBoxStyle}"
+                                  Style="{StaticResource SettingsComboBoxStyle}"
                                   SelectedValuePath="Tag"
                                   SelectedValue="{Binding SelectedCategorySortMode}">
                             <ComboBoxItem Tag="{x:Static storage:CategorySortMode.Alphabetical}"
@@ -446,7 +542,7 @@
                         </ComboBox>
                     </Grid>
 
-                    <Grid Margin="0,14,0,0">
+                    <Grid Margin="0,10,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -460,7 +556,7 @@
                                   Width="200"
                                   Margin="12,0,0,0"
                                   HorizontalAlignment="Left"
-                                  Style="{StaticResource RoundedComboBoxStyle}"
+                                  Style="{StaticResource SettingsComboBoxStyle}"
                                   SelectedValuePath="Tag"
                                   SelectedValue="{Binding SelectedAppListSortMode}">
                             <ComboBoxItem Tag="{x:Static storage:AppListSortMode.Manual}"
@@ -472,22 +568,30 @@
                         </ComboBox>
                     </Grid>
 
-                    <CheckBox Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_RunAsAdministrator]}"
-                              IsChecked="{Binding RunAsAdministrator}"
-                              Margin="0,14,0,0"
-                              Style="{StaticResource SettingsCheckBoxStyle}"/>
+                    </StackPanel>
+
+                            <Border Height="1"
+                                Margin="0,14,0,12"
+                                Background="{DynamicResource Brush.ItemBorder}"/>
+
+                            <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[SettingGroup_Updates]}"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Brush.TextSecondary}"/>
+
+                    <StackPanel Margin="12,0,0,0">
 
                     <CheckBox Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_CheckForUpdates]}"
                               IsChecked="{Binding CheckForUpdatesOnStartup}"
-                              Margin="0,14,0,0"
+                                  Margin="0,10,0,0"
                               Style="{StaticResource SettingsCheckBoxStyle}"/>
                     <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_CheckForUpdatesDesc]}"
-                               Margin="0,6,0,0"
+                               Margin="0,4,0,0"
                                FontSize="11"
                                Foreground="{DynamicResource Brush.TextTertiary}"
                                TextWrapping="Wrap"/>
 
-                    <Grid Margin="0,14,0,0">
+                    <Grid Margin="0,10,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -501,7 +605,7 @@
                                   Width="200"
                                   Margin="12,0,0,0"
                                   HorizontalAlignment="Left"
-                                  Style="{StaticResource RoundedComboBoxStyle}"
+                                  Style="{StaticResource SettingsComboBoxStyle}"
                                   SelectedValuePath="Tag"
                                   SelectedValue="{Binding SelectedUpdateInstallBehavior}">
                             <ComboBoxItem Tag="{x:Static storage:UpdateInstallBehavior.NotifyOnly}"
@@ -512,6 +616,8 @@
                                           Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[UpdateInstallBehavior_Auto]}"/>
                         </ComboBox>
                     </Grid>
+
+                    </StackPanel>
                 </StackPanel>
             </Border>
 

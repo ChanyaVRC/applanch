@@ -45,6 +45,7 @@ public class SettingsWindowViewModelTests
             CheckForUpdatesOnStartup = false,
             UpdateInstallBehavior = UpdateInstallBehavior.NotifyOnly,
             DebugUpdate = true,
+            RegisterContextMenuOnStartup = false,
             FetchHttpIcons = false,
             AllowPrivateNetworkHttpIconRequests = true,
             Language = LanguageOption.Japanese,
@@ -59,6 +60,7 @@ public class SettingsWindowViewModelTests
         Assert.False(vm.CheckForUpdatesOnStartup);
         Assert.Equal(UpdateInstallBehavior.NotifyOnly, vm.SelectedUpdateInstallBehavior);
         Assert.True(vm.DebugUpdate);
+        Assert.False(vm.RegisterContextMenuOnStartup);
         Assert.False(vm.FetchHttpIcons);
         Assert.True(vm.AllowPrivateNetworkHttpIconRequests);
         Assert.Equal(LanguageOption.Japanese, vm.SelectedLanguage);
@@ -239,6 +241,17 @@ public class SettingsWindowViewModelTests
     }
 
     [Fact]
+    public void RegisterContextMenuOnStartup_Change_UpdatesSavedSettings()
+    {
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
+
+        vm.RegisterContextMenuOnStartup = false;
+
+        Assert.False(committed!.RegisterContextMenuOnStartup);
+    }
+
+    [Fact]
     public void ConfirmBeforeDelete_Change_UpdatesSavedSettings()
     {
         AppSettings? committed = null;
@@ -298,6 +311,7 @@ public class SettingsWindowViewModelTests
             DebugUpdate = true,
             StartMinimizedOnLaunch = true,
             LaunchAtWindowsStartup = true,
+            RegisterContextMenuOnStartup = false,
             FetchHttpIcons = false,
             AllowPrivateNetworkHttpIconRequests = true,
             ConfirmBeforeLaunch = true,
@@ -319,6 +333,7 @@ public class SettingsWindowViewModelTests
         Assert.Equal(defaults.DebugUpdate, vm.DebugUpdate);
         Assert.Equal(defaults.StartMinimizedOnLaunch, vm.StartMinimizedOnLaunch);
         Assert.Equal(defaults.LaunchAtWindowsStartup, vm.LaunchAtWindowsStartup);
+        Assert.Equal(defaults.RegisterContextMenuOnStartup, vm.RegisterContextMenuOnStartup);
         Assert.Equal(defaults.FetchHttpIcons, vm.FetchHttpIcons);
         Assert.Equal(defaults.AllowPrivateNetworkHttpIconRequests, vm.AllowPrivateNetworkHttpIconRequests);
         Assert.Equal(defaults.ConfirmBeforeLaunch, vm.ConfirmBeforeLaunch);
@@ -356,6 +371,7 @@ public class SettingsWindowViewModelTests
             ThemeId = ThemePaletteConfigurationLoader.DarkThemeId,
             PostLaunchBehavior = PostLaunchBehavior.MinimizeWindow,
             CheckForUpdatesOnStartup = false,
+            RegisterContextMenuOnStartup = false,
             FetchHttpIcons = false,
             AllowPrivateNetworkHttpIconRequests = true,
             Language = LanguageOption.Japanese,
@@ -366,6 +382,7 @@ public class SettingsWindowViewModelTests
         Assert.Equal(2, vm.ThemeIndex);
         Assert.Equal(PostLaunchBehavior.MinimizeWindow, vm.SelectedPostLaunchBehavior);
         Assert.False(vm.CheckForUpdatesOnStartup);
+        Assert.False(vm.RegisterContextMenuOnStartup);
         Assert.False(vm.FetchHttpIcons);
         Assert.True(vm.AllowPrivateNetworkHttpIconRequests);
         Assert.Equal(LanguageOption.Japanese, vm.SelectedLanguage);

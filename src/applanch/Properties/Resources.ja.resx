@@ -158,6 +158,21 @@
   <data name="Section_Behavior" xml:space="preserve">
     <value>動作</value>
   </data>
+  <data name="SettingGroup_StartupAndIntegration" xml:space="preserve">
+    <value>起動と統合</value>
+  </data>
+  <data name="SettingGroup_IconsAndNetwork" xml:space="preserve">
+    <value>アイコンとネットワーク</value>
+  </data>
+  <data name="SettingGroup_LaunchActions" xml:space="preserve">
+    <value>起動アクション</value>
+  </data>
+  <data name="SettingGroup_ListsAndSorting" xml:space="preserve">
+    <value>一覧と並び順</value>
+  </data>
+  <data name="SettingGroup_Updates" xml:space="preserve">
+    <value>アップデート</value>
+  </data>
   <data name="Setting_StartMinimizedOnLaunch" xml:space="preserve">
     <value>起動時に最小化する</value>
   </data>
@@ -169,6 +184,24 @@
   </data>
   <data name="Setting_LaunchAtWindowsStartupDesc" xml:space="preserve">
     <value>サインイン後に Applanch を自動起動します。</value>
+  </data>
+  <data name="Setting_RegisterContextMenuOnStartup" xml:space="preserve">
+    <value>起動時にエクスプローラーのコンテキストメニューへ追加する</value>
+  </data>
+  <data name="Setting_RegisterContextMenuOnStartupDesc" xml:space="preserve">
+    <value>有効時、起動時に「Applanch に登録」をエクスプローラーのコンテキストメニューへ追加します。</value>
+  </data>
+  <data name="Setting_RemoveContextMenuRegistrationDesc" xml:space="preserve">
+    <value>クリックすると、既存の Applanch コンテキストメニュー項目をすぐに削除します。</value>
+  </data>
+  <data name="Setting_RemoveContextMenuRegistration" xml:space="preserve">
+    <value>Applanch のコンテキストメニュー項目を削除する</value>
+  </data>
+  <data name="Notification_ContextMenuEntriesRemoved" xml:space="preserve">
+    <value>Applanch のコンテキストメニュー項目を削除しました。</value>
+  </data>
+  <data name="Error_RemoveContextMenuEntries" xml:space="preserve">
+    <value>Applanch のコンテキストメニュー項目を削除できませんでした。</value>
   </data>
   <data name="Setting_FetchHttpIcons" xml:space="preserve">
     <value>http/https 項目のサイトアイコンを取得する</value>

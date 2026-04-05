@@ -18,6 +18,7 @@ internal sealed record AppSettings
     public UpdateInstallBehavior UpdateInstallBehavior { get; init; } = UpdateInstallBehavior.Manual;
     public bool StartMinimizedOnLaunch { get; init; } = false;
     public bool LaunchAtWindowsStartup { get; init; } = false;
+    public bool RegisterContextMenuOnStartup { get; init; } = true;
     public bool FetchHttpIcons { get; init; } = true;
     public bool AllowPrivateNetworkHttpIconRequests { get; init; } = false;
     public bool ConfirmBeforeLaunch { get; init; } = false;

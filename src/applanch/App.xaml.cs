@@ -34,9 +34,8 @@ public sealed partial class App : Application
         RegisterGlobalExceptionHandlers();
 
         AppLogger.Instance.Info("Application starting");
-        InitializeEnvironment();
-
         _settings = AppSettings.Load();
+        InitializeEnvironment();
         ApplyLanguage(_settings.Language);
         ApplyStartupRegistration(_settings);
 
@@ -45,6 +44,8 @@ public sealed partial class App : Application
             Shutdown();
             return;
         }
+
+        ApplyContextMenuRegistration(_settings);
 
         ShowMainWindow();
     }
@@ -103,7 +104,6 @@ public sealed partial class App : Application
         SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
 
         LauncherStore.EnsureStorageDirectory();
-        _contextMenuRegistrar.EnsureRegistered();
         if (!_sparsePackageRegistrar.IsAlreadyRegistered())
         {
             _ = _sparsePackageRegistrar.TryEnsureRegisteredAsync();
@@ -115,8 +115,24 @@ public sealed partial class App : Application
         _settings = settings;
         ApplyLanguage(settings.Language);
         ApplyStartupRegistration(settings);
+        ApplyContextMenuRegistration(settings);
         LocalizedStrings.Instance.NotifyLanguageChanged();
         _themeApplier.ApplyTheme(Resources, Windows.Cast<Window>());
+    }
+
+    private void ApplyContextMenuRegistration(AppSettings settings)
+    {
+        try
+        {
+            if (settings.RegisterContextMenuOnStartup)
+            {
+                _contextMenuRegistrar.EnsureRegistered();
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Instance.Error(ex, "Failed to apply context menu registration settings");
+        }
     }
 
     private void ShowMainWindow()

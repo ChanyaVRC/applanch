@@ -64,6 +64,14 @@ public class AppSettingsTests
     }
 
     [Fact]
+    public void Defaults_RegisterContextMenuOnStartup()
+    {
+        var settings = new AppSettings();
+
+        Assert.True(settings.RegisterContextMenuOnStartup);
+    }
+
+    [Fact]
     public void Defaults_UseFiftyQuickAddSuggestions()
     {
         var settings = new AppSettings();
@@ -90,4 +98,5 @@ public class AppSettingsTests
 
         Assert.Equal(200, normalized.QuickAddSuggestionLimit);
     }
+
 }

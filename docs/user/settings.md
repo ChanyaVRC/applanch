@@ -84,6 +84,14 @@ When enabled, the main window starts minimized instead of visible.
 
 When enabled, applanch is registered to start automatically with Windows.
 
+### Add to Explorer Context Menu On Startup
+
+When enabled (default), applanch adds its "Register with Applanch" entry to Explorer context menus at startup.
+
+### Remove Applanch Context Menu Entries
+
+Click this button to remove existing Applanch Explorer context menu entries immediately.
+
 ---
 
 ## Item Display
