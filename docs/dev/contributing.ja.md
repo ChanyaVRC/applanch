@@ -40,11 +40,6 @@ dotnet format applanch.slnx --no-restore --verbosity minimal
 
 その後、再度確認手順を実行してください。
 
-## バージョン管理
-
-applanch は [MinVer](https://github.com/adamralph/minver) を使用し、Git タグからバージョンを自動計算します。
-タグは `v` プレフィックス形式に従います（例：`v0.3.1`）。
-
 ## ブランチとコミット
 
 - `master` から作業ブランチを切ります。
@@ -123,11 +118,6 @@ applanch は英語と日本語を対象としています。
 python -m pip install -r docs/requirements.txt
 python -m mkdocs serve
 ```
-
-GitHub Pages への公開：
-
-- ドキュメントサイトのビルドとデプロイは `.github/workflows/docs.yml` で実行されます。
-- このワークフローは `master` への push、リリースの公開、手動実行で動作します。
 
 各ドキュメントページには英語版（`<ページ>.md`）と日本語版（`<ページ>.ja.md`）があります。
 ページを追加・更新する際は両方更新してください。

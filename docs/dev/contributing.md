@@ -40,11 +40,6 @@ dotnet format applanch.slnx --no-restore --verbosity minimal
 
 Then re-run the verification step.
 
-## Versioning
-
-applanch uses [MinVer](https://github.com/adamralph/minver) for automatic version calculation from Git tags.
-Tags follow the `v` prefix convention (e.g., `v0.3.1`).
-
 ## Branching & Commits
 
 - Work on a feature branch forked from `master`.
@@ -123,11 +118,6 @@ Local preview:
 python -m pip install -r docs/requirements.txt
 python -m mkdocs serve
 ```
-
-GitHub Pages publication:
-
-- The documentation site is built and deployed by `.github/workflows/docs.yml`.
-- The workflow runs on pushes to `master`, on published releases, and on manual dispatch.
 
 Each documentation page has both an English version (`<page>.md`) and a Japanese version (`<page>.ja.md`).
 When adding or updating a page, update both versions.
