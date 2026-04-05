@@ -2,7 +2,8 @@
 
 登録した実行ファイルを直接起動できない場合（ゲームが別のランチャー経由での起動を要求する場合など）、applanch は自動的に適切なランチャー経由でリダイレクトします。
 
-フォールバックルールは `Config/launch-fallbacks.json` で定義されています。
+組み込みルールは `Config/launch-fallbacks.json` にあります。
+カスタムルールは `Config/UserDefined/launch-fallbacks/*.json` に追加してください。
 
 ## 組み込みルール
 
@@ -27,7 +28,7 @@
 
 ## ルールの構造
 
-`launch-fallbacks.json` の各ルールは以下のフィールドを持ちます。
+フォールバック設定ファイル内の各ルールオブジェクトは以下のフィールドを持ちます。
 
 | フィールド | 説明 |
 |-----------|------|
@@ -48,9 +49,9 @@
 
 組み込みエントリーにないゲームランチャー向けにルールを追加するには：
 
-1. テキストエディターで `Config/launch-fallbacks.json` を開きます。
-2. `rules` 配列に新しいオブジェクトを追加します。
-3. `"enabled": true` に設定します。
+1. `Config/UserDefined/launch-fallbacks/` 配下に JSON ファイルを作成します（例: `ubisoft.json`）。
+2. `rules` 配列の中にルールを追加します。
+3. 有効化したいルールは `"enabled": true` に設定します。
 4. 適切な `matchFileNames` とテンプレートフィールドを入力します。
 5. applanch を再起動します。
 
@@ -58,12 +59,16 @@
 
 ```json
 {
-  "name": "マイ Ubisoft ゲーム",
-  "kind": "uri-template",
-  "enabled": true,
-  "matchFileNames": ["MyGame.exe"],
-  "uriTemplate": "uplay://launch/{appId}/0",
-  "appIdSource": "registry:HKEY_LOCAL_MACHINE:SOFTWARE\\WOW6432Node\\Ubisoft\\Launcher\\Installs\\12345:UplayId"
+  "rules": [
+    {
+      "name": "マイ Ubisoft ゲーム",
+      "kind": "uri-template",
+      "enabled": true,
+      "matchFileNames": ["MyGame.exe"],
+      "uriTemplate": "uplay://launch/{appId}/0",
+      "appIdSource": "registry:HKEY_LOCAL_MACHINE:SOFTWARE\\WOW6432Node\\Ubisoft\\Launcher\\Installs\\12345:UplayId"
+    }
+  ]
 }
 ```
 

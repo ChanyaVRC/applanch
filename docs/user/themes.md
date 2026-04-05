@@ -14,27 +14,34 @@ Switch themes in [Settings](settings.md) under **Appearance → Theme**.
 
 ## Custom Themes
 
-Custom themes are defined in `Config/theme-palette.json` inside the applanch installation folder.
+Built-in themes are loaded from `Config/theme-palette.json`.
+Add your own themes under `Config/UserDefined/theme-palette/*.json`.
 
 ### Adding a Custom Theme
 
-Add a new entry to the `themes` array:
+1. Create a JSON file under `Config/UserDefined/theme-palette/` (for example `my-theme.json`).
+2. Define your custom themes in that file.
+3. Restart applanch.
 
 ```json
 {
-  "id": "my-theme",
-  "displayNames": {
-    "en": "My Theme",
-    "ja": "マイテーマ"
-  },
-  "entries": [
-    { "key": "Brush.AppBackground", "hex": "#1E1E2E" },
-    { "key": "Brush.Surface",       "hex": "#27273A" }
+  "themes": [
+    {
+      "id": "my-theme",
+      "displayNames": {
+        "en": "My Theme",
+        "ja": "マイテーマ"
+      },
+      "entries": [
+        { "key": "Brush.AppBackground", "hex": "#1E1E2E" },
+        { "key": "Brush.Surface",       "hex": "#27273A" }
+      ]
+    }
   ]
 }
 ```
 
-Restart applanch to see the new theme in the Settings dropdown.
+The file is merged with built-in themes, so you only need to define what you want to add or override.
 
 ### Available Brush Keys
 

@@ -16,7 +16,7 @@ Controls the color scheme of the application.
 | Light | Always use the light palette |
 | Dark | Always use the dark palette |
 
-Custom themes defined in `Config/theme-palette.json` also appear here.
+Custom themes from `Config/UserDefined/theme-palette/*.json` also appear here.
 See the [Themes](themes.md) page for details.
 
 ### Language

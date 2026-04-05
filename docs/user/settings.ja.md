@@ -16,7 +16,7 @@
 | ライト | 常にライトパレットを使用する |
 | ダーク | 常にダークパレットを使用する |
 
-`Config/theme-palette.json` で定義したカスタムテーマもここに表示されます。
+`Config/UserDefined/theme-palette/*.json` のカスタムテーマもここに表示されます。
 詳細は [テーマ](themes.ja.md) を参照してください。
 
 ### 言語

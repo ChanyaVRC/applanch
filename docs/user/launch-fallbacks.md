@@ -2,7 +2,8 @@
 
 When a registered executable cannot be launched directly (for example because a game uses a separate launcher), applanch can automatically redirect the launch through the correct launcher instead.
 
-Fallback rules are defined in `Config/launch-fallbacks.json`.
+Built-in fallback rules are in `Config/launch-fallbacks.json`.
+Custom rules should be added under `Config/UserDefined/launch-fallbacks/*.json`.
 
 ## Built-in Rules
 
@@ -27,7 +28,7 @@ The following rules are included as examples. Enable them and replace placeholde
 
 ## Rule Structure
 
-Each rule in `launch-fallbacks.json` has the following fields:
+Each rule object in the fallback config files has the following fields:
 
 | Field | Description |
 |-------|-------------|
@@ -48,9 +49,9 @@ Each rule in `launch-fallbacks.json` has the following fields:
 
 To add a rule for a game launcher not covered by the built-in entries:
 
-1. Open `Config/launch-fallbacks.json` in a text editor.
-2. Add a new object to the `rules` array.
-3. Set `"enabled": true`.
+1. Create a JSON file under `Config/UserDefined/launch-fallbacks/` (for example `ubisoft.json`).
+2. Add your rule(s) under the `rules` array.
+3. Set `"enabled": true` for active rules.
 4. Fill in the appropriate `matchFileNames` and template fields.
 5. Restart applanch.
 
@@ -58,12 +59,16 @@ To add a rule for a game launcher not covered by the built-in entries:
 
 ```json
 {
-  "name": "My Ubisoft Game",
-  "kind": "uri-template",
-  "enabled": true,
-  "matchFileNames": ["MyGame.exe"],
-  "uriTemplate": "uplay://launch/{appId}/0",
-  "appIdSource": "registry:HKEY_LOCAL_MACHINE:SOFTWARE\\WOW6432Node\\Ubisoft\\Launcher\\Installs\\12345:UplayId"
+  "rules": [
+    {
+      "name": "My Ubisoft Game",
+      "kind": "uri-template",
+      "enabled": true,
+      "matchFileNames": ["MyGame.exe"],
+      "uriTemplate": "uplay://launch/{appId}/0",
+      "appIdSource": "registry:HKEY_LOCAL_MACHINE:SOFTWARE\\WOW6432Node\\Ubisoft\\Launcher\\Installs\\12345:UplayId"
+    }
+  ]
 }
 ```
 
