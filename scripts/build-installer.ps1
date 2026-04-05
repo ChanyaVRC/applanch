@@ -48,16 +48,10 @@ if ([string]::IsNullOrWhiteSpace($iscc)) {
 }
 
 $assetsDirectory = Join-Path (Join-Path $PSScriptRoot '..') 'src\applanch\Assets'
-$setupIconPath = Join-Path $assetsDirectory 'applanch.ico'
-$largeLogoPath = Join-Path $assetsDirectory 'applanch150.png'
+$setupIconPath = Join-Path $assetsDirectory 'applanch-badged.ico'
 
 if (-not (Test-Path -Path $setupIconPath -PathType Leaf)) {
     Write-Error "Installer icon not found: '$setupIconPath'"
-    exit 1
-}
-
-if (-not (Test-Path -Path $largeLogoPath -PathType Leaf)) {
-    Write-Error "Installer large logo image not found: '$largeLogoPath'"
     exit 1
 }
 
@@ -75,7 +69,7 @@ function New-BrandedWizardBitmap {
         [int]$Height,
 
         [Parameter(Mandatory = $true)]
-        [string]$LogoPath,
+        [string]$IconPath,
 
         [Parameter(Mandatory = $true)]
         [bool]$IsLargeImage
@@ -83,7 +77,8 @@ function New-BrandedWizardBitmap {
 
     $bitmap = New-Object System.Drawing.Bitmap $Width, $Height
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-    $logo = [System.Drawing.Image]::FromFile($LogoPath)
+    $icon = New-Object System.Drawing.Icon $IconPath, ([System.Drawing.Size]::new(256, 256))
+    $iconBitmap = $icon.ToBitmap()
     $brush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(245, 247, 250))
     $accentBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(43, 72, 117))
     $fontFamily = New-Object System.Drawing.FontFamily 'Segoe UI'
@@ -99,7 +94,7 @@ function New-BrandedWizardBitmap {
         $logoY = if ($IsLargeImage) { 42 } else { 8 }
         $graphics.FillRectangle($brush, 0, 0, $Width, $Height)
         $graphics.FillRectangle($accentBrush, 0, 0, $Width, $(if ($IsLargeImage) { 94 } else { 22 }))
-        $graphics.DrawImage($logo, $logoX, $logoY, $logoSize, $logoSize)
+        $graphics.DrawImage($iconBitmap, $logoX, $logoY, $logoSize, $logoSize)
 
         if ($IsLargeImage) {
             $graphics.DrawString('applanch', $titleFont, [System.Drawing.Brushes]::White, 23, 8)
@@ -110,7 +105,8 @@ function New-BrandedWizardBitmap {
         $fontFamily.Dispose()
         $accentBrush.Dispose()
         $brush.Dispose()
-        $logo.Dispose()
+        $iconBitmap.Dispose()
+        $icon.Dispose()
         $graphics.Dispose()
         $bitmap.Save($OutputPath, [System.Drawing.Imaging.ImageFormat]::Bmp)
         $bitmap.Dispose()
@@ -133,7 +129,7 @@ function New-LightWizardSmallBitmapFromIcon {
 
     $bitmap = New-Object System.Drawing.Bitmap $Width, $Height
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-    $icon = New-Object System.Drawing.Icon $IconPath
+    $icon = New-Object System.Drawing.Icon $IconPath, ([System.Drawing.Size]::new(256, 256))
     $iconBitmap = $icon.ToBitmap()
     $backgroundBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(247, 249, 252))
     $topAccentBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(226, 233, 244))
@@ -175,7 +171,7 @@ function New-LightWizardSmallBitmapFromIcon {
 }
 $wizardImagePath = Join-Path ([System.IO.Path]::GetTempPath()) ("applanch-wizard-large-" + [Guid]::NewGuid().ToString('N') + '.bmp')
 $wizardSmallImagePath = Join-Path ([System.IO.Path]::GetTempPath()) ("applanch-wizard-small-" + [Guid]::NewGuid().ToString('N') + '.bmp')
-New-BrandedWizardBitmap -OutputPath $wizardImagePath -Width 164 -Height 314 -LogoPath $largeLogoPath -IsLargeImage $true
+New-BrandedWizardBitmap -OutputPath $wizardImagePath -Width 164 -Height 314 -IconPath $setupIconPath -IsLargeImage $true
 New-LightWizardSmallBitmapFromIcon -OutputPath $wizardSmallImagePath -Width 55 -Height 55 -IconPath $setupIconPath
 
 $scriptTemplate = @'
