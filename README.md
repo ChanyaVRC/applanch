@@ -47,6 +47,19 @@ A lightweight Windows launcher for quickly starting apps, files, and folders.
 
 ## Development
 
+### Documentation
+
+Project documentation lives under `docs/` and is published with MkDocs + Material for MkDocs.
+
+Local preview:
+
+```powershell
+python -m pip install -r docs/requirements.txt
+python -m mkdocs serve
+```
+
+The GitHub Pages workflow publishes the site on pushes to `main` / `master`, on published releases, and on manual runs.
+
 ### Build
 
 ```powershell
@@ -178,6 +191,7 @@ the context menu entry under *Show more options* (classic context menu).
 - `src/applanch/Infrastructure`: application services by responsibility
 - `src/applanch/ViewModels`: UI view models
 - `src/applanch/Controls`: custom controls
+- `docs`: MkDocs documentation source
 - `tests/applanch.Tests`: xUnit test project
 
 ## Versioning and Release

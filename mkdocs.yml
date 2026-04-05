@@ -1,0 +1,29 @@
+site_name: applanch Docs
+site_description: Documentation for applanch
+site_url: https://chanyavrc.github.io/applanch/
+repo_url: https://github.com/ChanyaVRC/applanch
+repo_name: ChanyaVRC/applanch
+edit_uri: edit/master/docs/
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Japanese: index.ja.md
+  - Install Guide: install.md
+  - Release Guide: release.md
