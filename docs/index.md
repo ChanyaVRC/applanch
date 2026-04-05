@@ -1,12 +1,28 @@
 # applanch Docs
 
-This site contains the project documentation for applanch.
+This site contains the complete documentation for applanch.
 
-## What You Can Find Here
+## Documentation Structure
 
-- Install guidance for portable and installer distributions
-- Release and packaging notes
-- Project-specific operational information that is too detailed for the main README
+### User Guide
+
+- [Install Guide](install.md)
+- [Getting Started](user/getting-started.md)
+- [Items & Categories](user/items.md)
+- [Settings Reference](user/settings.md)
+- [Themes](user/themes.md)
+- [Launch Fallbacks](user/launch-fallbacks.md)
+- [Windows Integration](user/windows-integration.md)
+- [Automatic Updates](user/updates.md)
+
+### Developer Guide
+
+- [Contributing](dev/contributing.md)
+- [Release Guide](dev/release.md)
+
+## Scope
+
+This documentation focuses on practical usage and maintenance details that are intentionally more detailed than the main repository README.
 
 ## Local Preview
 

@@ -1,12 +1,28 @@
 # applanch ドキュメント
 
-このサイトは applanch のドキュメントサイトです。
+このサイトには applanch のドキュメントをまとめています。
 
-## ここに置く内容
+## ドキュメント構成
 
-- ポータブル版とインストーラー版の導入手順
-- リリースや配布に関する補足情報
-- README には長すぎる運用メモや詳細説明
+### ユーザーガイド
+
+- [インストールガイド](install.ja.md)
+- [クイックスタート](user/getting-started.ja.md)
+- [アイテムとカテゴリー](user/items.ja.md)
+- [設定リファレンス](user/settings.ja.md)
+- [テーマ](user/themes.ja.md)
+- [起動フォールバック](user/launch-fallbacks.ja.md)
+- [Windows 統合](user/windows-integration.ja.md)
+- [自動更新](user/updates.ja.md)
+
+### 開発者ガイド
+
+- [コントリビューション](dev/contributing.ja.md)
+- [リリースガイド](dev/release.ja.md)
+
+## スコープ
+
+このドキュメントは、リポジトリの README よりも詳しい運用・利用手順を中心にまとめています。
 
 ## ローカル確認
 
