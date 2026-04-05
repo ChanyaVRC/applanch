@@ -9,11 +9,11 @@
 
 ### デフォルトで有効なルール
 
-| ルール | トリガー | 方式 |
-|--------|---------|------|
-| Riot VALORANT | 常時 | `RiotClientServices.exe` 経由で起動 |
-| Riot League of Legends | 常時 | `RiotClientServices.exe` 経由で起動 |
-| Steam ライブラリの実行ファイル | 常時 | `steam://rungameid/{appId}` URI 経由で起動 |
+| ルール | トリガー | 方式 | App ID ソース |
+|--------|---------|------|--------------|
+| Riot VALORANT | 常時 | `RiotClientServices.exe` 経由で起動 | — |
+| Riot League of Legends | 常時 | `RiotClientServices.exe` 経由で起動 | — |
+| Steam ライブラリの実行ファイル | 常時 | `steam://rungameid/{appId}` URI 経由で起動 | `steam-manifest` |
 
 ### サンプル（デフォルトで無効）
 

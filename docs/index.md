@@ -2,23 +2,7 @@
 
 This site contains the complete documentation for applanch.
 
-## Documentation Structure
-
-### User Guide
-
-- [Install Guide](user/install.md)
-- [Getting Started](user/getting-started.md)
-- [Items & Categories](user/items.md)
-- [Settings Reference](user/settings.md)
-- [Themes](user/themes.md)
-- [Launch Fallbacks](user/launch-fallbacks.md)
-- [Windows Integration](user/windows-integration.md)
-- [Automatic Updates](user/updates.md)
-
-### Developer Guide
-
-- [Contributing](dev/contributing.md)
-- [Release Guide](dev/release.md)
+To get started, see the [Install Guide](user/install.md) and [Getting Started](user/getting-started.md), or browse topics using the navigation.
 
 ## Scope
 
@@ -26,6 +10,4 @@ This documentation focuses on practical usage and maintenance details that are i
 
 ## Documentation Development
 
-For local preview and publication workflow details, see the Developer Guide:
-
-- [Contributing](dev/contributing.md)
+For local preview and publication workflow details, see [Contributing](dev/contributing.md).

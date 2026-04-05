@@ -59,14 +59,15 @@ Enabled by default. Disable this if you prefer to manage updates manually.
 
 If an update fails to apply, a notification appears with a brief description of the reason.
 
-| Cause | Description |
-|-------|-------------|
-| Network error | Could not reach the GitHub download server |
-| IO error | Could not write files during extraction |
-| Permission denied | The app does not have write access to its own directory |
-| Invalid package | The downloaded ZIP archive is corrupt or incompatible |
+| Cause | Description | Recommended Action |
+|-------|-------------|-------------------|
+| Network error | Could not reach the GitHub download server | Check your network connection and try again |
+| IO error | Could not write files during extraction | Check available disk space and ensure the app directory is writable |
+| Permission denied | The app does not have write access to its own directory | Move the app to a user-writable location, or reinstall using the per-user installer |
+| Invalid package | The downloaded ZIP archive is corrupt or incompatible | Try the update again, or download the release manually |
 
-On failure, the current version continues to run. Try again later or download the release manually from [GitHub Releases](https://github.com/ChanyaVRC/applanch/releases).
+On failure, the current version continues to run.
+Download the latest release manually from [GitHub Releases](https://github.com/ChanyaVRC/applanch/releases) if the issue persists.
 
 ---
 

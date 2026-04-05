@@ -9,11 +9,11 @@ Custom rules should be added under `Config/UserDefined/launch-fallbacks/*.json`.
 
 ### Enabled by Default
 
-| Rule | Trigger | Method |
-|------|---------|--------|
-| Riot VALORANT | Always | Launches via `RiotClientServices.exe` |
-| Riot League of Legends | Always | Launches via `RiotClientServices.exe` |
-| Steam library executable | Always | Launches via `steam://rungameid/{appId}` URI |
+| Rule | Trigger | Method | App ID Source |
+|------|---------|--------|---------------|
+| Riot VALORANT | Always | Launches via `RiotClientServices.exe` | — |
+| Riot League of Legends | Always | Launches via `RiotClientServices.exe` | — |
+| Steam library executable | Always | Launches via `steam://rungameid/{appId}` URI | `steam-manifest` |
 
 ### Samples (Disabled by Default)
 

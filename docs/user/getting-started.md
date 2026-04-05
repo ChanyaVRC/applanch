@@ -17,10 +17,9 @@ After installing, run **applanch.exe** to open the main window.
 ## Add Your First Item
 
 1. Type a file path, folder path, or application name into the quick-add input at the top of the window.
-2. applanch shows up to 50 suggestions below the input as you type by default.
-3. Select a suggestion or press **Enter** / click **Add** to add the item to your list.
+2. Select a suggestion or press **Enter** / click **Add** to add the item to your list.
 
-You can also drag a file or folder from File Explorer and drop it onto the applanch window to add it instantly.
+You can also drag a file or folder from File Explorer and drop it onto the applanch window.
 
 ## Launch an Item
 
