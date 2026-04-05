@@ -22,7 +22,23 @@ Right-click an item (or use the action buttons that appear on hover) to access:
 | Edit Category | Assign or change the category |
 | Edit Arguments | Set command-line arguments passed at launch |
 | Run as Administrator | Launch this item elevated (once) |
+| Open Location | Open the item's parent folder in File Explorer |
 | Delete | Remove the item from the list |
+
+## Arguments
+
+Use **Edit Arguments** to pass command-line arguments to an item when it launches.
+
+Examples:
+
+| Item | Arguments | Effect |
+|------|-----------|--------|
+| Chrome | `--incognito` | Opens in incognito mode |
+| Notepad | `C:\logs\app.log` | Opens a specific file |
+| PowerShell | `-NoProfile -Command "Get-Date"` | Runs a command directly |
+| Custom tool | `--env production --verbose` | Sets flags for the tool |
+
+Arguments are appended after the path when the item is launched, exactly as entered.
 
 ## Categories
 
@@ -36,6 +52,15 @@ The default category for new items is **General**.
 
 Drag items in the list to reorder them.
 The new order is saved automatically.
+
+## Deleting Items
+
+Delete an item via the context menu or the delete button that appears on hover.
+
+After deletion, a notification appears at the bottom of the window.
+Click **Undo** in the notification to immediately restore the item to its original position.
+
+If [Confirm Before Delete](settings.md#confirm-before-delete) is enabled in settings, a confirmation dialog appears before the item is removed.
 
 ## Sort Modes
 
