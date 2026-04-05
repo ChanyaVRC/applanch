@@ -5,7 +5,7 @@
             "name": "Smart: Docs or applanch",
             "type": "node-terminal",
             "request": "launch",
-            "command": "$activeFile = ('${relativeFile}' -replace '\\\\', '/').ToLowerInvariant(); if ($activeFile.StartsWith('docs/')) { & \"$env:LOCALAPPDATA\\Programs\\Python\\Python314\\python.exe\" -m mkdocs serve } else { dotnet run --project src/applanch/applanch.csproj }",
+            "command": "$activeFile = ('${relativeFile}' -replace '\\\\', '/').ToLowerInvariant(); if ($activeFile.StartsWith('docs/')) { & \"$env:LOCALAPPDATA\\Programs\\Python\\Python314\\python.exe\" -m mkdocs serve; exit $LASTEXITCODE } else { dotnet run --project src/applanch/applanch.csproj; exit $LASTEXITCODE }",
             "cwd": "${workspaceFolder}",
             "serverReadyAction": {
                 "pattern": "Serving on (https?://\\S+)",
