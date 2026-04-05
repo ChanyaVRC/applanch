@@ -2,6 +2,8 @@
 
 [English](README.md) | [日本語](README.ja.md)
 
+**[Documentation](https://chanyavrc.github.io/applanch/)**
+
 A lightweight Windows launcher for quickly starting apps, files, and folders.
 
 `applanch` is a WPF desktop app focused on fast launch workflows with category management, quick-add suggestions, and built-in update checks.
@@ -23,7 +25,7 @@ A lightweight Windows launcher for quickly starting apps, files, and folders.
 ## Requirements
 
 - Windows 10/11
-- .NET 10 runtime (for self-contained behavior, use release artifacts)
+- .NET 10 runtime (release builds are self-contained and do not require a separate runtime install)
 
 ## Install (Recommended)
 
@@ -58,7 +60,7 @@ python -m pip install -r docs/requirements.txt
 python -m mkdocs serve
 ```
 
-The GitHub Pages workflow publishes the site on pushes to `main` / `master`, on published releases, and on manual runs.
+The GitHub Pages workflow publishes the site on pushes to `master`, on published releases, and on manual runs.
 
 ### Build
 
