@@ -66,6 +66,37 @@ Tags follow the `v` prefix convention (e.g., `v0.3.1`).
 - Tests that instantiate WPF controls must run on an STA thread.
 - Keep control tests isolated from global application resources.
 
+## Project Structure
+
+```
+src/applanch/
+  App.xaml / App.xaml.cs          # Application entry point
+  MainWindow.xaml / .cs           # Main window (host)
+  SettingsWindow.xaml / .cs       # Settings window (host)
+  Controls/                       # Reusable WPF user controls
+  ViewModels/                     # View models (ObservableObject-based)
+  Events/                         # AppEvents pub/sub bus
+  Infrastructure/
+    Dialogs/                      # Dialog abstraction
+    Integration/                  # Windows shell / context menu integration
+    Items/                        # Item CRUD workflows
+    Launch/                       # Launch execution and fallback resolution
+    Resolution/                   # App path resolution
+    Storage/                      # Settings persistence (JSON)
+    Theming/                      # Theme palette loading
+    Updates/                      # GitHub Releases update check
+    Utilities/                    # Shared helpers
+  Properties/                     # Resource files (Resources.resx, Resources.ja.resx)
+  Config/                         # Bundled default config files
+tests/applanch.Tests/             # xUnit test project (mirrors src/ structure)
+src/applanch.ResourceGenerator/   # Source generator for typed resource access
+```
+
+Loose conventions:
+- **`AppEvents`** is a typed pub/sub bus. Components publish and subscribe using strongly-typed `AppEventKey<T>` keys.
+- **`Infrastructure/`** contains all I/O and platform concerns. View models depend on infrastructure through thin interfaces where testability matters.
+- **`ViewModels/`** contains no direct I/O — all side effects go through `AppEvents` or injected services.
+
 ## Pull Requests
 
 1. Ensure `dotnet build` and `dotnet test` both pass.
