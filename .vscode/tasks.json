@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "applanch: Run App",
+            "type": "shell",
+            "command": "dotnet run --project src/applanch/applanch.csproj",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Docs: Serve and Open",
+            "type": "shell",
+            "command": "& \"$env:LOCALAPPDATA\\Programs\\Python\\Python314\\python.exe\" -m mkdocs serve",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        }
+    ]
+}
