@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Smart: Docs or applanch",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "if ('${file}' -match '(?i)[\\/]docs[\\/]') { & \"$env:LOCALAPPDATA\\Programs\\Python\\Python314\\python.exe\" -m mkdocs serve } else { dotnet run --project src/applanch/applanch.csproj }",
+            "cwd": "${workspaceFolder}",
+            "serverReadyAction": {
+                "pattern": "Serving on (https?://\\S+)",
+                "uriFormat": "%s",
+                "action": "openExternally"
+            }
+        },
+        {
+            "name": "applanch: Run App",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "dotnet run --project src/applanch/applanch.csproj",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Docs: Serve and Open",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "& \"$env:LOCALAPPDATA\\Programs\\Python\\Python314\\python.exe\" -m mkdocs serve",
+            "cwd": "${workspaceFolder}",
+            "serverReadyAction": {
+                "pattern": "Serving on (https?://\\S+)",
+                "uriFormat": "%s",
+                "action": "openExternally"
+            }
+        }
+    ]
+}
