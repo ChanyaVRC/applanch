@@ -23,7 +23,11 @@ markdown_extensions:
       permalink: true
 
 nav:
-  - Home: index.md
-  - Japanese: index.ja.md
-  - Install Guide: install.md
-  - Release Guide: release.md
+  - English:
+    - Home: index.md
+    - Install Guide: install.md
+    - Release Guide: release.md
+  - 日本語:
+    - ホーム: index.ja.md
+    - インストールガイド: install.ja.md
+    - リリースガイド: release.ja.md
