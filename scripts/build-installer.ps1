@@ -57,6 +57,71 @@ if (-not (Test-Path -Path $setupIconPath -PathType Leaf)) {
 
 Add-Type -AssemblyName System.Drawing
 
+function Draw-BadgedRocketMark {
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Drawing.Graphics]$Graphics,
+
+        [Parameter(Mandatory = $true)]
+        [single]$X,
+
+        [Parameter(Mandatory = $true)]
+        [single]$Y,
+
+        [Parameter(Mandatory = $true)]
+        [single]$Size
+    )
+
+    $scale = $Size / 256.0
+    $shadowBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(60, 15, 34, 64))
+    $badgeBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(39, 72, 122))
+    $ringPen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(140, 255, 255, 255), [single][Math]::Max(1.0, 2.0 * $scale))
+    $rocketBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(255, 255, 255, 240))
+
+    try {
+        $badgeX = $X + (10.0 * $scale)
+        $badgeY = $Y + (10.0 * $scale)
+        $badgeSize = 236.0 * $scale
+        $shadowX = $X + (14.0 * $scale)
+        $shadowY = $Y + (16.0 * $scale)
+
+        $Graphics.FillEllipse($shadowBrush, $shadowX, $shadowY, $badgeSize, $badgeSize)
+        $Graphics.FillEllipse($badgeBrush, $badgeX, $badgeY, $badgeSize, $badgeSize)
+
+        $ringInset = 2.0 * $scale
+        $Graphics.DrawEllipse(
+            $ringPen,
+            $badgeX + $ringInset,
+            $badgeY + $ringInset,
+            $badgeSize - (2.0 * $ringInset),
+            $badgeSize - (2.0 * $ringInset)
+        )
+
+        $tx = $X + (23.0 * $scale)
+        $ty = $Y + (51.0 * $scale)
+        $rs = 0.7109375 * $scale
+        $points = @(
+            (New-Object System.Drawing.PointF([single]($tx + (248.0 * $rs)), [single]($ty + (8.0 * $rs)))),
+            (New-Object System.Drawing.PointF([single]($tx + (208.6 * $rs)), [single]($ty + (93.4 * $rs)))),
+            (New-Object System.Drawing.PointF([single]($tx + (128.9 * $rs)), [single]($ty + (173.1 * $rs)))),
+            (New-Object System.Drawing.PointF([single]($tx + (123.2 * $rs)), [single]($ty + (248.0 * $rs)))),
+            (New-Object System.Drawing.PointF([single]($tx + (107.9 * $rs)), [single]($ty + (194.2 * $rs)))),
+            (New-Object System.Drawing.PointF([single]($tx + (75.2 * $rs)), [single]($ty + (180.8 * $rs)))),
+            (New-Object System.Drawing.PointF([single]($tx + (61.8 * $rs)), [single]($ty + (148.1 * $rs)))),
+            (New-Object System.Drawing.PointF([single]($tx + (8.0 * $rs)), [single]($ty + (132.8 * $rs)))),
+            (New-Object System.Drawing.PointF([single]($tx + (82.9 * $rs)), [single]($ty + (127.1 * $rs)))),
+            (New-Object System.Drawing.PointF([single]($tx + (162.6 * $rs)), [single]($ty + (47.4 * $rs))))
+        )
+        $Graphics.FillPolygon($rocketBrush, $points)
+    }
+    finally {
+        $rocketBrush.Dispose()
+        $ringPen.Dispose()
+        $badgeBrush.Dispose()
+        $shadowBrush.Dispose()
+    }
+}
+
 function New-BrandedWizardBitmap {
     param(
         [Parameter(Mandatory = $true)]
@@ -77,8 +142,6 @@ function New-BrandedWizardBitmap {
 
     $bitmap = New-Object System.Drawing.Bitmap $Width, $Height
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-    $icon = New-Object System.Drawing.Icon $IconPath, ([System.Drawing.Size]::new(256, 256))
-    $iconBitmap = $icon.ToBitmap()
     $brush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(245, 247, 250))
     $accentBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(43, 72, 117))
     $fontFamily = New-Object System.Drawing.FontFamily 'Segoe UI'
@@ -94,7 +157,7 @@ function New-BrandedWizardBitmap {
         $logoY = if ($IsLargeImage) { 42 } else { 8 }
         $graphics.FillRectangle($brush, 0, 0, $Width, $Height)
         $graphics.FillRectangle($accentBrush, 0, 0, $Width, $(if ($IsLargeImage) { 94 } else { 22 }))
-        $graphics.DrawImage($iconBitmap, $logoX, $logoY, $logoSize, $logoSize)
+        Draw-BadgedRocketMark -Graphics $graphics -X ([single]$logoX) -Y ([single]$logoY) -Size ([single]$logoSize)
 
         if ($IsLargeImage) {
             $graphics.DrawString('applanch', $titleFont, [System.Drawing.Brushes]::White, 23, 8)
@@ -105,8 +168,6 @@ function New-BrandedWizardBitmap {
         $fontFamily.Dispose()
         $accentBrush.Dispose()
         $brush.Dispose()
-        $iconBitmap.Dispose()
-        $icon.Dispose()
         $graphics.Dispose()
         $bitmap.Save($OutputPath, [System.Drawing.Imaging.ImageFormat]::Bmp)
         $bitmap.Dispose()
@@ -129,13 +190,8 @@ function New-LightWizardSmallBitmapFromIcon {
 
     $bitmap = New-Object System.Drawing.Bitmap $Width, $Height
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-    $icon = New-Object System.Drawing.Icon $IconPath, ([System.Drawing.Size]::new(256, 256))
-    $iconBitmap = $icon.ToBitmap()
     $backgroundBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(247, 249, 252))
     $topAccentBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(226, 233, 244))
-    $badgeShadowBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(60, 15, 34, 64))
-    $badgeBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(39, 72, 122))
-    $badgeRingPen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(120, 255, 255, 255), 1.2)
     try {
         $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::HighQuality
         $graphics.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
@@ -147,23 +203,11 @@ function New-LightWizardSmallBitmapFromIcon {
         $badgeX = [int](($Width - $badgeDiameter) / 2)
         $badgeY = [int](($Height - $badgeDiameter) / 2) + 1
 
-        $graphics.FillEllipse($badgeShadowBrush, $badgeX + 1, $badgeY + 1, $badgeDiameter, $badgeDiameter)
-        $graphics.FillEllipse($badgeBrush, $badgeX, $badgeY, $badgeDiameter, $badgeDiameter)
-        $graphics.DrawEllipse($badgeRingPen, $badgeX + 0.5, $badgeY + 0.5, $badgeDiameter - 1, $badgeDiameter - 1)
-
-        $iconSize = [math]::Min(26, [math]::Min($Width - 10, $Height - 10))
-        $iconX = [int](($Width - $iconSize) / 2)
-        $iconY = [int](($Height - $iconSize) / 2) + 1
-        $graphics.DrawImage($iconBitmap, $iconX, $iconY, $iconSize, $iconSize)
+        Draw-BadgedRocketMark -Graphics $graphics -X ([single]$badgeX) -Y ([single]$badgeY) -Size ([single]$badgeDiameter)
     }
     finally {
         $backgroundBrush.Dispose()
         $topAccentBrush.Dispose()
-        $badgeShadowBrush.Dispose()
-        $badgeBrush.Dispose()
-        $badgeRingPen.Dispose()
-        $iconBitmap.Dispose()
-        $icon.Dispose()
         $graphics.Dispose()
         $bitmap.Save($OutputPath, [System.Drawing.Imaging.ImageFormat]::Bmp)
         $bitmap.Dispose()
