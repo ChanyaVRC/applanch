@@ -49,15 +49,21 @@ if ([string]::IsNullOrWhiteSpace($iscc)) {
 
 $assetsDirectory = Join-Path (Join-Path $PSScriptRoot '..') 'src\applanch\Assets'
 $setupIconPath = Join-Path $assetsDirectory 'applanch.ico'
-$logoPath = Join-Path $assetsDirectory 'applanch150.png'
+$largeLogoPath = Join-Path $assetsDirectory 'applanch150.png'
+$smallLogoPath = Join-Path $assetsDirectory 'applanch44.png'
 
 if (-not (Test-Path -Path $setupIconPath -PathType Leaf)) {
     Write-Error "Installer icon not found: '$setupIconPath'"
     exit 1
 }
 
-if (-not (Test-Path -Path $logoPath -PathType Leaf)) {
-    Write-Error "Installer logo image not found: '$logoPath'"
+if (-not (Test-Path -Path $largeLogoPath -PathType Leaf)) {
+    Write-Error "Installer large logo image not found: '$largeLogoPath'"
+    exit 1
+}
+
+if (-not (Test-Path -Path $smallLogoPath -PathType Leaf)) {
+    Write-Error "Installer small logo image not found: '$smallLogoPath'"
     exit 1
 }
 
@@ -119,8 +125,8 @@ function New-BrandedWizardBitmap {
 
 $wizardImagePath = Join-Path ([System.IO.Path]::GetTempPath()) ("applanch-wizard-large-" + [Guid]::NewGuid().ToString('N') + '.bmp')
 $wizardSmallImagePath = Join-Path ([System.IO.Path]::GetTempPath()) ("applanch-wizard-small-" + [Guid]::NewGuid().ToString('N') + '.bmp')
-New-BrandedWizardBitmap -OutputPath $wizardImagePath -Width 164 -Height 314 -LogoPath $logoPath -IsLargeImage $true
-New-BrandedWizardBitmap -OutputPath $wizardSmallImagePath -Width 55 -Height 55 -LogoPath $logoPath -IsLargeImage $false
+New-BrandedWizardBitmap -OutputPath $wizardImagePath -Width 164 -Height 314 -LogoPath $largeLogoPath -IsLargeImage $true
+New-BrandedWizardBitmap -OutputPath $wizardSmallImagePath -Width 55 -Height 55 -LogoPath $smallLogoPath -IsLargeImage $false
 
 $scriptTemplate = @'
 [Setup]
