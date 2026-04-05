@@ -8,7 +8,6 @@ It focuses on fast launch workflows with category-based organization, quick-add 
 ## Requirements
 
 - Windows 10 or Windows 11
-- .NET 10 runtime (release artifacts are self-contained and do not require a separate install)
 
 ## Install
 
