@@ -88,6 +88,7 @@ src/applanch.ResourceGenerator/   # Source generator for typed resource access
 ```
 
 Loose conventions:
+
 - **`AppEvents`** is a typed pub/sub bus. Components publish and subscribe using strongly-typed `AppEventKey<T>` keys.
 - **`Infrastructure/`** contains all I/O and platform concerns. View models depend on infrastructure through thin interfaces where testability matters.
 - **`ViewModels/`** contains no direct I/O — all side effects go through `AppEvents` or injected services.
