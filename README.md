@@ -28,9 +28,11 @@ A lightweight Windows launcher for quickly starting apps, files, and folders.
 ## Install (Recommended)
 
 1. Open Releases on GitHub.
-2. Download the latest `applanch-<version>-<rid>.zip` asset.
-3. Extract to any folder.
-4. Run `applanch.exe`.
+2. Choose one of the latest assets:
+  - Portable app: `applanch-<version>-<rid>.zip`
+  - Installer: `applanch-<version>-<rid>-installer.exe`
+3. For ZIP, extract to any folder and run `applanch.exe`.
+4. For installer EXE, run it and follow the setup wizard.
 
 ## Usage
 
@@ -181,6 +183,9 @@ the context menu entry under *Show more options* (classic context menu).
 ## Versioning and Release
 
 - Version is derived from Git tags via MinVer (tag prefix: `v`).
+- Release artifacts are published in two formats per runtime:
+  - Portable ZIP package
+  - Installer EXE package
 - Typical release flow:
 
 ```powershell
