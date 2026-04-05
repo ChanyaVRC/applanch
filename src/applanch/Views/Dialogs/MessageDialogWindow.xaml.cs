@@ -7,6 +7,14 @@ namespace applanch.Views.Dialogs;
 
 public sealed partial class MessageDialogWindow : Window
 {
+    public string DialogMessage { get; }
+
+    public string DialogIconSymbol { get; }
+
+    public Brush DialogIconBrush { get; }
+
+    public Visibility DialogIconVisibility { get; }
+
     public MessageDialogWindow(string message, string caption, MessageBoxImage icon, Window? owner = null)
     {
         InitializeComponent();
@@ -17,21 +25,16 @@ public sealed partial class MessageDialogWindow : Window
             ? WindowStartupLocation.CenterScreen
             : WindowStartupLocation.CenterOwner;
 
-        MessageText.Text = message;
+        DialogMessage = message;
 
         var visual = MessageDialogVisuals.Resolve(icon);
-        IconText.Text = visual.Symbol;
+        DialogIconSymbol = visual.Symbol;
+        DialogIconVisibility = visual.ShowIcon ? Visibility.Visible : Visibility.Collapsed;
+        IconSpacerColumn.Width = visual.ShowIcon ? new GridLength(12) : new GridLength(0);
+        DialogIconBrush = TryFindResource(visual.BrushResourceKey) as Brush
+            ?? (Brush)FindResource("Brush.TextSecondary");
 
-        if (!visual.ShowIcon)
-        {
-            IconBadge.Visibility = Visibility.Collapsed;
-            IconSpacerColumn.Width = new GridLength(0);
-        }
-
-        if (TryFindResource(visual.BrushResourceKey) is Brush brush)
-        {
-            IconText.Foreground = brush;
-        }
+        DataContext = this;
 
     }
 

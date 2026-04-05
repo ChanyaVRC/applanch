@@ -37,14 +37,16 @@
                     CornerRadius="18"
                     Margin="0,1,0,0"
                     VerticalAlignment="Top"
-                    Background="Transparent">
+                    Background="Transparent"
+                    Visibility="{Binding DialogIconVisibility}">
                 <TextBlock x:Name="IconText"
+                           Text="{Binding DialogIconSymbol}"
                            FontFamily="Segoe Fluent Icons"
                            FontSize="22"
                            FontWeight="SemiBold"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"
-                           Foreground="{DynamicResource Brush.TextSecondary}"/>
+                           Foreground="{Binding DialogIconBrush}"/>
             </Border>
 
             <ScrollViewer Grid.Column="2"
@@ -52,6 +54,7 @@
                           HorizontalScrollBarVisibility="Disabled"
                           MaxHeight="240">
                 <TextBlock x:Name="MessageText"
+                           Text="{Binding DialogMessage}"
                            TextWrapping="Wrap"
                            FontSize="14"
                            LineHeight="22"

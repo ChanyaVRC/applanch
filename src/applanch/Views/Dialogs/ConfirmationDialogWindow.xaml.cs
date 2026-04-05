@@ -6,6 +6,12 @@ namespace applanch.Views.Dialogs;
 
 public sealed partial class ConfirmationDialogWindow : Window
 {
+    public string DialogMessage { get; }
+
+    public string YesButtonLabel { get; }
+
+    public string NoButtonLabel { get; }
+
     public ConfirmationDialogWindow(string message, string caption, Window owner)
     {
         InitializeComponent();
@@ -14,9 +20,11 @@ public sealed partial class ConfirmationDialogWindow : Window
         Title = caption;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
-        MessageText.Text = message;
-        YesButton.Content = Strings.Confirm_Yes;
-        NoButton.Content = Strings.Confirm_No;
+        DialogMessage = message;
+        YesButtonLabel = Strings.Confirm_Yes;
+        NoButtonLabel = Strings.Confirm_No;
+
+        DataContext = this;
     }
 
     private void Window_SourceInitialized(object? sender, EventArgs e) =>

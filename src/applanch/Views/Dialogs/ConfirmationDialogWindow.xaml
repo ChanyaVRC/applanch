@@ -51,6 +51,7 @@
                           HorizontalScrollBarVisibility="Disabled"
                           MaxHeight="240">
                 <TextBlock x:Name="MessageText"
+                           Text="{Binding DialogMessage}"
                            TextWrapping="Wrap"
                            FontSize="14"
                            LineHeight="22"
@@ -62,10 +63,12 @@
                     Orientation="Horizontal"
                     HorizontalAlignment="Right">
             <Button x:Name="NoButton"
+                Content="{Binding NoButtonLabel}"
                     IsCancel="True"
                     Margin="0,0,8,0"
                     Click="NoButton_Click"/>
             <Button x:Name="YesButton"
+                Content="{Binding YesButtonLabel}"
                     IsDefault="True"
                     Click="YesButton_Click"/>
         </StackPanel>
