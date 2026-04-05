@@ -37,9 +37,9 @@ plugins:
             Themes: テーマ
             Launch Fallbacks: 起動フォールバック
             Install Guide: インストールガイド
-            Release Guide: リリースガイド
             Developer Guide: 開発者ガイド
             Contributing: コントリビューション
+            Release Guide: リリースガイド
 
 extra:
   alternate:
@@ -66,12 +66,12 @@ markdown_extensions:
 nav:
   - Home: index.md
   - User Guide:
+    - Install Guide: install.md
     - Getting Started: user/getting-started.md
     - Items & Categories: user/items.md
     - Settings Reference: user/settings.md
     - Themes: user/themes.md
     - Launch Fallbacks: user/launch-fallbacks.md
-  - Install Guide: install.md
-  - Release Guide: release.md
   - Developer Guide:
     - Contributing: dev/contributing.md
+    - Release Guide: dev/release.md
