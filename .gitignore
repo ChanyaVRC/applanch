@@ -147,5 +147,8 @@ Desktop.ini
 # Generated package binaries
 *.msix
 
+# MkDocs generated site output
+site/
+
 # Local code-signing certificates
 *.pfx
