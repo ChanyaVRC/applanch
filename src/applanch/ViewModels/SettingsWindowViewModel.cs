@@ -99,20 +99,10 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         _themeOptions.FirstOrDefault(option => string.Equals(option.ThemeId, _themeId, StringComparison.OrdinalIgnoreCase))?.DisplayName
         ?? string.Empty;
 
-    public int PostLaunchBehaviorIndex
+    public PostLaunchBehavior SelectedPostLaunchBehavior
     {
-        get => (int)_postLaunchBehavior;
-        set
-        {
-            if ((int)_postLaunchBehavior == value)
-            {
-                return;
-            }
-
-            _postLaunchBehavior = (PostLaunchBehavior)value;
-            OnPropertyChanged();
-            Commit();
-        }
+        get => _postLaunchBehavior;
+        set => SetFieldAndCommit(ref _postLaunchBehavior, value);
     }
 
     public bool CheckForUpdatesOnStartup
@@ -121,10 +111,10 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         set => SetFieldAndCommit(ref _checkForUpdatesOnStartup, value);
     }
 
-    public int UpdateInstallBehaviorIndex
+    public UpdateInstallBehavior SelectedUpdateInstallBehavior
     {
-        get => (int)_updateInstallBehavior;
-        set => SetFieldAndCommit(ref _updateInstallBehavior, (UpdateInstallBehavior)value);
+        get => _updateInstallBehavior;
+        set => SetFieldAndCommit(ref _updateInstallBehavior, value);
     }
 
     public bool DebugUpdate
@@ -169,38 +159,37 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         set => SetFieldAndCommit(ref _confirmBeforeDelete, value);
     }
 
-    public int QuickAddSuggestionLimitIndex
+    public int QuickAddSuggestionLimit
     {
-        get => ResolveQuickAddSuggestionLimitIndex();
+        get => _quickAddSuggestionLimit;
         set
         {
-            if (value < 0 || value >= QuickAddSuggestionLimitOptionsValues.Length)
+            if (_quickAddSuggestionLimit == value)
             {
                 return;
             }
 
-            var selected = QuickAddSuggestionLimitOptionsValues[value];
-            if (_quickAddSuggestionLimit == selected)
+            if (!QuickAddSuggestionLimitOptionsValues.Contains(value))
             {
                 return;
             }
 
-            _quickAddSuggestionLimit = selected;
+            _quickAddSuggestionLimit = value;
             OnPropertyChanged();
             Commit();
         }
     }
 
-    public int CategorySortModeIndex
+    public CategorySortMode SelectedCategorySortMode
     {
-        get => (int)_categorySortMode;
-        set => SetFieldAndCommit(ref _categorySortMode, (CategorySortMode)value);
+        get => _categorySortMode;
+        set => SetFieldAndCommit(ref _categorySortMode, value);
     }
 
-    public int AppListSortModeIndex
+    public AppListSortMode SelectedAppListSortMode
     {
-        get => (int)_appListSortMode;
-        set => SetFieldAndCommit(ref _appListSortMode, (AppListSortMode)value);
+        get => _appListSortMode;
+        set => SetFieldAndCommit(ref _appListSortMode, value);
     }
 
     public bool RunAsAdministrator
@@ -209,10 +198,10 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         set => SetFieldAndCommit(ref _runAsAdministrator, value);
     }
 
-    public int LanguageIndex
+    public LanguageOption SelectedLanguage
     {
-        get => (int)_language;
-        set => SetFieldAndCommit(ref _language, (LanguageOption)value);
+        get => _language;
+        set => SetFieldAndCommit(ref _language, value);
     }
 
     public bool SettingsChanged { get; private set; }
@@ -256,7 +245,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         builder.AppendLine($"Culture: {CultureInfo.CurrentCulture.Name}");
         builder.AppendLine($"Log folder: {AppLogger.LogDirectoryPath}");
         builder.AppendLine($"Update check on startup: {CheckForUpdatesOnStartup}");
-        builder.AppendLine($"Update install behavior: {(UpdateInstallBehavior)UpdateInstallBehaviorIndex}");
+        builder.AppendLine($"Update install behavior: {SelectedUpdateInstallBehavior}");
         builder.AppendLine($"Debug update mode: {DebugUpdate}");
         return builder.ToString();
     }
@@ -353,18 +342,5 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         }
 
         return 0;
-    }
-
-    private int ResolveQuickAddSuggestionLimitIndex()
-    {
-        for (var i = 0; i < QuickAddSuggestionLimitOptionsValues.Length; i++)
-        {
-            if (QuickAddSuggestionLimitOptionsValues[i] == _quickAddSuggestionLimit)
-            {
-                return i;
-            }
-        }
-
-        return Array.IndexOf(QuickAddSuggestionLimitOptionsValues, AppSettings.DefaultQuickAddSuggestionLimit);
     }
 }

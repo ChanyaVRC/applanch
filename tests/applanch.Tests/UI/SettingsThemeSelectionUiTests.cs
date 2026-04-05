@@ -64,7 +64,7 @@ public sealed class SettingsThemeSelectionUiTests
             Assert.Equal(0, comboBox.SelectedIndex);
             Assert.False(comboBox.IsEditable);
 
-            vm.LanguageIndex = (int)LanguageOption.Japanese;
+            vm.SelectedLanguage = LanguageOption.Japanese;
 
             DoEvents();
             Assert.Equal(2, comboBox.Items.Count);

@@ -54,15 +54,15 @@ public class SettingsWindowViewModelTests
         var vm = Make(settings);
 
         Assert.Equal(2, vm.ThemeIndex);
-        Assert.Equal(4, vm.QuickAddSuggestionLimitIndex);
-        Assert.Equal((int)PostLaunchBehavior.KeepOpen, vm.PostLaunchBehaviorIndex);
+        Assert.Equal(100, vm.QuickAddSuggestionLimit);
+        Assert.Equal(PostLaunchBehavior.KeepOpen, vm.SelectedPostLaunchBehavior);
         Assert.False(vm.CheckForUpdatesOnStartup);
-        Assert.Equal((int)UpdateInstallBehavior.NotifyOnly, vm.UpdateInstallBehaviorIndex);
+        Assert.Equal(UpdateInstallBehavior.NotifyOnly, vm.SelectedUpdateInstallBehavior);
         Assert.True(vm.DebugUpdate);
         Assert.False(vm.FetchHttpIcons);
         Assert.True(vm.AllowPrivateNetworkHttpIconRequests);
-        Assert.Equal((int)LanguageOption.Japanese, vm.LanguageIndex);
-        Assert.Equal((int)CategorySortMode.AsAdded, vm.CategorySortModeIndex);
+        Assert.Equal(LanguageOption.Japanese, vm.SelectedLanguage);
+        Assert.Equal(CategorySortMode.AsAdded, vm.SelectedCategorySortMode);
         Assert.False(vm.SettingsChanged);
     }
 
@@ -138,7 +138,7 @@ public class SettingsWindowViewModelTests
             onCommit: s => committed = s);
 
         vm.ThemeIndex = 2;
-        vm.PostLaunchBehaviorIndex = (int)PostLaunchBehavior.KeepOpen;
+        vm.SelectedPostLaunchBehavior = PostLaunchBehavior.KeepOpen;
 
         var last = Assert.IsType<AppSettings>(committed);
         Assert.Equal(ThemePaletteConfigurationLoader.DarkThemeId, last.ThemeId);
@@ -146,52 +146,52 @@ public class SettingsWindowViewModelTests
     }
 
     [Fact]
-    public void PostLaunchBehaviorIndex_Change_UpdatesSavedSettings()
+    public void SelectedPostLaunchBehavior_Change_UpdatesSavedSettings()
     {
         AppSettings? committed = null;
         var vm = Make(onCommit: s => committed = s);
 
-        vm.PostLaunchBehaviorIndex = (int)PostLaunchBehavior.MinimizeWindow;
+        vm.SelectedPostLaunchBehavior = PostLaunchBehavior.MinimizeWindow;
 
         var last = Assert.IsType<AppSettings>(committed);
         Assert.Equal(PostLaunchBehavior.MinimizeWindow, last.PostLaunchBehavior);
     }
 
     [Fact]
-    public void QuickAddSuggestionLimitIndex_Change_UpdatesSavedSettings()
+    public void QuickAddSuggestionLimit_Change_UpdatesSavedSettings()
     {
         AppSettings? committed = null;
         var vm = Make(onCommit: s => committed = s);
 
-        vm.QuickAddSuggestionLimitIndex = 1;
+        vm.QuickAddSuggestionLimit = 20;
 
         Assert.Equal(20, committed!.QuickAddSuggestionLimit);
     }
 
     [Fact]
-    public void LanguageIndex_Change_UpdatesSavedSettings()
+    public void SelectedLanguage_Change_UpdatesSavedSettings()
     {
         AppSettings? committed = null;
         var vm = Make(onCommit: s => committed = s);
 
-        vm.LanguageIndex = (int)LanguageOption.English;
+        vm.SelectedLanguage = LanguageOption.English;
 
         Assert.Equal(LanguageOption.English, committed!.Language);
     }
 
     [Fact]
-    public void UpdateInstallBehaviorIndex_Change_UpdatesSavedSettings()
+    public void SelectedUpdateInstallBehavior_Change_UpdatesSavedSettings()
     {
         AppSettings? committed = null;
         var vm = Make(onCommit: s => committed = s);
 
-        vm.UpdateInstallBehaviorIndex = (int)UpdateInstallBehavior.AutomaticallyApply;
+        vm.SelectedUpdateInstallBehavior = UpdateInstallBehavior.AutomaticallyApply;
 
         Assert.Equal(UpdateInstallBehavior.AutomaticallyApply, committed!.UpdateInstallBehavior);
     }
 
     [Fact]
-    public void LanguageIndex_Change_ReloadsThemeOptionsImmediately()
+    public void SelectedLanguage_Change_ReloadsThemeOptionsImmediately()
     {
         var appEvent = new AppEvent();
         var providerCallCount = 0;
@@ -220,7 +220,7 @@ public class SettingsWindowViewModelTests
             appEvent,
             ThemeOptionsProvider);
 
-        vm.LanguageIndex = (int)LanguageOption.Japanese;
+        vm.SelectedLanguage = LanguageOption.Japanese;
 
         Assert.Equal(2, providerCallCount);
         Assert.Equal("after", culturePhase);
@@ -272,12 +272,12 @@ public class SettingsWindowViewModelTests
     }
 
     [Fact]
-    public void AppListSortModeIndex_Change_UpdatesSavedSettings()
+    public void SelectedAppListSortMode_Change_UpdatesSavedSettings()
     {
         AppSettings? committed = null;
         var vm = Make(onCommit: s => committed = s);
 
-        vm.AppListSortModeIndex = (int)AppListSortMode.CategoryThenName;
+        vm.SelectedAppListSortMode = AppListSortMode.CategoryThenName;
 
         Assert.Equal(AppListSortMode.CategoryThenName, committed!.AppListSortMode);
     }
@@ -312,10 +312,10 @@ public class SettingsWindowViewModelTests
         vm.ResetToDefaults();
 
         Assert.Equal(0, vm.ThemeIndex);
-        Assert.Equal((int)defaults.Language, vm.LanguageIndex);
-        Assert.Equal((int)PostLaunchBehavior.CloseApp, vm.PostLaunchBehaviorIndex);
+        Assert.Equal(defaults.Language, vm.SelectedLanguage);
+        Assert.Equal(PostLaunchBehavior.CloseApp, vm.SelectedPostLaunchBehavior);
         Assert.Equal(defaults.CheckForUpdatesOnStartup, vm.CheckForUpdatesOnStartup);
-        Assert.Equal((int)defaults.UpdateInstallBehavior, vm.UpdateInstallBehaviorIndex);
+        Assert.Equal(defaults.UpdateInstallBehavior, vm.SelectedUpdateInstallBehavior);
         Assert.Equal(defaults.DebugUpdate, vm.DebugUpdate);
         Assert.Equal(defaults.StartMinimizedOnLaunch, vm.StartMinimizedOnLaunch);
         Assert.Equal(defaults.LaunchAtWindowsStartup, vm.LaunchAtWindowsStartup);
@@ -323,9 +323,9 @@ public class SettingsWindowViewModelTests
         Assert.Equal(defaults.AllowPrivateNetworkHttpIconRequests, vm.AllowPrivateNetworkHttpIconRequests);
         Assert.Equal(defaults.ConfirmBeforeLaunch, vm.ConfirmBeforeLaunch);
         Assert.Equal(defaults.ConfirmBeforeDelete, vm.ConfirmBeforeDelete);
-        Assert.Equal(3, vm.QuickAddSuggestionLimitIndex);
-        Assert.Equal((int)defaults.CategorySortMode, vm.CategorySortModeIndex);
-        Assert.Equal((int)defaults.AppListSortMode, vm.AppListSortModeIndex);
+        Assert.Equal(defaults.QuickAddSuggestionLimit, vm.QuickAddSuggestionLimit);
+        Assert.Equal(defaults.CategorySortMode, vm.SelectedCategorySortMode);
+        Assert.Equal(defaults.AppListSortMode, vm.SelectedAppListSortMode);
         Assert.Equal(defaults.RunAsAdministrator, vm.RunAsAdministrator);
     }
 
@@ -364,11 +364,11 @@ public class SettingsWindowViewModelTests
         vm.ApplyExternalSettings(refreshed);
 
         Assert.Equal(2, vm.ThemeIndex);
-        Assert.Equal((int)PostLaunchBehavior.MinimizeWindow, vm.PostLaunchBehaviorIndex);
+        Assert.Equal(PostLaunchBehavior.MinimizeWindow, vm.SelectedPostLaunchBehavior);
         Assert.False(vm.CheckForUpdatesOnStartup);
         Assert.False(vm.FetchHttpIcons);
         Assert.True(vm.AllowPrivateNetworkHttpIconRequests);
-        Assert.Equal((int)LanguageOption.Japanese, vm.LanguageIndex);
+        Assert.Equal(LanguageOption.Japanese, vm.SelectedLanguage);
         Assert.Null(committed);
     }
 
