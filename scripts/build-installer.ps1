@@ -13,7 +13,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 if ([string]::IsNullOrWhiteSpace($PublishDir)) {
-    $PublishDir = "publish/$Runtime"
+    $PublishDir = "artifacts/publish/$Runtime"
 }
 
 if ([string]::IsNullOrWhiteSpace($OutputDir)) {

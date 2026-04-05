@@ -17,7 +17,7 @@
     When true, allows verification to continue for self-signed certificates if
     the only failure is an untrusted-root chain.
 .EXAMPLE
-    ./scripts/sign-msix.ps1 -MsixPath publish/win-x64/applanch.msix
+    ./scripts/sign-msix.ps1 -MsixPath artifacts/publish/win-x64/applanch.msix
 #>
 param(
     [Parameter(Mandatory = $true)]

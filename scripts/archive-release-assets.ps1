@@ -8,7 +8,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$publishDir = "publish/$Runtime"
+$publishDir = "artifacts/publish/$Runtime"
 $distDir = 'dist'
 $archiveName = "applanch-$AppVersion-$Runtime.zip"
 $archivePath = Join-Path $distDir $archiveName
