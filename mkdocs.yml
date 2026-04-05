@@ -37,6 +37,7 @@ plugins:
             Themes: テーマ
             Launch Fallbacks: 起動フォールバック
             Windows Integration: Windows 統合
+            Updates: 自動更新
             Install Guide: インストールガイド
             Developer Guide: 開発者ガイド
             Contributing: コントリビューション
@@ -74,6 +75,7 @@ nav:
     - Themes: user/themes.md
     - Launch Fallbacks: user/launch-fallbacks.md
     - Windows Integration: user/windows-integration.md
+    - Updates: user/updates.md
   - Developer Guide:
     - Contributing: dev/contributing.md
     - Release Guide: dev/release.md
