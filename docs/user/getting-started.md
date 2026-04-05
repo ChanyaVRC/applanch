@@ -21,6 +21,8 @@ After installing, run **applanch.exe** to open the main window.
 2. applanch shows up to 10 suggestions below the input as you type.
 3. Select a suggestion or press **Enter** / click **Add** to add the item to your list.
 
+You can also drag a file or folder from File Explorer and drop it onto the applanch window to add it instantly.
+
 ## Launch an Item
 
 Click any item in the list to launch it.
@@ -30,3 +32,5 @@ Click any item in the list to launch it.
 - [Manage Items & Categories](items.md) — rename items, set categories, edit arguments, reorder the list
 - [Settings Reference](settings.md) — configure theme, language, launch behavior, and updates
 - [Themes](themes.md) — switch between light, dark, and custom themes
+- [Windows Integration](windows-integration.md) — context menu registration and startup options
+- [Automatic Updates](updates.md) — how the update checker and banner work
