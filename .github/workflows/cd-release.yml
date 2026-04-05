@@ -98,7 +98,7 @@ jobs:
 
       - name: Build installer
         shell: pwsh
-        run: ./scripts/build-installer.ps1 -AppVersion '${{ needs.metadata.outputs.app_version }}' -Runtime '${{ matrix.runtime }}'
+        run: ./scripts/build-installer.ps1 -AppVersion '${{ needs.metadata.outputs.app_version }}' -Runtime '${{ matrix.runtime }}' -OutputDir dist
 
       - name: Build sparse MSIX package
         shell: pwsh
