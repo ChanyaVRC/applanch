@@ -93,5 +93,10 @@ python -m pip install -r docs/requirements.txt
 python -m mkdocs serve
 ```
 
+GitHub Pages publication:
+
+- The documentation site is built and deployed by `.github/workflows/docs.yml`.
+- The workflow runs on pushes to `master`/`main`, release publication, and manual dispatch.
+
 Each documentation page has both an English version (`<page>.md`) and a Japanese version (`<page>.ja.md`).
 When adding or updating a page, update both versions.

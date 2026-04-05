@@ -24,15 +24,8 @@
 
 このドキュメントは、リポジトリの README よりも詳しい運用・利用手順を中心にまとめています。
 
-## ローカル確認
+## ドキュメント開発
 
-依存関係をインストールしてからローカルサーバーを起動します。
+ローカル確認手順と公開フローは開発者ガイドを参照してください。
 
-```powershell
-python -m pip install -r docs/requirements.txt
-python -m mkdocs serve
-```
-
-## GitHub Pages
-
-このリポジトリでは GitHub Actions を使って GitHub Pages にドキュメントを公開します。
+- [コントリビューション](dev/contributing.ja.md)

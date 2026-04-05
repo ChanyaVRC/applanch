@@ -93,5 +93,10 @@ python -m pip install -r docs/requirements.txt
 python -m mkdocs serve
 ```
 
+GitHub Pages への公開：
+
+- ドキュメントサイトのビルドとデプロイは `.github/workflows/docs.yml` で実行されます。
+- このワークフローは `master`/`main` への push、リリース公開、手動実行で動作します。
+
 各ドキュメントページには英語版（`<ページ>.md`）と日本語版（`<ページ>.ja.md`）があります。
 ページを追加・更新する際は両方更新してください。
