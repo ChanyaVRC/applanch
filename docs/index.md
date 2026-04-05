@@ -6,7 +6,7 @@ This site contains the complete documentation for applanch.
 
 ### User Guide
 
-- [Install Guide](install.md)
+- [Install Guide](user/install.md)
 - [Getting Started](user/getting-started.md)
 - [Items & Categories](user/items.md)
 - [Settings Reference](user/settings.md)

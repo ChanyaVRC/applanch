@@ -11,7 +11,7 @@ It focuses on fast launch workflows with category-based organization, quick-add 
 
 ## Install
 
-See the [Install Guide](../install.md) for full instructions.
+See the [Install Guide](install.md) for full instructions.
 After installing, run **applanch.exe** to open the main window.
 
 ## Add Your First Item

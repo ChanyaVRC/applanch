@@ -6,7 +6,7 @@
 
 ### ユーザーガイド
 
-- [インストールガイド](install.ja.md)
+- [インストールガイド](user/install.ja.md)
 - [クイックスタート](user/getting-started.ja.md)
 - [アイテムとカテゴリー](user/items.ja.md)
 - [設定リファレンス](user/settings.ja.md)

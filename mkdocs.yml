@@ -70,7 +70,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - User Guide:
-    - Install Guide: install.md
+    - Install Guide: user/install.md
     - Getting Started: user/getting-started.md
     - Items & Categories: user/items.md
     - Settings Reference: user/settings.md
