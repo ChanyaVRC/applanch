@@ -45,7 +45,7 @@ if ([string]::IsNullOrWhiteSpace($iscc)) {
 
 $scriptTemplate = @'
 [Setup]
-AppId={D102DAA4-8B3D-44BA-987E-7C03B9D23F8D}
+AppId={{D102DAA4-8B3D-44BA-987E-7C03B9D23F8D}
 AppName=applanch
 AppVersion=__APP_VERSION__
 AppPublisher=ChanyaVRC
