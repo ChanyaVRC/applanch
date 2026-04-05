@@ -5,34 +5,28 @@ namespace applanch.Views.Dialogs;
 
 public sealed partial class PromptDialog : Window
 {
-    private readonly bool _useSuggestions;
+    public bool UseSuggestions { get; }
+
+    public IReadOnlyList<string> Suggestions { get; }
+
+    public string InitialValue { get; }
 
     public PromptDialog(string title, string initialValue, Window owner, IEnumerable<string>? suggestions = null)
     {
-        InitializeComponent();
-        Title = title;
-        Owner = owner;
-
         var suggestionList = suggestions?
             .Where(static v => !string.IsNullOrWhiteSpace(v))
             .Distinct(StringComparer.Ordinal)
             .ToArray() ?? [];
+        Suggestions = suggestionList;
+        UseSuggestions = suggestionList.Length > 0;
+        InitialValue = initialValue;
 
-        _useSuggestions = suggestionList.Length > 0;
-
-        if (_useSuggestions)
-        {
-            InputTextBox.Visibility = Visibility.Collapsed;
-            InputSuggestion.Visibility = Visibility.Visible;
-            InputSuggestion.Suggestions = suggestionList;
-            InputSuggestion.Text = initialValue;
-        }
-        else
-        {
-            InputTextBox.Text = initialValue;
-        }
-
+        InitializeComponent();
+        Title = title;
+        Owner = owner;
+        DataContext = this;
     }
+
 
     private void Window_SourceInitialized(object? sender, EventArgs e) =>
         WindowCaptionThemeHelper.Apply(this);
@@ -42,7 +36,7 @@ public sealed partial class PromptDialog : Window
 
     private void Window_Loaded(object sender, RoutedEventArgs e)
     {
-        if (_useSuggestions)
+        if (UseSuggestions)
         {
             InputSuggestion.FocusInputWithoutAutoOpen(selectAll: true);
             return;
@@ -51,7 +45,7 @@ public sealed partial class PromptDialog : Window
         InputTextBox.SelectAll();
     }
 
-    public string InputValue => _useSuggestions
+    public string InputValue => UseSuggestions
         ? InputSuggestion.Text?.Trim() ?? string.Empty
         : InputTextBox.Text.Trim();
 }

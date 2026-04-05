@@ -181,11 +181,38 @@
     <StackPanel Margin="20">
         <!-- Text-only mode -->
         <TextBox x:Name="InputTextBox"
-                 Style="{StaticResource DialogTextBoxStyle}" />
+             Text="{Binding InitialValue, Mode=OneWay}">
+            <TextBox.Style>
+                <Style TargetType="TextBox"
+                       BasedOn="{StaticResource DialogTextBoxStyle}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding UseSuggestions}"
+                                     Value="True">
+                            <Setter Property="Visibility"
+                                    Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
         <!-- Suggestion mode: SuggestionInputControl wraps ComboBox logic -->
         <controls:SuggestionInputControl x:Name="InputSuggestion"
                                          InputComboBoxStyle="{StaticResource DialogComboBoxStyle}"
-                                         Visibility="Collapsed" />
+                                         Suggestions="{Binding Suggestions, Mode=OneWay}"
+                                         Text="{Binding InitialValue, Mode=OneWay}"
+                                         Visibility="Collapsed">
+            <controls:SuggestionInputControl.Style>
+                <Style TargetType="controls:SuggestionInputControl">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding UseSuggestions}"
+                                     Value="True">
+                            <Setter Property="Visibility"
+                                    Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </controls:SuggestionInputControl.Style>
+        </controls:SuggestionInputControl>
         <StackPanel Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     Margin="0,14,0,0">
