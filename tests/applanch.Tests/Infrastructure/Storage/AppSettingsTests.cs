@@ -62,4 +62,32 @@ public class AppSettingsTests
         Assert.True(settings.FetchHttpIcons);
         Assert.False(settings.AllowPrivateNetworkHttpIconRequests);
     }
+
+    [Fact]
+    public void Defaults_UseFiftyQuickAddSuggestions()
+    {
+        var settings = new AppSettings();
+
+        Assert.Equal(50, settings.QuickAddSuggestionLimit);
+    }
+
+    [Fact]
+    public void Normalize_WhenQuickAddSuggestionLimitIsTooSmall_ClampsToMinimum()
+    {
+        var settings = new AppSettings { QuickAddSuggestionLimit = 0 };
+
+        var normalized = AppSettings.Normalize(settings);
+
+        Assert.Equal(1, normalized.QuickAddSuggestionLimit);
+    }
+
+    [Fact]
+    public void Normalize_WhenQuickAddSuggestionLimitIsTooLarge_ClampsToMaximum()
+    {
+        var settings = new AppSettings { QuickAddSuggestionLimit = 999 };
+
+        var normalized = AppSettings.Normalize(settings);
+
+        Assert.Equal(200, normalized.QuickAddSuggestionLimit);
+    }
 }

@@ -103,6 +103,18 @@ When enabled, applanch is registered to start automatically with Windows.
 | Name | Alphabetical by display name |
 | Category Then Name | Grouped by category, then alphabetical |
 
+### Quick Add Suggestion Limit
+
+Controls how many suggestions are shown while typing in the quick-add box.
+
+| Option | Behavior |
+|--------|----------|
+| 10 | Compact list with fewer suggestions |
+| 20 | Balanced list size |
+| 30 | Larger list with more choices |
+| 50 (default) | Recommended general-use setting |
+| 100 | Maximum list size in settings |
+
 ---
 
 ## Icons & Network

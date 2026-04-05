@@ -7,11 +7,13 @@ internal sealed class FakeResolver : IAppResolver
     public bool ShouldResolve { get; set; }
     public ResolvedApp ResolvedApp { get; set; }
     public int SuggestionsCallCount { get; private set; }
+    public int LastSuggestionMaxResults { get; private set; }
     public IReadOnlyList<string> SuggestionsOverride { get; set; } = [];
 
     public IReadOnlyList<string> GetSuggestions(string input, int maxResults = 8)
     {
         SuggestionsCallCount++;
+        LastSuggestionMaxResults = maxResults;
 
         if (SuggestionsOverride.Count > 0)
         {

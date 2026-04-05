@@ -200,6 +200,12 @@
   <data name="Setting_ConfirmBeforeDelete" xml:space="preserve">
     <value>削除前に確認する</value>
   </data>
+  <data name="Setting_QuickAddSuggestionLimit" xml:space="preserve">
+    <value>クイック追加サジェスト上限</value>
+  </data>
+  <data name="Setting_QuickAddSuggestionLimitDesc" xml:space="preserve">
+    <value>クイック追加入力中に表示するサジェストの最大件数です。</value>
+  </data>
   <data name="Setting_CategorySortMode" xml:space="preserve">
     <value>カテゴリの並び順</value>
   </data>

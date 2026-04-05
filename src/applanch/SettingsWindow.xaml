@@ -395,6 +395,30 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0"
+                                   Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_QuickAddSuggestionLimit]}"
+                                   FontSize="13"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource Brush.TextPrimary}"/>
+                        <ComboBox Grid.Column="1"
+                                  Width="200"
+                                  Margin="12,0,0,0"
+                                  HorizontalAlignment="Left"
+                                  Style="{StaticResource RoundedComboBoxStyle}"
+                                  ItemsSource="{Binding QuickAddSuggestionLimitOptions}"
+                                  SelectedIndex="{Binding QuickAddSuggestionLimitIndex}"/>
+                    </Grid>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_QuickAddSuggestionLimitDesc]}"
+                               Margin="0,6,0,0"
+                               FontSize="11"
+                               Foreground="{DynamicResource Brush.TextTertiary}"
+                               TextWrapping="Wrap"/>
+
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
                                    Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Setting_CategorySortMode]}"
                                    FontSize="13"
                                    VerticalAlignment="Center"

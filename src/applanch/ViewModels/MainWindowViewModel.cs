@@ -14,7 +14,6 @@ namespace applanch.ViewModels;
 public sealed class MainWindowViewModel : ObservableObject
 {
     private static string AllCategoriesLabel => LaunchCategoryCatalog.AllCategoriesLabel;
-    private const int QuickAddSuggestionsLimit = 10;
 
     private readonly QuickAddWorkflow _quickAddWorkflow;
     private readonly ILauncherStore _launcherStore;
@@ -227,6 +226,7 @@ public sealed class MainWindowViewModel : ObservableObject
         var iconSettingsChanged = _settings.FetchHttpIcons != settings.FetchHttpIcons ||
                                   _settings.AllowPrivateNetworkHttpIconRequests != settings.AllowPrivateNetworkHttpIconRequests;
         var languageChanged = _settings.Language != settings.Language;
+        var quickAddSuggestionLimitChanged = _settings.QuickAddSuggestionLimit != settings.QuickAddSuggestionLimit;
         _settings = settings;
         _iconProvider.ApplySettings(settings);
 
@@ -238,6 +238,11 @@ public sealed class MainWindowViewModel : ObservableObject
         if (iconSettingsChanged)
         {
             RefreshHttpItemIcons();
+        }
+
+        if (quickAddSuggestionLimitChanged)
+        {
+            RefreshQuickAddSuggestions();
         }
 
         RebuildCategoryLists();
@@ -262,7 +267,7 @@ public sealed class MainWindowViewModel : ObservableObject
         _refreshingSuggestions = true;
         try
         {
-            var suggestions = _quickAddWorkflow.GetSuggestions(QuickAddNameOrPath, QuickAddSuggestionsLimit);
+            var suggestions = _quickAddWorkflow.GetSuggestions(QuickAddNameOrPath, _settings.QuickAddSuggestionLimit);
             ReplaceCollection(QuickAddSuggestions, suggestions);
         }
         finally

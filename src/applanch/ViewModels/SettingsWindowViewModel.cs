@@ -10,6 +10,8 @@ namespace applanch.ViewModels;
 
 internal sealed class SettingsWindowViewModel : ObservableObject
 {
+    private static readonly int[] QuickAddSuggestionLimitOptionsValues = [10, 20, 30, 50, 100];
+
     private readonly AppEvent _appEvent;
     private readonly Func<IReadOnlyList<ThemeOption>> _themeOptionsProvider;
     private IReadOnlyList<ThemeOption> _themeOptions;
@@ -25,6 +27,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     private bool _allowPrivateNetworkHttpIconRequests;
     private bool _confirmBeforeLaunch;
     private bool _confirmBeforeDelete;
+    private int _quickAddSuggestionLimit = AppSettings.DefaultQuickAddSuggestionLimit;
     private CategorySortMode _categorySortMode;
     private AppListSortMode _appListSortMode;
     private bool _runAsAdministrator;
@@ -43,6 +46,8 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     }
 
     public IReadOnlyList<ThemeOption> ThemeOptions => _themeOptions;
+
+    public IReadOnlyList<int> QuickAddSuggestionLimitOptions => QuickAddSuggestionLimitOptionsValues;
 
     public bool IsThemeSelectionVisible => _themeOptions.Count > 0;
 
@@ -164,6 +169,28 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         set => SetFieldAndCommit(ref _confirmBeforeDelete, value);
     }
 
+    public int QuickAddSuggestionLimitIndex
+    {
+        get => ResolveQuickAddSuggestionLimitIndex();
+        set
+        {
+            if (value < 0 || value >= QuickAddSuggestionLimitOptionsValues.Length)
+            {
+                return;
+            }
+
+            var selected = QuickAddSuggestionLimitOptionsValues[value];
+            if (_quickAddSuggestionLimit == selected)
+            {
+                return;
+            }
+
+            _quickAddSuggestionLimit = selected;
+            OnPropertyChanged();
+            Commit();
+        }
+    }
+
     public int CategorySortModeIndex
     {
         get => (int)_categorySortMode;
@@ -247,6 +274,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         _allowPrivateNetworkHttpIconRequests = settings.AllowPrivateNetworkHttpIconRequests;
         _confirmBeforeLaunch = settings.ConfirmBeforeLaunch;
         _confirmBeforeDelete = settings.ConfirmBeforeDelete;
+        _quickAddSuggestionLimit = settings.QuickAddSuggestionLimit;
         _categorySortMode = settings.CategorySortMode;
         _appListSortMode = settings.AppListSortMode;
         _runAsAdministrator = settings.RunAsAdministrator;
@@ -283,6 +311,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             AllowPrivateNetworkHttpIconRequests = _allowPrivateNetworkHttpIconRequests,
             ConfirmBeforeLaunch = _confirmBeforeLaunch,
             ConfirmBeforeDelete = _confirmBeforeDelete,
+            QuickAddSuggestionLimit = _quickAddSuggestionLimit,
             CategorySortMode = _categorySortMode,
             AppListSortMode = _appListSortMode,
             RunAsAdministrator = _runAsAdministrator,
@@ -324,5 +353,18 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         }
 
         return 0;
+    }
+
+    private int ResolveQuickAddSuggestionLimitIndex()
+    {
+        for (var i = 0; i < QuickAddSuggestionLimitOptionsValues.Length; i++)
+        {
+            if (QuickAddSuggestionLimitOptionsValues[i] == _quickAddSuggestionLimit)
+            {
+                return i;
+            }
+        }
+
+        return Array.IndexOf(QuickAddSuggestionLimitOptionsValues, AppSettings.DefaultQuickAddSuggestionLimit);
     }
 }

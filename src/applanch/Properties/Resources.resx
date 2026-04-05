@@ -200,6 +200,12 @@
   <data name="Setting_ConfirmBeforeDelete" xml:space="preserve">
     <value>Ask before deleting</value>
   </data>
+  <data name="Setting_QuickAddSuggestionLimit" xml:space="preserve">
+    <value>Quick add suggestion limit</value>
+  </data>
+  <data name="Setting_QuickAddSuggestionLimitDesc" xml:space="preserve">
+    <value>Maximum number of suggestions shown while typing in quick add.</value>
+  </data>
   <data name="Setting_CategorySortMode" xml:space="preserve">
     <value>Category order</value>
   </data>

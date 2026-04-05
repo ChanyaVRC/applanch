@@ -7,8 +7,13 @@ namespace applanch.Infrastructure.Storage;
 
 internal sealed record AppSettings
 {
+    internal const int DefaultQuickAddSuggestionLimit = 50;
+    internal const int MinQuickAddSuggestionLimit = 1;
+    internal const int MaxQuickAddSuggestionLimit = 200;
+
     public bool DebugUpdate { get; init; } = false;
     public string ThemeId { get; init; } = ThemePaletteConfigurationLoader.SystemThemeId;
+    public int QuickAddSuggestionLimit { get; init; } = DefaultQuickAddSuggestionLimit;
     public bool CheckForUpdatesOnStartup { get; init; } = true;
     public UpdateInstallBehavior UpdateInstallBehavior { get; init; } = UpdateInstallBehavior.Manual;
     public bool StartMinimizedOnLaunch { get; init; } = false;
@@ -74,10 +79,15 @@ internal sealed record AppSettings
     internal static AppSettings Normalize(AppSettings settings)
     {
         var themeId = NormalizeThemeId(settings.ThemeId);
+        var quickAddSuggestionLimit = Math.Clamp(
+            settings.QuickAddSuggestionLimit,
+            MinQuickAddSuggestionLimit,
+            MaxQuickAddSuggestionLimit);
 
         return settings with
         {
             ThemeId = themeId,
+            QuickAddSuggestionLimit = quickAddSuggestionLimit,
         };
     }
 

@@ -40,6 +40,7 @@ public class SettingsWindowViewModelTests
         var settings = new AppSettings
         {
             ThemeId = ThemePaletteConfigurationLoader.DarkThemeId,
+            QuickAddSuggestionLimit = 100,
             PostLaunchBehavior = PostLaunchBehavior.KeepOpen,
             CheckForUpdatesOnStartup = false,
             UpdateInstallBehavior = UpdateInstallBehavior.NotifyOnly,
@@ -53,6 +54,7 @@ public class SettingsWindowViewModelTests
         var vm = Make(settings);
 
         Assert.Equal(2, vm.ThemeIndex);
+        Assert.Equal(4, vm.QuickAddSuggestionLimitIndex);
         Assert.Equal((int)PostLaunchBehavior.KeepOpen, vm.PostLaunchBehaviorIndex);
         Assert.False(vm.CheckForUpdatesOnStartup);
         Assert.Equal((int)UpdateInstallBehavior.NotifyOnly, vm.UpdateInstallBehaviorIndex);
@@ -153,6 +155,17 @@ public class SettingsWindowViewModelTests
 
         var last = Assert.IsType<AppSettings>(committed);
         Assert.Equal(PostLaunchBehavior.MinimizeWindow, last.PostLaunchBehavior);
+    }
+
+    [Fact]
+    public void QuickAddSuggestionLimitIndex_Change_UpdatesSavedSettings()
+    {
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
+
+        vm.QuickAddSuggestionLimitIndex = 1;
+
+        Assert.Equal(20, committed!.QuickAddSuggestionLimit);
     }
 
     [Fact]
@@ -289,6 +302,7 @@ public class SettingsWindowViewModelTests
             AllowPrivateNetworkHttpIconRequests = true,
             ConfirmBeforeLaunch = true,
             ConfirmBeforeDelete = true,
+            QuickAddSuggestionLimit = 10,
             CategorySortMode = CategorySortMode.AsAdded,
             AppListSortMode = AppListSortMode.Name,
             RunAsAdministrator = true,
@@ -309,6 +323,7 @@ public class SettingsWindowViewModelTests
         Assert.Equal(defaults.AllowPrivateNetworkHttpIconRequests, vm.AllowPrivateNetworkHttpIconRequests);
         Assert.Equal(defaults.ConfirmBeforeLaunch, vm.ConfirmBeforeLaunch);
         Assert.Equal(defaults.ConfirmBeforeDelete, vm.ConfirmBeforeDelete);
+        Assert.Equal(3, vm.QuickAddSuggestionLimitIndex);
         Assert.Equal((int)defaults.CategorySortMode, vm.CategorySortModeIndex);
         Assert.Equal((int)defaults.AppListSortMode, vm.AppListSortModeIndex);
         Assert.Equal(defaults.RunAsAdministrator, vm.RunAsAdministrator);

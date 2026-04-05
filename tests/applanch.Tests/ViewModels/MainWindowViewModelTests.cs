@@ -262,6 +262,42 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
+    public void QuickAddNameOrPath_UsesQuickAddSuggestionLimitFromSettings()
+    {
+        var resolver = new FakeResolver
+        {
+            SuggestionsOverride = Enumerable.Range(1, 20).Select(static i => $"s{i}").ToArray()
+        };
+        var vm = CreateViewModel(
+            resolver: resolver,
+            settings: new AppSettings { QuickAddSuggestionLimit = 5 });
+
+        vm.QuickAddNameOrPath = "s";
+
+        Assert.Equal(5, resolver.LastSuggestionMaxResults);
+        Assert.Equal(5, vm.QuickAddSuggestions.Count);
+    }
+
+    [Fact]
+    public void ApplySettings_WhenQuickAddSuggestionLimitChanges_RefreshesSuggestionsWithNewLimit()
+    {
+        var resolver = new FakeResolver
+        {
+            SuggestionsOverride = Enumerable.Range(1, 30).Select(static i => $"s{i}").ToArray()
+        };
+        var vm = CreateViewModel(
+            resolver: resolver,
+            settings: new AppSettings { QuickAddSuggestionLimit = 10 });
+        vm.QuickAddNameOrPath = "s";
+        Assert.Equal(10, vm.QuickAddSuggestions.Count);
+
+        vm.ApplySettings(new AppSettings { QuickAddSuggestionLimit = 25 });
+
+        Assert.Equal(25, resolver.LastSuggestionMaxResults);
+        Assert.Equal(25, vm.QuickAddSuggestions.Count);
+    }
+
+    [Fact]
     public void SelectedCategory_FiltersLaunchItems()
     {
         var store = new FakeStore(

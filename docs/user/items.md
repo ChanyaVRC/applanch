@@ -3,7 +3,7 @@
 ## Adding Items
 
 Type a path or app name into the quick-add input at the top of the main window.
-applanch shows up to 10 suggestions based on installed applications and recent input.
+By default, applanch shows up to 50 suggestions based on installed applications and recent input.
 Press **Enter**, click **Add**, or select a suggestion to add the item.
 
 You can also drag and drop a file or folder directly onto the main window.
