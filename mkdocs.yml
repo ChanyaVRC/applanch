@@ -25,9 +25,25 @@ markdown_extensions:
 nav:
   - English:
     - Home: index.md
+    - User Guide:
+      - Getting Started: user/getting-started.md
+      - Items & Categories: user/items.md
+      - Settings Reference: user/settings.md
+      - Themes: user/themes.md
+      - Launch Fallbacks: user/launch-fallbacks.md
     - Install Guide: install.md
     - Release Guide: release.md
+    - Developer Guide:
+      - Contributing: dev/contributing.md
   - 日本語:
     - ホーム: index.ja.md
+    - ユーザーガイド:
+      - クイックスタート: user/getting-started.ja.md
+      - アイテムとカテゴリー: user/items.ja.md
+      - 設定リファレンス: user/settings.ja.md
+      - テーマ: user/themes.ja.md
+      - 起動フォールバック: user/launch-fallbacks.ja.md
     - インストールガイド: install.ja.md
     - リリースガイド: release.ja.md
+    - 開発者ガイド:
+      - コントリビューション: dev/contributing.ja.md

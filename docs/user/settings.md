@@ -1,0 +1,126 @@
+# Settings Reference
+
+Open Settings from the button in the top-right area of the main window.
+
+---
+
+## Appearance
+
+### Theme
+
+Controls the color scheme of the application.
+
+| Option | Behavior |
+|--------|----------|
+| Follow system (default) | Matches the Windows light/dark setting |
+| Light | Always use the light palette |
+| Dark | Always use the dark palette |
+
+Custom themes defined in `Config/theme-palette.json` also appear here.
+See the [Themes](themes.md) page for details.
+
+### Language
+
+| Option | Behavior |
+|--------|----------|
+| Follow system (default) | Uses the Windows display language |
+| English | Always use English |
+| 日本語 | Always use Japanese |
+
+---
+
+## Launch Behavior
+
+### Post-Launch Behavior
+
+What applanch does after an item is launched.
+
+| Option | Behavior |
+|--------|----------|
+| Close App (default) | The application window closes after launch |
+| Minimize Window | The window minimizes to the taskbar |
+| Keep Open | The window stays open and active |
+
+### Confirm Before Launch
+
+When enabled, a confirmation dialog appears each time you launch an item.
+
+### Run As Administrator
+
+When enabled, all items are launched with administrator (elevated) privileges.
+
+### Confirm Before Delete
+
+When enabled, a confirmation dialog appears before removing an item from the list.
+
+---
+
+## Startup
+
+### Check For Updates On Startup
+
+When enabled (default), applanch checks GitHub Releases for a new version each time it starts.
+
+### Update Install Behavior
+
+Controls what happens when an update is detected.
+
+| Option | Behavior |
+|--------|----------|
+| Notify Only | Shows a banner only |
+| Manual (default) | User manually triggers the update from the banner |
+| Automatically Apply | Update is applied automatically |
+
+### Debug Update Mode
+
+Enables testing of the update mechanism regardless of actual version differences.
+Intended for development use only.
+
+### Start Minimized On Launch
+
+When enabled, the main window starts minimized instead of visible.
+
+### Launch At Windows Startup
+
+When enabled, applanch is registered to start automatically with Windows.
+
+---
+
+## Item Display
+
+### Category Sort Mode
+
+| Option | Behavior |
+|--------|----------|
+| Alphabetical (default) | Categories sorted A–Z |
+| As Added | Categories appear in the order created |
+
+### App List Sort Mode
+
+| Option | Behavior |
+|--------|----------|
+| Manual (default) | Ordered by drag-and-drop position |
+| Name | Alphabetical by display name |
+| Category Then Name | Grouped by category, then alphabetical |
+
+---
+
+## Icons & Network
+
+### Fetch HTTP Icons
+
+When enabled (default), applanch downloads icons from web URLs associated with items.
+
+### Allow Private Network HTTP Icon Requests
+
+When enabled, icon downloads from private IP ranges (e.g., 192.168.x.x) are permitted.
+Disabled by default.
+
+---
+
+## Utility Actions
+
+| Action | Description |
+|--------|-------------|
+| Reset to Defaults | Restores all settings to their default values |
+| Report Bug | Opens a pre-filled GitHub issue template with system diagnostics |
