@@ -116,7 +116,7 @@ function New-BrandedWizardBitmap {
         $bitmap.Dispose()
     }
 }
-function New-DarkWizardSmallBitmapFromIcon {
+function New-LightWizardSmallBitmapFromIcon {
     param(
         [Parameter(Mandatory = $true)]
         [string]$OutputPath,
@@ -135,20 +135,37 @@ function New-DarkWizardSmallBitmapFromIcon {
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
     $icon = New-Object System.Drawing.Icon $IconPath
     $iconBitmap = $icon.ToBitmap()
-    $backgroundBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(26, 36, 56))
+    $backgroundBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(247, 249, 252))
+    $topAccentBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(226, 233, 244))
+    $badgeShadowBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(60, 15, 34, 64))
+    $badgeBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(39, 72, 122))
+    $badgeRingPen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(120, 255, 255, 255), 1.2)
     try {
         $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::HighQuality
         $graphics.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
-        $graphics.Clear([System.Drawing.Color]::FromArgb(26, 36, 56))
+        $graphics.Clear([System.Drawing.Color]::FromArgb(247, 249, 252))
         $graphics.FillRectangle($backgroundBrush, 0, 0, $Width, $Height)
+        $graphics.FillRectangle($topAccentBrush, 0, 0, $Width, 10)
 
-        $iconSize = [math]::Min(32, [math]::Min($Width - 8, $Height - 8))
+        $badgeDiameter = [math]::Min(37, [math]::Min($Width - 6, $Height - 6))
+        $badgeX = [int](($Width - $badgeDiameter) / 2)
+        $badgeY = [int](($Height - $badgeDiameter) / 2) + 1
+
+        $graphics.FillEllipse($badgeShadowBrush, $badgeX + 1, $badgeY + 1, $badgeDiameter, $badgeDiameter)
+        $graphics.FillEllipse($badgeBrush, $badgeX, $badgeY, $badgeDiameter, $badgeDiameter)
+        $graphics.DrawEllipse($badgeRingPen, $badgeX + 0.5, $badgeY + 0.5, $badgeDiameter - 1, $badgeDiameter - 1)
+
+        $iconSize = [math]::Min(26, [math]::Min($Width - 10, $Height - 10))
         $iconX = [int](($Width - $iconSize) / 2)
-        $iconY = [int](($Height - $iconSize) / 2)
+        $iconY = [int](($Height - $iconSize) / 2) + 1
         $graphics.DrawImage($iconBitmap, $iconX, $iconY, $iconSize, $iconSize)
     }
     finally {
         $backgroundBrush.Dispose()
+        $topAccentBrush.Dispose()
+        $badgeShadowBrush.Dispose()
+        $badgeBrush.Dispose()
+        $badgeRingPen.Dispose()
         $iconBitmap.Dispose()
         $icon.Dispose()
         $graphics.Dispose()
@@ -159,7 +176,7 @@ function New-DarkWizardSmallBitmapFromIcon {
 $wizardImagePath = Join-Path ([System.IO.Path]::GetTempPath()) ("applanch-wizard-large-" + [Guid]::NewGuid().ToString('N') + '.bmp')
 $wizardSmallImagePath = Join-Path ([System.IO.Path]::GetTempPath()) ("applanch-wizard-small-" + [Guid]::NewGuid().ToString('N') + '.bmp')
 New-BrandedWizardBitmap -OutputPath $wizardImagePath -Width 164 -Height 314 -LogoPath $largeLogoPath -IsLargeImage $true
-New-DarkWizardSmallBitmapFromIcon -OutputPath $wizardSmallImagePath -Width 55 -Height 55 -IconPath $setupIconPath
+New-LightWizardSmallBitmapFromIcon -OutputPath $wizardSmallImagePath -Width 55 -Height 55 -IconPath $setupIconPath
 
 $scriptTemplate = @'
 [Setup]
