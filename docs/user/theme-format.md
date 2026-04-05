@@ -110,7 +110,7 @@ Switch inherited themes by Windows color mode:
 
 Object shape:
 
-```json
+```ts
 {
   light?: string;
   dark?: string;

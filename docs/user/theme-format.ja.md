@@ -110,7 +110,7 @@ Windows のカラーモードに応じて継承元を切り替える例:
 
 オブジェクトの形:
 
-```json
+```ts
 {
   light?: string;
   dark?: string;

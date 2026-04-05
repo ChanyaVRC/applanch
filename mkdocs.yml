@@ -36,7 +36,7 @@ plugins:
             Items & Categories: アイテムとカテゴリー
             Settings Reference: 設定リファレンス
             Themes: テーマ
-            Theme JSON Format: テーマ JSON 形式
+            JSON Format: JSON 形式
             Launch Fallbacks: 起動フォールバック
             Windows Integration: Windows 統合
             Updates: 自動更新
@@ -76,8 +76,10 @@ nav:
     - Settings Reference: user/settings.md
     - Themes:
       - user/themes.md
-      - Theme JSON Format: user/theme-format.md
-    - Launch Fallbacks: user/launch-fallbacks.md
+      - JSON Format: user/theme-format.md
+    - Launch Fallbacks:
+      - user/launch-fallbacks.md
+      - JSON Format: user/launch-fallback-format.md
     - Windows Integration: user/windows-integration.md
     - Updates: user/updates.md
   - Developer Guide:

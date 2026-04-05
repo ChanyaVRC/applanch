@@ -26,77 +26,6 @@ The following rules are included as examples. Enable them and replace placeholde
 | EA app sample | EA app | `ea://launchgame/{appId}` |
 | Battle.net sample | Battle.net | `battlenet://{appId}` |
 
-## Rule Structure
-
-Each rule object in the fallback config files has the following fields:
-
-| Field | Description |
-|-------|-------------|
-| `name` | Display name (for identification only) |
-| `kind` | `command-template` — launches an executable; `uri-template` — opens a URI |
-| `enabled` | Set to `true` to activate the rule |
-| `fallbackTrigger` | `always` — always use fallback; `access-denied` — only on access denied error |
-| `matchFileNames` | List of executable file names this rule applies to |
-| `pathContains` | Alternatively match by path substring (e.g., `steamapps/common/`) |
-| `fileNameTemplate` | Path template for the launcher executable (`command-template` kind) |
-| `argumentsTemplate` | Command-line arguments template |
-| `uriTemplate` | URI template to open (`uri-template` kind) |
-| `appIdSource` | How to resolve `{appId}` — see [App ID Sources](#app-id-sources) below |
-| `product` | Product identifier used in `{product}` template placeholder |
-| `patchline` | Patchline identifier used in `{patchline}` template placeholder |
-
-## App ID Sources
-
-The `appIdSource` field controls how the `{appId}` placeholder in a URI or argument template is resolved at runtime.
-
-### `steam-manifest`
-
-Reads the Steam `appmanifest_*.acf` file located next to the launched executable to extract the Steam App ID.
-
-```json
-"appIdSource": "steam-manifest"
-```
-
-Use this for Steam games where the executable lives inside `steamapps/common/<game>/`.
-
-### `registry:<hive>:<keyPath>:<valueName>`
-
-Reads a string value from the Windows Registry.
-
-Format:
-```
-registry:HIVE:KEY_PATH:VALUE_NAME
-```
-
-Supported hives:
-
-| Hive constant | Description |
-|---------------|-------------|
-| `HKEY_LOCAL_MACHINE` | System-wide registry (requires 64-bit view) |
-| `HKEY_CURRENT_USER` | Per-user registry |
-| `HKEY_CLASSES_ROOT` | Merged view of class registrations |
-| `HKEY_USERS` | All user hives |
-| `HKEY_CURRENT_CONFIG` | Hardware profile |
-
-Example — read the Ubisoft Connect game ID from the registry:
-
-```json
-"appIdSource": "registry:HKEY_LOCAL_MACHINE:SOFTWARE\\WOW6432Node\\Ubisoft\\Launcher\\Installs\\12345:UplayId"
-```
-
-Replace `12345` with the registry sub-key for your specific game.
-The value at `UplayId` becomes the `{appId}` replacement.
-
-### `static:<value>`
-
-Uses a fixed string as the app ID without any runtime lookup.
-
-```json
-"appIdSource": "static:MyGameAppId"
-```
-
-Useful when the ID is constant and does not change between installations.
-
 ## Adding a Custom Rule
 
 To add a rule for a game launcher not covered by the built-in entries:
@@ -125,3 +54,5 @@ To add a rule for a game launcher not covered by the built-in entries:
 ```
 
 Replace `12345` with the registry key for your specific game.
+
+For a full reference of all rule fields, template placeholders, and App ID sources, see [Launch Fallback Format](launch-fallback-format.md).
