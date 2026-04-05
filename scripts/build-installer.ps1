@@ -247,6 +247,7 @@ PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 ShowLanguageDialog=auto
 LanguageDetectionMethod=uilanguage
+WizardSizePercent=130
 WizardStyle=modern
 SetupIconFile=__SETUP_ICON_FILE__
 WizardImageFile=__WIZARD_IMAGE_FILE__
