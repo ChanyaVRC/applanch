@@ -41,9 +41,61 @@ Each rule object in the fallback config files has the following fields:
 | `fileNameTemplate` | Path template for the launcher executable (`command-template` kind) |
 | `argumentsTemplate` | Command-line arguments template |
 | `uriTemplate` | URI template to open (`uri-template` kind) |
-| `appIdSource` | How to resolve `{appId}`: `steam-manifest` or a registry path |
+| `appIdSource` | How to resolve `{appId}` — see [App ID Sources](#app-id-sources) below |
 | `product` | Product identifier used in `{product}` template placeholder |
 | `patchline` | Patchline identifier used in `{patchline}` template placeholder |
+
+## App ID Sources
+
+The `appIdSource` field controls how the `{appId}` placeholder in a URI or argument template is resolved at runtime.
+
+### `steam-manifest`
+
+Reads the Steam `appmanifest_*.acf` file located next to the launched executable to extract the Steam App ID.
+
+```json
+"appIdSource": "steam-manifest"
+```
+
+Use this for Steam games where the executable lives inside `steamapps/common/<game>/`.
+
+### `registry:<hive>:<keyPath>:<valueName>`
+
+Reads a string value from the Windows Registry.
+
+Format:
+```
+registry:HIVE:KEY_PATH:VALUE_NAME
+```
+
+Supported hives:
+
+| Hive constant | Description |
+|---------------|-------------|
+| `HKEY_LOCAL_MACHINE` | System-wide registry (requires 64-bit view) |
+| `HKEY_CURRENT_USER` | Per-user registry |
+| `HKEY_CLASSES_ROOT` | Merged view of class registrations |
+| `HKEY_USERS` | All user hives |
+| `HKEY_CURRENT_CONFIG` | Hardware profile |
+
+Example — read the Ubisoft Connect game ID from the registry:
+
+```json
+"appIdSource": "registry:HKEY_LOCAL_MACHINE:SOFTWARE\\WOW6432Node\\Ubisoft\\Launcher\\Installs\\12345:UplayId"
+```
+
+Replace `12345` with the registry sub-key for your specific game.
+The value at `UplayId` becomes the `{appId}` replacement.
+
+### `static:<value>`
+
+Uses a fixed string as the app ID without any runtime lookup.
+
+```json
+"appIdSource": "static:MyGameAppId"
+```
+
+Useful when the ID is constant and does not change between installations.
 
 ## Adding a Custom Rule
 

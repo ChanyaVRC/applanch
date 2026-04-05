@@ -41,9 +41,61 @@
 | `fileNameTemplate` | ランチャー実行ファイルのパステンプレート（`command-template` 種別） |
 | `argumentsTemplate` | コマンドライン引数のテンプレート |
 | `uriTemplate` | 開く URI のテンプレート（`uri-template` 種別） |
-| `appIdSource` | `{appId}` の解決方法：`steam-manifest` またはレジストリパス |
+| `appIdSource` | `{appId}` の解決方法 — 後述の [App ID ソース](#app-id-sources) を参照 |
 | `product` | `{product}` プレースホルダーに使用するプロダクト識別子 |
 | `patchline` | `{patchline}` プレースホルダーに使用するパッチライン識別子 |
+
+## App ID ソース { #app-id-sources }
+
+`appIdSource` フィールドは、URI や引数テンプレートの `{appId}` プレースホルダーを起動時にどのように解決するかを制御します。
+
+### `steam-manifest`
+
+起動した実行ファイルと同じ場所にある Steam の `appmanifest_*.acf` ファイルを読み取り、Steam App ID を取得します。
+
+```json
+"appIdSource": "steam-manifest"
+```
+
+実行ファイルが `steamapps/common/<ゲーム名>/` 内にある Steam ゲームに使用します。
+
+### `registry:<hive>:<keyPath>:<valueName>`
+
+Windows レジストリから文字列値を読み取ります。
+
+書式:
+```
+registry:HIVE:KEY_PATH:VALUE_NAME
+```
+
+使用可能なハイブ:
+
+| ハイブ定数 | 説明 |
+|-----------|------|
+| `HKEY_LOCAL_MACHINE` | システム全体のレジストリ（64 ビットビューを使用） |
+| `HKEY_CURRENT_USER` | ユーザーごとのレジストリ |
+| `HKEY_CLASSES_ROOT` | クラス登録のマージビュー |
+| `HKEY_USERS` | 全ユーザーのハイブ |
+| `HKEY_CURRENT_CONFIG` | ハードウェアプロファイル |
+
+例 — Ubisoft Connect のゲーム ID をレジストリから読み取る:
+
+```json
+"appIdSource": "registry:HKEY_LOCAL_MACHINE:SOFTWARE\\WOW6432Node\\Ubisoft\\Launcher\\Installs\\12345:UplayId"
+```
+
+`12345` は対象ゲームのレジストリサブキーに置き換えてください。
+`UplayId` の値が `{appId}` の置換文字列になります。
+
+### `static:<value>`
+
+ランタイムの検索なしに固定文字列を App ID として使用します。
+
+```json
+"appIdSource": "static:MyGameAppId"
+```
+
+インストール環境によらず ID が一定の場合に便利です。
 
 ## カスタムルールを追加する
 
