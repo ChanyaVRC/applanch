@@ -23,4 +23,4 @@ Each runtime is published in two formats.
 ## Documentation Publishing
 
 The documentation site is deployed to GitHub Pages by GitHub Actions.
-It is updated on pushes to `main` / `master`, on published releases, and on manual dispatch.
+It is updated on pushes to `master`, on published releases, and on manual dispatch.
