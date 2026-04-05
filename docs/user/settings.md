@@ -123,4 +123,6 @@ Disabled by default.
 | Action | Description |
 |--------|-------------|
 | Reset to Defaults | Restores all settings to their default values |
-| Report Bug | Opens a pre-filled GitHub issue template with system diagnostics |
+| Copy Diagnostics | Copies a diagnostics summary to the clipboard. Includes app version, OS, .NET version, locale, log folder path, and current update settings. Useful when reporting a bug. |
+| Open Log Folder | Opens the folder where applanch writes its log files in File Explorer. |
+| Report Bug | Opens a pre-filled GitHub issue template in your browser where you can describe the problem. |
