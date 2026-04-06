@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using applanch.Events;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Items;
@@ -33,6 +34,7 @@ public sealed partial class MainWindow : Window
     private SettingsWindow? _settingsWindow;
     private readonly AppEvent? _appEvent;
     private readonly Func<AppSettings, IAppUpdateService> _updateServiceFactory;
+    private bool _isLaunchListRealizationScheduled;
     private MainWindowViewModel ViewModel { get; }
 
     public MainWindow()
@@ -88,6 +90,8 @@ public sealed partial class MainWindow : Window
 
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
+        ScheduleLaunchListInitialRealization();
+
         if (_settings.CheckForUpdatesOnStartup)
         {
             _appEvent?.Invoke(AppEvents.UpdateCheckRequested);
@@ -146,7 +150,55 @@ public sealed partial class MainWindow : Window
         if (e.PropertyName == nameof(MainWindowViewModel.SelectedCategory))
         {
             ScrollLaunchListToTop();
+            ScheduleLaunchListInitialRealization();
+            return;
         }
+
+        if (e.PropertyName == nameof(MainWindowViewModel.IsLaunchItemIconOnlyMode))
+        {
+            ScheduleLaunchListInitialRealization();
+        }
+    }
+
+    private void ScheduleLaunchListInitialRealization()
+    {
+        if (_isLaunchListRealizationScheduled)
+        {
+            return;
+        }
+
+        _isLaunchListRealizationScheduled = true;
+        _ = Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+        {
+            _isLaunchListRealizationScheduled = false;
+            EnsureLaunchListInitialRealization();
+        }));
+    }
+
+    private void EnsureLaunchListInitialRealization()
+    {
+        if (!ViewModel.IsLaunchItemIconOnlyMode || LaunchListBox.Items.Count == 0)
+        {
+            return;
+        }
+
+        var panel = VisualTreeUtilities.FindVisualChild<Controls.VirtualizingWrapPanel>(LaunchListBox);
+        if (panel is null)
+        {
+            return;
+        }
+
+        panel.SetVerticalOffset(0);
+
+        if (VisualTreeHelper.GetChildrenCount(panel) > 0 && LaunchListBox.ItemContainerGenerator.ContainerFromIndex(0) is not null)
+        {
+            return;
+        }
+
+        panel.InvalidateMeasure();
+        panel.InvalidateArrange();
+        LaunchListBox.ScrollIntoView(LaunchListBox.Items[0]);
+        LaunchListBox.UpdateLayout();
     }
 
     private void ScrollLaunchListToTop()
@@ -690,7 +742,7 @@ public sealed partial class MainWindow : Window
 
                 translate.BeginAnimation(TranslateTransform.YProperty, anim, HandoffBehavior.SnapshotAndReplace);
             }
-        }, System.Windows.Threading.DispatcherPriority.Loaded);
+        }, DispatcherPriority.Loaded);
     }
 
     // ── Static utilities ────────────────────────────────────
