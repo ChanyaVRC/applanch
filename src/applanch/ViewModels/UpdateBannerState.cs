@@ -68,26 +68,13 @@ public sealed class UpdateBannerState : ObservableObject
         HeaderButtonVisibility = presentation.HeaderButtonVisibility;
         ActionButtonVisibility = presentation.ActionButtonVisibility;
 
-        if (behavior != UpdateInstallBehavior.AutomaticallyApply)
+        var shouldAutoApply = ShouldQueueAutomaticApply(update, behavior);
+        if (shouldAutoApply)
         {
-            ShouldAutoApplyPendingUpdate = false;
-            return;
+            _lastAutoApplyAttemptedVersion = update.NewVersion;
         }
 
-        if (_isAutoApplyingUpdate)
-        {
-            ShouldAutoApplyPendingUpdate = false;
-            return;
-        }
-
-        if (string.Equals(_lastAutoApplyAttemptedVersion, update.NewVersion, StringComparison.Ordinal))
-        {
-            ShouldAutoApplyPendingUpdate = false;
-            return;
-        }
-
-        _lastAutoApplyAttemptedVersion = update.NewVersion;
-        ShouldAutoApplyPendingUpdate = true;
+        ShouldAutoApplyPendingUpdate = shouldAutoApply;
     }
 
     internal void RevealManualActions()
@@ -126,5 +113,20 @@ public sealed class UpdateBannerState : ObservableObject
                 Visibility.Visible,
                 Visibility.Visible),
         };
+    }
+
+    private bool ShouldQueueAutomaticApply(AppUpdateInfo update, UpdateInstallBehavior behavior)
+    {
+        if (behavior != UpdateInstallBehavior.AutomaticallyApply)
+        {
+            return false;
+        }
+
+        if (_isAutoApplyingUpdate)
+        {
+            return false;
+        }
+
+        return !string.Equals(_lastAutoApplyAttemptedVersion, update.NewVersion, StringComparison.Ordinal);
     }
 }

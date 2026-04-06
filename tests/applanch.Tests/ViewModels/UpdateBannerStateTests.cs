@@ -111,6 +111,29 @@ public class UpdateBannerStateTests
     }
 
     [Fact]
+    public void ApplyAvailability_ModeSwitchFromAutomaticToManual_ClearsAutoApplyPending()
+    {
+        var state = new UpdateBannerState();
+        state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.AutomaticallyApply);
+
+        state.ApplyAvailability(CreateUpdate("1.3.0"), UpdateInstallBehavior.Manual);
+
+        Assert.False(state.ShouldAutoApplyPendingUpdate);
+    }
+
+    [Fact]
+    public void ApplyAvailability_NewVersionAfterPreviousAttempt_MarksAutoApplyPending()
+    {
+        var state = new UpdateBannerState();
+        state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.AutomaticallyApply);
+        state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.AutomaticallyApply);
+
+        state.ApplyAvailability(CreateUpdate("1.3.0"), UpdateInstallBehavior.AutomaticallyApply);
+
+        Assert.True(state.ShouldAutoApplyPendingUpdate);
+    }
+
+    [Fact]
     public void ApplyAvailability_WithNullUpdate_ResetsPendingUpdateBannerAndAutoApplyFlag()
     {
         var state = new UpdateBannerState();
