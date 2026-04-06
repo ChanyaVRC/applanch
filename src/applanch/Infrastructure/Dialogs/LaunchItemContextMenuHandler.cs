@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using applanch.Infrastructure.Storage;
 using applanch.ViewModels;
 
 namespace applanch.Infrastructure.Dialogs;
@@ -18,12 +19,21 @@ internal sealed class LaunchItemContextMenuHandler(IUserInteractionService inter
             return;
         }
 
+        var currentCategory = string.IsNullOrWhiteSpace(item.Category)
+            ? LauncherEntry.DefaultCategory
+            : item.Category;
+
         var suggestions = categoryNames
+            .Append(currentCategory)
             .Where(static name => !string.IsNullOrWhiteSpace(name))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
 
-        var newValue = interactionService.PromptWithSuggestions(promptTitle, item.Category, suggestions, owner);
+        var initialCategory = string.IsNullOrWhiteSpace(item.Category)
+            ? currentCategory
+            : item.Category;
+
+        var newValue = interactionService.PromptWithSuggestions(promptTitle, initialCategory, suggestions, owner);
         if (newValue is null)
         {
             return;

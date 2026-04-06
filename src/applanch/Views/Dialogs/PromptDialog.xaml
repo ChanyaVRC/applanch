@@ -185,6 +185,8 @@
             <TextBox.Style>
                 <Style TargetType="TextBox"
                        BasedOn="{StaticResource DialogTextBoxStyle}">
+                    <Setter Property="Visibility"
+                            Value="Visible"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding UseSuggestions}"
                                      Value="True">
@@ -199,10 +201,11 @@
         <controls:SuggestionInputControl x:Name="InputSuggestion"
                                          InputComboBoxStyle="{StaticResource DialogComboBoxStyle}"
                                          Suggestions="{Binding Suggestions, Mode=OneWay}"
-                                         Text="{Binding InitialValue, Mode=OneWay}"
-                                         Visibility="Collapsed">
+                                         Text="{Binding InitialValue, Mode=OneWay}">
             <controls:SuggestionInputControl.Style>
                 <Style TargetType="controls:SuggestionInputControl">
+                    <Setter Property="Visibility"
+                            Value="Collapsed"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding UseSuggestions}"
                                      Value="True">
