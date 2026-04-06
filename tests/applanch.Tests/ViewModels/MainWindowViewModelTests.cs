@@ -119,7 +119,7 @@ public class MainWindowViewModelTests
     {
         var store = new FakeStore(
         [
-            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
+            new LauncherEntry(@"C:\Tools\A.exe", "Dev", string.Empty, "A")
         ]);
 
         var vm = CreateViewModel(store: store);
