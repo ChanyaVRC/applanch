@@ -1,6 +1,6 @@
 # applanch ドキュメント
 
-このサイトには applanch のドキュメントをまとめています。
+このサイトでは applanch のドキュメントをまとめています。
 
 はじめに [インストールガイド](user/install.ja.md) と [クイックスタート](user/getting-started.ja.md) を参照するか、サイドバーのナビゲーションからトピックを選択してください。
 
