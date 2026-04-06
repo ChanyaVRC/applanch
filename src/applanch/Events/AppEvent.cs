@@ -33,10 +33,7 @@ internal sealed class AppEvent
 
     private EventChannel<TPayload> GetChannel<TPayload>(AppEventKey<TPayload> eventKey)
     {
-        if (!_channels.TryGetValue(eventKey.Type, out var channel))
-        {
-            throw new ArgumentException($"Unknown event type: {eventKey.Type}", nameof(eventKey));
-        }
+        var channel = GetChannelOrThrow(eventKey.Type, nameof(eventKey));
 
         if (channel is not EventChannel<TPayload> typedChannel)
         {
@@ -48,10 +45,7 @@ internal sealed class AppEvent
 
     private EventChannel GetSignalChannel(AppSignalEventKey eventKey)
     {
-        if (!_channels.TryGetValue(eventKey.Type, out var channel))
-        {
-            throw new ArgumentException($"Unknown event type: {eventKey.Type}", nameof(eventKey));
-        }
+        var channel = GetChannelOrThrow(eventKey.Type, nameof(eventKey));
 
         if (channel is not EventChannel noPayloadChannel)
         {
@@ -59,6 +53,16 @@ internal sealed class AppEvent
         }
 
         return noPayloadChannel;
+    }
+
+    private object GetChannelOrThrow(AppEventType eventType, string parameterName)
+    {
+        if (!_channels.TryGetValue(eventType, out var channel))
+        {
+            throw new ArgumentException($"Unknown event type: {eventType}", parameterName);
+        }
+
+        return channel;
     }
 
     private static string GetPayloadName(object channel)
