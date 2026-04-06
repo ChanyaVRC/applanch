@@ -255,7 +255,7 @@ public sealed class MainWindowViewModel : ObservableObject
 
         RebuildCategoryLists();
         ApplyLaunchItemSort();
-        RefreshFilteredView();
+        FilteredLaunchItems.Refresh();
         OnPropertyChanged(nameof(EmptyMessageVisibility));
     }
 
@@ -291,7 +291,7 @@ public sealed class MainWindowViewModel : ObservableObject
             return false;
         }
 
-        return IsAllCategoriesLabel(SelectedCategory)
+        return LaunchCategoryCatalog.IsAllCategoriesLabel(SelectedCategory)
             || launchItem.Category == SelectedCategory;
     }
 
@@ -306,7 +306,7 @@ public sealed class MainWindowViewModel : ObservableObject
         SubscribeAddedItems(e.NewItems);
 
         RebuildCategoryLists();
-        RefreshFilteredView();
+        FilteredLaunchItems.Refresh();
         EnsureSelectedItem();
         if (!_suspendPersistence)
         {
@@ -318,20 +318,23 @@ public sealed class MainWindowViewModel : ObservableObject
 
     private void LaunchItem_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(LaunchItemViewModel.Category))
+        switch (e.PropertyName)
         {
-            RebuildCategoryLists();
-            RefreshFilteredView();
-            PersistCurrentOrderIfNeeded();
+            case nameof(LaunchItemViewModel.Category):
+                RebuildCategoryLists();
+                FilteredLaunchItems.Refresh();
+                PersistCurrentOrderIfNeeded();
 
-            OnPropertyChanged(nameof(EmptyMessageVisibility));
-            return;
-        }
+                OnPropertyChanged(nameof(EmptyMessageVisibility));
+                return;
 
-        if (e.PropertyName is nameof(LaunchItemViewModel.Arguments)
-                             or nameof(LaunchItemViewModel.DisplayName))
-        {
-            PersistCurrentOrderIfNeeded();
+            case nameof(LaunchItemViewModel.Arguments):
+            case nameof(LaunchItemViewModel.DisplayName):
+                PersistCurrentOrderIfNeeded();
+                return;
+
+            default:
+                return;
         }
     }
 
@@ -387,20 +390,14 @@ public sealed class MainWindowViewModel : ObservableObject
         }
     }
 
-    private static bool IsAllCategoriesLabel(string category) =>
-        LaunchCategoryCatalog.IsAllCategoriesLabel(category);
-
     private void ResetQuickAddFieldsAfterAdd()
     {
         QuickAddNameOrPath = string.Empty;
         QuickAddArguments = string.Empty;
-        QuickAddCategory = IsAllCategorySelected
+        QuickAddCategory = LaunchCategoryCatalog.IsAllCategoriesLabel(SelectedCategory)
             ? LauncherEntry.DefaultCategory
             : SelectedCategory;
     }
-
-    private bool IsAllCategorySelected =>
-        SelectedCategory == AllCategoriesLabel;
 
     private static LauncherEntry ToLauncherEntry(LaunchItemViewModel item) =>
         new(item.FullPath, item.Category, item.Arguments, item.DisplayName);
@@ -453,8 +450,6 @@ public sealed class MainWindowViewModel : ObservableObject
             item.PropertyChanged += LaunchItem_PropertyChanged;
         }
     }
-
-    private void RefreshFilteredView() => FilteredLaunchItems.Refresh();
 
     private void ApplyLaunchItemSort()
     {
