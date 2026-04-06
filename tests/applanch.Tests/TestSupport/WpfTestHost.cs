@@ -9,6 +9,11 @@ internal static class WpfTestHost
 
     internal static void RunInSta(Action action)
     {
+        RunInSta(action, Timeout.InfiniteTimeSpan);
+    }
+
+    internal static void RunInSta(Action action, TimeSpan timeout)
+    {
         Exception? captured = null;
 
         var thread = new Thread(() =>
@@ -24,8 +29,23 @@ internal static class WpfTestHost
         });
 
         thread.SetApartmentState(ApartmentState.STA);
+        thread.IsBackground = true;
         thread.Start();
-        thread.Join();
+        bool completed;
+        if (timeout == Timeout.InfiniteTimeSpan)
+        {
+            thread.Join();
+            completed = true;
+        }
+        else
+        {
+            completed = thread.Join(timeout);
+        }
+
+        if (!completed)
+        {
+            throw new TimeoutException($"STA test execution exceeded timeout of {timeout}.");
+        }
 
         if (captured is not null)
         {
