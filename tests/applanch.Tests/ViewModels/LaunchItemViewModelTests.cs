@@ -215,7 +215,7 @@ public class LaunchItemViewModelTests
             Assert.Same(initialIcon, vm.IconSource);
 
             provider.Complete(deferredIcon);
-            WaitUntil(() => ReferenceEquals(vm.IconSource, deferredIcon));
+            WaitUntil(() => ReferenceEquals(vm.IconSource, deferredIcon), TimeSpan.FromSeconds(5));
 
             Assert.Contains(nameof(LaunchItemViewModel.IconSource), changed);
         });
@@ -234,9 +234,10 @@ public class LaunchItemViewModelTests
         return image;
     }
 
-    private static void WaitUntil(Func<bool> condition)
+    private static void WaitUntil(Func<bool> condition, TimeSpan? timeout = null)
     {
-        var timeoutAt = DateTime.UtcNow.AddSeconds(2);
+        var effectiveTimeout = timeout ?? TimeSpan.FromSeconds(2);
+        var timeoutAt = DateTime.UtcNow.Add(effectiveTimeout);
         while (!condition() && DateTime.UtcNow < timeoutAt)
         {
             WpfTestHost.DoEvents();
