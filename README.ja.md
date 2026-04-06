@@ -31,8 +31,8 @@ applanch は、カテゴリ管理、クイック追加サジェスト、更新�
 
 1. GitHub の Releases を開く
 2. 最新アセットから次のいずれかを選択
-  - ポータブル版: applanch-<version>-<rid>.zip
-  - インストーラー版: applanch-<version>-<rid>-installer.exe
+  - ポータブル版: `applanch-<version>-<rid>.zip`
+  - インストーラー版: `applanch-<version>-<rid>-installer.exe`
 3. ZIP の場合は任意フォルダに展開して applanch.exe を実行
 4. インストーラー EXE の場合は起動してセットアップウィザードに従う
 

@@ -1,0 +1,57 @@
+name: 4) Feature request (English)
+description: Propose a new feature or UX improvement.
+title: "[Feature]: "
+labels:
+  - enhancement
+  - triage
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What user problem are you trying to solve?
+      placeholder: I want to ... because ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe your idea in concrete terms.
+      placeholder: Add a setting/button/workflow that ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any workarounds or alternative approaches?
+    validations:
+      required: false
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and impact
+      description: Who benefits, and what trade-offs exist?
+    validations:
+      required: false
+
+  - type: input
+    id: app_version
+    attributes:
+      label: applanch version
+      description: Optional, if related to a specific version.
+      placeholder: v0.0.0
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Confirmation
+      options:
+        - label: I searched existing issues and did not find a duplicate request.
+          required: true

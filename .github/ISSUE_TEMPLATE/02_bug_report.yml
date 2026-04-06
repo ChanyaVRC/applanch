@@ -1,0 +1,77 @@
+name: 2) Bug report (English)
+description: Report a reproducible problem or regression.
+title: "[Bug]: "
+labels:
+  - bug
+  - triage
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Briefly describe the problem.
+      placeholder: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Provide clear, ordered steps.
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead?
+    validations:
+      required: true
+
+  - type: input
+    id: app_version
+    attributes:
+      label: applanch version
+      description: Version from About dialog or release tag.
+      placeholder: v0.0.0
+    validations:
+      required: false
+
+  - type: input
+    id: os_version
+    attributes:
+      label: Windows version
+      description: Example: Windows 11 24H2
+      placeholder: Windows 11 24H2
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+      description: Add logs, stack traces, or screenshots if available.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Confirmation
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true

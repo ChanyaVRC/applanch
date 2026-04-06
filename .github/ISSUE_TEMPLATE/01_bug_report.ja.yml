@@ -1,0 +1,77 @@
+name: 1) 不具合報告 (日本語)
+description: 再現可能な不具合や回帰を報告します。
+title: "[不具合]: "
+labels:
+  - bug
+  - triage
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: 概要
+      description: 発生している問題を簡潔に書いてください。
+      placeholder: 何が起きましたか？
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順
+      description: 手順を順番に記載してください。
+      placeholder: |
+        1. ... を開く
+        2. ... をクリック
+        3. ... が発生
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待する動作
+      description: 本来どうなるべきかを書いてください。
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 実際の動作
+      description: 実際に何が起きたかを書いてください。
+    validations:
+      required: true
+
+  - type: input
+    id: app_version
+    attributes:
+      label: applanch バージョン
+      description: About ダイアログまたはリリースタグのバージョン。
+      placeholder: v0.0.0
+    validations:
+      required: false
+
+  - type: input
+    id: os_version
+    attributes:
+      label: Windows バージョン
+      description: 例: Windows 11 24H2
+      placeholder: Windows 11 24H2
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: ログ / スクリーンショット
+      description: 可能であればログや画像を添付してください。
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 確認事項
+      options:
+        - label: 既存の Issue を確認し、重複がないことを確認しました。
+          required: true
