@@ -360,6 +360,9 @@
   <data name="Prompt_ChangeArguments" xml:space="preserve">
     <value>Change launch arguments</value>
   </data>
+  <data name="Prompt_ChangeDisplayName" xml:space="preserve">
+    <value>Change name</value>
+  </data>
 
   <!-- Messages (format strings use {0}, {1}) -->
   <data name="UpdateMessage" xml:space="preserve">

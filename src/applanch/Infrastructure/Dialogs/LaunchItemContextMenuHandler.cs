@@ -75,6 +75,18 @@ internal sealed class LaunchItemContextMenuHandler(IUserInteractionService inter
         item.IsRenaming = true;
     }
 
+    internal void RenameWithPrompt(
+        object sender,
+        string promptTitle,
+        Action<LaunchItemViewModel, string> applyRename)
+    {
+        EditValue(
+            sender,
+            promptTitle,
+            static item => item.DisplayName,
+            applyRename);
+    }
+
     internal void Delete(object sender, Action<LaunchItemViewModel> remove)
     {
         var item = GetTargetItem(sender);

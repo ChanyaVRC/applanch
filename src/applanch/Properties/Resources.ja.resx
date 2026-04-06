@@ -360,6 +360,9 @@
   <data name="Prompt_ChangeArguments" xml:space="preserve">
     <value>起動引数を変更</value>
   </data>
+  <data name="Prompt_ChangeDisplayName" xml:space="preserve">
+    <value>名称を変更</value>
+  </data>
 
   <!-- Messages (format strings use {0}, {1}) -->
   <data name="UpdateMessage" xml:space="preserve">

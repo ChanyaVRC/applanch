@@ -401,7 +401,18 @@ public sealed partial class MainWindow : Window
         switch (action)
         {
             case LaunchItemContextMenuAction.Rename:
-                _contextMenuHandler.BeginRename(sender);
+                if (ViewModel.IsLaunchItemIconOnlyMode)
+                {
+                    _contextMenuHandler.RenameWithPrompt(
+                        sender,
+                        Strings.Prompt_ChangeDisplayName,
+                        ViewModel.UpdateItemDisplayName);
+                }
+                else
+                {
+                    _contextMenuHandler.BeginRename(sender);
+                }
+
                 break;
 
             case LaunchItemContextMenuAction.EditCategory:
