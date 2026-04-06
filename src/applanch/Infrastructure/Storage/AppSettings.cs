@@ -25,6 +25,7 @@ internal sealed record AppSettings
     public bool ConfirmBeforeDelete { get; init; } = false;
     public CategorySortMode CategorySortMode { get; init; } = CategorySortMode.Alphabetical;
     public AppListSortMode AppListSortMode { get; init; } = AppListSortMode.Manual;
+    public bool LaunchItemIconOnlyMode { get; init; } = false;
     public bool RunAsAdministrator { get; init; } = false;
     public LanguageOption Language { get; init; } = LanguageOption.System;
     public PostLaunchBehavior PostLaunchBehavior { get; init; } = PostLaunchBehavior.CloseApp;

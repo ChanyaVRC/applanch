@@ -50,6 +50,7 @@ public class SettingsWindowViewModelTests
             AllowPrivateNetworkHttpIconRequests = true,
             Language = LanguageOption.Japanese,
             CategorySortMode = CategorySortMode.AsAdded,
+            LaunchItemIconOnlyMode = true,
         };
 
         var vm = Make(settings);
@@ -65,6 +66,7 @@ public class SettingsWindowViewModelTests
         Assert.True(vm.AllowPrivateNetworkHttpIconRequests);
         Assert.Equal(LanguageOption.Japanese, vm.SelectedLanguage);
         Assert.Equal(CategorySortMode.AsAdded, vm.SelectedCategorySortMode);
+        Assert.True(vm.LaunchItemIconOnlyMode);
         Assert.False(vm.SettingsChanged);
     }
 
@@ -295,6 +297,17 @@ public class SettingsWindowViewModelTests
         Assert.Equal(AppListSortMode.CategoryThenName, committed!.AppListSortMode);
     }
 
+    [Fact]
+    public void LaunchItemIconOnlyMode_Change_UpdatesSavedSettings()
+    {
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
+
+        vm.LaunchItemIconOnlyMode = true;
+
+        Assert.True(committed!.LaunchItemIconOnlyMode);
+    }
+
     // ── ResetToDefaults ────────────────────────────────────
 
     [Fact]
@@ -319,6 +332,7 @@ public class SettingsWindowViewModelTests
             QuickAddSuggestionLimit = 10,
             CategorySortMode = CategorySortMode.AsAdded,
             AppListSortMode = AppListSortMode.Name,
+            LaunchItemIconOnlyMode = true,
             RunAsAdministrator = true,
         };
         var vm = Make(settings: settings);
@@ -341,6 +355,7 @@ public class SettingsWindowViewModelTests
         Assert.Equal(defaults.QuickAddSuggestionLimit, vm.QuickAddSuggestionLimit);
         Assert.Equal(defaults.CategorySortMode, vm.SelectedCategorySortMode);
         Assert.Equal(defaults.AppListSortMode, vm.SelectedAppListSortMode);
+        Assert.Equal(defaults.LaunchItemIconOnlyMode, vm.LaunchItemIconOnlyMode);
         Assert.Equal(defaults.RunAsAdministrator, vm.RunAsAdministrator);
     }
 

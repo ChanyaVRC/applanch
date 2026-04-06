@@ -245,6 +245,18 @@
   <data name="Setting_AppListSortMode" xml:space="preserve">
     <value>一覧の並び順</value>
   </data>
+  <data name="Setting_LaunchItemIconOnlyMode" xml:space="preserve">
+    <value>一覧をアイコンのみで表示する</value>
+  </data>
+  <data name="Setting_LaunchItemIconOnlyModeDesc" xml:space="preserve">
+    <value>一覧内の名前とパスを非表示にし、アイコンタイルのみを表示します。</value>
+  </data>
+  <data name="Button_IconMode" xml:space="preserve">
+    <value>アイコン</value>
+  </data>
+  <data name="ToolTip_ToggleLaunchItemIconOnlyMode" xml:space="preserve">
+    <value>一覧のアイコン表示を切り替えます。</value>
+  </data>
   <data name="SortMode_Alphabetical" xml:space="preserve">
     <value>名前順</value>
   </data>
@@ -347,6 +359,9 @@
   </data>
   <data name="Prompt_ChangeArguments" xml:space="preserve">
     <value>起動引数を変更</value>
+  </data>
+  <data name="Prompt_ChangeDisplayName" xml:space="preserve">
+    <value>名称を変更</value>
   </data>
 
   <!-- Messages (format strings use {0}, {1}) -->

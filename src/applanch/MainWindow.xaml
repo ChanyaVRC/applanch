@@ -153,6 +153,77 @@
             </Setter>
         </Style>
 
+        <Style x:Key="HeaderToggleCheckBoxStyle"
+               TargetType="CheckBox">
+            <Setter Property="Foreground"
+                Value="{DynamicResource Brush.TextPrimary}"/>
+            <Setter Property="FontSize"
+                Value="13"/>
+            <Setter Property="Cursor"
+                    Value="Hand"/>
+            <Setter Property="VerticalContentAlignment"
+                    Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="Track"
+                                    Grid.Column="2"
+                                    Width="42"
+                                    Height="24"
+                                    Background="{DynamicResource Brush.Surface}"
+                                    BorderBrush="{DynamicResource Brush.ItemBorder}"
+                                    BorderThickness="1"
+                                    CornerRadius="12">
+                                <Ellipse x:Name="Thumb"
+                                         Width="18"
+                                         Height="18"
+                                         Margin="2"
+                                         HorizontalAlignment="Left"
+                                         Fill="{DynamicResource Brush.TextTertiary}"/>
+                            </Border>
+                            <ContentPresenter Grid.Column="0"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked"
+                                     Value="True">
+                                <Setter TargetName="Track"
+                                        Property="Background"
+                                    Value="#1A6DB3F8"/>
+                                <Setter TargetName="Track"
+                                        Property="BorderBrush"
+                                    Value="#6DB3F8"/>
+                                <Setter TargetName="Thumb"
+                                        Property="HorizontalAlignment"
+                                        Value="Right"/>
+                                <Setter TargetName="Thumb"
+                                        Property="Fill"
+                                    Value="#6DB3F8"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter TargetName="Track"
+                                        Property="BorderBrush"
+                                    Value="#8DBFFB"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled"
+                                     Value="False">
+                                <Setter Property="Opacity"
+                                        Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="LaunchTileButtonStyle"
                TargetType="Button">
             <Setter Property="BorderThickness"
@@ -666,16 +737,27 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Expander Grid.Row="0"
-                          Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Expander_AddApp]}"
-                          Foreground="{DynamicResource Brush.TextPrimary}">
-                    <Border Margin="0,8,0,0"
-                            Padding="12"
-                            BorderThickness="1"
-                            BorderBrush="{DynamicResource Brush.ItemBorder}"
-                            Background="{DynamicResource Brush.Surface}"
-                            CornerRadius="8">
-                        <StackPanel>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Expander Grid.Column="0"
+                              Foreground="{DynamicResource Brush.TextPrimary}"
+                              HorizontalContentAlignment="Stretch">
+                        <Expander.Header>
+                            <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Expander_AddApp]}"
+                                       VerticalAlignment="Center"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource Brush.TextPrimary}"/>
+                        </Expander.Header>
+                        <Border Margin="0,8,0,0"
+                                Padding="12"
+                                BorderThickness="1"
+                                BorderBrush="{DynamicResource Brush.ItemBorder}"
+                                Background="{DynamicResource Brush.Surface}"
+                                CornerRadius="8">
+                            <StackPanel>
                             <controls:SuggestionInputControl
                                 InputComboBoxStyle="{StaticResource ModernComboBoxStyle}"
                                 Suggestions="{Binding QuickAddSuggestions}"
@@ -728,9 +810,18 @@
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
-                        </StackPanel>
-                    </Border>
-                </Expander>
+                            </StackPanel>
+                        </Border>
+                    </Expander>
+                    <CheckBox Grid.Column="1"
+                              Margin="12,0,0,0"
+                              VerticalAlignment="Center"
+                              Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_IconMode]}"
+                              Style="{StaticResource HeaderToggleCheckBoxStyle}"
+                              IsChecked="{Binding IsLaunchItemIconOnlyMode, Mode=OneWay}"
+                              Click="IconModeToggleButton_Click"
+                              ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_ToggleLaunchItemIconOnlyMode]}"/>
+                </Grid>
 
                 <Grid Grid.Row="3">
                     <ListBox x:Name="LaunchListBox"
@@ -746,6 +837,24 @@
                              BorderThickness="0"
                              Background="Transparent"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.Style>
+                            <Style TargetType="ListBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLaunchItemIconOnlyMode}"
+                                                 Value="True">
+                                        <Setter Property="HorizontalContentAlignment"
+                                                Value="Left"/>
+                                        <Setter Property="ItemsPanel">
+                                            <Setter.Value>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel/>
+                                                </ItemsPanelTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListBox.Style>
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Padding"
@@ -788,6 +897,13 @@
                                         </ControlTemplate>
                                     </Setter.Value>
                                 </Setter>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                 Value="True">
+                                        <Setter Property="Margin"
+                                                Value="0,0,8,8"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
                             </Style>
                         </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
@@ -798,6 +914,19 @@
                                         CornerRadius="8"
                                         Padding="8,6"
                                         SnapsToDevicePixels="True">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                             Value="True">
+                                                    <Setter Property="Width"
+                                                            Value="72"/>
+                                                    <Setter Property="Padding"
+                                                            Value="10"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
                                     <Border.ContextMenu>
                                         <ContextMenu>
                                             <MenuItem Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_Rename]}"
@@ -819,6 +948,20 @@
                                         </ContextMenu>
                                     </Border.ContextMenu>
                                     <Grid>
+                                    <Grid>
+                                        <Grid.Style>
+                                            <Style TargetType="Grid">
+                                                <Setter Property="Visibility"
+                                                        Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                 Value="True">
+                                                        <Setter Property="Visibility"
+                                                                Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Grid.Style>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="20"/>
                                             <ColumnDefinition Width="8"/>
@@ -837,7 +980,8 @@
 
                                         <Button Grid.Column="2"
                                                 Click="LaunchItemButton_Click"
-                                                Tag="{Binding}">
+                                                Tag="{Binding}"
+                                                ToolTip="{Binding DisplayName}">
                                             <Button.Style>
                                                 <Style TargetType="Button"
                                                        BasedOn="{StaticResource LaunchTileButtonStyle}">
@@ -1002,15 +1146,90 @@
 
                                         <Button Grid.Column="3"
                                                 Content="×"
-                                                Style="{StaticResource HeaderIconButtonStyle}"
-                                                Tag="{Binding}"
                                                 Click="DeleteButton_Click"
-                                                Width="26"
-                                                Height="26"
-                                                FontSize="13"
-                                                FontWeight="SemiBold"
-                                                VerticalAlignment="Center"
-                                                ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Delete]}"/>
+                                                Tag="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button"
+                                                       BasedOn="{StaticResource HeaderIconButtonStyle}">
+                                                    <Setter Property="Width"
+                                                            Value="26"/>
+                                                    <Setter Property="Height"
+                                                            Value="26"/>
+                                                    <Setter Property="FontSize"
+                                                            Value="13"/>
+                                                    <Setter Property="FontWeight"
+                                                            Value="SemiBold"/>
+                                                    <Setter Property="VerticalAlignment"
+                                                            Value="Center"/>
+                                                    <Setter Property="ToolTip"
+                                                            Value="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Delete]}"/>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </Grid>
+
+                                    <Button Click="LaunchItemButton_Click"
+                                            Tag="{Binding}"
+                                            Width="60"
+                                            Height="60"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            ToolTip="{Binding DisplayName}">
+                                        <Button.Style>
+                                            <Style TargetType="Button"
+                                                   BasedOn="{StaticResource LaunchTileButtonStyle}">
+                                                <Setter Property="Visibility"
+                                                        Value="Collapsed"/>
+                                                <Setter Property="Padding"
+                                                        Value="6"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                 Value="True">
+                                                        <Setter Property="Visibility"
+                                                                Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                        <Grid>
+                                            <Border Width="44"
+                                                    Height="44"
+                                                    CornerRadius="9"
+                                                    Background="{DynamicResource Brush.IconBackground}"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center">
+                                                <Grid>
+                                                    <Image Source="{Binding IconSource}"
+                                                           Width="28"
+                                                           Height="28"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                                    <TextBlock Text="&#xE7BA;"
+                                                               FontFamily="Segoe MDL2 Assets"
+                                                               FontSize="12"
+                                                               HorizontalAlignment="Right"
+                                                               VerticalAlignment="Bottom"
+                                                               Margin="0,0,0,0"
+                                                               Foreground="{DynamicResource Brush.NotificationWarningBorder}"
+                                                               ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Visibility"
+                                                                        Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsPathMissing}"
+                                                                                 Value="True">
+                                                                        <Setter Property="Visibility"
+                                                                                Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Grid>
+                                            </Border>
+                                        </Grid>
+                                    </Button>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

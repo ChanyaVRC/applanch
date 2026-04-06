@@ -90,6 +90,8 @@ public sealed class MainWindowViewModel : ObservableObject
 
     public Visibility SelectedLaunchItemVisibility => SelectedLaunchItem is null ? Visibility.Collapsed : Visibility.Visible;
 
+    public bool IsLaunchItemIconOnlyMode => _settings.LaunchItemIconOnlyMode;
+
     public string QuickAddNameOrPath
     {
         get => _quickAddNameOrPath;
@@ -227,6 +229,7 @@ public sealed class MainWindowViewModel : ObservableObject
                                   _settings.AllowPrivateNetworkHttpIconRequests != settings.AllowPrivateNetworkHttpIconRequests;
         var languageChanged = _settings.Language != settings.Language;
         var quickAddSuggestionLimitChanged = _settings.QuickAddSuggestionLimit != settings.QuickAddSuggestionLimit;
+        var launchItemIconOnlyModeChanged = _settings.LaunchItemIconOnlyMode != settings.LaunchItemIconOnlyMode;
         _settings = settings;
         _iconProvider.ApplySettings(settings);
 
@@ -243,6 +246,11 @@ public sealed class MainWindowViewModel : ObservableObject
         if (quickAddSuggestionLimitChanged)
         {
             RefreshQuickAddSuggestions();
+        }
+
+        if (launchItemIconOnlyModeChanged)
+        {
+            OnPropertyChanged(nameof(IsLaunchItemIconOnlyMode));
         }
 
         RebuildCategoryLists();

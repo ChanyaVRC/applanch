@@ -750,6 +750,19 @@ public class MainWindowViewModelTests
         Assert.DoesNotContain(iconProvider.GetInitialIconCalls, static path => path.StartsWith(@"C:\", StringComparison.OrdinalIgnoreCase));
     }
 
+    [Fact]
+    public void ApplySettings_LaunchItemIconOnlyModeChange_UpdatesModeAndRaisesPropertyChanged()
+    {
+        var vm = CreateViewModel(settings: new AppSettings { LaunchItemIconOnlyMode = false });
+        var changed = new List<string?>();
+        vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+        vm.ApplySettings(new AppSettings { LaunchItemIconOnlyMode = true });
+
+        Assert.True(vm.IsLaunchItemIconOnlyMode);
+        Assert.Contains(nameof(MainWindowViewModel.IsLaunchItemIconOnlyMode), changed);
+    }
+
     private static MainWindowViewModel CreateViewModel(FakeStore? store = null, FakeResolver? resolver = null, AppSettings? settings = null, ILaunchItemIconProvider? iconProvider = null)
     {
         return new MainWindowViewModel(resolver ?? new FakeResolver(), store ?? new FakeStore([]), settings ?? new AppSettings(), iconProvider);
