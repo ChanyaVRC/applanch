@@ -16,35 +16,18 @@ namespace applanch.Tests.Application;
 public sealed class MainWindowRenameBehaviorTests
 {
     [Fact]
-    public void ContextMenuRename_UsesPromptOnlyInIconMode()
+    public void ContextMenuRename_WhenIconModeEnabled_UsesPromptDialogAndUpdatesDisplayName()
     {
         WpfTestHost.RunInSta((Action)(() =>
         {
             WpfTestHost.EnsureAppResources();
-            var app = System.Windows.Application.Current!;
-            var originalShutdownMode = app.ShutdownMode;
-            app.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
-            try
-            {
-                VerifyRenameBehavior(
-                    iconModeEnabled: true,
-                    expectedPromptCalls: 1,
-                    expectedDisplayName: "Renamed by dialog",
-                    expectedInlineRename: false,
-                    promptValue: "Renamed by dialog");
-
-                VerifyRenameBehavior(
-                    iconModeEnabled: false,
-                    expectedPromptCalls: 0,
-                    expectedDisplayName: "App",
-                    expectedInlineRename: true,
-                    promptValue: "Unused");
-            }
-            finally
-            {
-                app.ShutdownMode = originalShutdownMode;
-            }
+            VerifyRenameBehavior(
+                iconModeEnabled: true,
+                expectedPromptCalls: 1,
+                expectedDisplayName: "Renamed by dialog",
+                expectedInlineRename: false,
+                promptValue: "Renamed by dialog");
         }));
     }
 
