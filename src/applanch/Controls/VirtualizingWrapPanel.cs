@@ -57,6 +57,12 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
 
     public ScrollViewer? ScrollOwner { get; set; }
 
+    protected override void OnItemsChanged(object sender, ItemsChangedEventArgs args)
+    {
+        base.OnItemsChanged(sender, args);
+        InvalidateMeasure();
+    }
+
     protected override Size MeasureOverride(Size availableSize)
     {
         var itemsControl = ItemsControl.GetItemsOwner(this);
@@ -153,7 +159,7 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
         CoerceOffsets();
         ScrollOwner?.InvalidateScrollInfo();
 
-        return availableSize;
+        return _viewport;
     }
 
     protected override Size ArrangeOverride(Size finalSize)
@@ -340,14 +346,31 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
 
     private void RealizeItems(ItemsControl itemsControl, int startIndex, int endIndex)
     {
+        if (endIndex < startIndex)
+        {
+            return;
+        }
+
         var generator = ItemContainerGenerator;
         if (generator is null)
         {
             return;
         }
 
-        var startPosition = generator.GeneratorPositionFromIndex(startIndex);
-        var childIndex = startPosition.Offset == 0 ? startPosition.Index : startPosition.Index + 1;
+        GeneratorPosition startPosition;
+        int childIndex;
+
+        if (InternalChildren.Count == 0)
+        {
+            startPosition = new GeneratorPosition(-1, 0);
+            childIndex = 0;
+        }
+        else
+        {
+            startPosition = generator.GeneratorPositionFromIndex(startIndex);
+            childIndex = startPosition.Offset == 0 ? startPosition.Index : startPosition.Index + 1;
+            childIndex = Math.Max(0, childIndex);
+        }
 
         using var _ = generator.StartAt(startPosition, GeneratorDirection.Forward, allowStartAtRealizedItem: true);
 
@@ -359,7 +382,8 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
                 continue;
             }
 
-            if (newlyRealized)
+            var isAttachedToPanel = ReferenceEquals(VisualTreeHelper.GetParent(child), this);
+            if (newlyRealized || !isAttachedToPanel)
             {
                 if (childIndex >= InternalChildren.Count)
                 {
@@ -367,9 +391,15 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
                 }
                 else
                 {
-                    InsertInternalChild(childIndex, child);
+                    if (!ReferenceEquals(InternalChildren[childIndex], child))
+                    {
+                        InsertInternalChild(childIndex, child);
+                    }
                 }
+            }
 
+            if (newlyRealized)
+            {
                 generator.PrepareItemContainer(child);
             }
         }
@@ -381,19 +411,21 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
         {
             var position = new GeneratorPosition(childIndex, 0);
             var itemIndex = ItemContainerGenerator.IndexFromGeneratorPosition(position);
+            if (itemIndex < 0)
+            {
+                continue;
+            }
+
             if (itemIndex < startIndex || itemIndex > endIndex)
             {
-                if (itemIndex >= 0)
+                try
                 {
-                    try
-                    {
-                        ItemContainerGenerator.Remove(position, 1);
-                    }
-                    catch (NullReferenceException)
-                    {
-                        // Generator can be briefly out of sync when items are removed in bulk.
-                        // In that case, remove the visual child and let the next measure re-sync.
-                    }
+                    ItemContainerGenerator.Remove(position, 1);
+                }
+                catch (NullReferenceException)
+                {
+                    // Generator can be briefly out of sync when items are removed in bulk.
+                    // In that case, remove the visual child and let the next measure re-sync.
                 }
 
                 RemoveInternalChildRange(childIndex, 1);

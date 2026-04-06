@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using applanch.Events;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Items;
@@ -88,6 +89,8 @@ public sealed partial class MainWindow : Window
 
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
+        _ = Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(EnsureLaunchListInitialRealization));
+
         if (_settings.CheckForUpdatesOnStartup)
         {
             _appEvent?.Invoke(AppEvents.UpdateCheckRequested);
@@ -146,7 +149,33 @@ public sealed partial class MainWindow : Window
         if (e.PropertyName == nameof(MainWindowViewModel.SelectedCategory))
         {
             ScrollLaunchListToTop();
+            _ = Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(EnsureLaunchListInitialRealization));
+            return;
         }
+
+        if (e.PropertyName == nameof(MainWindowViewModel.IsLaunchItemIconOnlyMode))
+        {
+            _ = Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(EnsureLaunchListInitialRealization));
+        }
+    }
+
+    private void EnsureLaunchListInitialRealization()
+    {
+        if (!ViewModel.IsLaunchItemIconOnlyMode || LaunchListBox.Items.Count == 0)
+        {
+            return;
+        }
+
+        if (VisualTreeUtilities.FindVisualChild<Controls.VirtualizingWrapPanel>(LaunchListBox) is { } panel)
+        {
+            panel.SetVerticalOffset(0);
+            panel.InvalidateMeasure();
+            panel.InvalidateArrange();
+        }
+
+        LaunchListBox.UpdateLayout();
+        LaunchListBox.ScrollIntoView(LaunchListBox.Items[0]);
+        LaunchListBox.UpdateLayout();
     }
 
     private void ScrollLaunchListToTop()
@@ -690,7 +719,7 @@ public sealed partial class MainWindow : Window
 
                 translate.BeginAnimation(TranslateTransform.YProperty, anim, HandoffBehavior.SnapshotAndReplace);
             }
-        }, System.Windows.Threading.DispatcherPriority.Loaded);
+        }, DispatcherPriority.Loaded);
     }
 
     // ── Static utilities ────────────────────────────────────
