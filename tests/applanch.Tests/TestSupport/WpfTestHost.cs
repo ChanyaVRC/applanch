@@ -53,14 +53,16 @@ internal static class WpfTestHost
         {
             if (System.Windows.Application.Current is null)
             {
-                var app = new applanch.App();
-                app.InitializeComponent();
+                _ = new System.Windows.Application
+                {
+                    ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown,
+                };
             }
 
             if (System.Windows.Application.Current?.Resources["RoundedTextBoxStyle"] is null)
             {
                 var dictionary = (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(
-                    new Uri("/applanch;component/App.xaml", UriKind.Relative));
+                    new Uri("/applanch;component/AppResources.xaml", UriKind.Relative));
                 System.Windows.Application.Current!.Resources.MergedDictionaries.Add(dictionary);
             }
         }
