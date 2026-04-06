@@ -4,6 +4,15 @@ Notable user-facing changes per version. For full commit history and downloadabl
 
 ---
 
+## v0.5.1 — April 6, 2026
+
+### Fixed
+
+- **Category edit dialog** — Fixed an issue where the category suggestion ComboBox in the *Change Category* flow could remain hidden in some states.
+- **Test stability** — Fixed a race in WPF test host initialization that could intermittently fail CI and local full test runs.
+
+---
+
 ## v0.5.0 — April 6, 2026
 
 ### New
