@@ -110,7 +110,16 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
         for (var pass = 0; pass < maxMeasurePasses; pass++)
         {
             itemsPerRow = Math.Max(1, (int)Math.Floor(viewportWidth / effectiveItemSize.Width));
-            var firstVisibleRow = Math.Max(0, (int)Math.Floor(VerticalOffset / effectiveItemSize.Height));
+
+            var rowCountForOffset = (int)Math.Ceiling((double)itemCount / itemsPerRow);
+            var maxVerticalOffset = Math.Max(0d, (rowCountForOffset * effectiveItemSize.Height) - viewportHeight);
+            var effectiveVerticalOffset = Math.Min(VerticalOffset, maxVerticalOffset);
+            if (!AreClose(effectiveVerticalOffset, VerticalOffset))
+            {
+                _offset.Y = effectiveVerticalOffset;
+            }
+
+            var firstVisibleRow = Math.Max(0, (int)Math.Floor(effectiveVerticalOffset / effectiveItemSize.Height));
             var visibleRowCount = Math.Max(1, (int)Math.Ceiling(viewportHeight / effectiveItemSize.Height) + 1);
 
             startIndex = Math.Max(0, firstVisibleRow * itemsPerRow);
@@ -370,10 +379,23 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
     {
         for (var childIndex = InternalChildren.Count - 1; childIndex >= 0; childIndex--)
         {
-            var itemIndex = ItemContainerGenerator.IndexFromGeneratorPosition(new GeneratorPosition(childIndex, 0));
+            var position = new GeneratorPosition(childIndex, 0);
+            var itemIndex = ItemContainerGenerator.IndexFromGeneratorPosition(position);
             if (itemIndex < startIndex || itemIndex > endIndex)
             {
-                ItemContainerGenerator.Remove(new GeneratorPosition(childIndex, 0), 1);
+                if (itemIndex >= 0)
+                {
+                    try
+                    {
+                        ItemContainerGenerator.Remove(position, 1);
+                    }
+                    catch (NullReferenceException)
+                    {
+                        // Generator can be briefly out of sync when items are removed in bulk.
+                        // In that case, remove the visual child and let the next measure re-sync.
+                    }
+                }
+
                 RemoveInternalChildRange(childIndex, 1);
             }
         }

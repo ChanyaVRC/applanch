@@ -850,8 +850,7 @@
                                         <Setter Property="ItemsPanel">
                                             <Setter.Value>
                                                 <ItemsPanelTemplate>
-                                                    <controls:VirtualizingWrapPanel ItemWidth="82"
-                                                                                  ItemHeight="82"/>
+                                                    <controls:VirtualizingWrapPanel ItemWidth="82"/>
                                                 </ItemsPanelTemplate>
                                             </Setter.Value>
                                         </Setter>

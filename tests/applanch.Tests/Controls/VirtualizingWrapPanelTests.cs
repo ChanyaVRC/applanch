@@ -101,12 +101,51 @@ public sealed class VirtualizingWrapPanelTests
                 Assert.NotNull(panel);
 
                 panel!.ItemWidth = 82;
-                panel.ItemHeight = 82;
                 panel.InvalidateMeasure();
                 window.UpdateLayout();
 
                 Assert.True(panel.ExtentWidth > panel.ItemWidth,
                     $"Expected multiple columns with explicit width; extent={panel.ExtentWidth}, itemWidth={panel.ItemWidth}");
+            }
+            finally
+            {
+                window.Close();
+            }
+        }));
+    }
+
+    [Fact]
+    public void MeasureOverride_WhenOffsetBecomesOutOfRange_StillRealizesVisibleItems()
+    {
+        WpfTestHost.RunInSta((Action)(() =>
+        {
+            WpfTestHost.EnsureAppResources();
+
+            var listBox = CreateVirtualizingListBox(itemCount: 80, itemWidth: 80, itemHeight: 80);
+            var window = new Window { Content = listBox, Width = 260, Height = 220, WindowStyle = WindowStyle.None };
+            window.Show();
+            window.UpdateLayout();
+
+            try
+            {
+                var scrollViewer = FindVisualChild<ScrollViewer>(listBox);
+                Assert.NotNull(scrollViewer);
+
+                // Move offset near the end, then shrink item count drastically so offset is out of range.
+                scrollViewer!.ScrollToEnd();
+                window.UpdateLayout();
+
+                while (listBox.Items.Count > 5)
+                {
+                    listBox.Items.RemoveAt(listBox.Items.Count - 1);
+                }
+
+                window.UpdateLayout();
+
+                var realized = CountRealizedContainers(listBox, totalItems: listBox.Items.Count);
+                Assert.True(realized > 0, "Expected at least one realized container after offset clamping.");
+                Assert.True(scrollViewer.VerticalOffset <= scrollViewer.ScrollableHeight + 0.1,
+                    $"Expected clamped offset within range, offset={scrollViewer.VerticalOffset}, max={scrollViewer.ScrollableHeight}");
             }
             finally
             {
