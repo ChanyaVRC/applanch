@@ -828,6 +828,9 @@
                              ItemsSource="{Binding FilteredLaunchItems}"
                              SelectedItem="{Binding SelectedLaunchItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              HorizontalContentAlignment="Stretch"
+                             ScrollViewer.CanContentScroll="True"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.VirtualizationMode="Recycling"
                              AllowDrop="True"
                              PreviewMouseLeftButtonDown="LaunchListBox_PreviewMouseLeftButtonDown"
                              PreviewMouseMove="LaunchListBox_PreviewMouseMove"
@@ -847,7 +850,7 @@
                                         <Setter Property="ItemsPanel">
                                             <Setter.Value>
                                                 <ItemsPanelTemplate>
-                                                    <WrapPanel/>
+                                                    <controls:VirtualizingWrapPanel/>
                                                 </ItemsPanelTemplate>
                                             </Setter.Value>
                                         </Setter>
