@@ -46,12 +46,12 @@ internal sealed class ItemLaunchService : IItemLaunchService
                 LaunchFailureKind.MissingTarget);
         }
 
-        if (_fallbackResolver.TryCreatePreferred(launchPath, runAsAdministrator, out var preferredFallback, out var preferredFallbackName))
+        if (_fallbackResolver.TryCreatePreferred(launchPath, runAsAdministrator) is { } preferredFallback)
         {
             try
             {
-                AppLogger.Instance.Info($"Using preferred fallback for '{path}' via {preferredFallbackName}.");
-                var preferredProcess = _startProcess(preferredFallback);
+                AppLogger.Instance.Info($"Using preferred fallback for '{path}' via {preferredFallback.Name}.");
+                var preferredProcess = _startProcess(preferredFallback.StartInfo);
                 if (preferredProcess is null)
                 {
                     return LaunchExecutionResult.Failed(AppResources.Error_LaunchFailed, MessageBoxImage.Error);
@@ -61,7 +61,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
             }
             catch (Exception ex)
             {
-                AppLogger.Instance.Error(ex, $"Preferred fallback launch failed for '{path}' via {preferredFallbackName}");
+                AppLogger.Instance.Error(ex, $"Preferred fallback launch failed for '{path}' via {preferredFallback.Name}");
                 return LaunchExecutionResult.Failed(string.Format(AppResources.Error_LaunchFailedWithMessage, ex.Message), MessageBoxImage.Error);
             }
         }
@@ -93,23 +93,23 @@ internal sealed class ItemLaunchService : IItemLaunchService
         }
         catch (Exception ex)
         {
-            if (IsAccessDenied(ex) && _fallbackResolver.TryCreate(launchPath, runAsAdministrator, out var fallback, out var fallbackName))
+            if (IsAccessDenied(ex) && _fallbackResolver.TryCreate(launchPath, runAsAdministrator) is { } fallback)
             {
                 try
                 {
-                    AppLogger.Instance.Warn($"Primary launch denied for '{path}'. Trying fallback: {fallbackName}.");
-                    var fallbackProcess = _startProcess(fallback);
+                    AppLogger.Instance.Warn($"Primary launch denied for '{path}'. Trying fallback: {fallback.Name}.");
+                    var fallbackProcess = _startProcess(fallback.StartInfo);
                     if (fallbackProcess is not null)
                     {
-                        AppLogger.Instance.Info($"Fallback launch succeeded for '{path}' via {fallbackName}.");
+                        AppLogger.Instance.Info($"Fallback launch succeeded for '{path}' via {fallback.Name}.");
                         return LaunchExecutionResult.Success();
                     }
 
-                    AppLogger.Instance.Warn($"Fallback launch returned null process for '{path}' via {fallbackName}.");
+                    AppLogger.Instance.Warn($"Fallback launch returned null process for '{path}' via {fallback.Name}.");
                 }
                 catch (Exception fallbackEx)
                 {
-                    AppLogger.Instance.Error(fallbackEx, $"Fallback launch failed for '{path}' via {fallbackName}");
+                    AppLogger.Instance.Error(fallbackEx, $"Fallback launch failed for '{path}' via {fallback.Name}");
                 }
             }
 

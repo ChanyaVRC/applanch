@@ -27,13 +27,13 @@ public class LaunchFallbackResolverTests
 
         var resolver = new LaunchFallbackResolver(configuration);
 
-        var matched = resolver.TryCreate(new LaunchPath(@"C:\Games\Game.exe"), runAsAdministrator: false, out var fallback, out var fallbackName);
+        var result = resolver.TryCreate(new LaunchPath(@"C:\Games\Game.exe"), runAsAdministrator: false);
 
-        Assert.True(matched);
-        Assert.Equal("Epic sample", fallbackName);
-        Assert.Equal("com.epicgames.launcher://apps/ExampleGame?action=launch&silent=true", fallback.FileName);
-        Assert.True(fallback.UseShellExecute);
-        Assert.Equal(string.Empty, fallback.Arguments);
+        var fallback = Assert.IsType<LaunchFallbackResult>(result);
+        Assert.Equal("Epic sample", fallback.Name);
+        Assert.Equal("com.epicgames.launcher://apps/ExampleGame?action=launch&silent=true", fallback.StartInfo.FileName);
+        Assert.True(fallback.StartInfo.UseShellExecute);
+        Assert.Equal(string.Empty, fallback.StartInfo.Arguments);
     }
 
     [Fact]
@@ -56,10 +56,10 @@ public class LaunchFallbackResolverTests
 
         var resolver = new LaunchFallbackResolver(configuration);
 
-        var matched = resolver.TryCreate(new LaunchPath(@"C:\Games\Game.exe"), runAsAdministrator: true, out var fallback, out _);
+        var result = resolver.TryCreate(new LaunchPath(@"C:\Games\Game.exe"), runAsAdministrator: true);
 
-        Assert.True(matched);
-        Assert.Equal("runas", fallback.Verb);
+        var fallback = Assert.IsType<LaunchFallbackResult>(result);
+        Assert.Equal("runas", fallback.StartInfo.Verb);
     }
 
     [Fact]
@@ -91,12 +91,12 @@ public class LaunchFallbackResolverTests
 
             var resolver = new LaunchFallbackResolver(configuration);
 
-            var matched = resolver.TryCreate(new LaunchPath(@"C:\Games\Space Game\Game.exe"), runAsAdministrator: false, out var fallback, out var fallbackName);
+            var result = resolver.TryCreate(new LaunchPath(@"C:\Games\Space Game\Game.exe"), runAsAdministrator: false);
 
-            Assert.True(matched);
-            Assert.Equal("Generic launcher", fallbackName);
-            Assert.Equal(launcherPath, fallback.FileName);
-            Assert.Equal("launch --id game-123 --path \"C:\\Games\\Space Game\\Game.exe\" --dir \"C:\\Games\\Space Game\"", fallback.Arguments);
+            var fallback = Assert.IsType<LaunchFallbackResult>(result);
+            Assert.Equal("Generic launcher", fallback.Name);
+            Assert.Equal(launcherPath, fallback.StartInfo.FileName);
+            Assert.Equal("launch --id game-123 --path \"C:\\Games\\Space Game\\Game.exe\" --dir \"C:\\Games\\Space Game\"", fallback.StartInfo.Arguments);
         }
         finally
         {
@@ -136,12 +136,12 @@ public class LaunchFallbackResolverTests
 
         var resolver = new LaunchFallbackResolver(configuration);
 
-        var matched = resolver.TryCreate(new LaunchPath(gamePath), runAsAdministrator: false, out var fallback, out var fallbackName);
+        var result = resolver.TryCreate(new LaunchPath(gamePath), runAsAdministrator: false);
 
-        Assert.True(matched);
-        Assert.Equal("Riot generic", fallbackName);
-        Assert.Equal(riotClientPath, fallback.FileName);
-        Assert.Equal("--launch-product=valorant --launch-patchline=live", fallback.Arguments);
+        var fallback = Assert.IsType<LaunchFallbackResult>(result);
+        Assert.Equal("Riot generic", fallback.Name);
+        Assert.Equal(riotClientPath, fallback.StartInfo.FileName);
+        Assert.Equal("--launch-product=valorant --launch-patchline=live", fallback.StartInfo.Arguments);
     }
 
     [Fact]
@@ -179,11 +179,11 @@ public class LaunchFallbackResolverTests
 
         var resolver = new LaunchFallbackResolver(configuration);
 
-        var matched = resolver.TryCreate(new LaunchPath(gamePath), runAsAdministrator: false, out var fallback, out var fallbackName);
+        var result = resolver.TryCreate(new LaunchPath(gamePath), runAsAdministrator: false);
 
-        Assert.True(matched);
-        Assert.Equal("Steam generic", fallbackName);
-        Assert.Equal("steam://rungameid/12345", fallback.FileName);
-        Assert.Equal(string.Empty, fallback.Arguments);
+        var fallback = Assert.IsType<LaunchFallbackResult>(result);
+        Assert.Equal("Steam generic", fallback.Name);
+        Assert.Equal("steam://rungameid/12345", fallback.StartInfo.FileName);
+        Assert.Equal(string.Empty, fallback.StartInfo.Arguments);
     }
 }

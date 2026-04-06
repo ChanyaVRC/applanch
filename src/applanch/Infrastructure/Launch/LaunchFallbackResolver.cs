@@ -17,22 +17,20 @@ internal sealed class LaunchFallbackResolver(LaunchFallbackConfiguration configu
         return new LaunchFallbackResolver(configuration);
     }
 
-    public bool TryCreatePreferred(LaunchPath launchPath, bool runAsAdministrator, out ProcessStartInfo fallback, out string fallbackName)
+    public LaunchFallbackResult? TryCreatePreferred(LaunchPath launchPath, bool runAsAdministrator)
     {
-        return TryCreateCore(launchPath, runAsAdministrator, "always", out fallback, out fallbackName);
+        return TryCreateCore(launchPath, runAsAdministrator, "always");
     }
 
-    public bool TryCreate(LaunchPath launchPath, bool runAsAdministrator, out ProcessStartInfo fallback, out string fallbackName)
+    public LaunchFallbackResult? TryCreate(LaunchPath launchPath, bool runAsAdministrator)
     {
-        return TryCreateCore(launchPath, runAsAdministrator, "access-denied", out fallback, out fallbackName);
+        return TryCreateCore(launchPath, runAsAdministrator, "access-denied");
     }
 
-    private bool TryCreateCore(
+    private LaunchFallbackResult? TryCreateCore(
         LaunchPath launchPath,
         bool runAsAdministrator,
-        string requiredTrigger,
-        out ProcessStartInfo fallback,
-        out string fallbackName)
+        string requiredTrigger)
     {
         var launchPathValue = launchPath.Value;
 
@@ -53,16 +51,14 @@ internal sealed class LaunchFallbackResolver(LaunchFallbackConfiguration configu
                 continue;
             }
 
-            if (TryCreateFromRule(rule, launchPath, runAsAdministrator, out fallback))
+            var fallback = TryCreateFromRule(rule, launchPath, runAsAdministrator);
+            if (fallback is not null)
             {
-                fallbackName = rule.Name;
-                return true;
+                return new LaunchFallbackResult(fallback, rule.Name);
             }
         }
 
-        fallback = default!;
-        fallbackName = string.Empty;
-        return false;
+        return null;
     }
 
     private static bool RuleMatchesPath(LaunchFallbackRuleConfiguration rule, string launchPath)
@@ -89,51 +85,42 @@ internal sealed class LaunchFallbackResolver(LaunchFallbackConfiguration configu
         return true;
     }
 
-    private static bool TryCreateFromRule(
+    private static ProcessStartInfo? TryCreateFromRule(
         LaunchFallbackRuleConfiguration rule,
         LaunchPath launchPath,
-        bool runAsAdministrator,
-        out ProcessStartInfo fallback)
+        bool runAsAdministrator)
     {
-        fallback = default!;
-
-        switch (rule.Kind.ToLowerInvariant())
+        return rule.Kind.ToLowerInvariant() switch
         {
-            case "uri-template":
-                return TryCreateUriTemplateFallback(rule, launchPath, runAsAdministrator, out fallback);
-            case "command-template":
-                return TryCreateCommandTemplateFallback(rule, launchPath, runAsAdministrator, out fallback);
-            default:
-                return false;
-        }
+            "uri-template" => TryCreateUriTemplateFallback(rule, launchPath, runAsAdministrator),
+            "command-template" => TryCreateCommandTemplateFallback(rule, launchPath, runAsAdministrator),
+            _ => null,
+        };
     }
 
-    private static bool TryCreateUriTemplateFallback(
+    private static ProcessStartInfo? TryCreateUriTemplateFallback(
         LaunchFallbackRuleConfiguration rule,
         LaunchPath launchPath,
-        bool runAsAdministrator,
-        out ProcessStartInfo fallback)
+        bool runAsAdministrator)
     {
-        fallback = default!;
-
         if (string.IsNullOrWhiteSpace(rule.UriTemplate))
         {
-            return false;
+            return null;
         }
 
         var values = BuildTemplateValues(rule, launchPath);
         if (values is null)
         {
-            return false;
+            return null;
         }
 
         var launchTarget = ExpandTemplate(rule.UriTemplate, values);
         if (string.IsNullOrWhiteSpace(launchTarget))
         {
-            return false;
+            return null;
         }
 
-        fallback = new ProcessStartInfo
+        var fallback = new ProcessStartInfo
         {
             UseShellExecute = true,
             FileName = launchTarget,
@@ -145,41 +132,38 @@ internal sealed class LaunchFallbackResolver(LaunchFallbackConfiguration configu
             fallback.Verb = "runas";
         }
 
-        return true;
+        return fallback;
     }
 
-    private static bool TryCreateCommandTemplateFallback(
+    private static ProcessStartInfo? TryCreateCommandTemplateFallback(
         LaunchFallbackRuleConfiguration rule,
         LaunchPath launchPath,
-        bool runAsAdministrator,
-        out ProcessStartInfo fallback)
+        bool runAsAdministrator)
     {
-        fallback = default!;
-
         if (string.IsNullOrWhiteSpace(rule.FileNameTemplate))
         {
-            return false;
+            return null;
         }
 
         var values = BuildTemplateValues(rule, launchPath);
         if (values is null)
         {
-            return false;
+            return null;
         }
 
         var fileName = ExpandTemplate(rule.FileNameTemplate, values);
         if (string.IsNullOrWhiteSpace(fileName))
         {
-            return false;
+            return null;
         }
 
         if (Path.IsPathFullyQualified(fileName) && !Path.Exists(fileName))
         {
-            return false;
+            return null;
         }
 
         var arguments = ExpandTemplate(rule.ArgumentsTemplate, values);
-        fallback = new ProcessStartInfo
+        var fallback = new ProcessStartInfo
         {
             UseShellExecute = true,
             FileName = fileName,
@@ -191,7 +175,7 @@ internal sealed class LaunchFallbackResolver(LaunchFallbackConfiguration configu
             fallback.Verb = "runas";
         }
 
-        return true;
+        return fallback;
     }
 
 
