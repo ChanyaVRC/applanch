@@ -1,5 +1,4 @@
 using System.IO;
-using System.Windows;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Utilities;
@@ -28,7 +27,7 @@ public sealed class LaunchItemViewModel : ObservableObject
     internal LaunchItemViewModel(LaunchPath fullPath, string category, string arguments, string displayName, ILaunchItemIconProvider? iconProvider)
     {
         FullPath = fullPath;
-        _dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
+        _dispatcher = Dispatcher.CurrentDispatcher;
         _iconProvider = iconProvider ?? LaunchItemIconProvider.Shared;
         _displayName = LaunchItemNormalization.NormalizeDisplayName(displayName, FullPath.Value);
         _category = LaunchItemNormalization.NormalizeCategory(category);
