@@ -252,6 +252,28 @@ public sealed partial class MainWindow : Window
         DeleteItemWithUndo(item);
     }
 
+    private void IconModeToggleButton_Click(object sender, RoutedEventArgs e)
+    {
+        var updatedSettings = ToggleLaunchItemIconOnlyMode(_settings);
+
+        if (_appEvent is not null)
+        {
+            _appEvent.Invoke(AppEvents.Commit, updatedSettings);
+            return;
+        }
+
+        updatedSettings.Save();
+        ApplySettingsFromAppRefresh(updatedSettings);
+    }
+
+    internal static AppSettings ToggleLaunchItemIconOnlyMode(AppSettings settings)
+    {
+        return settings with
+        {
+            LaunchItemIconOnlyMode = !settings.LaunchItemIconOnlyMode,
+        };
+    }
+
     private void DeleteItemWithUndo(LaunchItemViewModel item)
     {
         var workflowResult = _deleteItemWorkflow.TryDelete(

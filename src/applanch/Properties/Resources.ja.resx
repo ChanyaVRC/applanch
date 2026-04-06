@@ -251,6 +251,12 @@
   <data name="Setting_LaunchItemIconOnlyModeDesc" xml:space="preserve">
     <value>一覧内の名前とパスを非表示にし、アイコンタイルのみを表示します。</value>
   </data>
+  <data name="Button_IconMode" xml:space="preserve">
+    <value>アイコン</value>
+  </data>
+  <data name="ToolTip_ToggleLaunchItemIconOnlyMode" xml:space="preserve">
+    <value>一覧のアイコン表示を切り替えます。</value>
+  </data>
   <data name="SortMode_Alphabetical" xml:space="preserve">
     <value>名前順</value>
   </data>

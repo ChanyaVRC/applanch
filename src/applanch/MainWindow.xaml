@@ -153,6 +153,63 @@
             </Setter>
         </Style>
 
+            <Style x:Key="HeaderToggleButtonStyle"
+                   TargetType="ToggleButton">
+                <Setter Property="MinWidth"
+                    Value="64"/>
+                <Setter Property="Height"
+                    Value="30"/>
+                <Setter Property="Padding"
+                    Value="10,0"/>
+                <Setter Property="VerticalAlignment"
+                    Value="Top"/>
+                <Setter Property="Background"
+                    Value="Transparent"/>
+                <Setter Property="BorderBrush"
+                    Value="{DynamicResource Brush.ItemBorder}"/>
+                <Setter Property="BorderThickness"
+                    Value="1"/>
+                <Setter Property="Cursor"
+                    Value="Hand"/>
+                <Setter Property="Foreground"
+                    Value="{DynamicResource Brush.TextSecondary}"/>
+                <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="Bd"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="6">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver"
+                             Value="True">
+                        <Setter TargetName="Bd"
+                            Property="Background"
+                            Value="{DynamicResource Brush.Surface}"/>
+                        <Setter Property="Foreground"
+                            Value="{DynamicResource Brush.TextPrimary}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked"
+                             Value="True">
+                        <Setter TargetName="Bd"
+                            Property="Background"
+                            Value="{DynamicResource Brush.ItemBackground}"/>
+                        <Setter TargetName="Bd"
+                            Property="BorderBrush"
+                            Value="{DynamicResource Brush.SurfaceBorder}"/>
+                        <Setter Property="Foreground"
+                            Value="{DynamicResource Brush.TextPrimary}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+                </Setter>
+            </Style>
+
         <Style x:Key="LaunchTileButtonStyle"
                TargetType="Button">
             <Setter Property="BorderThickness"
@@ -666,16 +723,17 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Expander Grid.Row="0"
-                          Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Expander_AddApp]}"
-                          Foreground="{DynamicResource Brush.TextPrimary}">
-                    <Border Margin="0,8,0,0"
-                            Padding="12"
-                            BorderThickness="1"
-                            BorderBrush="{DynamicResource Brush.ItemBorder}"
-                            Background="{DynamicResource Brush.Surface}"
-                            CornerRadius="8">
-                        <StackPanel>
+                <Grid Grid.Row="0">
+                    <Expander Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Expander_AddApp]}"
+                              Foreground="{DynamicResource Brush.TextPrimary}"
+                              Margin="0,0,84,0">
+                        <Border Margin="0,8,0,0"
+                                Padding="12"
+                                BorderThickness="1"
+                                BorderBrush="{DynamicResource Brush.ItemBorder}"
+                                Background="{DynamicResource Brush.Surface}"
+                                CornerRadius="8">
+                            <StackPanel>
                             <controls:SuggestionInputControl
                                 InputComboBoxStyle="{StaticResource ModernComboBoxStyle}"
                                 Suggestions="{Binding QuickAddSuggestions}"
@@ -728,9 +786,30 @@
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </Expander>
+
+                    <ToggleButton HorizontalAlignment="Right"
+                                  VerticalAlignment="Top"
+                                  Margin="0,0,0,2"
+                                  Style="{StaticResource HeaderToggleButtonStyle}"
+                                  IsChecked="{Binding IsLaunchItemIconOnlyMode}"
+                                  Click="IconModeToggleButton_Click"
+                                  ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_ToggleLaunchItemIconOnlyMode]}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xECA5;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="12"
+                                       Margin="0,0,6,0"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_IconMode]}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
                         </StackPanel>
-                    </Border>
-                </Expander>
+                    </ToggleButton>
+                </Grid>
 
                 <Grid Grid.Row="3">
                     <ListBox x:Name="LaunchListBox"

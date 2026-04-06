@@ -251,6 +251,12 @@
   <data name="Setting_LaunchItemIconOnlyModeDesc" xml:space="preserve">
     <value>Hide item name and path in the list, and display icon tiles only.</value>
   </data>
+  <data name="Button_IconMode" xml:space="preserve">
+    <value>Icons</value>
+  </data>
+  <data name="ToolTip_ToggleLaunchItemIconOnlyMode" xml:space="preserve">
+    <value>Toggle icon-only item display.</value>
+  </data>
   <data name="SortMode_Alphabetical" xml:space="preserve">
     <value>Alphabetical</value>
   </data>
