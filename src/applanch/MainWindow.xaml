@@ -153,62 +153,76 @@
             </Setter>
         </Style>
 
-            <Style x:Key="HeaderToggleButtonStyle"
-                   TargetType="ToggleButton">
-                <Setter Property="MinWidth"
-                    Value="64"/>
-                <Setter Property="Height"
-                    Value="30"/>
-                <Setter Property="Padding"
-                    Value="10,0"/>
-                <Setter Property="VerticalAlignment"
-                    Value="Top"/>
-                <Setter Property="Background"
-                    Value="Transparent"/>
-                <Setter Property="BorderBrush"
-                    Value="{DynamicResource Brush.ItemBorder}"/>
-                <Setter Property="BorderThickness"
-                    Value="1"/>
-                <Setter Property="Cursor"
-                    Value="Hand"/>
-                <Setter Property="Foreground"
+        <Style x:Key="HeaderToggleCheckBoxStyle"
+               TargetType="CheckBox">
+            <Setter Property="Foreground"
                     Value="{DynamicResource Brush.TextSecondary}"/>
-                <Setter Property="Template">
+            <Setter Property="FontSize"
+                    Value="12"/>
+            <Setter Property="Cursor"
+                    Value="Hand"/>
+            <Setter Property="VerticalContentAlignment"
+                    Value="Center"/>
+            <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="ToggleButton">
-                    <Border x:Name="Bd"
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="6">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver"
-                             Value="True">
-                        <Setter TargetName="Bd"
-                            Property="Background"
-                            Value="{DynamicResource Brush.Surface}"/>
-                        <Setter Property="Foreground"
-                            Value="{DynamicResource Brush.TextPrimary}"/>
-                        </Trigger>
-                        <Trigger Property="IsChecked"
-                             Value="True">
-                        <Setter TargetName="Bd"
-                            Property="Background"
-                            Value="{DynamicResource Brush.ItemBackground}"/>
-                        <Setter TargetName="Bd"
-                            Property="BorderBrush"
-                            Value="{DynamicResource Brush.SurfaceBorder}"/>
-                        <Setter Property="Foreground"
-                            Value="{DynamicResource Brush.TextPrimary}"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="Track"
+                                    Grid.Column="2"
+                                    Width="38"
+                                    Height="22"
+                                    Background="{DynamicResource Brush.Surface}"
+                                    BorderBrush="{DynamicResource Brush.ItemBorder}"
+                                    BorderThickness="1"
+                                    CornerRadius="11">
+                                <Ellipse x:Name="Thumb"
+                                         Width="16"
+                                         Height="16"
+                                         Margin="2"
+                                         HorizontalAlignment="Left"
+                                         Fill="{DynamicResource Brush.TextTertiary}"/>
+                            </Border>
+                            <ContentPresenter Grid.Column="0"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked"
+                                     Value="True">
+                                <Setter TargetName="Track"
+                                        Property="Background"
+                                        Value="#1A6DB3F8"/>
+                                <Setter TargetName="Track"
+                                        Property="BorderBrush"
+                                        Value="#6DB3F8"/>
+                                <Setter TargetName="Thumb"
+                                        Property="HorizontalAlignment"
+                                        Value="Right"/>
+                                <Setter TargetName="Thumb"
+                                        Property="Fill"
+                                        Value="#6DB3F8"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter TargetName="Track"
+                                        Property="BorderBrush"
+                                        Value="#8DBFFB"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled"
+                                     Value="False">
+                                <Setter Property="Opacity"
+                                        Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
-                </Setter>
-            </Style>
+            </Setter>
+        </Style>
 
         <Style x:Key="LaunchTileButtonStyle"
                TargetType="Button">
@@ -724,9 +738,19 @@
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0">
-                    <Expander Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Expander_AddApp]}"
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Expander Grid.Column="0"
                               Foreground="{DynamicResource Brush.TextPrimary}"
-                              Margin="0,0,84,0">
+                              HorizontalContentAlignment="Stretch">
+                        <Expander.Header>
+                            <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Expander_AddApp]}"
+                                       VerticalAlignment="Center"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource Brush.TextPrimary}"/>
+                        </Expander.Header>
                         <Border Margin="0,8,0,0"
                                 Padding="12"
                                 BorderThickness="1"
@@ -789,26 +813,14 @@
                             </StackPanel>
                         </Border>
                     </Expander>
-
-                    <ToggleButton HorizontalAlignment="Right"
-                                  VerticalAlignment="Top"
-                                  Margin="0,0,0,2"
-                                  Style="{StaticResource HeaderToggleButtonStyle}"
-                                  IsChecked="{Binding IsLaunchItemIconOnlyMode}"
-                                  Click="IconModeToggleButton_Click"
-                                  ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_ToggleLaunchItemIconOnlyMode]}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xECA5;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="12"
-                                       Margin="0,0,6,0"
-                                       VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_IconMode]}"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </ToggleButton>
+                    <CheckBox Grid.Column="1"
+                              Margin="12,0,0,0"
+                              VerticalAlignment="Center"
+                              Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_IconMode]}"
+                              Style="{StaticResource HeaderToggleCheckBoxStyle}"
+                              IsChecked="{Binding IsLaunchItemIconOnlyMode, Mode=OneWay}"
+                              Click="IconModeToggleButton_Click"
+                              ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_ToggleLaunchItemIconOnlyMode]}"/>
                 </Grid>
 
                 <Grid Grid.Row="3">
