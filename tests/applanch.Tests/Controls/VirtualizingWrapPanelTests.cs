@@ -78,6 +78,43 @@ public sealed class VirtualizingWrapPanelTests
         }));
     }
 
+    [Fact]
+    public void MeasureOverride_WithExplicitItemWidth_WrapsIntoMultipleColumns()
+    {
+        WpfTestHost.RunInSta((Action)(() =>
+        {
+            WpfTestHost.EnsureAppResources();
+
+            const int itemCount = 30;
+            var listBox = CreateVirtualizingListBox(itemCount: itemCount, itemWidth: 90, itemHeight: 90);
+            var panelTemplate = new ItemsPanelTemplate(new FrameworkElementFactory(typeof(VirtualizingWrapPanel)));
+            panelTemplate.Seal();
+            listBox.ItemsPanel = panelTemplate;
+
+            var window = new Window { Content = listBox, Width = 320, Height = 220, WindowStyle = WindowStyle.None };
+            window.Show();
+            window.UpdateLayout();
+
+            try
+            {
+                var panel = FindVisualChild<VirtualizingWrapPanel>(listBox);
+                Assert.NotNull(panel);
+
+                panel!.ItemWidth = 82;
+                panel.ItemHeight = 82;
+                panel.InvalidateMeasure();
+                window.UpdateLayout();
+
+                Assert.True(panel.ExtentWidth > panel.ItemWidth,
+                    $"Expected multiple columns with explicit width; extent={panel.ExtentWidth}, itemWidth={panel.ItemWidth}");
+            }
+            finally
+            {
+                window.Close();
+            }
+        }));
+    }
+
     private static ListBox CreateVirtualizingListBox(int itemCount, double itemWidth, double itemHeight)
     {
         var factory = new FrameworkElementFactory(typeof(Border));

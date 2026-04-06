@@ -15,6 +15,30 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
     private Point _offset;
     private Size _itemSize = new(DefaultItemWidth, DefaultItemHeight);
 
+    public static readonly DependencyProperty ItemWidthProperty = DependencyProperty.Register(
+        nameof(ItemWidth),
+        typeof(double),
+        typeof(VirtualizingWrapPanel),
+        new FrameworkPropertyMetadata(double.NaN, FrameworkPropertyMetadataOptions.AffectsMeasure));
+
+    public static readonly DependencyProperty ItemHeightProperty = DependencyProperty.Register(
+        nameof(ItemHeight),
+        typeof(double),
+        typeof(VirtualizingWrapPanel),
+        new FrameworkPropertyMetadata(double.NaN, FrameworkPropertyMetadataOptions.AffectsMeasure));
+
+    public double ItemWidth
+    {
+        get => (double)GetValue(ItemWidthProperty);
+        set => SetValue(ItemWidthProperty, value);
+    }
+
+    public double ItemHeight
+    {
+        get => (double)GetValue(ItemHeightProperty);
+        set => SetValue(ItemHeightProperty, value);
+    }
+
     public bool CanVerticallyScroll { get; set; } = true;
 
     public bool CanHorizontallyScroll { get; set; }
@@ -64,6 +88,16 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
             viewportHeight = _viewport.Height > 0 ? _viewport.Height : _itemSize.Height;
         }
 
+        var fixedItemWidth = double.IsNaN(ItemWidth) || ItemWidth <= 0 ? (double?)null : ItemWidth;
+        var fixedItemHeight = double.IsNaN(ItemHeight) || ItemHeight <= 0 ? (double?)null : ItemHeight;
+
+        if (fixedItemWidth is not null || fixedItemHeight is not null)
+        {
+            _itemSize = new Size(
+                fixedItemWidth ?? _itemSize.Width,
+                fixedItemHeight ?? _itemSize.Height);
+        }
+
         _viewport = new Size(viewportWidth, viewportHeight);
 
         var effectiveItemSize = _itemSize;
@@ -85,6 +119,13 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
             RealizeItems(itemsControl, startIndex, endIndex);
 
             var measuredItemSize = MeasureRealizedChildren();
+            if (fixedItemWidth is not null || fixedItemHeight is not null)
+            {
+                measuredItemSize = new Size(
+                    fixedItemWidth ?? measuredItemSize.Width,
+                    fixedItemHeight ?? measuredItemSize.Height);
+            }
+
             if (measuredItemSize == effectiveItemSize)
             {
                 break;
