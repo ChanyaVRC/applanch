@@ -10,6 +10,42 @@ namespace applanch.Tests.Infrastructure.Launch;
 
 public class ItemLaunchServiceTests
 {
+    private static string CreateSteamGameWithManifest(string rootPath)
+    {
+        var steamApps = Path.Combine(rootPath, "Steam", "steamapps");
+        var gameDirectory = Path.Combine(steamApps, "common", "CoolGame");
+        var gamePath = Path.Combine(gameDirectory, "coolgame.exe");
+        var manifest = Path.Combine(steamApps, "appmanifest_12345.acf");
+
+        Directory.CreateDirectory(gameDirectory);
+        File.WriteAllText(gamePath, string.Empty);
+        File.WriteAllText(manifest,
+            "\"AppState\"\n" +
+            "{\n" +
+            "  \"appid\"  \"12345\"\n" +
+            "  \"installdir\"  \"CoolGame\"\n" +
+            "}\n");
+
+        return gamePath;
+    }
+
+    private static LaunchFallbackConfiguration CreateSteamAccessDeniedFallbackConfiguration() =>
+        new()
+        {
+            Rules =
+            [
+                new LaunchFallbackRuleConfiguration
+                {
+                    Name = "Steam access denied",
+                    Kind = "uri-template",
+                    FallbackTrigger = "access-denied",
+                    PathContains = "steamapps/common/",
+                    UriTemplate = "steam://rungameid/{appId}",
+                    AppIdSource = "steam-manifest",
+                },
+            ],
+        };
+
     [Fact]
     public void TryLaunch_MissingPath_ReturnsWarningFailure()
     {
@@ -154,20 +190,7 @@ public class ItemLaunchServiceTests
     public void TryLaunch_SteamLibraryAccessDenied_FallsBackToSteamUri()
     {
         using var tempDirectory = TemporaryDirectory.Create();
-        var steamRoot = Path.Combine(tempDirectory.Path, "Steam");
-        var steamApps = Path.Combine(steamRoot, "steamapps");
-        var gameDirectory = Path.Combine(steamApps, "common", "CoolGame");
-        var gamePath = Path.Combine(gameDirectory, "coolgame.exe");
-        var manifest = Path.Combine(steamApps, "appmanifest_12345.acf");
-
-        Directory.CreateDirectory(gameDirectory);
-        File.WriteAllText(gamePath, string.Empty);
-        File.WriteAllText(manifest,
-            "\"AppState\"\n" +
-            "{\n" +
-            "  \"appid\"  \"12345\"\n" +
-            "  \"installdir\"  \"CoolGame\"\n" +
-            "}\n");
+        var gamePath = CreateSteamGameWithManifest(tempDirectory.Path);
 
         var attempts = new List<ProcessStartInfo>();
         Process? Launcher(ProcessStartInfo startInfo)
@@ -181,21 +204,7 @@ public class ItemLaunchServiceTests
             return new Process();
         }
 
-        var configuration = new LaunchFallbackConfiguration
-        {
-            Rules =
-            [
-                new LaunchFallbackRuleConfiguration
-                {
-                    Name = "Steam access denied",
-                    Kind = "uri-template",
-                    FallbackTrigger = "access-denied",
-                    PathContains = "steamapps/common/",
-                    UriTemplate = "steam://rungameid/{appId}",
-                    AppIdSource = "steam-manifest",
-                },
-            ],
-        };
+        var configuration = CreateSteamAccessDeniedFallbackConfiguration();
 
         var service = new ItemLaunchService(Launcher, new LaunchFallbackResolver(configuration));
 
@@ -212,20 +221,7 @@ public class ItemLaunchServiceTests
     public void TryLaunch_SteamLibraryWrappedAccessDenied_FallsBackToSteamUri()
     {
         using var tempDirectory = TemporaryDirectory.Create();
-        var steamRoot = Path.Combine(tempDirectory.Path, "Steam");
-        var steamApps = Path.Combine(steamRoot, "steamapps");
-        var gameDirectory = Path.Combine(steamApps, "common", "CoolGame");
-        var gamePath = Path.Combine(gameDirectory, "coolgame.exe");
-        var manifest = Path.Combine(steamApps, "appmanifest_12345.acf");
-
-        Directory.CreateDirectory(gameDirectory);
-        File.WriteAllText(gamePath, string.Empty);
-        File.WriteAllText(manifest,
-            "\"AppState\"\n" +
-            "{\n" +
-            "  \"appid\"  \"12345\"\n" +
-            "  \"installdir\"  \"CoolGame\"\n" +
-            "}\n");
+        var gamePath = CreateSteamGameWithManifest(tempDirectory.Path);
 
         var attempts = new List<ProcessStartInfo>();
         Process? Launcher(ProcessStartInfo startInfo)
@@ -239,21 +235,7 @@ public class ItemLaunchServiceTests
             return new Process();
         }
 
-        var configuration = new LaunchFallbackConfiguration
-        {
-            Rules =
-            [
-                new LaunchFallbackRuleConfiguration
-                {
-                    Name = "Steam access denied",
-                    Kind = "uri-template",
-                    FallbackTrigger = "access-denied",
-                    PathContains = "steamapps/common/",
-                    UriTemplate = "steam://rungameid/{appId}",
-                    AppIdSource = "steam-manifest",
-                },
-            ],
-        };
+        var configuration = CreateSteamAccessDeniedFallbackConfiguration();
 
         var service = new ItemLaunchService(Launcher, new LaunchFallbackResolver(configuration));
 
@@ -270,19 +252,7 @@ public class ItemLaunchServiceTests
     public void TryLaunch_SteamLibraryPreferredFallback_UsesSteamUriWithoutDirectLaunchAttempt()
     {
         using var tempDirectory = TemporaryDirectory.Create();
-        var steamApps = Path.Combine(tempDirectory.Path, "Steam", "steamapps");
-        var gameDirectory = Path.Combine(steamApps, "common", "CoolGame");
-        var gamePath = Path.Combine(gameDirectory, "coolgame.exe");
-        var manifest = Path.Combine(steamApps, "appmanifest_12345.acf");
-
-        Directory.CreateDirectory(gameDirectory);
-        File.WriteAllText(gamePath, string.Empty);
-        File.WriteAllText(manifest,
-            "\"AppState\"\n" +
-            "{\n" +
-            "  \"appid\"  \"12345\"\n" +
-            "  \"installdir\"  \"CoolGame\"\n" +
-            "}\n");
+        var gamePath = CreateSteamGameWithManifest(tempDirectory.Path);
 
         var configuration = new LaunchFallbackConfiguration
         {
