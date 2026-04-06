@@ -746,6 +746,24 @@
                              BorderThickness="0"
                              Background="Transparent"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.Style>
+                            <Style TargetType="ListBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLaunchItemIconOnlyMode}"
+                                                 Value="True">
+                                        <Setter Property="HorizontalContentAlignment"
+                                                Value="Left"/>
+                                        <Setter Property="ItemsPanel">
+                                            <Setter.Value>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel/>
+                                                </ItemsPanelTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListBox.Style>
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Padding"
@@ -788,6 +806,13 @@
                                         </ControlTemplate>
                                     </Setter.Value>
                                 </Setter>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                 Value="True">
+                                        <Setter Property="Margin"
+                                                Value="0,0,8,8"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
                             </Style>
                         </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
@@ -798,6 +823,19 @@
                                         CornerRadius="8"
                                         Padding="8,6"
                                         SnapsToDevicePixels="True">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                             Value="True">
+                                                    <Setter Property="Width"
+                                                            Value="72"/>
+                                                    <Setter Property="Padding"
+                                                            Value="10"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
                                     <Border.ContextMenu>
                                         <ContextMenu>
                                             <MenuItem Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_Rename]}"
@@ -819,6 +857,20 @@
                                         </ContextMenu>
                                     </Border.ContextMenu>
                                     <Grid>
+                                    <Grid>
+                                        <Grid.Style>
+                                            <Style TargetType="Grid">
+                                                <Setter Property="Visibility"
+                                                        Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                 Value="True">
+                                                        <Setter Property="Visibility"
+                                                                Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Grid.Style>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="20"/>
                                             <ColumnDefinition Width="8"/>
@@ -833,19 +885,7 @@
                                                    FontSize="11"
                                                    FontWeight="Bold"
                                                    Foreground="{DynamicResource Brush.TextTertiary}"
-                                                   ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_DragToReorder]}">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                     Value="True">
-                                                            <Setter Property="Visibility"
-                                                                    Value="Collapsed"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
+                                                   ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_DragToReorder]}"/>
 
                                         <Button Grid.Column="2"
                                                 Click="LaunchItemButton_Click"
@@ -860,19 +900,6 @@
                                                             <Setter Property="Visibility"
                                                                     Value="Collapsed"/>
                                                         </DataTrigger>
-                                                            <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                     Value="True">
-                                                                <Setter Property="Grid.Column"
-                                                                    Value="0"/>
-                                                                <Setter Property="Grid.ColumnSpan"
-                                                                    Value="4"/>
-                                                                <Setter Property="HorizontalAlignment"
-                                                                    Value="Left"/>
-                                                                <Setter Property="Width"
-                                                                    Value="44"/>
-                                                                <Setter Property="Padding"
-                                                                    Value="6"/>
-                                                            </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </Button.Style>
@@ -929,19 +956,7 @@
                                                            Text="{Binding DisplayName}"
                                                            FontSize="13"
                                                            FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource Brush.TextPrimary}">
-                                                    <TextBlock.Style>
-                                                        <Style TargetType="TextBlock">
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                             Value="True">
-                                                                    <Setter Property="Visibility"
-                                                                            Value="Collapsed"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </TextBlock.Style>
-                                                </TextBlock>
+                                                           Foreground="{DynamicResource Brush.TextPrimary}"/>
 
                                                 <TextBlock Grid.Row="1"
                                                            Grid.Column="2"
@@ -949,19 +964,7 @@
                                                            Text="{Binding FullPath}"
                                                            FontSize="11"
                                                            Foreground="{DynamicResource Brush.TextTertiary}"
-                                                           TextTrimming="CharacterEllipsis">
-                                                    <TextBlock.Style>
-                                                        <Style TargetType="TextBlock">
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                             Value="True">
-                                                                    <Setter Property="Visibility"
-                                                                            Value="Collapsed"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </TextBlock.Style>
-                                                </TextBlock>
+                                                           TextTrimming="CharacterEllipsis"/>
                                             </Grid>
                                         </Button>
 
@@ -1069,16 +1072,73 @@
                                                             Value="Center"/>
                                                     <Setter Property="ToolTip"
                                                             Value="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Delete]}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                     Value="True">
-                                                            <Setter Property="Visibility"
-                                                                    Value="Collapsed"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
                                                 </Style>
                                             </Button.Style>
                                         </Button>
+                                    </Grid>
+
+                                    <Button Click="LaunchItemButton_Click"
+                                            Tag="{Binding}"
+                                            Width="60"
+                                            Height="60"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            ToolTip="{Binding DisplayName}">
+                                        <Button.Style>
+                                            <Style TargetType="Button"
+                                                   BasedOn="{StaticResource LaunchTileButtonStyle}">
+                                                <Setter Property="Visibility"
+                                                        Value="Collapsed"/>
+                                                <Setter Property="Padding"
+                                                        Value="6"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                 Value="True">
+                                                        <Setter Property="Visibility"
+                                                                Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                        <Grid>
+                                            <Border Width="44"
+                                                    Height="44"
+                                                    CornerRadius="9"
+                                                    Background="{DynamicResource Brush.IconBackground}"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center">
+                                                <Grid>
+                                                    <Image Source="{Binding IconSource}"
+                                                           Width="28"
+                                                           Height="28"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                                    <TextBlock Text="&#xE7BA;"
+                                                               FontFamily="Segoe MDL2 Assets"
+                                                               FontSize="12"
+                                                               HorizontalAlignment="Right"
+                                                               VerticalAlignment="Bottom"
+                                                               Margin="0,0,0,0"
+                                                               Foreground="{DynamicResource Brush.NotificationWarningBorder}"
+                                                               ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Visibility"
+                                                                        Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsPathMissing}"
+                                                                                 Value="True">
+                                                                        <Setter Property="Visibility"
+                                                                                Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Grid>
+                                            </Border>
+                                        </Grid>
+                                    </Button>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
