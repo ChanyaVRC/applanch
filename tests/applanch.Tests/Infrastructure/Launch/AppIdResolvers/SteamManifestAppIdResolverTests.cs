@@ -27,33 +27,32 @@ public class SteamManifestAppIdResolverTests
     }
 
     [Fact]
-    public void TryResolve_MatchingManifest_ReturnsTrueAndAppId()
+    public void Resolve_MatchingManifest_ReturnsAppId()
     {
         using var dir = TemporaryDirectory.Create("steam-test");
         var exePath = WriteSteamLayout(dir, "MyGame", "440");
         var resolver = new SteamManifestAppIdResolver();
 
-        var result = resolver.TryResolve(new LaunchPath(exePath), out var appId);
+        var appId = resolver.Resolve(new LaunchPath(exePath));
 
-        Assert.True(result);
         Assert.Equal("440", appId);
     }
 
     [Fact]
-    public void TryResolve_NoSteamAppsDirectory_ReturnsFalse()
+    public void CanResolve_NoSteamAppsDirectory_ReturnsFalse()
     {
         using var dir = TemporaryDirectory.Create("steam-test");
         var exePath = Path.Combine(dir.Path, "game.exe");
         File.WriteAllText(exePath, string.Empty);
         var resolver = new SteamManifestAppIdResolver();
 
-        var result = resolver.TryResolve(new LaunchPath(exePath), out _);
+        var result = resolver.CanResolve(new LaunchPath(exePath));
 
         Assert.False(result);
     }
 
     [Fact]
-    public void TryResolve_PathNotUnderCommon_ReturnsFalse()
+    public void CanResolve_PathNotUnderCommon_ReturnsFalse()
     {
         using var dir = TemporaryDirectory.Create("steam-test");
         var steamApps = Path.Combine(dir.Path, "steamapps");
@@ -63,13 +62,13 @@ public class SteamManifestAppIdResolverTests
         File.WriteAllText(exePath, string.Empty);
         var resolver = new SteamManifestAppIdResolver();
 
-        var result = resolver.TryResolve(new LaunchPath(exePath), out _);
+        var result = resolver.CanResolve(new LaunchPath(exePath));
 
         Assert.False(result);
     }
 
     [Fact]
-    public void TryResolve_ManifestInstallDirMismatch_ReturnsFalse()
+    public void Resolve_ManifestInstallDirMismatch_Throws()
     {
         using var dir = TemporaryDirectory.Create("steam-test");
         var steamApps = Path.Combine(dir.Path, "steamapps");
@@ -86,13 +85,15 @@ public class SteamManifestAppIdResolverTests
             """);
         var resolver = new SteamManifestAppIdResolver();
 
-        var result = resolver.TryResolve(new LaunchPath(exePath), out _);
+        Assert.True(resolver.CanResolve(new LaunchPath(exePath)));
 
-        Assert.False(result);
+        var ex = Assert.Throws<AppIdResolutionException>(() => resolver.Resolve(new LaunchPath(exePath)));
+
+        Assert.Contains("No Steam manifest matched", ex.Message);
     }
 
     [Fact]
-    public void TryResolve_ManifestInstalldirIsCaseInsensitive()
+    public void Resolve_ManifestInstalldirIsCaseInsensitive()
     {
         using var dir = TemporaryDirectory.Create("steam-test");
         var exePath = WriteSteamLayout(dir, "mygame", "220");
@@ -108,14 +109,13 @@ public class SteamManifestAppIdResolverTests
             """);
         var resolver = new SteamManifestAppIdResolver();
 
-        var result = resolver.TryResolve(new LaunchPath(exePath), out var appId);
+        var appId = resolver.Resolve(new LaunchPath(exePath));
 
-        Assert.True(result);
         Assert.Equal("220", appId);
     }
 
     [Fact]
-    public void TryResolve_MalformedAppIdLine_ReturnsFalse()
+    public void Resolve_MalformedAppIdLine_Throws()
     {
         using var dir = TemporaryDirectory.Create("steam-test");
         var steamApps = Path.Combine(dir.Path, "steamapps");
@@ -132,8 +132,10 @@ public class SteamManifestAppIdResolverTests
             """);
         var resolver = new SteamManifestAppIdResolver();
 
-        var result = resolver.TryResolve(new LaunchPath(exePath), out _);
+        Assert.True(resolver.CanResolve(new LaunchPath(exePath)));
 
-        Assert.False(result);
+        var ex = Assert.Throws<AppIdResolutionException>(() => resolver.Resolve(new LaunchPath(exePath)));
+
+        Assert.Contains("No Steam manifest matched", ex.Message);
     }
 }

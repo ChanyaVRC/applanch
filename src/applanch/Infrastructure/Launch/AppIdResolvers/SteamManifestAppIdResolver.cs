@@ -8,54 +8,64 @@ namespace applanch.Infrastructure.Launch.AppIdResolvers;
 /// </summary>
 internal sealed class SteamManifestAppIdResolver : IAppIdResolver
 {
-    public bool TryResolve(LaunchPath launchPath, out string appId)
+    public bool CanResolve(LaunchPath launchPath)
     {
-        appId = string.Empty;
         var launchPathValue = launchPath.Value;
 
-        if (!TryFindContainingDirectory(launchPathValue, "steamapps", out var steamAppsRoot))
+        var steamAppsRoot = FindContainingDirectory(launchPathValue, "steamapps");
+        if (steamAppsRoot is null)
         {
             return false;
         }
 
-        return TryResolveSteamAppId(launchPathValue, steamAppsRoot, out appId);
+        return IsUnderSteamCommon(launchPathValue, steamAppsRoot);
     }
 
-    private static bool TryResolveSteamAppId(string launchPath, string steamAppsRoot, out string appId)
+    public string Resolve(LaunchPath launchPath)
     {
-        appId = string.Empty;
+        var launchPathValue = launchPath.Value;
+        var steamAppsRoot = FindContainingDirectory(launchPathValue, "steamapps")
+            ?? throw new AppIdResolutionException("The launch path is not inside a Steam library (steamapps not found).");
+
+        var gameDirectory = GetSteamGameDirectory(launchPathValue, steamAppsRoot)
+            ?? throw new AppIdResolutionException("The launch path is not under 'steamapps/common'.");
+
+        foreach (var manifestPath in Directory.EnumerateFiles(steamAppsRoot, "appmanifest_*.acf", SearchOption.TopDirectoryOnly))
+        {
+            var manifest = ReadSteamManifest(manifestPath);
+            if (manifest is not null && string.Equals(manifest.Value.InstallDir, gameDirectory, StringComparison.OrdinalIgnoreCase))
+            {
+                return manifest.Value.AppId;
+            }
+        }
+
+        throw new AppIdResolutionException($"No Steam manifest matched install directory '{gameDirectory}'.");
+    }
+
+    private static bool IsUnderSteamCommon(string launchPath, string steamAppsRoot)
+    {
+        return GetSteamGameDirectory(launchPath, steamAppsRoot) is not null;
+    }
+
+    private static string? GetSteamGameDirectory(string launchPath, string steamAppsRoot)
+    {
 
         var commonRoot = Path.Combine(steamAppsRoot, "common") + Path.DirectorySeparatorChar;
         if (!launchPath.StartsWith(commonRoot, StringComparison.OrdinalIgnoreCase))
         {
-            return false;
+            return null;
         }
 
         var relativeSpan = launchPath.AsSpan(commonRoot.Length);
         var sepIndex = relativeSpan.IndexOfAny(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
         var gameDirectory = (sepIndex >= 0 ? relativeSpan[..sepIndex] : relativeSpan).ToString();
-        if (string.IsNullOrWhiteSpace(gameDirectory))
-        {
-            return false;
-        }
-
-        foreach (var manifestPath in Directory.EnumerateFiles(steamAppsRoot, "appmanifest_*.acf", SearchOption.TopDirectoryOnly))
-        {
-            if (TryReadSteamManifest(manifestPath, out var manifestAppId, out var installDir) &&
-                string.Equals(installDir, gameDirectory, StringComparison.OrdinalIgnoreCase))
-            {
-                appId = manifestAppId;
-                return true;
-            }
-        }
-
-        return false;
+        return string.IsNullOrWhiteSpace(gameDirectory) ? null : gameDirectory;
     }
 
-    private static bool TryReadSteamManifest(string manifestPath, out string appId, out string installDir)
+    private static (string AppId, string InstallDir)? ReadSteamManifest(string manifestPath)
     {
-        appId = string.Empty;
-        installDir = string.Empty;
+        var appId = string.Empty;
+        var installDir = string.Empty;
 
         foreach (var line in File.ReadLines(manifestPath))
         {
@@ -70,7 +80,9 @@ internal sealed class SteamManifestAppIdResolver : IAppIdResolver
             }
         }
 
-        return !string.IsNullOrWhiteSpace(appId) && !string.IsNullOrWhiteSpace(installDir);
+        return !string.IsNullOrWhiteSpace(appId) && !string.IsNullOrWhiteSpace(installDir)
+            ? (appId, installDir)
+            : null;
     }
 
     private static string ExtractQuotedValue(string line)
@@ -82,21 +94,19 @@ internal sealed class SteamManifestAppIdResolver : IAppIdResolver
         return span.Split(parts, '"') >= 4 ? span[parts[3]].ToString() : string.Empty;
     }
 
-    private static bool TryFindContainingDirectory(string filePath, string targetDirectoryName, out string directoryPath)
+    private static string? FindContainingDirectory(string filePath, string targetDirectoryName)
     {
-        directoryPath = string.Empty;
         var current = Path.GetDirectoryName(filePath);
         while (!string.IsNullOrWhiteSpace(current))
         {
             if (string.Equals(Path.GetFileName(current), targetDirectoryName, StringComparison.OrdinalIgnoreCase))
             {
-                directoryPath = current;
-                return true;
+                return current;
             }
 
             current = Directory.GetParent(current)?.FullName;
         }
 
-        return false;
+        return null;
     }
 }

@@ -9,34 +9,44 @@ public class StaticAppIdResolverTests
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void TryResolve_BlankAppId_ReturnsFalse(string appId)
+    public void CanResolve_BlankAppId_ReturnsFalse(string appId)
     {
         var resolver = new StaticAppIdResolver(appId);
 
-        var result = resolver.TryResolve(new LaunchPath(@"C:\Games\game.exe"), out var resolved);
+        var result = resolver.CanResolve(new LaunchPath(@"C:\Games\game.exe"));
 
         Assert.False(result);
-        Assert.Equal(string.Empty, resolved);
     }
 
     [Fact]
-    public void TryResolve_ValidAppId_ReturnsTrueAndValue()
+    public void CanResolve_ValidAppId_ReturnsTrue()
     {
         var resolver = new StaticAppIdResolver("12345");
 
-        var result = resolver.TryResolve(new LaunchPath(@"C:\Games\game.exe"), out var resolved);
+        var result = resolver.CanResolve(new LaunchPath(@"C:\Games\game.exe"));
 
         Assert.True(result);
-        Assert.Equal("12345", resolved);
     }
 
     [Fact]
-    public void TryResolve_LaunchPathIsIgnored()
+    public void Resolve_ValidAppId_ReturnsValue()
     {
         var resolver = new StaticAppIdResolver("abc");
 
-        resolver.TryResolve(new LaunchPath(@"C:\Games\ignored.exe"), out var resolved);
+        var resolved = resolver.Resolve(new LaunchPath(@"C:\Games\ignored.exe"));
 
         Assert.Equal("abc", resolved);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Resolve_BlankAppId_Throws(string appId)
+    {
+        var resolver = new StaticAppIdResolver(appId);
+
+        var ex = Assert.Throws<AppIdResolutionException>(() => resolver.Resolve(new LaunchPath(@"C:\Games\game.exe")));
+
+        Assert.Equal("Static app ID is empty.", ex.Message);
     }
 }

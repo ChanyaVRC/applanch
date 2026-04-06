@@ -244,7 +244,20 @@ internal sealed class LaunchFallbackResolver(LaunchFallbackConfiguration configu
             return null;
         }
 
-        return resolver.TryResolve(launchPath, out var appId) ? appId : null;
+        if (!resolver.CanResolve(launchPath))
+        {
+            return null;
+        }
+
+        try
+        {
+            return resolver.Resolve(launchPath);
+        }
+        catch (AppIdResolutionException ex)
+        {
+            AppLogger.Instance.Warn($"App ID resolution failed for source '{rule.AppIdSource}' and path '{launchPath.Value}': {ex.Message}");
+            return null;
+        }
     }
 
     private static string ExpandTemplate(string template, Dictionary<string, string> values)

@@ -8,10 +8,13 @@ namespace applanch.Infrastructure.Launch.AppIdResolvers;
 internal interface IAppIdResolver
 {
     /// <summary>
-    /// Attempts to resolve the application ID.
+    /// Checks whether this resolver can resolve for the provided launch path.
     /// </summary>
-    /// <param name="launchPath">The path to the launched executable.</param>
-    /// <param name="appId">The resolved application ID when successful.</param>
-    /// <returns>True if resolution succeeded; otherwise, false.</returns>
-    bool TryResolve(LaunchPath launchPath, out string appId);
+    bool CanResolve(LaunchPath launchPath);
+
+    /// <summary>
+    /// Resolves the application ID.
+    /// </summary>
+    /// <exception cref="AppIdResolutionException">Thrown when the application ID cannot be resolved.</exception>
+    string Resolve(LaunchPath launchPath);
 }

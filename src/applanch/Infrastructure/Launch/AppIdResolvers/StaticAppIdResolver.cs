@@ -14,15 +14,18 @@ internal sealed class StaticAppIdResolver : IAppIdResolver
         _appId = appId;
     }
 
-    public bool TryResolve(LaunchPath launchPath, out string appId)
+    public bool CanResolve(LaunchPath launchPath)
     {
-        if (string.IsNullOrWhiteSpace(_appId))
+        return !string.IsNullOrWhiteSpace(_appId);
+    }
+
+    public string Resolve(LaunchPath launchPath)
+    {
+        if (!CanResolve(launchPath))
         {
-            appId = string.Empty;
-            return false;
+            throw new AppIdResolutionException("Static app ID is empty.");
         }
 
-        appId = _appId;
-        return true;
+        return _appId;
     }
 }

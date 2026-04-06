@@ -10,22 +10,21 @@ public class RegistryAppIdResolverTests
     [InlineData("registry:HKEY_LOCAL_MACHINE:SOFTWARE")]           // 3 parts — missing ValueName
     [InlineData("registry:HKEY_LOCAL_MACHINE")]                    // 2 parts
     [InlineData("not-registry:HKEY_LOCAL_MACHINE:SOFTWARE:Value")] // wrong prefix
-    public void TryResolve_MalformedSource_ReturnsFalse(string source)
+    public void CanResolve_MalformedSource_ReturnsFalse(string source)
     {
         var resolver = new RegistryAppIdResolver(source);
 
-        var result = resolver.TryResolve(new LaunchPath(@"C:\game.exe"), out var appId);
+        var result = resolver.CanResolve(new LaunchPath(@"C:\game.exe"));
 
         Assert.False(result);
-        Assert.Equal(string.Empty, appId);
     }
 
     [Fact]
-    public void TryResolve_UnknownHiveName_ReturnsFalse()
+    public void CanResolve_UnknownHiveName_ReturnsFalse()
     {
         var resolver = new RegistryAppIdResolver("registry:HKEY_BOGUS:SOFTWARE:Value");
 
-        var result = resolver.TryResolve(new LaunchPath(@"C:\game.exe"), out _);
+        var result = resolver.CanResolve(new LaunchPath(@"C:\game.exe"));
 
         Assert.False(result);
     }
@@ -36,14 +35,12 @@ public class RegistryAppIdResolverTests
     [InlineData("registry:HKEY_CLASSES_ROOT:applanch_test_nonexistent:Value")]
     [InlineData("registry:HKEY_USERS:applanch_test_nonexistent:Value")]
     [InlineData("registry:HKEY_CURRENT_CONFIG:SOFTWARE\\applanch_test_nonexistent:Value")]
-    public void TryResolve_ValidHiveButNonExistentKey_ReturnsFalse(string source)
+    public void Resolve_ValidHiveButNonExistentKey_Throws(string source)
     {
-        // Parsing succeeds for all known hive names; registry read returns false because key doesn't exist
         var resolver = new RegistryAppIdResolver(source);
 
-        var result = resolver.TryResolve(new LaunchPath(@"C:\game.exe"), out var appId);
+        var ex = Assert.Throws<AppIdResolutionException>(() => resolver.Resolve(new LaunchPath(@"C:\game.exe")));
 
-        Assert.False(result);
-        Assert.Equal(string.Empty, appId);
+        Assert.Contains("registry app-id source", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 }
