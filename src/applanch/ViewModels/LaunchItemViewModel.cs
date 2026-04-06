@@ -18,6 +18,7 @@ public sealed class LaunchItemViewModel : ObservableObject
     private readonly ILaunchItemIconProvider _iconProvider;
     private ImageSource? _iconSource;
     private int _iconRefreshVersion;
+    private bool _isPathMissing;
 
     public LaunchItemViewModel(LaunchPath fullPath, string category, string arguments, string displayName)
         : this(fullPath, category, arguments, displayName, null)
@@ -32,6 +33,7 @@ public sealed class LaunchItemViewModel : ObservableObject
         _displayName = LaunchItemNormalization.NormalizeDisplayName(displayName, FullPath.Value);
         _category = LaunchItemNormalization.NormalizeCategory(category);
         _arguments = LaunchItemNormalization.NormalizeArguments(arguments);
+        _isPathMissing = ComputeIsPathMissing();
 
         RefreshIcon();
     }
@@ -65,7 +67,7 @@ public sealed class LaunchItemViewModel : ObservableObject
         private set => SetField(ref _iconSource, value);
     }
 
-    public bool IsPathMissing => !FullPath.IsUrl && !Path.Exists(FullPath.Value);
+    public bool IsPathMissing => _isPathMissing;
 
     public string Arguments
     {
@@ -93,10 +95,25 @@ public sealed class LaunchItemViewModel : ObservableObject
 
     internal void RefreshIcon()
     {
+        RefreshPathState();
         var refreshVersion = Interlocked.Increment(ref _iconRefreshVersion);
         IconSource = _iconProvider.GetInitialIcon(FullPath);
         _ = LoadDeferredIconAsync(refreshVersion);
     }
+
+    private void RefreshPathState()
+    {
+        var isMissing = ComputeIsPathMissing();
+        if (_isPathMissing == isMissing)
+        {
+            return;
+        }
+
+        _isPathMissing = isMissing;
+        OnPropertyChanged(nameof(IsPathMissing));
+    }
+
+    private bool ComputeIsPathMissing() => !FullPath.IsUrl && !Path.Exists(FullPath.Value);
 
     private async Task LoadDeferredIconAsync(int refreshVersion)
     {
