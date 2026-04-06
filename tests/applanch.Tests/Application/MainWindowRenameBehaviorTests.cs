@@ -18,7 +18,7 @@ public sealed class MainWindowRenameBehaviorTests
     [Fact]
     public void ContextMenuRename_UsesPromptOnlyInIconMode()
     {
-        WpfTestHost.RunInSta(() =>
+        WpfTestHost.RunInSta((Action)(() =>
         {
             WpfTestHost.EnsureAppResources();
             var app = System.Windows.Application.Current!;
@@ -45,7 +45,7 @@ public sealed class MainWindowRenameBehaviorTests
             {
                 app.ShutdownMode = originalShutdownMode;
             }
-        }, TimeSpan.FromSeconds(5));
+        }));
     }
 
     private static void VerifyRenameBehavior(
