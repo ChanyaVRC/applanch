@@ -29,6 +29,7 @@ internal static class WpfTestHost
         });
 
         thread.SetApartmentState(ApartmentState.STA);
+        thread.IsBackground = true;
         thread.Start();
         bool completed;
         if (timeout == Timeout.InfiniteTimeSpan)
