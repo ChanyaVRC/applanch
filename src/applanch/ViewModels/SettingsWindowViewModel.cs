@@ -77,19 +77,19 @@ internal sealed class SettingsWindowViewModel : ObservableObject
                 return;
             }
 
-            var selected = _themeOptions.FirstOrDefault(
-                option => string.Equals(option.ThemeId, value, StringComparison.OrdinalIgnoreCase));
-            if (selected is null)
+            var selectedIndex = ResolveThemeIndex(value);
+            if (selectedIndex < 0)
             {
                 return;
             }
 
-            if (string.Equals(_themeId, selected.ThemeId, StringComparison.OrdinalIgnoreCase))
+            var selectedThemeId = _themeOptions[selectedIndex].ThemeId;
+            if (string.Equals(_themeId, selectedThemeId, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
 
-            _themeId = selected.ThemeId;
+            _themeId = selectedThemeId;
             OnPropertyChanged();
             OnPropertyChanged(nameof(ThemeIndex));
             OnPropertyChanged(nameof(SelectedThemeDisplayName));
@@ -97,9 +97,14 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         }
     }
 
-    public string SelectedThemeDisplayName =>
-        _themeOptions.FirstOrDefault(option => string.Equals(option.ThemeId, _themeId, StringComparison.OrdinalIgnoreCase))?.DisplayName
-        ?? string.Empty;
+    public string SelectedThemeDisplayName
+    {
+        get
+        {
+            var themeIndex = ResolveThemeIndex(_themeId);
+            return themeIndex >= 0 ? _themeOptions[themeIndex].DisplayName : string.Empty;
+        }
+    }
 
     public PostLaunchBehavior SelectedPostLaunchBehavior
     {
@@ -172,12 +177,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         get => _quickAddSuggestionLimit;
         set
         {
-            if (_quickAddSuggestionLimit == value)
-            {
-                return;
-            }
-
-            if (!QuickAddSuggestionLimitOptionsValues.Contains(value))
+            if (_quickAddSuggestionLimit == value || !QuickAddSuggestionLimitOptionsValues.Contains(value))
             {
                 return;
             }
@@ -231,7 +231,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             ReloadThemeOptions();
         }
 
-        NotifyAllProperties();
+        OnPropertyChanged(string.Empty);
     }
 
     internal void ResetToDefaults()
@@ -245,7 +245,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             ReloadThemeOptions();
         }
 
-        NotifyAllProperties();
+        OnPropertyChanged(string.Empty);
         Commit();
     }
 
@@ -285,8 +285,6 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         _runAsAdministrator = settings.RunAsAdministrator;
         _language = settings.Language;
     }
-
-    private void NotifyAllProperties() => OnPropertyChanged(string.Empty);
 
     private bool SetFieldAndCommit<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
     {
@@ -351,14 +349,25 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             return -1;
         }
 
+        var themeIndex = ResolveThemeIndex(_themeId);
+        if (themeIndex >= 0)
+        {
+            return themeIndex;
+        }
+
+        return 0;
+    }
+
+    private int ResolveThemeIndex(string themeId)
+    {
         for (var i = 0; i < _themeOptions.Count; i++)
         {
-            if (string.Equals(_themeOptions[i].ThemeId, _themeId, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(_themeOptions[i].ThemeId, themeId, StringComparison.OrdinalIgnoreCase))
             {
                 return i;
             }
         }
 
-        return 0;
+        return -1;
     }
 }

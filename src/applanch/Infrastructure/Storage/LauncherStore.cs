@@ -175,16 +175,12 @@ internal static class LauncherStore
             return false;
         }
 
-        var normalizedCategory = LaunchItemNormalization.NormalizeCategory(entry.Category);
-        var normalizedArguments = LaunchItemNormalization.NormalizeArguments(entry.Arguments);
-        var normalizedDisplayName = LaunchItemNormalization.NormalizeDisplayName(entry.DisplayName, normalizedPath);
-
         normalizedEntry = entry with
         {
             Path = new LaunchPath(normalizedPath),
-            Category = normalizedCategory,
-            Arguments = normalizedArguments,
-            DisplayName = normalizedDisplayName,
+            Category = LaunchItemNormalization.NormalizeCategory(entry.Category),
+            Arguments = LaunchItemNormalization.NormalizeArguments(entry.Arguments),
+            DisplayName = LaunchItemNormalization.NormalizeDisplayName(entry.DisplayName, normalizedPath),
             IsNormalized = true
         };
 
