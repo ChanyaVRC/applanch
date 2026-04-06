@@ -5,6 +5,8 @@ namespace applanch.Tests.TestSupport;
 
 internal static class WpfTestHost
 {
+    private static readonly object AppInitLock = new();
+
     internal static void RunInSta(Action action)
     {
         Exception? captured = null;
@@ -47,17 +49,20 @@ internal static class WpfTestHost
 
     internal static void EnsureAppResources()
     {
-        if (System.Windows.Application.Current is null)
+        lock (AppInitLock)
         {
-            var app = new applanch.App();
-            app.InitializeComponent();
-        }
+            if (System.Windows.Application.Current is null)
+            {
+                var app = new applanch.App();
+                app.InitializeComponent();
+            }
 
-        if (System.Windows.Application.Current?.Resources["RoundedTextBoxStyle"] is null)
-        {
-            var dictionary = (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(
-                new Uri("/applanch;component/App.xaml", UriKind.Relative));
-            System.Windows.Application.Current!.Resources.MergedDictionaries.Add(dictionary);
+            if (System.Windows.Application.Current?.Resources["RoundedTextBoxStyle"] is null)
+            {
+                var dictionary = (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(
+                    new Uri("/applanch;component/App.xaml", UriKind.Relative));
+                System.Windows.Application.Current!.Resources.MergedDictionaries.Add(dictionary);
+            }
         }
     }
 
