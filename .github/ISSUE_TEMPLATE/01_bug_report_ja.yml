@@ -1,4 +1,4 @@
-name: 1) 不具合報告 (日本語)
+name: 不具合報告 (日本語)
 description: 再現可能な不具合や回帰を報告します。
 title: "[不具合]: "
 labels:
