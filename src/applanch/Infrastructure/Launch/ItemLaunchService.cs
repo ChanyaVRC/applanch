@@ -120,17 +120,25 @@ internal sealed class ItemLaunchService : IItemLaunchService
 
     private static bool IsAccessDenied(Exception ex)
     {
-        if (ex is UnauthorizedAccessException)
+        for (var current = ex; current is not null; current = current.InnerException)
         {
-            return true;
+            if (current is UnauthorizedAccessException)
+            {
+                return true;
+            }
+
+            if (current is Win32Exception win32 && win32.NativeErrorCode == 5)
+            {
+                return true;
+            }
+
+            if (AccessDeniedMessageTokens.Any(token => current.Message.Contains(token, StringComparison.OrdinalIgnoreCase)))
+            {
+                return true;
+            }
         }
 
-        if (ex is Win32Exception win32 && win32.NativeErrorCode == 5)
-        {
-            return true;
-        }
-
-        return AccessDeniedMessageTokens.Any(token => ex.Message.Contains(token, StringComparison.OrdinalIgnoreCase));
+        return false;
     }
 }
 

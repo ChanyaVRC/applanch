@@ -1,4 +1,5 @@
 using applanch.Tests.TestSupport;
+using System.Windows.Data;
 using Xunit;
 
 namespace applanch.Tests.Localization;
@@ -13,7 +14,7 @@ public class LocalizedStringsTests
 
         LocalizedStrings.Instance.NotifyLanguageChanged();
 
-        Assert.Equal("Item[]", propertyName);
+        Assert.Equal(Binding.IndexerName, propertyName);
     }
 
     [Theory]

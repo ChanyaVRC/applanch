@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.Resources;
+using System.Windows.Data;
 
 namespace applanch;
 
@@ -23,5 +24,5 @@ internal sealed class LocalizedStrings : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     internal void NotifyLanguageChanged() =>
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Item[]"));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(Binding.IndexerName));
 }

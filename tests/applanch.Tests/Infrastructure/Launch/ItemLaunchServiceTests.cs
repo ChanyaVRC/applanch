@@ -209,6 +209,64 @@ public class ItemLaunchServiceTests
     }
 
     [Fact]
+    public void TryLaunch_SteamLibraryWrappedAccessDenied_FallsBackToSteamUri()
+    {
+        using var tempDirectory = TemporaryDirectory.Create();
+        var steamRoot = Path.Combine(tempDirectory.Path, "Steam");
+        var steamApps = Path.Combine(steamRoot, "steamapps");
+        var gameDirectory = Path.Combine(steamApps, "common", "CoolGame");
+        var gamePath = Path.Combine(gameDirectory, "coolgame.exe");
+        var manifest = Path.Combine(steamApps, "appmanifest_12345.acf");
+
+        Directory.CreateDirectory(gameDirectory);
+        File.WriteAllText(gamePath, string.Empty);
+        File.WriteAllText(manifest,
+            "\"AppState\"\n" +
+            "{\n" +
+            "  \"appid\"  \"12345\"\n" +
+            "  \"installdir\"  \"CoolGame\"\n" +
+            "}\n");
+
+        var attempts = new List<ProcessStartInfo>();
+        Process? Launcher(ProcessStartInfo startInfo)
+        {
+            attempts.Add(startInfo);
+            if (attempts.Count == 1)
+            {
+                throw new InvalidOperationException("Launch failed", new Win32Exception(5, "Access is denied"));
+            }
+
+            return new Process();
+        }
+
+        var configuration = new LaunchFallbackConfiguration
+        {
+            Rules =
+            [
+                new LaunchFallbackRuleConfiguration
+                {
+                    Name = "Steam access denied",
+                    Kind = "uri-template",
+                    FallbackTrigger = "access-denied",
+                    PathContains = "steamapps/common/",
+                    UriTemplate = "steam://rungameid/{appId}",
+                    AppIdSource = "steam-manifest",
+                },
+            ],
+        };
+
+        var service = new ItemLaunchService(Launcher, new LaunchFallbackResolver(configuration));
+
+        var result = service.TryLaunch(new LaunchPath(gamePath), string.Empty);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(2, attempts.Count);
+        Assert.Equal(gamePath, attempts[0].FileName);
+        Assert.Equal("steam://rungameid/12345", attempts[1].FileName);
+        Assert.Equal(string.Empty, attempts[1].Arguments);
+    }
+
+    [Fact]
     public void TryLaunch_SteamLibraryPreferredFallback_UsesSteamUriWithoutDirectLaunchAttempt()
     {
         using var tempDirectory = TemporaryDirectory.Create();
