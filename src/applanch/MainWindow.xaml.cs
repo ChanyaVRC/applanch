@@ -749,20 +749,13 @@ public sealed partial class MainWindow : Window
 
     internal static TranslateTransform EnsureTranslateTransform(UIElement element)
     {
-        switch (element.RenderTransform)
+        return element.RenderTransform switch
         {
-            case TranslateTransform tt:
-                return tt;
-
-            case TransformGroup group:
-                return GetOrAddTranslateTransform(group);
-
-            case null:
-                return CreateAndAssignTranslateTransform(element);
-
-            default:
-                return WrapWithTransformGroupAndAppendTranslate(element);
-        }
+            TranslateTransform tt => tt,
+            TransformGroup group => GetOrAddTranslateTransform(group),
+            null => CreateAndAssignTranslateTransform(element),
+            _ => WrapWithTransformGroupAndAppendTranslate(element),
+        };
     }
 
     private static TranslateTransform GetOrAddTranslateTransform(TransformGroup group)
