@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Utilities;
@@ -29,7 +28,7 @@ public class LaunchItemIconProviderTests
     [Fact]
     public void GetInitialIcon_FreshDiskCache_ReturnsCachedBitmap()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInStaAndDrain(() =>
         {
             using var tempDirectory = TemporaryDirectory.Create("applanch-favicon-cache");
             var provider = CreateProvider(cacheDirectory: tempDirectory.Path);
@@ -45,7 +44,7 @@ public class LaunchItemIconProviderTests
     [Fact]
     public void GetDeferredIconAsync_FetchDisabled_ReturnsNullWithoutRequest()
     {
-        RunInSta(async () =>
+        WpfTestHost.RunInSta(async () =>
         {
             var handler = new RecordingHttpMessageHandler(_ => throw new InvalidOperationException("network should not be used"));
             var provider = CreateProvider(httpClient: new HttpClient(handler));
@@ -61,7 +60,7 @@ public class LaunchItemIconProviderTests
     [Fact]
     public void GetDeferredIconAsync_NonHttpPath_ReturnsNullWithoutRequest()
     {
-        RunInSta(async () =>
+        WpfTestHost.RunInSta(async () =>
         {
             var handler = new RecordingHttpMessageHandler(_ => throw new InvalidOperationException("network should not be used"));
             var provider = CreateProvider(httpClient: new HttpClient(handler));
@@ -77,7 +76,7 @@ public class LaunchItemIconProviderTests
     [Fact]
     public void GetDeferredIconAsync_PrivateLiteralBlocked_ReturnsNullWithoutRequest()
     {
-        RunInSta(async () =>
+        WpfTestHost.RunInSta(async () =>
         {
             var handler = new RecordingHttpMessageHandler(_ => throw new InvalidOperationException("network should not be used"));
             var provider = CreateProvider(httpClient: new HttpClient(handler));
@@ -93,7 +92,7 @@ public class LaunchItemIconProviderTests
     [Fact]
     public void GetDeferredIconAsync_PrivateResolvedHostBlocked_ReturnsNullWithoutRequest()
     {
-        RunInSta(async () =>
+        WpfTestHost.RunInSta(async () =>
         {
             var handler = new RecordingHttpMessageHandler(_ => throw new InvalidOperationException("network should not be used"));
             var provider = CreateProvider(
@@ -111,7 +110,7 @@ public class LaunchItemIconProviderTests
     [Fact]
     public void GetDeferredIconAsync_IPv4MappedIPv6PrivateAddress_ReturnsNullWithoutRequest()
     {
-        RunInSta(async () =>
+        WpfTestHost.RunInSta(async () =>
         {
             var handler = new RecordingHttpMessageHandler(_ => throw new InvalidOperationException("network should not be used"));
             var provider = CreateProvider(
@@ -129,7 +128,7 @@ public class LaunchItemIconProviderTests
     [Fact]
     public void GetDeferredIconAsync_AllowedPrivateRequest_FetchesIcon()
     {
-        RunInSta(async () =>
+        WpfTestHost.RunInSta(async () =>
         {
             using var tempDirectory = TemporaryDirectory.Create("applanch-favicon-private-allowed");
             var handler = new RecordingHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
@@ -149,7 +148,7 @@ public class LaunchItemIconProviderTests
     [Fact]
     public void GetDeferredIconAsync_SameHostRedirect_ReturnsDecodedBitmap()
     {
-        RunInSta(async () =>
+        WpfTestHost.RunInSta(async () =>
         {
             var handler = new RecordingHttpMessageHandler(request =>
             {
@@ -185,7 +184,7 @@ public class LaunchItemIconProviderTests
     [Fact]
     public void GetDeferredIconAsync_CrossHostRedirect_ReturnsNull()
     {
-        RunInSta(async () =>
+        WpfTestHost.RunInSta(async () =>
         {
             using var tempDirectory = TemporaryDirectory.Create("applanch-favicon-cross-host");
             var handler = new RecordingHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.Redirect)
@@ -206,7 +205,7 @@ public class LaunchItemIconProviderTests
     [Fact]
     public void GetDeferredIconAsync_OversizedPayload_ReturnsNull()
     {
-        RunInSta(async () =>
+        WpfTestHost.RunInSta(async () =>
         {
             var handler = new RecordingHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -225,7 +224,7 @@ public class LaunchItemIconProviderTests
     [Fact]
     public void GetDeferredIconAsync_RefreshesOnce_AndUsesCacheOnSecondCall()
     {
-        RunInSta(async () =>
+        WpfTestHost.RunInSta(async () =>
         {
             using var tempDirectory = TemporaryDirectory.Create("applanch-favicon-cache-reuse");
             var handler = new RecordingHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
@@ -248,7 +247,7 @@ public class LaunchItemIconProviderTests
     [Fact]
     public void GetDeferredIconAsync_FreshDiskCache_SkipsNetworkRequest()
     {
-        RunInSta(async () =>
+        WpfTestHost.RunInSta(async () =>
         {
             using var tempDirectory = TemporaryDirectory.Create("applanch-favicon-cache-fresh");
             var handler = new RecordingHttpMessageHandler(_ => throw new InvalidOperationException("network should not be used"));
@@ -266,7 +265,7 @@ public class LaunchItemIconProviderTests
     [Fact]
     public void GetDeferredIconAsync_StaleDiskCache_RefreshesAndWritesNewFile()
     {
-        RunInSta(async () =>
+        WpfTestHost.RunInSta(async () =>
         {
             using var tempDirectory = TemporaryDirectory.Create("applanch-favicon-cache-stale");
             WriteCacheFile(tempDirectory.Path, "https://example.com/favicon.ico", TinyPngBytes, DateTime.UtcNow.AddDays(-30));
@@ -310,49 +309,6 @@ public class LaunchItemIconProviderTests
     {
         var hash = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(faviconUri)));
         return Path.Combine(cacheDirectory, $"{hash}.bin");
-    }
-
-    private static void RunInSta(Action action)
-    {
-        Exception? captured = null;
-        var completed = new ManualResetEventSlim(false);
-        var thread = new Thread(() =>
-        {
-            try
-            {
-                action();
-                DrainDispatcher();
-            }
-            catch (Exception ex)
-            {
-                captured = ex;
-            }
-            finally
-            {
-                completed.Set();
-            }
-        });
-
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        completed.Wait();
-
-        if (captured is not null)
-        {
-            throw new Xunit.Sdk.XunitException($"STA test failed: {captured}");
-        }
-    }
-
-    private static void RunInSta(Func<Task> action)
-    {
-        RunInSta(() => action().GetAwaiter().GetResult());
-    }
-
-    private static void DrainDispatcher()
-    {
-        var frame = new DispatcherFrame();
-        Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => frame.Continue = false));
-        Dispatcher.PushFrame(frame);
     }
 
     private sealed class RecordingHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> responder) : HttpMessageHandler

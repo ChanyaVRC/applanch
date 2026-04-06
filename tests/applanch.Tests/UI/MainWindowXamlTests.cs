@@ -1,3 +1,4 @@
+using applanch.Tests.TestSupport;
 using Xunit;
 
 namespace applanch.Tests.UI;
@@ -7,8 +8,7 @@ public class MainWindowXamlTests
     [Fact]
     public void FloatingNotificationBanner_UsesCrispTextRenderingSettings()
     {
-        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
-        var xamlPath = Path.Combine(projectRoot, "src", "applanch", "MainWindow.xaml");
+        var xamlPath = Path.Combine(ProjectPaths.Root, "src", "applanch", "MainWindow.xaml");
         var xaml = File.ReadAllText(xamlPath);
 
         Assert.Contains("controls:FloatingNotificationControl", xaml);
@@ -20,8 +20,7 @@ public class MainWindowXamlTests
     [Fact]
     public void FloatingNotificationControl_UsesCrispTextRenderingSettings()
     {
-        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
-        var xamlPath = Path.Combine(projectRoot, "src", "applanch", "Controls", "FloatingNotificationControl.xaml");
+        var xamlPath = Path.Combine(ProjectPaths.Root, "src", "applanch", "Controls", "FloatingNotificationControl.xaml");
         var xaml = File.ReadAllText(xamlPath);
 
         Assert.Contains("UseLayoutRounding=\"True\"", xaml);
@@ -34,8 +33,7 @@ public class MainWindowXamlTests
     [Fact]
     public void LaunchItemTemplate_ShowsMissingPathWarningBadge()
     {
-        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
-        var xamlPath = Path.Combine(projectRoot, "src", "applanch", "MainWindow.xaml");
+        var xamlPath = Path.Combine(ProjectPaths.Root, "src", "applanch", "MainWindow.xaml");
         var xaml = File.ReadAllText(xamlPath);
 
         Assert.Contains("ToolTip_MissingPath", xaml);
@@ -46,8 +44,7 @@ public class MainWindowXamlTests
     [Fact]
     public void LaunchItemTemplate_ContextMenu_IncludesOpenFileLocationAction()
     {
-        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
-        var xamlPath = Path.Combine(projectRoot, "src", "applanch", "MainWindow.xaml");
+        var xamlPath = Path.Combine(ProjectPaths.Root, "src", "applanch", "MainWindow.xaml");
         var xaml = File.ReadAllText(xamlPath);
 
         Assert.Contains("Menu_OpenFileLocation", xaml);

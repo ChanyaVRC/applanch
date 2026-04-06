@@ -1,7 +1,7 @@
-using System.Runtime.ExceptionServices;
 using System.Windows.Controls;
 using System.Windows.Input;
 using applanch.Infrastructure.Dialogs;
+using applanch.Tests.TestSupport;
 using applanch.ViewModels;
 using Xunit;
 
@@ -12,7 +12,7 @@ public class InlineRenameHandlerTests
     [Fact]
     public void HandleKeyDown_WithEnter_AppliesRenameAndConsumesEvent()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "Old")
             {
@@ -44,7 +44,7 @@ public class InlineRenameHandlerTests
     [Fact]
     public void HandleKeyDown_WithEscape_CancelsRenameAndConsumesEvent()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "Old")
             {
@@ -64,7 +64,7 @@ public class InlineRenameHandlerTests
     [Fact]
     public void HandleKeyDown_WithOtherKey_DoesNotConsumeEvent()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "Old")
             {
@@ -84,7 +84,7 @@ public class InlineRenameHandlerTests
     [Fact]
     public void HandleLostFocus_WhenRenaming_AppliesRename()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "Old")
             {
@@ -114,7 +114,7 @@ public class InlineRenameHandlerTests
     [Fact]
     public void HandleLostFocus_WhenNotRenaming_DoesNothing()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "Old")
             {
@@ -130,28 +130,4 @@ public class InlineRenameHandlerTests
         });
     }
 
-    private static void RunInSta(Action action)
-    {
-        Exception? captured = null;
-        var thread = new Thread(() =>
-        {
-            try
-            {
-                action();
-            }
-            catch (Exception ex)
-            {
-                captured = ex;
-            }
-        });
-
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        thread.Join();
-
-        if (captured is not null)
-        {
-            ExceptionDispatchInfo.Capture(captured).Throw();
-        }
-    }
 }

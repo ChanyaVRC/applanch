@@ -1,9 +1,9 @@
 using System.Reflection;
-using System.Runtime.ExceptionServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using applanch.Controls;
+using applanch.Tests.TestSupport;
 using Xunit;
 
 namespace applanch.Tests.Controls;
@@ -13,7 +13,7 @@ public class HeaderBarControlTests
     [Fact]
     public void UpdateButtonVisibilityProperty_CanSetAndGet()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var control = new HeaderBarControl();
 
@@ -26,7 +26,7 @@ public class HeaderBarControlTests
     [Fact]
     public void UpdateButtonClick_RaisesUpdateRequestedEvent()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var control = new HeaderBarControl();
             var raised = false;
@@ -41,7 +41,7 @@ public class HeaderBarControlTests
     [Fact]
     public void SettingsButtonClick_RaisesSettingsRequestedEvent()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var control = new HeaderBarControl();
             var raised = false;
@@ -56,7 +56,7 @@ public class HeaderBarControlTests
     [Fact]
     public void SettingsButtonStyle_HoverChangesForegroundWithoutBackgroundHighlight()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var control = new HeaderBarControl();
 
@@ -85,28 +85,4 @@ public class HeaderBarControlTests
         method!.Invoke(control, [new Button(), new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent)]);
     }
 
-    private static void RunInSta(Action action)
-    {
-        Exception? captured = null;
-        var thread = new Thread(() =>
-        {
-            try
-            {
-                action();
-            }
-            catch (Exception ex)
-            {
-                captured = ex;
-            }
-        });
-
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        thread.Join();
-
-        if (captured is not null)
-        {
-            ExceptionDispatchInfo.Capture(captured).Throw();
-        }
-    }
 }

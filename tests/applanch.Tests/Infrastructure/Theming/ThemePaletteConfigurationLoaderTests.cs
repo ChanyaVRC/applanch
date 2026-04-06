@@ -10,8 +10,7 @@ public sealed class ThemePaletteConfigurationLoaderTests
     [Fact]
     public void BundledConfig_InRepository_IsLoadableByCurrentLoader()
     {
-        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
-        var appBase = Path.Combine(projectRoot, "src", "applanch");
+        var appBase = Path.Combine(ProjectPaths.Root, "src", "applanch");
 
         var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out var configuration);
 
@@ -30,8 +29,7 @@ public sealed class ThemePaletteConfigurationLoaderTests
         var userDefinedDirectory = Path.Combine(appBase, "Config", "UserDefined", "theme-palette");
         Directory.CreateDirectory(userDefinedDirectory);
 
-        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
-        var samplePath = Path.Combine(projectRoot, "src", "applanch", "Config", "UserDefined", "theme-palette", "theme-palette.sample.json");
+        var samplePath = Path.Combine(ProjectPaths.Root, "src", "applanch", "Config", "UserDefined", "theme-palette", "theme-palette.sample.json");
         File.Copy(samplePath, Path.Combine(userDefinedDirectory, "theme-palette.sample.json"));
 
         try

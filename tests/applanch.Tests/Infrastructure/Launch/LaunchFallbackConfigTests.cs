@@ -1,5 +1,6 @@
 using System.Text.Json;
 using applanch.Infrastructure.Launch;
+using applanch.Tests.TestSupport;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Launch;
@@ -9,8 +10,7 @@ public class LaunchFallbackConfigTests
     [Fact]
     public void BundledConfig_IncludesExpandedHighConfidenceLauncherRules()
     {
-        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
-        var configPath = Path.Combine(projectRoot, "src", "applanch", "Config", "launch-fallbacks.json");
+        var configPath = Path.Combine(ProjectPaths.Root, "src", "applanch", "Config", "launch-fallbacks.json");
         var json = File.ReadAllText(configPath);
 
         using var document = JsonDocument.Parse(json, new JsonDocumentOptions
@@ -71,8 +71,7 @@ public class LaunchFallbackConfigTests
         var userDefinedDirectory = Path.Combine(appBase, "Config", "UserDefined", "launch-fallbacks");
         Directory.CreateDirectory(userDefinedDirectory);
 
-        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
-        var samplePath = Path.Combine(projectRoot, "src", "applanch", "Config", "UserDefined", "launch-fallbacks", "launch-fallbacks.sample.json");
+        var samplePath = Path.Combine(ProjectPaths.Root, "src", "applanch", "Config", "UserDefined", "launch-fallbacks", "launch-fallbacks.sample.json");
         File.Copy(samplePath, Path.Combine(userDefinedDirectory, "launch-fallbacks.sample.json"));
 
         try

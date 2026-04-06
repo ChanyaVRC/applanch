@@ -2,9 +2,9 @@ using Xunit;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Utilities;
+using applanch.Tests.TestSupport;
 using applanch.ViewModels;
 using System.Windows.Media;
-using System.Windows.Threading;
 
 namespace applanch.Tests.ViewModels;
 
@@ -192,7 +192,7 @@ public class LaunchItemViewModelTests
     [Fact]
     public void Constructor_UrlItem_UpdatesIconSourceWhenDeferredIconArrives()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInStaAndDrain(() =>
         {
             var initialIcon = CreateDrawingImage();
             var deferredIcon = CreateDrawingImage();
@@ -234,54 +234,16 @@ public class LaunchItemViewModelTests
         return image;
     }
 
-    private static void RunInSta(Action action)
-    {
-        Exception? captured = null;
-        var completed = new ManualResetEventSlim(false);
-        var thread = new Thread(() =>
-        {
-            try
-            {
-                action();
-                DrainDispatcher();
-            }
-            catch (Exception ex)
-            {
-                captured = ex;
-            }
-            finally
-            {
-                completed.Set();
-            }
-        });
-
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        completed.Wait();
-
-        if (captured is not null)
-        {
-            throw new Xunit.Sdk.XunitException($"STA test failed: {captured}");
-        }
-    }
-
     private static void WaitUntil(Func<bool> condition)
     {
         var timeoutAt = DateTime.UtcNow.AddSeconds(2);
         while (!condition() && DateTime.UtcNow < timeoutAt)
         {
-            DrainDispatcher();
+            WpfTestHost.DoEvents();
             Thread.Sleep(10);
         }
 
         Assert.True(condition());
-    }
-
-    private static void DrainDispatcher()
-    {
-        var frame = new DispatcherFrame();
-        Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => frame.Continue = false));
-        Dispatcher.PushFrame(frame);
     }
 
     private sealed class DeferredIconProvider(ImageSource initialIcon) : ILaunchItemIconProvider

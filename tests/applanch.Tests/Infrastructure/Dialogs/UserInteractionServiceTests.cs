@@ -1,6 +1,6 @@
 using System.Windows;
-using System.Runtime.ExceptionServices;
 using applanch.Infrastructure.Dialogs;
+using applanch.Tests.TestSupport;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Dialogs;
@@ -10,7 +10,7 @@ public class UserInteractionServiceTests
     [Fact]
     public void Confirm_WhenDialogReturnsTrue_ReturnsTrue()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             string capturedMessage = string.Empty;
             string capturedCaption = string.Empty;
@@ -37,7 +37,7 @@ public class UserInteractionServiceTests
     [Fact]
     public void Confirm_WhenDialogReturnsFalse_ReturnsFalse()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var sut = new UserInteractionService((_, _, _) => false);
 
@@ -47,28 +47,4 @@ public class UserInteractionServiceTests
         });
     }
 
-    private static void RunInSta(Action action)
-    {
-        Exception? captured = null;
-        var thread = new Thread(() =>
-        {
-            try
-            {
-                action();
-            }
-            catch (Exception ex)
-            {
-                captured = ex;
-            }
-        });
-
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        thread.Join();
-
-        if (captured is not null)
-        {
-            ExceptionDispatchInfo.Capture(captured).Throw();
-        }
-    }
 }

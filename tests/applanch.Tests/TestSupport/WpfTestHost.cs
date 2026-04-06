@@ -31,6 +31,20 @@ internal static class WpfTestHost
         }
     }
 
+    internal static void RunInSta(Func<Task> action)
+    {
+        RunInSta(() => action().GetAwaiter().GetResult());
+    }
+
+    internal static void RunInStaAndDrain(Action action)
+    {
+        RunInSta(() =>
+        {
+            action();
+            DoEvents();
+        });
+    }
+
     internal static void EnsureAppResources()
     {
         if (System.Windows.Application.Current is null)

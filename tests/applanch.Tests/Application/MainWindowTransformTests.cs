@@ -1,5 +1,6 @@
 using System.Windows.Controls;
 using System.Windows.Media;
+using applanch.Tests.TestSupport;
 using Xunit;
 
 namespace applanch.Tests.Application;
@@ -9,7 +10,7 @@ public class MainWindowTransformTests
     [Fact]
     public void EnsureTranslateTransform_WhenRenderTransformIsIdentity_WrapsAndAppendsTranslate()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var element = new Border();
 
@@ -24,7 +25,7 @@ public class MainWindowTransformTests
     [Fact]
     public void EnsureTranslateTransform_WhenRenderTransformIsTranslate_ReturnsExisting()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var existing = new TranslateTransform();
             var element = new Border { RenderTransform = existing };
@@ -38,7 +39,7 @@ public class MainWindowTransformTests
     [Fact]
     public void EnsureTranslateTransform_WhenTransformGroupContainsTranslate_ReturnsExisting()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var existing = new TranslateTransform();
             var group = new TransformGroup();
@@ -56,7 +57,7 @@ public class MainWindowTransformTests
     [Fact]
     public void EnsureTranslateTransform_WhenRenderTransformIsNonGroup_WrapsAndAppendsTranslate()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var original = new ScaleTransform(1.2, 1.2);
             var element = new Border { RenderTransform = original };
@@ -69,28 +70,4 @@ public class MainWindowTransformTests
         });
     }
 
-    private static void RunInSta(Action action)
-    {
-        Exception? captured = null;
-        var thread = new Thread(() =>
-        {
-            try
-            {
-                action();
-            }
-            catch (Exception ex)
-            {
-                captured = ex;
-            }
-        });
-
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        thread.Join();
-
-        if (captured is not null)
-        {
-            throw new Xunit.Sdk.XunitException($"STA test failed: {captured}");
-        }
-    }
 }

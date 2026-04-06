@@ -1,8 +1,9 @@
 using System.Windows;
 using System.Windows.Media;
-using Xunit;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
+using applanch.Tests.TestSupport;
+using Xunit;
 
 namespace applanch.Tests.Infrastructure.Theming;
 
@@ -99,7 +100,7 @@ public class ThemeApplierTests
     [Fact]
     public void ApplyTheme_WithWindow_AppliesThemedIcon()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var resources = new ResourceDictionary();
             var manager = new ThemeApplier(
@@ -256,33 +257,4 @@ public class ThemeApplierTests
                     })
             ],
             LoadedFromConfig: true);
-
-    private static void RunInSta(Action action)
-    {
-        Exception? captured = null;
-
-        var thread = new Thread(() =>
-        {
-            try
-            {
-                action();
-            }
-            catch (Exception ex)
-            {
-                captured = ex;
-            }
-        });
-
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        thread.Join();
-
-        if (captured is not null)
-        {
-            throw new Xunit.Sdk.XunitException($"STA test failed: {captured}");
-        }
-    }
 }
-
-
-

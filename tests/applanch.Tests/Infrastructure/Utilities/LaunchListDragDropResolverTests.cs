@@ -1,6 +1,6 @@
-using System.Runtime.ExceptionServices;
 using System.Windows;
 using System.Windows.Controls;
+using applanch.Tests.TestSupport;
 using applanch.Infrastructure.Utilities;
 using applanch.ViewModels;
 using Xunit;
@@ -12,7 +12,7 @@ public class LaunchListDragDropResolverTests
     [Fact]
     public void TryGetDraggedItemData_WithValidItem_ReturnsItemAndIndex()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var first = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("a"), "Dev", string.Empty, "A");
             var second = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("b"), "Dev", string.Empty, "B");
@@ -31,7 +31,7 @@ public class LaunchListDragDropResolverTests
     [Fact]
     public void TryGetDraggedItemData_WhenDataMissing_ReturnsFalse()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var items = new List<LaunchItemViewModel>
             {
@@ -51,7 +51,7 @@ public class LaunchListDragDropResolverTests
     [Fact]
     public void TryGetDraggedItemData_WhenItemNotInList_ReturnsFalse()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var items = new List<LaunchItemViewModel>
             {
@@ -72,7 +72,7 @@ public class LaunchListDragDropResolverTests
     [Fact]
     public void GetDropIndex_WhenDroppedAboveTop_ReturnsFirstIndex()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var items = new List<LaunchItemViewModel>
             {
@@ -92,7 +92,7 @@ public class LaunchListDragDropResolverTests
     [Fact]
     public void GetDropIndex_WhenDroppedBelowBottom_ReturnsLastIndex()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var items = new List<LaunchItemViewModel>
             {
@@ -112,7 +112,7 @@ public class LaunchListDragDropResolverTests
     [Fact]
     public void GetDropIndex_WhenNoTargetContainerInMiddle_ReturnsOriginalIndex()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var items = new List<LaunchItemViewModel>
             {
@@ -143,28 +143,4 @@ public class LaunchListDragDropResolverTests
         return listBox;
     }
 
-    private static void RunInSta(Action action)
-    {
-        Exception? captured = null;
-        var thread = new Thread(() =>
-        {
-            try
-            {
-                action();
-            }
-            catch (Exception ex)
-            {
-                captured = ex;
-            }
-        });
-
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        thread.Join();
-
-        if (captured is not null)
-        {
-            ExceptionDispatchInfo.Capture(captured).Throw();
-        }
-    }
 }

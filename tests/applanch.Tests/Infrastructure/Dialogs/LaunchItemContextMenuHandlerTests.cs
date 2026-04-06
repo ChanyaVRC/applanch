@@ -1,7 +1,7 @@
-using System.Runtime.ExceptionServices;
 using System.Windows;
 using System.Windows.Controls;
 using applanch.Infrastructure.Dialogs;
+using applanch.Tests.TestSupport;
 using applanch.ViewModels;
 using Xunit;
 
@@ -12,7 +12,7 @@ public class LaunchItemContextMenuHandlerTests
     [Fact]
     public void GetTargetItem_ReturnsDataContextItem()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "App");
             var sender = BuildSender(item);
@@ -26,7 +26,7 @@ public class LaunchItemContextMenuHandlerTests
     [Fact]
     public void EditCategory_AppliesPromptResult()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "App");
             var sender = BuildSender(item);
@@ -53,7 +53,7 @@ public class LaunchItemContextMenuHandlerTests
     [Fact]
     public void EditValue_WhenPromptReturnsNull_DoesNotApply()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", "-a", "App");
             var sender = BuildSender(item);
@@ -73,7 +73,7 @@ public class LaunchItemContextMenuHandlerTests
     [Fact]
     public void BeginRename_SetsEditingState()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "App");
             var sender = BuildSender(item);
@@ -89,7 +89,7 @@ public class LaunchItemContextMenuHandlerTests
     [Fact]
     public void Delete_InvokesRemoveAction()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "App");
             var sender = BuildSender(item);
@@ -142,28 +142,4 @@ public class LaunchItemContextMenuHandlerTests
         }
     }
 
-    private static void RunInSta(Action action)
-    {
-        Exception? captured = null;
-        var thread = new Thread(() =>
-        {
-            try
-            {
-                action();
-            }
-            catch (Exception ex)
-            {
-                captured = ex;
-            }
-        });
-
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        thread.Join();
-
-        if (captured is not null)
-        {
-            ExceptionDispatchInfo.Capture(captured).Throw();
-        }
-    }
 }

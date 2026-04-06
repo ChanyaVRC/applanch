@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Reflection;
-using System.Runtime.ExceptionServices;
 using applanch.Infrastructure.Storage;
+using applanch.Tests.TestSupport;
 using Xunit;
 
 namespace applanch.Tests.Application;
@@ -64,7 +64,7 @@ public class AppLanguageTests
     [Fact]
     public void ApplyLanguage_English_UpdatesEmptyMessageResource_OnStaThread()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var method = GetApplyLanguageMethod();
             var previousUi = CultureInfo.CurrentUICulture;
@@ -89,7 +89,7 @@ public class AppLanguageTests
     [Fact]
     public void ApplyLanguage_Japanese_UpdatesEmptyMessageResource_OnStaThread()
     {
-        RunInSta(() =>
+        WpfTestHost.RunInSta(() =>
         {
             var method = GetApplyLanguageMethod();
             var previousUi = CultureInfo.CurrentUICulture;
@@ -109,31 +109,6 @@ public class AppLanguageTests
                 CultureInfo.DefaultThreadCurrentCulture = previousCulture;
             }
         });
-    }
-
-    private static void RunInSta(Action action)
-    {
-        Exception? captured = null;
-        var thread = new Thread(() =>
-        {
-            try
-            {
-                action();
-            }
-            catch (Exception ex)
-            {
-                captured = ex;
-            }
-        });
-
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        thread.Join();
-
-        if (captured is not null)
-        {
-            ExceptionDispatchInfo.Capture(captured).Throw();
-        }
     }
 
 }
