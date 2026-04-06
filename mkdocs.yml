@@ -41,6 +41,7 @@ plugins:
             Windows Integration: Windows 統合
             Updates: 自動更新
             Install Guide: インストールガイド
+            Release Notes: リリースノート
             Developer Guide: 開発者ガイド
             Contributing: コントリビューション
             Release Guide: リリースガイド
@@ -82,6 +83,7 @@ nav:
       - JSON Format: user/launch-fallback-format.md
     - Windows Integration: user/windows-integration.md
     - Updates: user/updates.md
+  - Release Notes: releases.md
   - Developer Guide:
     - Contributing: dev/contributing.md
     - Release Guide: dev/release.md
