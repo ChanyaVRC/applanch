@@ -13,6 +13,7 @@ using Xunit;
 
 namespace applanch.Tests.Application;
 
+[Collection("WpfTests")]
 public sealed class MainWindowIconModeRenderTests
 {
     [Fact]
@@ -50,6 +51,17 @@ public sealed class MainWindowIconModeRenderTests
                 var launchListBox = (ListBox)window.FindName("LaunchListBox");
                 Assert.NotNull(launchListBox);
                 Assert.NotEmpty(launchListBox.Items);
+
+                launchListBox.ScrollIntoView(launchListBox.Items[0]);
+                WaitUntil(
+                    () => launchListBox.ItemContainerGenerator.ContainerFromIndex(0) is not null,
+                    TimeSpan.FromSeconds(2),
+                    "first ListBoxItem container to be realized",
+                    () =>
+                    {
+                        launchListBox.UpdateLayout();
+                        WpfTestHost.DoEvents();
+                    });
 
                 var realized = launchListBox.ItemContainerGenerator.ContainerFromIndex(0);
                 var realizedListBoxItems = CountVisualChildren<ListBoxItem>(launchListBox);
@@ -105,6 +117,21 @@ public sealed class MainWindowIconModeRenderTests
         }
 
         return null;
+    }
+
+    private static void WaitUntil(Func<bool> condition, TimeSpan timeout, string conditionDescription, Action onPoll)
+    {
+        var deadline = DateTime.UtcNow + timeout;
+        while (!condition())
+        {
+            if (DateTime.UtcNow >= deadline)
+            {
+                throw new TimeoutException($"Timed out after {timeout} while waiting for {conditionDescription}.");
+            }
+
+            onPoll();
+            Thread.Sleep(1);
+        }
     }
 
     private sealed class FakeStore : ILauncherStore

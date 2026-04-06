@@ -10,6 +10,7 @@ using Xunit;
 
 namespace applanch.Tests.Controls;
 
+[Collection("WpfTests")]
 public class SuggestionInputControlTests
 {
     [Fact]

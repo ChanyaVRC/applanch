@@ -7,6 +7,7 @@ using Xunit;
 
 namespace applanch.Tests.Controls;
 
+[Collection("WpfTests")]
 public class FloatingNotificationControlTests
 {
     [Fact]

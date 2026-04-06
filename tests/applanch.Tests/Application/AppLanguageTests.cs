@@ -6,6 +6,7 @@ using Xunit;
 
 namespace applanch.Tests.Application;
 
+[Collection("WpfTests")]
 public class AppLanguageTests
 {
     [Fact]

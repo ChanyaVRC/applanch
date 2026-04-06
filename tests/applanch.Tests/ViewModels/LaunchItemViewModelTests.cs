@@ -8,6 +8,7 @@ using System.Windows.Media;
 
 namespace applanch.Tests.ViewModels;
 
+[Collection("WpfTests")]
 public class LaunchItemViewModelTests
 {
     [Fact]
