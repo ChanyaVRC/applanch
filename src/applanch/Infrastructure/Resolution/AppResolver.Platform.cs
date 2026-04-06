@@ -99,13 +99,15 @@ internal static partial class AppResolver
                 entries = Directory.EnumerateFileSystemEntries(directory);
                 return true;
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
+                AppLogger.Instance.Warn($"Access denied while enumerating file system entries in '{directory}': {ex.Message}");
                 entries = null;
                 return false;
             }
-            catch (IOException)
+            catch (IOException ex)
             {
+                AppLogger.Instance.Warn($"I/O error while enumerating file system entries in '{directory}': {ex.Message}");
                 entries = null;
                 return false;
             }
@@ -118,12 +120,14 @@ internal static partial class AppResolver
             {
                 uninstallRoot = hive.OpenSubKey(subKeyPath);
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
+                AppLogger.Instance.Warn($"Access denied while opening uninstall registry root '{hive.Name}\\{subKeyPath}': {ex.Message}");
                 return;
             }
-            catch (SecurityException)
+            catch (SecurityException ex)
             {
+                AppLogger.Instance.Warn($"Security error while opening uninstall registry root '{hive.Name}\\{subKeyPath}': {ex.Message}");
                 return;
             }
 
@@ -137,12 +141,14 @@ internal static partial class AppResolver
             {
                 subKeyNames = root.GetSubKeyNames();
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
+                AppLogger.Instance.Warn($"Access denied while enumerating uninstall subkeys in '{root.Name}': {ex.Message}");
                 return;
             }
-            catch (SecurityException)
+            catch (SecurityException ex)
             {
+                AppLogger.Instance.Warn($"Security error while enumerating uninstall subkeys in '{root.Name}': {ex.Message}");
                 return;
             }
 

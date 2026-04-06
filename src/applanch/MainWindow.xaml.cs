@@ -863,7 +863,7 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Open item location failed for '{path.Value}': {ex.Message}");
+            AppLogger.Instance.Error(ex, $"Open item location failed for '{path.Value}'");
             ShowFloatingNotification(string.Format(Strings.Error_FileNotFound, path.Value), MessageBoxImage.Warning);
         }
     }
