@@ -245,6 +245,12 @@
   <data name="Setting_AppListSortMode" xml:space="preserve">
     <value>一覧の並び順</value>
   </data>
+  <data name="Setting_LaunchItemIconOnlyMode" xml:space="preserve">
+    <value>一覧をアイコンのみで表示する</value>
+  </data>
+  <data name="Setting_LaunchItemIconOnlyModeDesc" xml:space="preserve">
+    <value>一覧内の名前とパスを非表示にし、アイコンタイルのみを表示します。</value>
+  </data>
   <data name="SortMode_Alphabetical" xml:space="preserve">
     <value>名前順</value>
   </data>

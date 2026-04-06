@@ -245,6 +245,12 @@
   <data name="Setting_AppListSortMode" xml:space="preserve">
     <value>Item list sort</value>
   </data>
+  <data name="Setting_LaunchItemIconOnlyMode" xml:space="preserve">
+    <value>Show launch items as icons only</value>
+  </data>
+  <data name="Setting_LaunchItemIconOnlyModeDesc" xml:space="preserve">
+    <value>Hide item name and path in the list, and display icon tiles only.</value>
+  </data>
   <data name="SortMode_Alphabetical" xml:space="preserve">
     <value>Alphabetical</value>
   </data>

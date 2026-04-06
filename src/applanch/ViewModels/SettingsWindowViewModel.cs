@@ -31,6 +31,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     private int _quickAddSuggestionLimit = AppSettings.DefaultQuickAddSuggestionLimit;
     private CategorySortMode _categorySortMode;
     private AppListSortMode _appListSortMode;
+    private bool _launchItemIconOnlyMode;
     private bool _runAsAdministrator;
     private LanguageOption _language;
 
@@ -199,6 +200,12 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         set => SetFieldAndCommit(ref _appListSortMode, value);
     }
 
+    public bool LaunchItemIconOnlyMode
+    {
+        get => _launchItemIconOnlyMode;
+        set => SetFieldAndCommit(ref _launchItemIconOnlyMode, value);
+    }
+
     public bool RunAsAdministrator
     {
         get => _runAsAdministrator;
@@ -274,6 +281,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         _quickAddSuggestionLimit = settings.QuickAddSuggestionLimit;
         _categorySortMode = settings.CategorySortMode;
         _appListSortMode = settings.AppListSortMode;
+        _launchItemIconOnlyMode = settings.LaunchItemIconOnlyMode;
         _runAsAdministrator = settings.RunAsAdministrator;
         _language = settings.Language;
     }
@@ -312,6 +320,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             QuickAddSuggestionLimit = _quickAddSuggestionLimit,
             CategorySortMode = _categorySortMode,
             AppListSortMode = _appListSortMode,
+            LaunchItemIconOnlyMode = _launchItemIconOnlyMode,
             RunAsAdministrator = _runAsAdministrator,
             Language = _language,
         };

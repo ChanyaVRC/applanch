@@ -833,11 +833,24 @@
                                                    FontSize="11"
                                                    FontWeight="Bold"
                                                    Foreground="{DynamicResource Brush.TextTertiary}"
-                                                   ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_DragToReorder]}"/>
+                                                   ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_DragToReorder]}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Value="True">
+                                                            <Setter Property="Visibility"
+                                                                    Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
 
                                         <Button Grid.Column="2"
                                                 Click="LaunchItemButton_Click"
-                                                Tag="{Binding}">
+                                                Tag="{Binding}"
+                                                ToolTip="{Binding DisplayName}">
                                             <Button.Style>
                                                 <Style TargetType="Button"
                                                        BasedOn="{StaticResource LaunchTileButtonStyle}">
@@ -847,6 +860,19 @@
                                                             <Setter Property="Visibility"
                                                                     Value="Collapsed"/>
                                                         </DataTrigger>
+                                                            <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Value="True">
+                                                                <Setter Property="Grid.Column"
+                                                                    Value="0"/>
+                                                                <Setter Property="Grid.ColumnSpan"
+                                                                    Value="4"/>
+                                                                <Setter Property="HorizontalAlignment"
+                                                                    Value="Left"/>
+                                                                <Setter Property="Width"
+                                                                    Value="44"/>
+                                                                <Setter Property="Padding"
+                                                                    Value="6"/>
+                                                            </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </Button.Style>
@@ -903,7 +929,19 @@
                                                            Text="{Binding DisplayName}"
                                                            FontSize="13"
                                                            FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource Brush.TextPrimary}"/>
+                                                           Foreground="{DynamicResource Brush.TextPrimary}">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                             Value="True">
+                                                                    <Setter Property="Visibility"
+                                                                            Value="Collapsed"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
 
                                                 <TextBlock Grid.Row="1"
                                                            Grid.Column="2"
@@ -911,7 +949,19 @@
                                                            Text="{Binding FullPath}"
                                                            FontSize="11"
                                                            Foreground="{DynamicResource Brush.TextTertiary}"
-                                                           TextTrimming="CharacterEllipsis"/>
+                                                           TextTrimming="CharacterEllipsis">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                             Value="True">
+                                                                    <Setter Property="Visibility"
+                                                                            Value="Collapsed"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
                                             </Grid>
                                         </Button>
 
@@ -1002,15 +1052,33 @@
 
                                         <Button Grid.Column="3"
                                                 Content="×"
-                                                Style="{StaticResource HeaderIconButtonStyle}"
-                                                Tag="{Binding}"
                                                 Click="DeleteButton_Click"
-                                                Width="26"
-                                                Height="26"
-                                                FontSize="13"
-                                                FontWeight="SemiBold"
-                                                VerticalAlignment="Center"
-                                                ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Delete]}"/>
+                                                Tag="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button"
+                                                       BasedOn="{StaticResource HeaderIconButtonStyle}">
+                                                    <Setter Property="Width"
+                                                            Value="26"/>
+                                                    <Setter Property="Height"
+                                                            Value="26"/>
+                                                    <Setter Property="FontSize"
+                                                            Value="13"/>
+                                                    <Setter Property="FontWeight"
+                                                            Value="SemiBold"/>
+                                                    <Setter Property="VerticalAlignment"
+                                                            Value="Center"/>
+                                                    <Setter Property="ToolTip"
+                                                            Value="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Delete]}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Value="True">
+                                                            <Setter Property="Visibility"
+                                                                    Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
