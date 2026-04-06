@@ -115,6 +115,21 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
+    public void PersistOrderNow_WhenNoChanges_DoesNotPersist()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherEntry(@"C:\\Tools\\A.exe", "Dev", string.Empty, "A")
+        ]);
+
+        var vm = CreateViewModel(store: store);
+
+        vm.PersistOrderNow();
+
+        Assert.Equal(0, store.SaveCallCount);
+    }
+
+    [Fact]
     public void PreviewMoveItem_InvalidIndices_AreIgnored()
     {
         var store = new FakeStore(
@@ -458,7 +473,7 @@ public class MainWindowViewModelTests
         Assert.Equal(5, store.SaveCallCount);
 
         vm.PersistOrderNow();
-        Assert.Equal(6, store.SaveCallCount);
+        Assert.Equal(5, store.SaveCallCount);
 
         Assert.Equal(3, store.LastSavedEntries.Count);
         Assert.Collection(
