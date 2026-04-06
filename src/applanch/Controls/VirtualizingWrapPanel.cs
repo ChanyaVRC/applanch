@@ -66,17 +66,35 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
 
         _viewport = new Size(viewportWidth, viewportHeight);
 
-        var itemsPerRow = Math.Max(1, (int)Math.Floor(viewportWidth / _itemSize.Width));
-        var firstVisibleRow = Math.Max(0, (int)Math.Floor(VerticalOffset / _itemSize.Height));
-        var visibleRowCount = Math.Max(1, (int)Math.Ceiling(viewportHeight / _itemSize.Height) + 1);
+        var effectiveItemSize = _itemSize;
+        var startIndex = 0;
+        var endIndex = itemCount - 1;
+        var itemsPerRow = 1;
 
-        var startIndex = Math.Max(0, firstVisibleRow * itemsPerRow);
-        var endIndex = Math.Min(itemCount - 1, ((firstVisibleRow + visibleRowCount) * itemsPerRow) - 1);
+        const int maxMeasurePasses = 3;
 
-        RealizeItems(itemsControl, startIndex, endIndex);
+        for (var pass = 0; pass < maxMeasurePasses; pass++)
+        {
+            itemsPerRow = Math.Max(1, (int)Math.Floor(viewportWidth / effectiveItemSize.Width));
+            var firstVisibleRow = Math.Max(0, (int)Math.Floor(VerticalOffset / effectiveItemSize.Height));
+            var visibleRowCount = Math.Max(1, (int)Math.Ceiling(viewportHeight / effectiveItemSize.Height) + 1);
+
+            startIndex = Math.Max(0, firstVisibleRow * itemsPerRow);
+            endIndex = Math.Min(itemCount - 1, ((firstVisibleRow + visibleRowCount) * itemsPerRow) - 1);
+
+            RealizeItems(itemsControl, startIndex, endIndex);
+
+            var measuredItemSize = MeasureRealizedChildren();
+            if (measuredItemSize == effectiveItemSize)
+            {
+                break;
+            }
+
+            effectiveItemSize = measuredItemSize;
+        }
+
+        _itemSize = effectiveItemSize;
         CleanupItems(startIndex, endIndex);
-
-        _itemSize = MeasureRealizedChildren();
 
         itemsPerRow = Math.Max(1, (int)Math.Floor(viewportWidth / _itemSize.Width));
         var rowCount = (int)Math.Ceiling((double)itemCount / itemsPerRow);
@@ -122,41 +140,98 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
 
     public void LineDown() => SetVerticalOffset(VerticalOffset + _itemSize.Height * 0.25);
 
-    public void LineLeft()
-    {
-    }
+    public void LineLeft() => SetHorizontalOffset(HorizontalOffset - _itemSize.Width * 0.25);
 
-    public void LineRight()
-    {
-    }
+    public void LineRight() => SetHorizontalOffset(HorizontalOffset + _itemSize.Width * 0.25);
 
     public void MouseWheelUp() => SetVerticalOffset(VerticalOffset - _itemSize.Height);
 
     public void MouseWheelDown() => SetVerticalOffset(VerticalOffset + _itemSize.Height);
 
-    public void MouseWheelLeft()
-    {
-    }
+    public void MouseWheelLeft() => SetHorizontalOffset(HorizontalOffset - DefaultItemWidth);
 
-    public void MouseWheelRight()
-    {
-    }
+    public void MouseWheelRight() => SetHorizontalOffset(HorizontalOffset + DefaultItemWidth);
 
     public void PageUp() => SetVerticalOffset(VerticalOffset - ViewportHeight);
 
     public void PageDown() => SetVerticalOffset(VerticalOffset + ViewportHeight);
 
-    public void PageLeft()
-    {
-    }
+    public void PageLeft() => SetHorizontalOffset(HorizontalOffset - ViewportWidth);
 
-    public void PageRight()
-    {
-    }
+    public void PageRight() => SetHorizontalOffset(HorizontalOffset + ViewportWidth);
 
     public Rect MakeVisible(Visual visual, Rect rectangle)
     {
-        return rectangle;
+        if (visual is null)
+        {
+            return Rect.Empty;
+        }
+
+        DependencyObject current = visual;
+        while (current != this)
+        {
+            current = VisualTreeHelper.GetParent(current);
+            if (current is null)
+            {
+                return Rect.Empty;
+            }
+        }
+
+        Rect targetBounds = visual.TransformToAncestor(this).TransformBounds(rectangle);
+
+        double newHorizontalOffset = HorizontalOffset;
+        double newVerticalOffset = VerticalOffset;
+
+        if (CanHorizontallyScroll && ViewportWidth > 0)
+        {
+            double viewportLeft = HorizontalOffset;
+            double viewportRight = viewportLeft + ViewportWidth;
+
+            if (targetBounds.Left < viewportLeft)
+            {
+                newHorizontalOffset = targetBounds.Left;
+            }
+            else if (targetBounds.Right > viewportRight)
+            {
+                newHorizontalOffset = targetBounds.Right - ViewportWidth;
+            }
+        }
+
+        if (ViewportHeight > 0)
+        {
+            double viewportTop = VerticalOffset;
+            double viewportBottom = viewportTop + ViewportHeight;
+
+            if (targetBounds.Top < viewportTop)
+            {
+                newVerticalOffset = targetBounds.Top;
+            }
+            else if (targetBounds.Bottom > viewportBottom)
+            {
+                newVerticalOffset = targetBounds.Bottom - ViewportHeight;
+            }
+        }
+
+        if (CanHorizontallyScroll && !AreClose(newHorizontalOffset, HorizontalOffset))
+        {
+            SetHorizontalOffset(newHorizontalOffset);
+        }
+
+        if (!AreClose(newVerticalOffset, VerticalOffset))
+        {
+            SetVerticalOffset(newVerticalOffset);
+        }
+
+        Rect viewport = new(HorizontalOffset, VerticalOffset, ViewportWidth, ViewportHeight);
+        Rect visibleBounds = Rect.Intersect(targetBounds, viewport);
+
+        if (visibleBounds.IsEmpty)
+        {
+            return Rect.Empty;
+        }
+
+        visibleBounds.Offset(-HorizontalOffset, -VerticalOffset);
+        return visibleBounds;
     }
 
     public void SetHorizontalOffset(double offset)
@@ -189,9 +264,38 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
         ScrollOwner?.InvalidateScrollInfo();
     }
 
+    protected override void BringIndexIntoView(int index)
+    {
+        if (_itemSize.Width <= 0 || _itemSize.Height <= 0 || ViewportHeight <= 0)
+        {
+            return;
+        }
+
+        var viewportWidth = _viewport.Width > 0 ? _viewport.Width : ActualWidth;
+        var itemsPerRow = Math.Max(1, (int)Math.Floor(viewportWidth / _itemSize.Width));
+        var row = index / itemsPerRow;
+
+        var itemTop = row * _itemSize.Height;
+        var itemBottom = itemTop + _itemSize.Height;
+
+        if (itemTop < VerticalOffset)
+        {
+            SetVerticalOffset(itemTop);
+        }
+        else if (itemBottom > VerticalOffset + ViewportHeight)
+        {
+            SetVerticalOffset(itemBottom - ViewportHeight);
+        }
+    }
+
     private void RealizeItems(ItemsControl itemsControl, int startIndex, int endIndex)
     {
         var generator = ItemContainerGenerator;
+        if (generator is null)
+        {
+            return;
+        }
+
         var startPosition = generator.GeneratorPositionFromIndex(startIndex);
         var childIndex = startPosition.Offset == 0 ? startPosition.Index : startPosition.Index + 1;
 
@@ -241,10 +345,14 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
         foreach (UIElement child in InternalChildren)
         {
             child.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            if (child.DesiredSize.Width > 0 && child.DesiredSize.Height > 0)
+            if (child.DesiredSize.Width <= 0 || child.DesiredSize.Height <= 0)
             {
-                measuredSize = child.DesiredSize;
+                continue;
             }
+
+            measuredSize = new Size(
+                Math.Max(measuredSize.Width, child.DesiredSize.Width),
+                Math.Max(measuredSize.Height, child.DesiredSize.Height));
         }
 
         if (measuredSize.Width <= 0 || measuredSize.Height <= 0)
@@ -260,4 +368,6 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
         _offset.X = Math.Max(0, Math.Min(_offset.X, Math.Max(0, ExtentWidth - ViewportWidth)));
         _offset.Y = Math.Max(0, Math.Min(_offset.Y, Math.Max(0, ExtentHeight - ViewportHeight)));
     }
+
+    private static bool AreClose(double a, double b) => Math.Abs(a - b) < 1e-10;
 }
