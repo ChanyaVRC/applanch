@@ -55,7 +55,7 @@ body:
     id: os_version
     attributes:
       label: Windows version
-      description: Example: Windows 11 24H2
+      description: "Example: Windows 11 24H2"
       placeholder: Windows 11 24H2
     validations:
       required: false
