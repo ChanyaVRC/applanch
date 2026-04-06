@@ -72,8 +72,9 @@ internal sealed class RegistryAppIdResolver : IAppIdResolver
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
+            AppLogger.Instance.Error(ex, $"Failed to resolve app ID from registry source '{_source}'");
             return false;
         }
 
