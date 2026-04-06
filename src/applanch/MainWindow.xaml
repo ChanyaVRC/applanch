@@ -196,22 +196,22 @@
                                      Value="True">
                                 <Setter TargetName="Track"
                                         Property="Background"
-                                    Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                                    Value="{DynamicResource Brush.ItemBackground}"/>
                                 <Setter TargetName="Track"
                                         Property="BorderBrush"
-                                    Value="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}"/>
+                                    Value="{DynamicResource Brush.SurfaceBorder}"/>
                                 <Setter TargetName="Thumb"
                                         Property="HorizontalAlignment"
                                         Value="Right"/>
                                 <Setter TargetName="Thumb"
                                         Property="Fill"
-                                    Value="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}"/>
+                                    Value="{DynamicResource Brush.SurfaceBorder}"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver"
                                      Value="True">
                                 <Setter TargetName="Track"
                                         Property="BorderBrush"
-                                    Value="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}"/>
+                                    Value="{DynamicResource Brush.SurfaceBorder}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled"
                                      Value="False">
