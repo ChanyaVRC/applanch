@@ -34,6 +34,7 @@ public sealed partial class MainWindow : Window
     private SettingsWindow? _settingsWindow;
     private readonly AppEvent? _appEvent;
     private readonly Func<AppSettings, IAppUpdateService> _updateServiceFactory;
+    private bool _isLaunchListRealizationScheduled;
     private MainWindowViewModel ViewModel { get; }
 
     public MainWindow()
@@ -89,7 +90,7 @@ public sealed partial class MainWindow : Window
 
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        _ = Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(EnsureLaunchListInitialRealization));
+        ScheduleLaunchListInitialRealization();
 
         if (_settings.CheckForUpdatesOnStartup)
         {
@@ -149,14 +150,29 @@ public sealed partial class MainWindow : Window
         if (e.PropertyName == nameof(MainWindowViewModel.SelectedCategory))
         {
             ScrollLaunchListToTop();
-            _ = Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(EnsureLaunchListInitialRealization));
+            ScheduleLaunchListInitialRealization();
             return;
         }
 
         if (e.PropertyName == nameof(MainWindowViewModel.IsLaunchItemIconOnlyMode))
         {
-            _ = Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(EnsureLaunchListInitialRealization));
+            ScheduleLaunchListInitialRealization();
         }
+    }
+
+    private void ScheduleLaunchListInitialRealization()
+    {
+        if (_isLaunchListRealizationScheduled)
+        {
+            return;
+        }
+
+        _isLaunchListRealizationScheduled = true;
+        _ = Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+        {
+            _isLaunchListRealizationScheduled = false;
+            EnsureLaunchListInitialRealization();
+        }));
     }
 
     private void EnsureLaunchListInitialRealization()
@@ -166,14 +182,21 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        if (VisualTreeUtilities.FindVisualChild<Controls.VirtualizingWrapPanel>(LaunchListBox) is { } panel)
+        var panel = VisualTreeUtilities.FindVisualChild<Controls.VirtualizingWrapPanel>(LaunchListBox);
+        if (panel is null)
         {
-            panel.SetVerticalOffset(0);
-            panel.InvalidateMeasure();
-            panel.InvalidateArrange();
+            return;
         }
 
-        LaunchListBox.UpdateLayout();
+        panel.SetVerticalOffset(0);
+
+        if (VisualTreeHelper.GetChildrenCount(panel) > 0 && LaunchListBox.ItemContainerGenerator.ContainerFromIndex(0) is not null)
+        {
+            return;
+        }
+
+        panel.InvalidateMeasure();
+        panel.InvalidateArrange();
         LaunchListBox.ScrollIntoView(LaunchListBox.Items[0]);
         LaunchListBox.UpdateLayout();
     }

@@ -96,6 +96,7 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
 
         var fixedItemWidth = double.IsNaN(ItemWidth) || ItemWidth <= 0 ? (double?)null : ItemWidth;
         var fixedItemHeight = double.IsNaN(ItemHeight) || ItemHeight <= 0 ? (double?)null : ItemHeight;
+        var isFullyFixedItemSize = fixedItemWidth is not null && fixedItemHeight is not null;
 
         if (fixedItemWidth is not null || fixedItemHeight is not null)
         {
@@ -111,7 +112,7 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
         var endIndex = itemCount - 1;
         var itemsPerRow = 1;
 
-        const int maxMeasurePasses = 3;
+        var maxMeasurePasses = isFullyFixedItemSize ? 1 : 3;
 
         for (var pass = 0; pass < maxMeasurePasses; pass++)
         {
@@ -133,7 +134,9 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
 
             RealizeItems(itemsControl, startIndex, endIndex);
 
-            var measuredItemSize = MeasureRealizedChildren();
+            var measuredItemSize = isFullyFixedItemSize
+                ? effectiveItemSize
+                : MeasureRealizedChildren();
             if (fixedItemWidth is not null || fixedItemHeight is not null)
             {
                 measuredItemSize = new Size(
@@ -141,7 +144,7 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
                     fixedItemHeight ?? measuredItemSize.Height);
             }
 
-            if (measuredItemSize == effectiveItemSize)
+            if (AreClose(measuredItemSize, effectiveItemSize))
             {
                 break;
             }
@@ -463,6 +466,8 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
         _offset.X = Math.Max(0, Math.Min(_offset.X, Math.Max(0, ExtentWidth - ViewportWidth)));
         _offset.Y = Math.Max(0, Math.Min(_offset.Y, Math.Max(0, ExtentHeight - ViewportHeight)));
     }
+
+    private static bool AreClose(Size a, Size b) => AreClose(a.Width, b.Width) && AreClose(a.Height, b.Height);
 
     private static bool AreClose(double a, double b) => Math.Abs(a - b) < 1e-10;
 }
