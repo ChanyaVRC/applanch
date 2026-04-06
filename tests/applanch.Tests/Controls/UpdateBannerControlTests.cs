@@ -1,7 +1,6 @@
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using applanch.Controls;
 using applanch.Tests.TestSupport;
 using Xunit;
@@ -54,25 +53,19 @@ public class UpdateBannerControlTests
     }
 
     [Fact]
-    public void UpdateActionButtonStyle_HoverChangesForegroundWithoutBackgroundHighlight()
+    public void UpdateActionButtonVisibilityProperty_UpdatesUpdateActionButtonVisibility()
     {
         WpfTestHost.RunInSta(() =>
         {
             var control = new UpdateBannerControl();
+            var updateActionButton = Assert.IsType<Button>(control.FindName("UpdateActionButton"));
 
-            var style = Assert.IsType<Style>(control.Resources["BannerFlatActionButtonStyle"]);
-            var templateSetter = Assert.Single(style.Setters.OfType<Setter>(), static setter => setter.Property == Control.TemplateProperty);
-            var template = Assert.IsType<ControlTemplate>(templateSetter.Value);
-            var hoverTrigger = Assert.Single(template.Triggers.OfType<Trigger>(),
-                static trigger => trigger.Property == UIElement.IsMouseOverProperty && Equals(trigger.Value, true));
+            Assert.Equal(Visibility.Visible, updateActionButton.Visibility);
 
-            Assert.Contains(hoverTrigger.Setters.OfType<Setter>(), static setter => setter.Property == Control.ForegroundProperty);
+            control.UpdateActionButtonVisibility = Visibility.Collapsed;
+            WpfTestHost.DoEvents();
 
-            var backgroundSetter = Assert.Single(
-                style.Setters.OfType<Setter>(),
-                static setter => setter.Property == Control.BackgroundProperty);
-            var brush = Assert.IsType<SolidColorBrush>(backgroundSetter.Value);
-            Assert.Equal(Colors.Transparent, brush.Color);
+            Assert.Equal(Visibility.Collapsed, updateActionButton.Visibility);
         });
     }
 

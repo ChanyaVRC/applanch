@@ -49,8 +49,7 @@ public sealed class SettingsThemeSelectionUiTests
                 DataContext = vm,
             };
             TextSearch.SetTextPath(comboBox, nameof(ThemeOption.DisplayName));
-            comboBox.ItemTemplate = (DataTemplate)System.Windows.Markup.XamlReader.Parse(
-                "<DataTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation'><TextBlock Text='{Binding DisplayName}'/></DataTemplate>");
+            comboBox.ItemTemplate = CreateDisplayNameItemTemplate();
             comboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(SettingsWindowViewModel.ThemeOptions)));
             comboBox.SetBinding(Selector.SelectedValueProperty, new Binding(nameof(SettingsWindowViewModel.SelectedThemeId))
             {
@@ -72,5 +71,16 @@ public sealed class SettingsThemeSelectionUiTests
             Assert.Equal(ThemePaletteConfigurationLoader.SystemThemeId, comboBox.SelectedValue);
             Assert.Equal("システム", comboBox.Text);
         });
+    }
+
+    private static DataTemplate CreateDisplayNameItemTemplate()
+    {
+        var textBlock = new FrameworkElementFactory(typeof(TextBlock));
+        textBlock.SetBinding(TextBlock.TextProperty, new Binding(nameof(ThemeOption.DisplayName)));
+
+        return new DataTemplate
+        {
+            VisualTree = textBlock,
+        };
     }
 }
