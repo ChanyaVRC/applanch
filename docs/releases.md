@@ -10,6 +10,11 @@ Notable user-facing changes per version. For full commit history and downloadabl
 
 - **Collapsible category sidebar** — The category sidebar now collapses when unpinned. Hover over the left edge of the window to expand it temporarily; click the pin button to keep it open. The pinned state is saved and restored across app restarts.
 
+### Improved
+
+- **Discord icon** — Apps launched via the Discord Update path are now shown with the Discord icon instead of a generic fallback.
+- **Icon-mode toggle** — Refined the size and label of the icon-only mode toggle in the main window header.
+
 ---
 
 ## v0.5.3 — April 7, 2026
