@@ -18,6 +18,7 @@ public sealed class MainWindowViewModel : ObservableObject
     private readonly QuickAddWorkflow _quickAddWorkflow;
     private readonly ILauncherStore _launcherStore;
     private readonly ILaunchItemIconProvider _iconProvider;
+    private IReadOnlyList<LauncherEntry> _lastPersistedEntries;
     private AppSettings _settings;
     private LaunchItemViewModel? _selectedLaunchItem;
     private string _selectedCategory = AllCategoriesLabel;
@@ -40,9 +41,13 @@ public sealed class MainWindowViewModel : ObservableObject
         _iconProvider.ApplySettings(_settings);
         _quickAddWorkflow = new QuickAddWorkflow(appResolver, _iconProvider);
 
-        LaunchItems = _launcherStore.LoadAll()
+        var loadedEntries = _launcherStore.LoadAll().ToList();
+
+        LaunchItems = loadedEntries
             .Select(entry => new LaunchItemViewModel(entry.Path, entry.Category, entry.Arguments, entry.DisplayName, _iconProvider))
             .ToObservableCollection();
+
+        _lastPersistedEntries = LaunchItems.Select(ToLauncherEntry).ToList();
 
         CategoryNames = [];
         FilterCategoryNames = [];
@@ -223,6 +228,14 @@ public sealed class MainWindowViewModel : ObservableObject
         PersistCurrentOrder();
     }
 
+    internal void RefreshLaunchItemPathStates()
+    {
+        foreach (var item in LaunchItems)
+        {
+            item.RefreshPathState();
+        }
+    }
+
     internal void ApplySettings(AppSettings settings)
     {
         var iconSettingsChanged = _settings.FetchHttpIcons != settings.FetchHttpIcons ||
@@ -297,7 +310,14 @@ public sealed class MainWindowViewModel : ObservableObject
 
     private void PersistCurrentOrder()
     {
-        _launcherStore.SaveAll(LaunchItems.Select(ToLauncherEntry));
+        var entries = LaunchItems.Select(ToLauncherEntry).ToList();
+        if (_lastPersistedEntries.SequenceEqual(entries))
+        {
+            return;
+        }
+
+        _launcherStore.SaveAll(entries);
+        _lastPersistedEntries = entries;
     }
 
     private void LaunchItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)

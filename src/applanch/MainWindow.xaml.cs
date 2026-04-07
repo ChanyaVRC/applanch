@@ -83,6 +83,12 @@ public sealed partial class MainWindow : Window
         base.OnClosed(e);
     }
 
+    protected override void OnActivated(EventArgs e)
+    {
+        base.OnActivated(e);
+        ViewModel.RefreshLaunchItemPathStates();
+    }
+
     private void Window_SourceInitialized(object? sender, EventArgs e)
     {
         WindowCaptionThemeHelper.Apply(this);

@@ -115,6 +115,64 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
+    public void PersistOrderNow_WhenNoChanges_DoesNotPersist()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherEntry(@"C:\Tools\A.exe", "Dev", string.Empty, "A")
+        ]);
+
+        var vm = CreateViewModel(store: store);
+
+        vm.PersistOrderNow();
+
+        Assert.Equal(0, store.SaveCallCount);
+    }
+
+    [Fact]
+    public void PersistOrderNow_WhenLoadedEntriesAreNormalized_DoesNotPersist()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherEntry(new LaunchPath(@"C:\Tools\A.exe"), "Dev", string.Empty, "A") { IsNormalized = true }
+        ]);
+
+        var vm = CreateViewModel(store: store);
+
+        vm.PersistOrderNow();
+
+        Assert.Equal(0, store.SaveCallCount);
+    }
+
+    [Fact]
+    public void RefreshLaunchItemPathStates_WhenFileIsDeleted_UpdatesItemState()
+    {
+        var existingPath = Path.GetTempFileName();
+        try
+        {
+            var store = new FakeStore(
+            [
+                new LauncherEntry(existingPath, "Dev", string.Empty, "A")
+            ]);
+            var vm = CreateViewModel(store: store);
+
+            Assert.False(vm.LaunchItems[0].IsPathMissing);
+
+            File.Delete(existingPath);
+            vm.RefreshLaunchItemPathStates();
+
+            Assert.True(vm.LaunchItems[0].IsPathMissing);
+        }
+        finally
+        {
+            if (File.Exists(existingPath))
+            {
+                File.Delete(existingPath);
+            }
+        }
+    }
+
+    [Fact]
     public void PreviewMoveItem_InvalidIndices_AreIgnored()
     {
         var store = new FakeStore(
@@ -458,7 +516,7 @@ public class MainWindowViewModelTests
         Assert.Equal(5, store.SaveCallCount);
 
         vm.PersistOrderNow();
-        Assert.Equal(6, store.SaveCallCount);
+        Assert.Equal(5, store.SaveCallCount);
 
         Assert.Equal(3, store.LastSavedEntries.Count);
         Assert.Collection(
