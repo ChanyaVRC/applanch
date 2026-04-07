@@ -5,6 +5,7 @@ using Xunit;
 
 namespace applanch.Tests.Application;
 
+[Collection("WpfTests")]
 public class MainWindowTransformTests
 {
     [Fact]

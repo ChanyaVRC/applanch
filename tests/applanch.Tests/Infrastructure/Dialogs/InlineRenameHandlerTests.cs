@@ -7,6 +7,7 @@ using Xunit;
 
 namespace applanch.Tests.Infrastructure.Dialogs;
 
+[Collection("WpfTests")]
 public class InlineRenameHandlerTests
 {
     [Fact]

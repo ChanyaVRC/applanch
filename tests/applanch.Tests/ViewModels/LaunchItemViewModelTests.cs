@@ -8,6 +8,7 @@ using System.Windows.Media;
 
 namespace applanch.Tests.ViewModels;
 
+[Collection("WpfTests")]
 public class LaunchItemViewModelTests
 {
     [Fact]
@@ -186,6 +187,41 @@ public class LaunchItemViewModelTests
         finally
         {
             File.Delete(existingPath);
+        }
+    }
+
+    [Fact]
+    public void RefreshIcon_WhenFileIsDeleted_UpdatesIsPathMissingAndRaisesPropertyChanged()
+    {
+        var existingPath = Path.GetTempFileName();
+        try
+        {
+            var vm = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(fullPath: existingPath),
+                category: "Dev",
+                arguments: string.Empty,
+                displayName: "Existing");
+
+            var changed = new List<string>();
+            vm.PropertyChanged += (_, e) =>
+            {
+                if (!string.IsNullOrWhiteSpace(e.PropertyName))
+                {
+                    changed.Add(e.PropertyName!);
+                }
+            };
+
+            File.Delete(existingPath);
+            vm.RefreshIcon();
+
+            Assert.True(vm.IsPathMissing);
+            Assert.Contains(nameof(LaunchItemViewModel.IsPathMissing), changed);
+        }
+        finally
+        {
+            if (File.Exists(existingPath))
+            {
+                File.Delete(existingPath);
+            }
         }
     }
 

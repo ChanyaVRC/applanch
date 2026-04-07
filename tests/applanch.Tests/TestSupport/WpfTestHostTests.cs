@@ -2,6 +2,7 @@ using Xunit;
 
 namespace applanch.Tests.TestSupport;
 
+[Collection("WpfTests")]
 public sealed class WpfTestHostTests
 {
     [Fact]

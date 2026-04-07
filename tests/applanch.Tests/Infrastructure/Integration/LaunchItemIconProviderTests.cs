@@ -10,6 +10,7 @@ using Xunit;
 
 namespace applanch.Tests.Infrastructure.Integration;
 
+[Collection("WpfTests")]
 public class LaunchItemIconProviderTests
 {
     private static readonly byte[] TinyPngBytes = Convert.FromBase64String(

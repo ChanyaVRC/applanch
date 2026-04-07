@@ -7,6 +7,7 @@ using Xunit;
 
 namespace applanch.Tests.UI;
 
+[Collection("WpfTests")]
 public sealed class PromptDialogUiTests
 {
     [Fact]
