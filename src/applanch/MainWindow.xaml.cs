@@ -10,6 +10,7 @@ using applanch.Events;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Items;
 using applanch.Infrastructure.Launch;
+using applanch.Infrastructure.Presentation;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
 using applanch.Infrastructure.Updates;
@@ -21,7 +22,14 @@ namespace applanch;
 
 public sealed partial class MainWindow : Window
 {
+    public const double CategorySidebarExpandedWidth = 172;
+    private const double CategorySidebarCollapsedWidth = 0;
+    public static readonly Duration CategorySidebarAnimationDuration = new(TimeSpan.FromMilliseconds(220));
+    // 188 = CategorySidebarExpandedWidth (172) + 16px gap between sidebar and main content
+    public static readonly Thickness CategorySidebarPinnedContentMargin = new(188, 0, 0, 0);
+
     private readonly DragReorderState _dragReorderState = new();
+    private readonly CategorySidebarStateController _categorySidebarController = new();
     private readonly IItemLaunchService _itemLaunchService;
     private readonly IUserInteractionService _interactionService;
     private readonly LaunchItemWorkflow _launchItemWorkflow;
@@ -36,6 +44,19 @@ public sealed partial class MainWindow : Window
     private readonly Func<AppSettings, IAppUpdateService> _updateServiceFactory;
     private bool _isLaunchListRealizationScheduled;
     private MainWindowViewModel ViewModel { get; }
+
+    internal static readonly DependencyProperty IsCategorySidebarExpandedProperty =
+        DependencyProperty.Register(
+            nameof(IsCategorySidebarExpanded),
+            typeof(bool),
+            typeof(MainWindow),
+            new PropertyMetadata(true));
+
+    internal bool IsCategorySidebarExpanded
+    {
+        get => (bool)GetValue(IsCategorySidebarExpandedProperty);
+        private set => SetValue(IsCategorySidebarExpandedProperty, value);
+    }
 
     public MainWindow()
         : this(
@@ -54,6 +75,7 @@ public sealed partial class MainWindow : Window
         Func<AppSettings, IAppUpdateService> updateServiceFactory,
         AppSettings settings)
     {
+        _settings = settings;
         InitializeComponent();
         ViewModel = viewModel;
         _itemLaunchService = itemLaunchService;
@@ -65,7 +87,6 @@ public sealed partial class MainWindow : Window
         _dragDropResolver = new LaunchListDragDropResolver();
         _updateServiceFactory = updateServiceFactory;
         _updateWorkflow = new UpdateWorkflow(_updateServiceFactory(settings));
-        _settings = settings;
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         _appEvent = (Application.Current as App)?.Events;
@@ -73,6 +94,7 @@ public sealed partial class MainWindow : Window
         _appEvent?.Register(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
         _appEvent?.Register(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
         ViewModel.ApplySettings(_settings);
+        ApplyCategorySidebarPinnedSetting(_settings.CategorySidebarPinned, animate: false);
     }
 
     protected override void OnClosed(EventArgs e)
@@ -144,6 +166,7 @@ public sealed partial class MainWindow : Window
         }
 
         ViewModel.ApplySettings(settings);
+        ApplyCategorySidebarPinnedSetting(settings.CategorySidebarPinned, animate: false);
     }
 
     private void OnAppRefreshRequested(AppSettings settings)
@@ -213,6 +236,108 @@ public sealed partial class MainWindow : Window
         {
             scrollViewer.ScrollToTop();
         }
+    }
+
+    private void CategorySidebarContainer_MouseEnter(object sender, MouseEventArgs e)
+    {
+        ApplyCategorySidebarVisualStateIfChanged(_categorySidebarController.HandleSidebarEntered());
+    }
+
+    private void CategorySidebarContainer_MouseLeave(object sender, MouseEventArgs e)
+    {
+        _categorySidebarController.HandleSidebarExited();
+
+        ApplyCategorySidebarVisualStateIfChanged(_categorySidebarController.TryCollapse());
+    }
+
+    private void CategorySidebarHoverZone_MouseEnter(object sender, MouseEventArgs e)
+    {
+        ApplyCategorySidebarVisualStateIfChanged(_categorySidebarController.HandleTriggerEntered());
+    }
+
+    private void CategorySidebarHoverZone_MouseLeave(object sender, MouseEventArgs e)
+    {
+        _categorySidebarController.HandleTriggerExited();
+
+        ApplyCategorySidebarVisualStateIfChanged(_categorySidebarController.TryCollapse());
+    }
+
+    private void CategorySidebarPinToggleButton_Click(object sender, RoutedEventArgs e)
+    {
+        UpdateCategorySidebarPinned(CategorySidebarPinToggleButton.IsChecked == true);
+    }
+
+    private void ApplyCategorySidebarPinnedSetting(bool isPinned, bool animate)
+    {
+        CategorySidebarPinToggleButton.IsChecked = isPinned;
+        _categorySidebarController.SetPinned(isPinned);
+        ApplyCategorySidebarVisualState(animate);
+    }
+
+    private void UpdateCategorySidebarPinned(bool isPinned)
+    {
+        ApplyCategorySidebarVisualStateIfChanged(_categorySidebarController.SetPinned(isPinned));
+
+        if (_settings.CategorySidebarPinned == isPinned)
+        {
+            return;
+        }
+
+        var updatedSettings = SetCategorySidebarPinned(_settings, isPinned);
+
+        if (_appEvent is not null)
+        {
+            _appEvent.Invoke(AppEvents.Commit, updatedSettings);
+            return;
+        }
+
+        updatedSettings.Save();
+        ApplySettingsFromAppRefresh(updatedSettings);
+    }
+
+    private void ApplyCategorySidebarVisualStateIfChanged(bool hasStateChanged)
+    {
+        if (hasStateChanged)
+        {
+            ApplyCategorySidebarVisualState(animate: true);
+        }
+    }
+
+    private void UpdateCategorySidebarContainerVisibility()
+    {
+        CategorySidebarContainer.Visibility = _categorySidebarController.IsPinned || _categorySidebarController.IsExpanded
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+    }
+
+    private void ApplyCategorySidebarVisualState(bool animate)
+    {
+        var isPinned = _categorySidebarController.IsPinned;
+        var isExpanded = _categorySidebarController.IsExpanded;
+        IsCategorySidebarExpanded = isExpanded;
+        var targetWidth = isExpanded ? CategorySidebarExpandedWidth : CategorySidebarCollapsedWidth;
+
+        CategorySidebarContainer.Visibility = Visibility.Visible;
+
+        if (!animate)
+        {
+            CategorySidebarContainer.BeginAnimation(WidthProperty, null);
+            CategorySidebarContainer.Width = targetWidth;
+            UpdateCategorySidebarContainerVisibility();
+
+            return;
+        }
+
+        var animation = new DoubleAnimation
+        {
+            To = targetWidth,
+            Duration = CategorySidebarAnimationDuration,
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut },
+        };
+
+        animation.Completed += (_, _) => UpdateCategorySidebarContainerVisibility();
+
+        CategorySidebarContainer.BeginAnimation(WidthProperty, animation, HandoffBehavior.SnapshotAndReplace);
     }
 
     // ── Settings ────────────────────────────────────────────
@@ -329,6 +454,14 @@ public sealed partial class MainWindow : Window
         return settings with
         {
             LaunchItemIconOnlyMode = !settings.LaunchItemIconOnlyMode,
+        };
+    }
+
+    internal static AppSettings SetCategorySidebarPinned(AppSettings settings, bool isPinned)
+    {
+        return settings with
+        {
+            CategorySidebarPinned = isPinned,
         };
     }
 

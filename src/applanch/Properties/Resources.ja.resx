@@ -257,6 +257,12 @@
   <data name="ToolTip_ToggleLaunchItemIconOnlyMode" xml:space="preserve">
     <value>一覧のアイコン表示を切り替えます。</value>
   </data>
+  <data name="ToolTip_PinCategorySidebar" xml:space="preserve">
+    <value>カテゴリーサイドバーを開いたままにします。</value>
+  </data>
+  <data name="ToolTip_UnpinCategorySidebar" xml:space="preserve">
+    <value>カテゴリーサイドバーを自動で折りたたみます。</value>
+  </data>
   <data name="SortMode_Alphabetical" xml:space="preserve">
     <value>名前順</value>
   </data>

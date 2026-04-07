@@ -88,6 +88,14 @@ public class AppSettingsTests
     }
 
     [Fact]
+    public void Defaults_KeepCategorySidebarPinned()
+    {
+        var settings = new AppSettings();
+
+        Assert.True(settings.CategorySidebarPinned);
+    }
+
+    [Fact]
     public void Normalize_WhenQuickAddSuggestionLimitIsTooSmall_ClampsToMinimum()
     {
         var settings = new AppSettings { QuickAddSuggestionLimit = 0 };
@@ -115,6 +123,16 @@ public class AppSettingsTests
         var normalized = AppSettings.Normalize(settings);
 
         Assert.True(normalized.LaunchItemIconOnlyMode);
+    }
+
+    [Fact]
+    public void Normalize_PreservesCategorySidebarPinned()
+    {
+        var settings = new AppSettings { CategorySidebarPinned = false };
+
+        var normalized = AppSettings.Normalize(settings);
+
+        Assert.False(normalized.CategorySidebarPinned);
     }
 
 }
