@@ -101,7 +101,7 @@ public sealed class LaunchItemViewModel : ObservableObject
         _ = LoadDeferredIconAsync(refreshVersion);
     }
 
-    private void RefreshPathState()
+    internal void RefreshPathState()
     {
         var isMissing = ComputeIsPathMissing();
         if (_isPathMissing == isMissing)

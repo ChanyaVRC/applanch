@@ -42,11 +42,12 @@ public sealed class MainWindowViewModel : ObservableObject
         _quickAddWorkflow = new QuickAddWorkflow(appResolver, _iconProvider);
 
         var loadedEntries = _launcherStore.LoadAll().ToList();
-        _lastPersistedEntries = loadedEntries;
 
         LaunchItems = loadedEntries
             .Select(entry => new LaunchItemViewModel(entry.Path, entry.Category, entry.Arguments, entry.DisplayName, _iconProvider))
             .ToObservableCollection();
+
+        _lastPersistedEntries = LaunchItems.Select(ToLauncherEntry).ToList();
 
         CategoryNames = [];
         FilterCategoryNames = [];
@@ -225,6 +226,14 @@ public sealed class MainWindowViewModel : ObservableObject
     public void PersistOrderNow()
     {
         PersistCurrentOrder();
+    }
+
+    internal void RefreshLaunchItemPathStates()
+    {
+        foreach (var item in LaunchItems)
+        {
+            item.RefreshPathState();
+        }
     }
 
     internal void ApplySettings(AppSettings settings)
