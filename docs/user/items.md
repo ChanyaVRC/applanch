@@ -53,6 +53,12 @@ The default category for new items is **General**.
 Drag items in the list to reorder them.
 The new order is saved automatically.
 
+## Icon-Only Display
+
+You can switch the item list to icon-only tiles from [Settings](settings.md) under **Item Display**.
+
+For quick access, use the **Icons** switch in the main window header.
+
 ## Deleting Items
 
 Delete an item via the context menu or the delete button that appears on hover.

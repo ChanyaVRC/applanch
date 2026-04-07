@@ -111,6 +111,12 @@ Click this button to remove existing Applanch Explorer context menu entries imme
 | Name | Alphabetical by display name |
 | Category Then Name | Grouped by category, then alphabetical |
 
+### Show Launch Items as Icons Only
+
+When enabled, applanch hides item names and paths in the main list and shows icon tiles only.
+
+You can also toggle this quickly from the main window header using the **Icons** switch.
+
 ### Quick Add Suggestion Limit
 
 Controls how many suggestions are shown while typing in the quick-add box.
