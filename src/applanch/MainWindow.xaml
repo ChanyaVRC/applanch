@@ -743,6 +743,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Expander Grid.Column="0"
+                              Grid.ColumnSpan="2"
                               Foreground="{DynamicResource Brush.TextPrimary}"
                               HorizontalContentAlignment="Stretch">
                         <Expander.Header>
@@ -815,7 +816,7 @@
                     </Expander>
                     <CheckBox Grid.Column="1"
                               Margin="12,0,0,0"
-                              VerticalAlignment="Center"
+                              VerticalAlignment="Top"
                               Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_IconMode]}"
                               Style="{StaticResource HeaderToggleCheckBoxStyle}"
                               IsChecked="{Binding IsLaunchItemIconOnlyMode, Mode=OneWay}"
