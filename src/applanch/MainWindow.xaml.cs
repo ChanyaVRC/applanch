@@ -22,9 +22,11 @@ namespace applanch;
 
 public sealed partial class MainWindow : Window
 {
-    private const double CategorySidebarExpandedWidth = 172;
+    public const double CategorySidebarExpandedWidth = 172;
     private const double CategorySidebarCollapsedWidth = 0;
-    private static readonly Duration CategorySidebarAnimationDuration = new(TimeSpan.FromMilliseconds(220));
+    public static readonly Duration CategorySidebarAnimationDuration = new(TimeSpan.FromMilliseconds(220));
+    // 188 = CategorySidebarExpandedWidth (172) + 16px gap between sidebar and main content
+    public static readonly Thickness CategorySidebarPinnedContentMargin = new(188, 0, 0, 0);
 
     private readonly DragReorderState _dragReorderState = new();
     private readonly CategorySidebarStateController _categorySidebarController = new();
