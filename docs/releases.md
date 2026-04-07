@@ -16,6 +16,23 @@ Notable user-facing changes per version. For full commit history and downloadabl
 
 ---
 
+## v0.5.2 — April 7, 2026
+
+### New
+
+- **Icon-only item list mode** — Added an icon-only display mode for launch items, with a quick toggle in the main header.
+
+### Fixed
+
+- **Icon-mode startup reliability** — Fixed startup hang and initial blank-render issues that could occur when icon mode was enabled.
+- **Icon tile layout stability** — Fixed clipping and layout inconsistencies in the icon grid.
+
+### Improved
+
+- **Icon list performance** — Introduced virtualization for the icon-mode launch grid to keep scrolling responsive with larger item counts.
+
+---
+
 ## v0.5.1 — April 6, 2026
 
 ### Fixed
