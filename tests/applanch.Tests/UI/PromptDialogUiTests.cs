@@ -18,11 +18,10 @@ public sealed class PromptDialogUiTests
             WpfTestHost.EnsureAppResources();
 
             using var owner = new TestWindow();
-            owner.Show();
+            WpfTestHost.ShowOffscreen(owner);
 
             var dialog = new PromptDialog("Change category", "Dev", owner, ["Dev", "Ops"]);
-            dialog.Show();
-            WpfTestHost.DoEvents();
+            WpfTestHost.ShowOffscreen(dialog);
 
             var inputTextBox = Assert.IsType<TextBox>(dialog.FindName("InputTextBox"));
             var inputSuggestion = Assert.IsType<SuggestionInputControl>(dialog.FindName("InputSuggestion"));
@@ -43,11 +42,10 @@ public sealed class PromptDialogUiTests
             WpfTestHost.EnsureAppResources();
 
             using var owner = new TestWindow();
-            owner.Show();
+            WpfTestHost.ShowOffscreen(owner);
 
             var dialog = new PromptDialog("Change arguments", "-flag", owner);
-            dialog.Show();
-            WpfTestHost.DoEvents();
+            WpfTestHost.ShowOffscreen(dialog);
 
             var inputTextBox = Assert.IsType<TextBox>(dialog.FindName("InputTextBox"));
             var inputSuggestion = Assert.IsType<SuggestionInputControl>(dialog.FindName("InputSuggestion"));

@@ -1,8 +1,12 @@
 using System.Runtime.ExceptionServices;
+using System.Runtime.Versioning;
+using System.Windows;
 using System.Windows.Threading;
+using WpfApplication = System.Windows.Application;
 
 namespace applanch.Tests.TestSupport;
 
+[SupportedOSPlatform("windows")]
 internal static class WpfTestHost
 {
     private static readonly object AppInitLock = new();
@@ -71,21 +75,35 @@ internal static class WpfTestHost
     {
         lock (AppInitLock)
         {
-            if (System.Windows.Application.Current is null)
+            if (WpfApplication.Current is null)
             {
-                _ = new System.Windows.Application
+                _ = new WpfApplication
                 {
-                    ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown,
+                    ShutdownMode = ShutdownMode.OnExplicitShutdown,
                 };
             }
 
-            if (System.Windows.Application.Current?.Resources["RoundedTextBoxStyle"] is null)
+            if (WpfApplication.Current?.Resources["RoundedTextBoxStyle"] is null)
             {
-                var dictionary = (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(
+                var dictionary = (ResourceDictionary)WpfApplication.LoadComponent(
                     new Uri("/applanch;component/AppResources.xaml", UriKind.Relative));
-                System.Windows.Application.Current!.Resources.MergedDictionaries.Add(dictionary);
+                WpfApplication.Current!.Resources.MergedDictionaries.Add(dictionary);
             }
         }
+    }
+
+    internal static void ShowOffscreen(Window window)
+    {
+        ArgumentNullException.ThrowIfNull(window);
+
+        window.WindowStartupLocation = WindowStartupLocation.Manual;
+        window.Left = -10000;
+        window.Top = -10000;
+        window.ShowInTaskbar = false;
+        window.ShowActivated = false;
+        window.Opacity = 0;
+        window.Show();
+        DoEvents();
     }
 
     internal static void DoEvents()

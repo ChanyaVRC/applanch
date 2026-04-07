@@ -44,8 +44,7 @@ public sealed class MainWindowStartupTests
                 var loaded = false;
                 window.Loaded += (_, _) => loaded = true;
 
-                window.Show();
-                WpfTestHost.DoEvents();
+                WpfTestHost.ShowOffscreen(window);
 
                 Assert.True(loaded);
                 Assert.True(window.IsVisible);

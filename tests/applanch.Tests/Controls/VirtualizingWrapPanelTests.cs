@@ -20,7 +20,7 @@ public sealed class VirtualizingWrapPanelTests
             // 40 items, viewport fits 2 per row, ~2 visible rows → expect well under 40 realized
             var listBox = CreateVirtualizingListBox(itemCount: 40, itemWidth: 80, itemHeight: 80);
             var window = new Window { Content = listBox, Width = 200, Height = 180, WindowStyle = WindowStyle.None };
-            window.Show();
+            WpfTestHost.ShowOffscreen(window);
             window.UpdateLayout();
 
             try
@@ -46,7 +46,7 @@ public sealed class VirtualizingWrapPanelTests
             const int itemCount = 20;
             var listBox = CreateVirtualizingListBox(itemCount: itemCount, itemWidth: 90, itemHeight: 90);
             var window = new Window { Content = listBox, Width = 100, Height = 190, WindowStyle = WindowStyle.None };
-            window.Show();
+            WpfTestHost.ShowOffscreen(window);
             window.UpdateLayout();
 
             try
@@ -93,7 +93,7 @@ public sealed class VirtualizingWrapPanelTests
             listBox.ItemsPanel = panelTemplate;
 
             var window = new Window { Content = listBox, Width = 320, Height = 220, WindowStyle = WindowStyle.None };
-            window.Show();
+            WpfTestHost.ShowOffscreen(window);
             window.UpdateLayout();
 
             try
@@ -124,7 +124,7 @@ public sealed class VirtualizingWrapPanelTests
 
             var listBox = CreateVirtualizingListBox(itemCount: 80, itemWidth: 80, itemHeight: 80);
             var window = new Window { Content = listBox, Width = 260, Height = 220, WindowStyle = WindowStyle.None };
-            window.Show();
+            WpfTestHost.ShowOffscreen(window);
             window.UpdateLayout();
 
             try

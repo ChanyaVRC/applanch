@@ -41,9 +41,8 @@ public sealed class MainWindowIconModeRenderTests
                 static _ => new FakeUpdateService(),
                 settings);
 
-            window.Show();
+            WpfTestHost.ShowOffscreen(window);
             window.UpdateLayout();
-            WpfTestHost.DoEvents();
             window.UpdateLayout();
 
             try
