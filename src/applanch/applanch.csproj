@@ -27,22 +27,7 @@
     <ProjectReference Include="..\applanch.ShellExtension\applanch.ShellExtension.csproj"
                       ReferenceOutputAssembly="false" />
     <AdditionalFiles Include="Properties\Resources.resx" />
-    <Content Include="Config\launch-fallbacks.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\theme-palette.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\icon-path-mappings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\UserDefined\launch-fallbacks\*.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\UserDefined\icon-path-mappings\*.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\UserDefined\theme-palette\*.json">
+    <Content Include="Config\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="unregister-context-menu.cmd">
