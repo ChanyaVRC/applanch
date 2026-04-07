@@ -4,6 +4,18 @@ Notable user-facing changes per version. For full commit history and downloadabl
 
 ---
 
+## v0.5.5 — April 8, 2026
+
+### Fixed
+
+- **Config packaging** — All files under `Config/` are now included in build outputs and release artifacts. This fixes missing bundled samples such as the user-defined theme palette sample JSON.
+
+### Improved
+
+- **User documentation** — Expanded Items and Settings docs (English/Japanese) with explicit guidance for the collapsible category sidebar and pin/unpin behavior.
+
+---
+
 ## v0.5.4 — April 8, 2026
 
 ### New
