@@ -12,7 +12,6 @@ internal static class ThemePaletteConfigurationLoader
     internal const string LightThemeId = "light";
     internal const string DarkThemeId = "dark";
 
-    private const string UserDefinedDirectoryName = "UserDefined";
     private const string UserDefinedThemePaletteDirectoryName = "theme-palette";
     private static readonly ThemePaletteConfiguration FallbackConfiguration = new(
         [
@@ -84,11 +83,7 @@ internal static class ThemePaletteConfigurationLoader
     {
         ArgumentNullException.ThrowIfNull(appBaseDirectory);
 
-        var userDefinedDirectory = Path.Combine(
-            appBaseDirectory,
-            "Config",
-            UserDefinedDirectoryName,
-            UserDefinedThemePaletteDirectoryName);
+        var userDefinedDirectory = ConfigJsonPathResolver.GetUserDefinedDirectory(appBaseDirectory, UserDefinedThemePaletteDirectoryName);
 
         if (!Directory.Exists(userDefinedDirectory))
         {
@@ -98,9 +93,7 @@ internal static class ThemePaletteConfigurationLoader
 
         ThemePaletteConfiguration? merged = null;
 
-        foreach (var path in Directory
-                     .EnumerateFiles(userDefinedDirectory, "*.json", SearchOption.TopDirectoryOnly)
-                     .OrderBy(static x => x, StringComparer.OrdinalIgnoreCase))
+        foreach (var path in ConfigJsonPathResolver.EnumerateUserDefinedJsonPaths(appBaseDirectory, UserDefinedThemePaletteDirectoryName))
         {
             if (!TryParseFile(path, out var parsed))
             {
@@ -167,7 +160,7 @@ internal static class ThemePaletteConfigurationLoader
     {
         ArgumentNullException.ThrowIfNull(appBaseDirectory);
 
-        var path = Path.Combine(appBaseDirectory, "Config", "theme-palette.json");
+        var path = ConfigJsonPathResolver.GetBundledPath(appBaseDirectory, "theme-palette.json");
         if (!File.Exists(path))
         {
             AppLogger.Instance.Info($"Theme palette config not found: {path}");
