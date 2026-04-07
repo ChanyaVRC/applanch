@@ -11,6 +11,7 @@ using Xunit;
 
 namespace applanch.Tests.Application;
 
+[Collection("WpfTests")]
 public sealed class MainWindowStartupTests
 {
     [Fact]

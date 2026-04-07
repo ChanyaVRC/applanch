@@ -7,6 +7,7 @@ using Xunit;
 
 namespace applanch.Tests.Infrastructure.Utilities;
 
+[Collection("WpfTests")]
 public class LaunchListDragDropResolverTests
 {
     [Fact]

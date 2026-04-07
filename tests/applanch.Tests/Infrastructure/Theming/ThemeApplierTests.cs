@@ -7,6 +7,7 @@ using Xunit;
 
 namespace applanch.Tests.Infrastructure.Theming;
 
+[Collection("WpfTests")]
 public class ThemeApplierTests
 {
     [Fact]
