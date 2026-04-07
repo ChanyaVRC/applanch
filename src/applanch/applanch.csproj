@@ -42,6 +42,9 @@
     <Content Include="Config\UserDefined\icon-path-mappings\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Config\UserDefined\theme-palette\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="unregister-context-menu.cmd">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
