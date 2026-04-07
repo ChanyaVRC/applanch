@@ -73,6 +73,7 @@ public sealed partial class MainWindow : Window
         Func<AppSettings, IAppUpdateService> updateServiceFactory,
         AppSettings settings)
     {
+        _settings = settings;
         InitializeComponent();
         ViewModel = viewModel;
         _itemLaunchService = itemLaunchService;
@@ -84,7 +85,6 @@ public sealed partial class MainWindow : Window
         _dragDropResolver = new LaunchListDragDropResolver();
         _updateServiceFactory = updateServiceFactory;
         _updateWorkflow = new UpdateWorkflow(_updateServiceFactory(settings));
-        _settings = settings;
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         _appEvent = (Application.Current as App)?.Events;
@@ -92,7 +92,7 @@ public sealed partial class MainWindow : Window
         _appEvent?.Register(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
         _appEvent?.Register(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
         ViewModel.ApplySettings(_settings);
-        ApplyCategorySidebarVisualState(animate: false);
+        ApplyCategorySidebarPinnedSetting(_settings.CategorySidebarPinned, animate: false);
     }
 
     protected override void OnClosed(EventArgs e)
@@ -164,6 +164,7 @@ public sealed partial class MainWindow : Window
         }
 
         ViewModel.ApplySettings(settings);
+        ApplyCategorySidebarPinnedSetting(settings.CategorySidebarPinned, animate: false);
     }
 
     private void OnAppRefreshRequested(AppSettings settings)
@@ -259,14 +260,37 @@ public sealed partial class MainWindow : Window
         ApplyCategorySidebarVisualStateIfChanged(_categorySidebarController.TryCollapse());
     }
 
-    private void CategorySidebarPinToggleButton_Checked(object sender, RoutedEventArgs e)
+    private void CategorySidebarPinToggleButton_Click(object sender, RoutedEventArgs e)
     {
-        ApplyCategorySidebarVisualStateIfChanged(_categorySidebarController.SetPinned(true));
+        UpdateCategorySidebarPinned(CategorySidebarPinToggleButton.IsChecked == true);
     }
 
-    private void CategorySidebarPinToggleButton_Unchecked(object sender, RoutedEventArgs e)
+    private void ApplyCategorySidebarPinnedSetting(bool isPinned, bool animate)
     {
-        ApplyCategorySidebarVisualStateIfChanged(_categorySidebarController.SetPinned(false));
+        CategorySidebarPinToggleButton.IsChecked = isPinned;
+        _categorySidebarController.SetPinned(isPinned);
+        ApplyCategorySidebarVisualState(animate);
+    }
+
+    private void UpdateCategorySidebarPinned(bool isPinned)
+    {
+        ApplyCategorySidebarVisualStateIfChanged(_categorySidebarController.SetPinned(isPinned));
+
+        if (_settings.CategorySidebarPinned == isPinned)
+        {
+            return;
+        }
+
+        var updatedSettings = SetCategorySidebarPinned(_settings, isPinned);
+
+        if (_appEvent is not null)
+        {
+            _appEvent.Invoke(AppEvents.Commit, updatedSettings);
+            return;
+        }
+
+        updatedSettings.Save();
+        ApplySettingsFromAppRefresh(updatedSettings);
     }
 
     private void ApplyCategorySidebarVisualStateIfChanged(bool hasStateChanged)
@@ -428,6 +452,14 @@ public sealed partial class MainWindow : Window
         return settings with
         {
             LaunchItemIconOnlyMode = !settings.LaunchItemIconOnlyMode,
+        };
+    }
+
+    internal static AppSettings SetCategorySidebarPinned(AppSettings settings, bool isPinned)
+    {
+        return settings with
+        {
+            CategorySidebarPinned = isPinned,
         };
     }
 

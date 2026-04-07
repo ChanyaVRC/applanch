@@ -1,6 +1,5 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Launch;
@@ -26,6 +25,7 @@ public sealed class MainWindowCategorySidebarTests
 
             var settings = new AppSettings
             {
+                CategorySidebarPinned = false,
                 CheckForUpdatesOnStartup = false,
             };
 
@@ -49,13 +49,7 @@ public sealed class MainWindowCategorySidebarTests
                 var sidebar = Assert.IsType<Border>(window.FindName("CategorySidebarContainer"));
                 var hoverZone = Assert.IsType<Border>(window.FindName("CategorySidebarHoverZone"));
                 var mainContent = Assert.IsType<Grid>(window.FindName("MainContentContainer"));
-                var pinToggle = Assert.IsType<ToggleButton>(window.FindName("CategorySidebarPinToggleButton"));
 
-                Assert.True(window.IsCategorySidebarExpanded);
-                Assert.True(sidebar.ActualWidth > 120);
-                Assert.True(mainContent.Margin.Left > 120);
-
-                pinToggle.IsChecked = false;
                 WaitUntil(
                     () => !window.IsCategorySidebarExpanded &&
                           sidebar.Visibility == Visibility.Collapsed &&

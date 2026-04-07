@@ -784,8 +784,7 @@
                                           Foreground="{DynamicResource Brush.TextPrimary}"
                                           FontSize="12"
                                           IsChecked="True"
-                                          Checked="CategorySidebarPinToggleButton_Checked"
-                                          Unchecked="CategorySidebarPinToggleButton_Unchecked">
+                                          Click="CategorySidebarPinToggleButton_Click">
                                 <ToggleButton.Style>
                                     <Style TargetType="ToggleButton">
                                         <Setter Property="ToolTip"
