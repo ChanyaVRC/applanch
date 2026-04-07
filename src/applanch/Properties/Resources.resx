@@ -257,6 +257,12 @@
   <data name="ToolTip_ToggleLaunchItemIconOnlyMode" xml:space="preserve">
     <value>Toggle icon-only item display.</value>
   </data>
+  <data name="ToolTip_PinCategorySidebar" xml:space="preserve">
+    <value>Keep the category sidebar open.</value>
+  </data>
+  <data name="ToolTip_UnpinCategorySidebar" xml:space="preserve">
+    <value>Allow the category sidebar to collapse automatically.</value>
+  </data>
   <data name="SortMode_Alphabetical" xml:space="preserve">
     <value>Alphabetical</value>
   </data>

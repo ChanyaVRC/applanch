@@ -20,6 +20,88 @@
         Drop="Window_Drop"
         Background="{DynamicResource Brush.AppBackground}">
     <Window.Resources>
+        <Style x:Key="CategorySidebarHoverZoneStyle"
+               TargetType="Border">
+            <Setter Property="Visibility"
+                Value="Visible"/>
+            <Style.Triggers>
+            <DataTrigger Binding="{Binding IsChecked, ElementName=CategorySidebarPinToggleButton}"
+                     Value="True">
+                <Setter Property="Visibility"
+                    Value="Collapsed"/>
+            </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="CategorySidebarContainerStyle"
+               TargetType="Border">
+            <Setter Property="Padding"
+                Value="0"/>
+            <Style.Triggers>
+            <DataTrigger Binding="{Binding IsCategorySidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}}"
+                     Value="True">
+                <Setter Property="Padding"
+                    Value="12"/>
+            </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="CategorySidebarExpandedContentStyle"
+               TargetType="Grid">
+            <Setter Property="Visibility"
+                Value="Collapsed"/>
+            <Setter Property="IsHitTestVisible"
+                Value="False"/>
+            <Style.Triggers>
+            <DataTrigger Binding="{Binding IsCategorySidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}}"
+                     Value="True">
+                <Setter Property="Visibility"
+                    Value="Visible"/>
+                <Setter Property="IsHitTestVisible"
+                    Value="True"/>
+            </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="MainContentContainerStyle"
+               TargetType="Grid">
+            <Setter Property="Margin"
+                    Value="188,0,0,0"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsChecked, ElementName=CategorySidebarPinToggleButton}"
+                             Value="False">
+                    <Setter Property="Margin"
+                            Value="0"/>
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ThicknessAnimation Storyboard.TargetProperty="Margin"
+                                                    To="0"
+                                                    Duration="0:0:0.22">
+                                    <ThicknessAnimation.EasingFunction>
+                                        <CubicEase EasingMode="EaseInOut"/>
+                                    </ThicknessAnimation.EasingFunction>
+                                </ThicknessAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ThicknessAnimation Storyboard.TargetProperty="Margin"
+                                                    To="188,0,0,0"
+                                                    Duration="0:0:0.22">
+                                    <ThicknessAnimation.EasingFunction>
+                                        <CubicEase EasingMode="EaseInOut"/>
+                                    </ThicknessAnimation.EasingFunction>
+                                </ThicknessAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <Style TargetType="ContextMenu">
             <Setter Property="Background"
                     Value="{DynamicResource Brush.Surface}"/>
@@ -645,91 +727,196 @@
                                       DismissRequested="DismissUpdateButton_Click"/>
 
         <Grid Grid.Row="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="172"/>
-                <ColumnDefinition Width="16"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+            <Border x:Name="CategorySidebarHoverZone"
+                    Style="{StaticResource CategorySidebarHoverZoneStyle}"
+                Width="12"
+                    Margin="-12,0,0,0"
+                    HorizontalAlignment="Left"
+                    Background="Transparent"
+                    Panel.ZIndex="5"
+                    MouseEnter="CategorySidebarHoverZone_MouseEnter"
+                    MouseLeave="CategorySidebarHoverZone_MouseLeave"/>
 
-            <Border Grid.Column="0"
+            <Border x:Name="CategorySidebarContainer"
+                    Style="{StaticResource CategorySidebarContainerStyle}"
+                Width="172"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Stretch"
                     Background="{DynamicResource Brush.Surface}"
                     BorderBrush="{DynamicResource Brush.ItemBorder}"
                     BorderThickness="1"
                     CornerRadius="8"
-                    Padding="12">
+                    ClipToBounds="True"
+                    Panel.ZIndex="10"
+                    MouseEnter="CategorySidebarContainer_MouseEnter"
+                    MouseLeave="CategorySidebarContainer_MouseLeave">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="10"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                    <Grid x:Name="CategorySidebarExpandedContent"
+                          Style="{StaticResource CategorySidebarExpandedContentStyle}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-                    <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[SectionLabel_Category]}"
-                               FontSize="13"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource Brush.TextPrimary}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                    <ListBox Grid.Row="2"
-                             ItemsSource="{Binding FilterCategoryNames}"
-                             SelectedItem="{Binding SelectedCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             BorderThickness="0"
-                             Background="Transparent">
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="ListBoxItem">
-                                <Setter Property="Padding"
-                                        Value="0"/>
-                                <Setter Property="Margin"
-                                        Value="0,0,0,4"/>
-                                <Setter Property="HorizontalContentAlignment"
-                                        Value="Stretch"/>
-                                <Setter Property="Foreground"
-                                        Value="{DynamicResource Brush.TextSecondary}"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="ListBoxItem">
-                                            <Border x:Name="ItemBorder"
-                                                    Padding="10,6"
-                                                    CornerRadius="6"
-                                                    Background="Transparent"
-                                                    BorderThickness="1"
-                                                    BorderBrush="Transparent">
-                                                <ContentPresenter HorizontalAlignment="Stretch"
-                                                                  VerticalAlignment="Center"/>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver"
-                                                         Value="True">
-                                                    <Setter Property="Foreground"
-                                                            Value="{DynamicResource Brush.TextPrimary}"/>
-                                                </Trigger>
-                                                <Trigger Property="IsSelected"
-                                                         Value="True">
-                                                    <Setter TargetName="ItemBorder"
-                                                            Property="Background"
-                                                            Value="{DynamicResource Brush.ItemBackground}"/>
-                                                    <Setter TargetName="ItemBorder"
-                                                            Property="BorderBrush"
-                                                            Value="{DynamicResource Brush.SurfaceBorder}"/>
-                                                    <Setter Property="Foreground"
-                                                            Value="{DynamicResource Brush.TextPrimary}"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}"
-                                           FontSize="13"/>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                            <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[SectionLabel_Category]}"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource Brush.TextPrimary}"
+                                       VerticalAlignment="Center"/>
+
+                            <ToggleButton x:Name="CategorySidebarPinToggleButton"
+                                          Grid.Column="1"
+                                          Width="24"
+                                          Height="24"
+                                          Margin="8,0,0,0"
+                                          Padding="0"
+                                          Background="Transparent"
+                                          BorderBrush="Transparent"
+                                          BorderThickness="0"
+                                          Cursor="Hand"
+                                          Foreground="{DynamicResource Brush.TextPrimary}"
+                                          FontSize="12"
+                                          IsChecked="True"
+                                          Checked="CategorySidebarPinToggleButton_Checked"
+                                          Unchecked="CategorySidebarPinToggleButton_Unchecked">
+                                <ToggleButton.Style>
+                                    <Style TargetType="ToggleButton">
+                                        <Setter Property="ToolTip"
+                                                Value="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_UnpinCategorySidebar]}"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ToggleButton">
+                                                    <Border x:Name="ToggleBorder"
+                                                            Background="Transparent"
+                                                            CornerRadius="6">
+                                                        <ContentPresenter HorizontalAlignment="Center"
+                                                                          VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver"
+                                                                 Value="True">
+                                                            <Setter TargetName="ToggleBorder"
+                                                                    Property="Background"
+                                                                    Value="{DynamicResource Brush.ItemBackground}"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsChecked"
+                                                                 Value="False">
+                                                            <Setter Property="Opacity"
+                                                                    Value="0.55"/>
+                                                            <Setter Property="ToolTip"
+                                                                    Value="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_PinCategorySidebar]}"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ToggleButton.Style>
+                                <Grid Width="14"
+                                      Height="14">
+                                    <TextBlock Text="📌"
+                                               FontSize="12"
+                                               FontWeight="Normal"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                    <Border Width="14"
+                                            Height="1.4"
+                                            Background="{DynamicResource Brush.TextPrimary}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Opacity="0.9"
+                                            RenderTransformOrigin="0.5,0.5">
+                                        <Border.RenderTransform>
+                                            <RotateTransform Angle="-35"/>
+                                        </Border.RenderTransform>
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility"
+                                                        Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                                                                 Value="False">
+                                                        <Setter Property="Visibility"
+                                                                Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                    </Border>
+                                </Grid>
+                            </ToggleButton>
+                        </Grid>
+
+                        <ListBox Grid.Row="2"
+                                 ItemsSource="{Binding FilterCategoryNames}"
+                                 SelectedItem="{Binding SelectedCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 BorderThickness="0"
+                                 Background="Transparent">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding"
+                                            Value="0"/>
+                                    <Setter Property="Margin"
+                                            Value="0,0,0,4"/>
+                                    <Setter Property="HorizontalContentAlignment"
+                                            Value="Stretch"/>
+                                    <Setter Property="Foreground"
+                                            Value="{DynamicResource Brush.TextSecondary}"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="ItemBorder"
+                                                        Padding="10,6"
+                                                        CornerRadius="6"
+                                                        Background="Transparent"
+                                                        BorderThickness="1"
+                                                        BorderBrush="Transparent">
+                                                    <ContentPresenter HorizontalAlignment="Stretch"
+                                                                      VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver"
+                                                             Value="True">
+                                                        <Setter Property="Foreground"
+                                                                Value="{DynamicResource Brush.TextPrimary}"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected"
+                                                             Value="True">
+                                                        <Setter TargetName="ItemBorder"
+                                                                Property="Background"
+                                                                Value="{DynamicResource Brush.ItemBackground}"/>
+                                                        <Setter TargetName="ItemBorder"
+                                                                Property="BorderBrush"
+                                                                Value="{DynamicResource Brush.SurfaceBorder}"/>
+                                                        <Setter Property="Foreground"
+                                                                Value="{DynamicResource Brush.TextPrimary}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}"
+                                               FontSize="13"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
                 </Grid>
             </Border>
 
-            <Grid Grid.Column="2">
+            <Grid x:Name="MainContentContainer"
+                Style="{StaticResource MainContentContainerStyle}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="8"/>
