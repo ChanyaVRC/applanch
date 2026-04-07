@@ -42,11 +42,20 @@ Arguments are appended after the path when the item is launched, exactly as ente
 
 ## Categories
 
-Categories appear in the left panel of the main window.
+Categories appear in the collapsible sidebar on the left side of the main window.
 Click a category to filter the item list.
 Click **All** to show all items regardless of category.
 
 The default category for new items is **General**.
+
+### Pinning the sidebar
+
+The sidebar can be pinned open or set to auto-collapse:
+
+- **Pinned (default)** — The sidebar stays visible at all times. Click the pin button in the sidebar header to unpin it.
+- **Unpinned** — The sidebar collapses out of view. Hover over the left edge of the window to expand it temporarily. Click the pin button to pin it open again.
+
+The pinned state is saved and restored when you reopen the app.
 
 ## Reordering Items
 

@@ -117,6 +117,14 @@ When enabled, applanch hides item names and paths in the main list and shows ico
 
 You can also toggle this quickly from the main window header using the **Icons** switch.
 
+### Pin Category Sidebar
+
+When enabled (default), the category sidebar is always visible on the left side of the main window.
+When disabled, the sidebar collapses and expands temporarily when you hover over the left edge of the window.
+
+You can also toggle the pin directly using the pin button in the sidebar header.
+The setting is saved and restored across app restarts.
+
 ### Quick Add Suggestion Limit
 
 Controls how many suggestions are shown while typing in the quick-add box.
