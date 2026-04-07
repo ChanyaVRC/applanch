@@ -1,0 +1,11 @@
+{
+  "rules": [
+    {
+      "name": "Discord updater app.ico",
+      "enabled": true,
+      "matchFileNames": ["Update.exe"],
+      "parentDirectoryName": "Discord",
+      "iconPathTemplate": "app.ico"
+    }
+  ]
+}

@@ -158,7 +158,7 @@
             <Setter Property="Foreground"
                 Value="{DynamicResource Brush.TextPrimary}"/>
             <Setter Property="FontSize"
-                Value="13"/>
+                Value="12"/>
             <Setter Property="Cursor"
                     Value="Hand"/>
             <Setter Property="VerticalContentAlignment"
@@ -174,15 +174,15 @@
                             </Grid.ColumnDefinitions>
                             <Border x:Name="Track"
                                     Grid.Column="2"
-                                    Width="42"
-                                    Height="24"
+                                    Width="38"
+                                    Height="22"
                                     Background="{DynamicResource Brush.Surface}"
                                     BorderBrush="{DynamicResource Brush.ItemBorder}"
                                     BorderThickness="1"
-                                    CornerRadius="12">
+                                    CornerRadius="11">
                                 <Ellipse x:Name="Thumb"
-                                         Width="18"
-                                         Height="18"
+                                         Width="16"
+                                         Height="16"
                                          Margin="2"
                                          HorizontalAlignment="Left"
                                          Fill="{DynamicResource Brush.TextTertiary}"/>

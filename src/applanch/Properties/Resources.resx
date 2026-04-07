@@ -252,7 +252,7 @@
     <value>Hide item name and path in the list, and display icon tiles only.</value>
   </data>
   <data name="Button_IconMode" xml:space="preserve">
-    <value>Icons</value>
+    <value>Icon view</value>
   </data>
   <data name="ToolTip_ToggleLaunchItemIconOnlyMode" xml:space="preserve">
     <value>Toggle icon-only item display.</value>

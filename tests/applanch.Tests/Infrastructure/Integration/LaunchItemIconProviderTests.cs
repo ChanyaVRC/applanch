@@ -27,6 +27,44 @@ public class LaunchItemIconProviderTests
     }
 
     [Fact]
+    public void GetInitialIcon_NonHttpPath_UsesIconPathResolver()
+    {
+        var calledWith = string.Empty;
+        var expectedPath = @"C:\resolved\Discord.exe";
+        var provider = new LaunchItemIconProvider(
+            httpClient: null,
+            faviconCache: new ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>(StringComparer.OrdinalIgnoreCase),
+            networkPolicy: new NetworkPolicyResolver(),
+            diskCache: new FaviconCacheResolver(),
+            iconPathResolver: path =>
+            {
+                calledWith = path;
+                return expectedPath;
+            });
+
+        var input = @"C:\Program Files\Discord\Update.exe";
+        _ = provider.GetInitialIcon(new LaunchPath(input));
+
+        Assert.Equal(input, calledWith, ignoreCase: true);
+    }
+
+    [Fact]
+    public void GetInitialIcon_InvalidIconMapping_DoesNotThrow()
+    {
+        var provider = new LaunchItemIconProvider(
+            httpClient: null,
+            faviconCache: new ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>(StringComparer.OrdinalIgnoreCase),
+            networkPolicy: new NetworkPolicyResolver(),
+            diskCache: new FaviconCacheResolver(),
+            iconPathResolver: _ => throw new JsonPathResolutionException("invalid path"));
+
+        var input = @"C:\Program Files\Discord\Update.exe";
+        var exception = Record.Exception(() => provider.GetInitialIcon(new LaunchPath(input)));
+
+        Assert.Null(exception);
+    }
+
+    [Fact]
     public void GetInitialIcon_FreshDiskCache_ReturnsCachedBitmap()
     {
         WpfTestHost.RunInStaAndDrain(() =>

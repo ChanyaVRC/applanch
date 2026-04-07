@@ -28,17 +28,20 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
     private readonly ConcurrentDictionary<string, Lazy<Task<ImageSource?>>> _faviconCache;
     private readonly INetworkPolicyResolver _networkPolicy;
     private readonly IFaviconCacheResolver _diskCache;
+    private readonly Func<string, string> _iconPathResolver;
 
     internal LaunchItemIconProvider(
         HttpClient? httpClient = null,
         ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>? faviconCache = null,
         INetworkPolicyResolver? networkPolicy = null,
-        IFaviconCacheResolver? diskCache = null)
+        IFaviconCacheResolver? diskCache = null,
+        Func<string, string>? iconPathResolver = null)
     {
         _httpClient = httpClient ?? SharedHttpClient;
         _faviconCache = faviconCache ?? new ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>(StringComparer.OrdinalIgnoreCase);
         _networkPolicy = networkPolicy ?? new NetworkPolicyResolver();
         _diskCache = diskCache ?? new FaviconCacheResolver();
+        _iconPathResolver = iconPathResolver ?? LaunchItemIconPathResolver.ResolveForRuntime;
     }
 
     public void ApplySettings(AppSettings settings)
@@ -50,7 +53,15 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
     {
         if (!path.IsHttpUrl || path.ParsedUri is not { } pageUri)
         {
-            return GetShellIcon(path.Value);
+            try
+            {
+                return GetShellIcon(_iconPathResolver(path.Value));
+            }
+            catch (JsonPathResolutionException ex)
+            {
+                AppLogger.Instance.Error(ex, $"Invalid icon path mapping for '{path.Value}'");
+                return GetShellIcon(path.Value);
+            }
         }
 
         if (!_networkPolicy.ShouldRequestFavicon(pageUri))
