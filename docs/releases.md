@@ -4,6 +4,18 @@ Notable user-facing changes per version. For full commit history and downloadabl
 
 ---
 
+## v0.5.3 — April 7, 2026
+
+### Fixed
+
+- **Icon-only list header layout** — Fixed alignment issues around the icon-mode toggle and section header in item display settings.
+
+### Improved
+
+- **User documentation** — Added explicit guidance for the icon-only item list setting in both the Settings and Items pages.
+
+---
+
 ## v0.5.1 — April 6, 2026
 
 ### Fixed
