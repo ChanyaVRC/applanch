@@ -92,67 +92,67 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     public PostLaunchBehavior SelectedPostLaunchBehavior
     {
         get => _draft.PostLaunchBehavior;
-        set => SetDraftValue(value, static settings => settings.PostLaunchBehavior, static (settings, v) => settings with { PostLaunchBehavior = v });
+        set => UpdateDraft(_draft with { PostLaunchBehavior = value });
     }
 
     public bool CheckForUpdatesOnStartup
     {
         get => _draft.CheckForUpdatesOnStartup;
-        set => SetDraftValue(value, static settings => settings.CheckForUpdatesOnStartup, static (settings, v) => settings with { CheckForUpdatesOnStartup = v });
+        set => UpdateDraft(_draft with { CheckForUpdatesOnStartup = value });
     }
 
     public UpdateInstallBehavior SelectedUpdateInstallBehavior
     {
         get => _draft.UpdateInstallBehavior;
-        set => SetDraftValue(value, static settings => settings.UpdateInstallBehavior, static (settings, v) => settings with { UpdateInstallBehavior = v });
+        set => UpdateDraft(_draft with { UpdateInstallBehavior = value });
     }
 
     public bool DebugUpdate
     {
         get => _draft.DebugUpdate;
-        set => SetDraftValue(value, static settings => settings.DebugUpdate, static (settings, v) => settings with { DebugUpdate = v });
+        set => UpdateDraft(_draft with { DebugUpdate = value });
     }
 
     public bool StartMinimizedOnLaunch
     {
         get => _draft.StartMinimizedOnLaunch;
-        set => SetDraftValue(value, static settings => settings.StartMinimizedOnLaunch, static (settings, v) => settings with { StartMinimizedOnLaunch = v });
+        set => UpdateDraft(_draft with { StartMinimizedOnLaunch = value });
     }
 
     public bool LaunchAtWindowsStartup
     {
         get => _draft.LaunchAtWindowsStartup;
-        set => SetDraftValue(value, static settings => settings.LaunchAtWindowsStartup, static (settings, v) => settings with { LaunchAtWindowsStartup = v });
+        set => UpdateDraft(_draft with { LaunchAtWindowsStartup = value });
     }
 
     public bool RegisterContextMenuOnStartup
     {
         get => _draft.RegisterContextMenuOnStartup;
-        set => SetDraftValue(value, static settings => settings.RegisterContextMenuOnStartup, static (settings, v) => settings with { RegisterContextMenuOnStartup = v });
+        set => UpdateDraft(_draft with { RegisterContextMenuOnStartup = value });
     }
 
     public bool FetchHttpIcons
     {
         get => _draft.FetchHttpIcons;
-        set => SetDraftValue(value, static settings => settings.FetchHttpIcons, static (settings, v) => settings with { FetchHttpIcons = v });
+        set => UpdateDraft(_draft with { FetchHttpIcons = value });
     }
 
     public bool AllowPrivateNetworkHttpIconRequests
     {
         get => _draft.AllowPrivateNetworkHttpIconRequests;
-        set => SetDraftValue(value, static settings => settings.AllowPrivateNetworkHttpIconRequests, static (settings, v) => settings with { AllowPrivateNetworkHttpIconRequests = v });
+        set => UpdateDraft(_draft with { AllowPrivateNetworkHttpIconRequests = value });
     }
 
     public bool ConfirmBeforeLaunch
     {
         get => _draft.ConfirmBeforeLaunch;
-        set => SetDraftValue(value, static settings => settings.ConfirmBeforeLaunch, static (settings, v) => settings with { ConfirmBeforeLaunch = v });
+        set => UpdateDraft(_draft with { ConfirmBeforeLaunch = value });
     }
 
     public bool ConfirmBeforeDelete
     {
         get => _draft.ConfirmBeforeDelete;
-        set => SetDraftValue(value, static settings => settings.ConfirmBeforeDelete, static (settings, v) => settings with { ConfirmBeforeDelete = v });
+        set => UpdateDraft(_draft with { ConfirmBeforeDelete = value });
     }
 
     public int QuickAddSuggestionLimit
@@ -160,45 +160,43 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         get => _draft.QuickAddSuggestionLimit;
         set
         {
-            if (_draft.QuickAddSuggestionLimit == value || !QuickAddSuggestionLimitOptionsValues.Contains(value))
+            if (!QuickAddSuggestionLimitOptionsValues.Contains(value))
             {
                 return;
             }
 
-            _draft = _draft with { QuickAddSuggestionLimit = value };
-            OnPropertyChanged();
-            Commit();
+            UpdateDraft(_draft with { QuickAddSuggestionLimit = value });
         }
     }
 
     public CategorySortMode SelectedCategorySortMode
     {
         get => _draft.CategorySortMode;
-        set => SetDraftValue(value, static settings => settings.CategorySortMode, static (settings, v) => settings with { CategorySortMode = v });
+        set => UpdateDraft(_draft with { CategorySortMode = value });
     }
 
     public AppListSortMode SelectedAppListSortMode
     {
         get => _draft.AppListSortMode;
-        set => SetDraftValue(value, static settings => settings.AppListSortMode, static (settings, v) => settings with { AppListSortMode = v });
+        set => UpdateDraft(_draft with { AppListSortMode = value });
     }
 
     public bool LaunchItemIconOnlyMode
     {
         get => _draft.LaunchItemIconOnlyMode;
-        set => SetDraftValue(value, static settings => settings.LaunchItemIconOnlyMode, static (settings, v) => settings with { LaunchItemIconOnlyMode = v });
+        set => UpdateDraft(_draft with { LaunchItemIconOnlyMode = value });
     }
 
     public bool RunAsAdministrator
     {
         get => _draft.RunAsAdministrator;
-        set => SetDraftValue(value, static settings => settings.RunAsAdministrator, static (settings, v) => settings with { RunAsAdministrator = v });
+        set => UpdateDraft(_draft with { RunAsAdministrator = value });
     }
 
     public LanguageOption SelectedLanguage
     {
         get => _draft.Language;
-        set => SetDraftValue(value, static settings => settings.Language, static (settings, v) => settings with { Language = v });
+        set => UpdateDraft(_draft with { Language = value });
     }
 
     public bool SettingsChanged { get; private set; }
@@ -243,18 +241,16 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         return builder.ToString();
     }
 
-    private bool SetDraftValue<T>(
-        T value,
-        Func<AppSettings, T> getter,
-        Func<AppSettings, T, AppSettings> updater,
+    private bool UpdateDraft(
+        AppSettings nextDraft,
         [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
     {
-        if (EqualityComparer<T>.Default.Equals(getter(_draft), value))
+        if (_draft == nextDraft)
         {
             return false;
         }
 
-        _draft = updater(_draft, value);
+        _draft = nextDraft;
         OnPropertyChanged(propertyName);
 
         Commit();
