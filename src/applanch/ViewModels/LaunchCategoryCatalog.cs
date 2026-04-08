@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Resources;
 using applanch.Infrastructure.Storage;
 
@@ -11,40 +12,41 @@ internal static class LaunchCategoryCatalog
 
     internal static bool IsAllCategoriesLabel(string category)
     {
-        return KnownAllCategoriesLabels.Contains(category);
+        return Category.FromInput(category).IsAll || KnownAllCategoriesLabels.Contains(category);
     }
 
     internal static List<string> BuildCategoryNames(IEnumerable<LaunchItemViewModel> items, CategorySortMode sortMode)
     {
-        var categories = CollectDistinctNonEmptyCategories(items);
+        var categories = CollectCategories(items);
 
         if (sortMode != CategorySortMode.AsAdded)
         {
             categories.Sort(StringComparer.CurrentCulture);
         }
 
-        var defaultCategory = LauncherEntry.DefaultCategory;
-        if (categories.Remove(defaultCategory))
-        {
-            categories.Add(defaultCategory);
-        }
+        var defaultCategoryLabel = Category.Default.ToDisplayLabel();
+        Debug.Assert(!string.IsNullOrWhiteSpace(defaultCategoryLabel), "Default category should have a non-empty display label.");
+
+        categories.Remove(defaultCategoryLabel);
+        categories.Add(defaultCategoryLabel);
 
         return categories;
     }
 
-    private static List<string> CollectDistinctNonEmptyCategories(IEnumerable<LaunchItemViewModel> items)
+    private static List<string> CollectCategories(IEnumerable<LaunchItemViewModel> items)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
         var categories = new List<string>();
 
         foreach (var item in items)
         {
-            if (string.IsNullOrWhiteSpace(item.Category) || !seen.Add(item.Category))
+            var category = item.Category;
+            if (category.IsDefault || !seen.Add(category.Value))
             {
                 continue;
             }
 
-            categories.Add(item.Category);
+            categories.Add(category.Value);
         }
 
         return categories;

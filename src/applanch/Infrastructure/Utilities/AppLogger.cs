@@ -30,6 +30,13 @@ internal sealed class AppLogger : IDisposable
         _writer.WriteLine($"===== App started at {DateTime.Now:yyyy-MM-dd HH:mm:ss} =====");
     }
 
+    [Conditional("DEBUG")]
+    public void Debug(string message, [CallerMemberName] string? caller = null, [CallerFilePath] string? file = null)
+    {
+        var source = FormatSource(caller, file);
+        Write($"[{DateTime.Now:HH:mm:ss.fff}] [DEBUG] [{source}] {message}");
+    }
+
     public void Info(string message, [CallerMemberName] string? caller = null, [CallerFilePath] string? file = null)
     {
         var source = FormatSource(caller, file);

@@ -9,7 +9,7 @@ internal sealed record LauncherEntry(
     string Arguments,
     string DisplayName)
 {
-    public static string DefaultCategory => AppResources.DefaultCategory;
+    public static string DefaultCategory => string.Empty;
 
     internal LauncherEntry(string path, string category, string arguments, string displayName)
         : this(

@@ -217,9 +217,9 @@ public class MainWindowViewModelTests
 
         var vm = CreateViewModel(store: store);
 
-        vm.UpdateItemCategory(vm.LaunchItems[0], "Ops");
+        vm.UpdateItemCategory(vm.LaunchItems[0], Category.FromInput("Ops"));
 
-        Assert.Equal("Ops", vm.LaunchItems[0].Category);
+        Assert.Equal("Ops", vm.LaunchItems[0].Category.Value);
         Assert.Equal(1, store.SaveCallCount);
         Assert.Equal("Ops", store.LastSavedEntries[0].Category);
     }
@@ -300,13 +300,48 @@ public class MainWindowViewModelTests
         vm.CategoryNames.CollectionChanged += (_, _) => categoryChanges++;
         vm.FilterCategoryNames.CollectionChanged += (_, _) => filterCategoryChanges++;
 
-        vm.UpdateItemCategory(vm.LaunchItems[0], "QA");
+        vm.UpdateItemCategory(vm.LaunchItems[0], Category.FromInput("QA"));
 
         Assert.True(categoryChanges > 0);
         Assert.True(filterCategoryChanges > 0);
         Assert.Contains("QA", vm.CategoryNames);
         Assert.DoesNotContain("Dev", vm.CategoryNames);
         Assert.Equal(1, store.SaveCallCount);
+    }
+
+    [Fact]
+    public void TryMoveItemToCategory_UpdatesAndPersists()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherEntry(@"C:\Tools\A.exe", "Dev", string.Empty, "A")
+        ]);
+
+        var vm = CreateViewModel(store: store);
+
+        var moved = vm.TryMoveItemToCategory(vm.LaunchItems[0], Category.FromInput("Ops"));
+
+        Assert.True(moved);
+        Assert.Equal("Ops", vm.LaunchItems[0].Category.Value);
+        Assert.Equal(1, store.SaveCallCount);
+        Assert.Equal("Ops", store.LastSavedEntries[0].Category);
+    }
+
+    [Fact]
+    public void TryMoveItemToCategory_WhenTargetMatchesCurrent_DoesNotPersist()
+    {
+        var store = new FakeStore(
+        [
+            new LauncherEntry(@"C:\Tools\A.exe", "Dev", string.Empty, "A")
+        ]);
+
+        var vm = CreateViewModel(store: store);
+
+        var moved = vm.TryMoveItemToCategory(vm.LaunchItems[0], Category.FromInput("Dev"));
+
+        Assert.False(moved);
+        Assert.Equal("Dev", vm.LaunchItems[0].Category.Value);
+        Assert.Equal(0, store.SaveCallCount);
     }
 
     [Fact]
@@ -384,7 +419,7 @@ public class MainWindowViewModelTests
         var vm = CreateViewModel(store: store);
         vm.SelectedCategory = "Ops";
 
-        var opsItem = vm.LaunchItems.Single(item => item.Category == "Ops");
+        var opsItem = vm.LaunchItems.Single(item => item.Category == Category.FromInput("Ops"));
         vm.RemoveItem(opsItem);
 
         Assert.Equal(AppResources.AllCategories, vm.SelectedCategory);
@@ -435,7 +470,7 @@ public class MainWindowViewModelTests
 
         Assert.NotNull(vm.SelectedLaunchItem);
         Assert.Equal("A", vm.SelectedLaunchItem!.DisplayName);
-        Assert.Equal("Dev", vm.SelectedLaunchItem.Category);
+        Assert.Equal("Dev", vm.SelectedLaunchItem.Category.Value);
     }
 
     [Fact]
@@ -495,11 +530,11 @@ public class MainWindowViewModelTests
         // Phase 4: mutate display/category/arguments for the newly added item.
         var added = vm.LaunchItems.Single(x => x.FullPath.Value.EndsWith("D.exe", StringComparison.OrdinalIgnoreCase));
         vm.UpdateItemDisplayName(added, "D-App");
-        vm.UpdateItemCategory(added, "Dev");
+        vm.UpdateItemCategory(added, Category.FromInput("Dev"));
         vm.UpdateItemArguments(added, "--updated");
 
         Assert.Equal("D-App", added.DisplayName);
-        Assert.Equal("Dev", added.Category);
+        Assert.Equal("Dev", added.Category.Value);
         Assert.Equal("--updated", added.Arguments);
         Assert.Equal(4, store.SaveCallCount);
 
@@ -557,7 +592,7 @@ public class MainWindowViewModelTests
 
         // Phase 3: move remaining Dev item to Ops and verify category list/filter transitions.
         var alpha = vm.LaunchItems.Single(x => x.DisplayName == "Alpha");
-        vm.UpdateItemCategory(alpha, "Ops");
+        vm.UpdateItemCategory(alpha, Category.FromInput("Ops"));
         Assert.Equal(2, store.SaveCallCount);
 
         // Dev category should disappear, selected category should reset to all.
@@ -567,7 +602,7 @@ public class MainWindowViewModelTests
 
         // Phase 4: set Ops filter and remove all Ops entries, expecting empty filtered view.
         vm.SelectedCategory = "Ops";
-        foreach (var item in vm.LaunchItems.Where(x => x.Category == "Ops").ToList())
+        foreach (var item in vm.LaunchItems.Where(x => x.Category == Category.FromInput("Ops")).ToList())
         {
             vm.RemoveItem(item);
         }
@@ -617,7 +652,7 @@ public class MainWindowViewModelTests
             {
                 vm.ApplySettings(new AppSettings { Language = LanguageOption.English });
 
-                Assert.Equal(AppResources.DefaultCategory, vm.LaunchItems[0].Category);
+                Assert.Equal(LauncherEntry.DefaultCategory, vm.LaunchItems[0].Category.Value);
                 Assert.Equal(AppResources.DefaultCategory, vm.QuickAddCategory);
             }
         }
@@ -722,11 +757,11 @@ public class MainWindowViewModelTests
 
         var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.AsAdded });
 
-        Assert.Equal(["Ops", "Dev", "Neko"], vm.CategoryNames);
+        Assert.Equal(["Ops", "Dev", "Neko", AppResources.DefaultCategory], vm.CategoryNames);
     }
 
     [Fact]
-    public void CategorySortMode_AsAdded_DefaultCategoryPinnedLast()
+    public void CategorySortMode_AsAdded_DefaultCategoryLabelPinnedLast()
     {
         var defaultCategory = LauncherEntry.DefaultCategory;
         var store = new FakeStore(
@@ -738,11 +773,11 @@ public class MainWindowViewModelTests
 
         var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.AsAdded });
 
-        Assert.Equal(defaultCategory, vm.CategoryNames.Last());
+        Assert.Equal(AppResources.DefaultCategory, vm.CategoryNames.Last());
     }
 
     [Fact]
-    public void CategorySortMode_Alphabetical_DefaultCategoryPinnedLast()
+    public void CategorySortMode_Alphabetical_DefaultCategoryLabelPinnedLast()
     {
         var defaultCategory = LauncherEntry.DefaultCategory;
         var store = new FakeStore(
@@ -754,7 +789,7 @@ public class MainWindowViewModelTests
 
         var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.Alphabetical });
 
-        Assert.Equal(defaultCategory, vm.CategoryNames.Last());
+        Assert.Equal(AppResources.DefaultCategory, vm.CategoryNames.Last());
     }
 
     [Fact]
@@ -782,11 +817,11 @@ public class MainWindowViewModelTests
         ]);
 
         var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.AsAdded });
-        Assert.Equal(["Ops", "Dev"], vm.CategoryNames);
+        Assert.Equal(["Ops", "Dev", AppResources.DefaultCategory], vm.CategoryNames);
 
         vm.ApplySettings(new AppSettings { CategorySortMode = CategorySortMode.Alphabetical });
 
-        Assert.Equal(["Dev", "Ops"], vm.CategoryNames);
+        Assert.Equal(["Dev", "Ops", AppResources.DefaultCategory], vm.CategoryNames);
     }
 
     [Fact]

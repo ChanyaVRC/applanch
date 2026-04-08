@@ -30,7 +30,7 @@ public class LaunchItemViewModelTests
             arguments: "  -v  ",
             displayName: "  Custom Name  ");
 
-        Assert.Equal("Utilities", vm.Category);
+        Assert.Equal("Utilities", vm.Category.Value);
         Assert.Equal("-v", vm.Arguments);
         Assert.Equal("Custom Name", vm.DisplayName);
     }
@@ -43,9 +43,9 @@ public class LaunchItemViewModelTests
             arguments: string.Empty,
             displayName: "App");
 
-        vm.Category = "   ";
+        vm.Category = Category.FromInput("   ");
 
-        Assert.Equal(LauncherEntry.DefaultCategory, vm.Category);
+        Assert.Equal(LauncherEntry.DefaultCategory, vm.Category.Value);
     }
 
     [Fact]
@@ -78,8 +78,8 @@ public class LaunchItemViewModelTests
             }
         };
 
-        vm.Category = "  Dev  ";
-        vm.Category = "Ops";
+        vm.Category = Category.FromInput("  Dev  ");
+        vm.Category = Category.FromInput("Ops");
         vm.Arguments = " abc ";
         vm.Arguments = "--run";
 

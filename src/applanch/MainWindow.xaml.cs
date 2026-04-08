@@ -10,7 +10,6 @@ using applanch.Events;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Items;
 using applanch.Infrastructure.Launch;
-using applanch.Infrastructure.Presentation;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
 using applanch.Infrastructure.Updates;
@@ -29,7 +28,6 @@ public sealed partial class MainWindow : Window
     public static readonly Thickness CategorySidebarPinnedContentMargin = new(188, 0, 0, 0);
 
     private readonly DragReorderState _dragReorderState = new();
-    private readonly CategorySidebarStateController _categorySidebarController = new();
     private readonly IItemLaunchService _itemLaunchService;
     private readonly IUserInteractionService _interactionService;
     private readonly LaunchItemWorkflow _launchItemWorkflow;
@@ -38,6 +36,8 @@ public sealed partial class MainWindow : Window
     private readonly InlineRenameHandler _inlineRenameHandler;
     private readonly LaunchListDragDropResolver _dragDropResolver;
     private readonly UpdateWorkflow _updateWorkflow;
+    private ListBoxItem? _highlightedCategoryDropTarget;
+    private bool _isLaunchItemCategoryDragSessionActive;
     private AppSettings _settings;
     private SettingsWindow? _settingsWindow;
     private readonly AppEvent? _appEvent;
@@ -45,17 +45,36 @@ public sealed partial class MainWindow : Window
     private bool _isLaunchListRealizationScheduled;
     private MainWindowViewModel ViewModel { get; }
 
-    internal static readonly DependencyProperty IsCategorySidebarExpandedProperty =
-        DependencyProperty.Register(
-            nameof(IsCategorySidebarExpanded),
+    public static readonly DependencyProperty IsCategoryDropTargetProperty =
+        DependencyProperty.RegisterAttached(
+            "IsCategoryDropTarget",
             typeof(bool),
             typeof(MainWindow),
-            new PropertyMetadata(true));
+            new PropertyMetadata(false));
+
+    public static bool GetIsCategoryDropTarget(DependencyObject dependencyObject)
+    {
+        return (bool)dependencyObject.GetValue(IsCategoryDropTargetProperty);
+    }
+
+    public static void SetIsCategoryDropTarget(DependencyObject dependencyObject, bool value)
+    {
+        dependencyObject.SetValue(IsCategoryDropTargetProperty, value);
+    }
 
     internal bool IsCategorySidebarExpanded
     {
-        get => (bool)GetValue(IsCategorySidebarExpandedProperty);
-        private set => SetValue(IsCategorySidebarExpandedProperty, value);
+        get => CategorySidebar.IsSidebarExpanded;
+    }
+
+    internal bool IsCategoryCreateDropTargetVisible
+    {
+        get => CategorySidebar.IsCreateDropTargetVisible;
+    }
+
+    internal bool IsCategoryCreateDropTargetActive
+    {
+        get => CategorySidebar.IsCreateDropTargetActive;
     }
 
     public MainWindow()
@@ -87,6 +106,7 @@ public sealed partial class MainWindow : Window
         _dragDropResolver = new LaunchListDragDropResolver();
         _updateServiceFactory = updateServiceFactory;
         _updateWorkflow = new UpdateWorkflow(_updateServiceFactory(settings));
+        RegisterCategorySidebarPartNames();
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         _appEvent = (Application.Current as App)?.Events;
@@ -96,6 +116,15 @@ public sealed partial class MainWindow : Window
         BundledConfigLoadNotificationCenter.Reported += OnBundledConfigLoadIssueReported;
         ViewModel.ApplySettings(_settings);
         ApplyCategorySidebarPinnedSetting(_settings.CategorySidebarPinned, animate: false);
+    }
+
+    private void RegisterCategorySidebarPartNames()
+    {
+        // Keep MainWindow FindName lookups stable after extracting sidebar XAML into a UserControl.
+        RegisterName("CategorySidebarContainer", CategorySidebar.SidebarContainerElement);
+        RegisterName("CategorySidebarHoverZone", CategorySidebar.HoverZoneElement);
+        RegisterName("CategorySidebarCreateDropTarget", CategorySidebar.CreateDropTargetElement);
+        RegisterName("CategorySidebarPinToggleButton", CategorySidebar.PinToggleButtonElement);
     }
 
     protected override void OnClosed(EventArgs e)
@@ -252,108 +281,6 @@ public sealed partial class MainWindow : Window
         {
             scrollViewer.ScrollToTop();
         }
-    }
-
-    private void CategorySidebarContainer_MouseEnter(object sender, MouseEventArgs e)
-    {
-        ApplyCategorySidebarVisualStateIfChanged(_categorySidebarController.HandleSidebarEntered());
-    }
-
-    private void CategorySidebarContainer_MouseLeave(object sender, MouseEventArgs e)
-    {
-        _categorySidebarController.HandleSidebarExited();
-
-        ApplyCategorySidebarVisualStateIfChanged(_categorySidebarController.TryCollapse());
-    }
-
-    private void CategorySidebarHoverZone_MouseEnter(object sender, MouseEventArgs e)
-    {
-        ApplyCategorySidebarVisualStateIfChanged(_categorySidebarController.HandleTriggerEntered());
-    }
-
-    private void CategorySidebarHoverZone_MouseLeave(object sender, MouseEventArgs e)
-    {
-        _categorySidebarController.HandleTriggerExited();
-
-        ApplyCategorySidebarVisualStateIfChanged(_categorySidebarController.TryCollapse());
-    }
-
-    private void CategorySidebarPinToggleButton_Click(object sender, RoutedEventArgs e)
-    {
-        UpdateCategorySidebarPinned(CategorySidebarPinToggleButton.IsChecked == true);
-    }
-
-    private void ApplyCategorySidebarPinnedSetting(bool isPinned, bool animate)
-    {
-        CategorySidebarPinToggleButton.IsChecked = isPinned;
-        _categorySidebarController.SetPinned(isPinned);
-        ApplyCategorySidebarVisualState(animate);
-    }
-
-    private void UpdateCategorySidebarPinned(bool isPinned)
-    {
-        ApplyCategorySidebarVisualStateIfChanged(_categorySidebarController.SetPinned(isPinned));
-
-        if (_settings.CategorySidebarPinned == isPinned)
-        {
-            return;
-        }
-
-        var updatedSettings = SetCategorySidebarPinned(_settings, isPinned);
-
-        if (_appEvent is not null)
-        {
-            _appEvent.Invoke(AppEvents.Commit, updatedSettings);
-            return;
-        }
-
-        updatedSettings.Save();
-        ApplySettingsFromAppRefresh(updatedSettings);
-    }
-
-    private void ApplyCategorySidebarVisualStateIfChanged(bool hasStateChanged)
-    {
-        if (hasStateChanged)
-        {
-            ApplyCategorySidebarVisualState(animate: true);
-        }
-    }
-
-    private void UpdateCategorySidebarContainerVisibility()
-    {
-        CategorySidebarContainer.Visibility = _categorySidebarController.IsPinned || _categorySidebarController.IsExpanded
-            ? Visibility.Visible
-            : Visibility.Collapsed;
-    }
-
-    private void ApplyCategorySidebarVisualState(bool animate)
-    {
-        var isPinned = _categorySidebarController.IsPinned;
-        var isExpanded = _categorySidebarController.IsExpanded;
-        IsCategorySidebarExpanded = isExpanded;
-        var targetWidth = isExpanded ? CategorySidebarExpandedWidth : CategorySidebarCollapsedWidth;
-
-        CategorySidebarContainer.Visibility = Visibility.Visible;
-
-        if (!animate)
-        {
-            CategorySidebarContainer.BeginAnimation(WidthProperty, null);
-            CategorySidebarContainer.Width = targetWidth;
-            UpdateCategorySidebarContainerVisibility();
-
-            return;
-        }
-
-        var animation = new DoubleAnimation
-        {
-            To = targetWidth,
-            Duration = CategorySidebarAnimationDuration,
-            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut },
-        };
-
-        animation.Completed += (_, _) => UpdateCategorySidebarContainerVisibility();
-
-        CategorySidebarContainer.BeginAnimation(WidthProperty, animation, HandoffBehavior.SnapshotAndReplace);
     }
 
     // ── Settings ────────────────────────────────────────────
@@ -670,7 +597,7 @@ public sealed partial class MainWindow : Window
                     sender,
                     ViewModel.CategoryNames,
                     Strings.Prompt_ChangeCategory,
-                    ViewModel.UpdateItemCategory);
+                    MoveItemToCategory);
                 break;
 
             case LaunchItemContextMenuAction.EditArguments:
@@ -720,11 +647,6 @@ public sealed partial class MainWindow : Window
 
     private void LaunchListBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        if (_settings.AppListSortMode != AppListSortMode.Manual)
-        {
-            return;
-        }
-
         _dragReorderState.DragStartPoint = e.GetPosition(null);
         _dragReorderState.LastDragPreviewIndex = null;
 
@@ -739,11 +661,6 @@ public sealed partial class MainWindow : Window
 
     private void LaunchListBox_PreviewMouseMove(object sender, MouseEventArgs e)
     {
-        if (_settings.AppListSortMode != AppListSortMode.Manual)
-        {
-            return;
-        }
-
         if (e.LeftButton != MouseButtonState.Pressed || _dragReorderState.DraggedItem is null)
         {
             return;
@@ -758,8 +675,17 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        DragDrop.DoDragDrop(LaunchListBox, _dragReorderState.DraggedItem, DragDropEffects.Move);
-        _dragReorderState.Clear();
+        SetLaunchItemCategoryDragSession(isActive: true);
+
+        try
+        {
+            DragDrop.DoDragDrop(LaunchListBox, _dragReorderState.DraggedItem, DragDropEffects.Move);
+        }
+        finally
+        {
+            SetLaunchItemCategoryDragSession(isActive: false);
+            _dragReorderState.Clear();
+        }
     }
 
     private void LaunchListBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
@@ -824,37 +750,6 @@ public sealed partial class MainWindow : Window
     }
 
     private void LaunchListBox_Drop(object sender, DragEventArgs e)
-    {
-        if (_settings.AppListSortMode != AppListSortMode.Manual)
-        {
-            e.Handled = true;
-            return;
-        }
-
-        CommitDragReorder();
-        e.Handled = true;
-    }
-
-    private void Window_DragOver(object sender, DragEventArgs e)
-    {
-        if (_settings.AppListSortMode != AppListSortMode.Manual)
-        {
-            return;
-        }
-
-        if (!_dragDropResolver.TryGetDraggedItemData(e.Data, ViewModel.LaunchItems, out _, out var oldIndex))
-        {
-            return;
-        }
-
-        var listPosition = e.GetPosition(LaunchListBox);
-
-        e.Effects = DragDropEffects.Move;
-        ApplyDragPreviewMove(LaunchListBox, oldIndex, listPosition);
-        e.Handled = true;
-    }
-
-    private void Window_Drop(object sender, DragEventArgs e)
     {
         if (_settings.AppListSortMode != AppListSortMode.Manual)
         {

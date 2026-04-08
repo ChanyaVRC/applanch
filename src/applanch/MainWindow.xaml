@@ -13,53 +13,50 @@
         Width="840"
         MinHeight="480"
         MinWidth="700"
-        AllowDrop="True"
         SourceInitialized="Window_SourceInitialized"
         Loaded="MainWindow_Loaded"
-        DragOver="Window_DragOver"
-        Drop="Window_Drop"
         Background="{DynamicResource Brush.AppBackground}">
     <Window.Resources>
         <Style x:Key="CategorySidebarHoverZoneStyle"
                TargetType="Border">
             <Setter Property="Visibility"
-                Value="Visible"/>
+                    Value="Visible"/>
             <Style.Triggers>
-            <DataTrigger Binding="{Binding IsChecked, ElementName=CategorySidebarPinToggleButton}"
-                     Value="True">
-                <Setter Property="Visibility"
-                    Value="Collapsed"/>
-            </DataTrigger>
+                <DataTrigger Binding="{Binding IsChecked, ElementName=CategorySidebarPinToggleButton}"
+                             Value="True">
+                    <Setter Property="Visibility"
+                            Value="Collapsed"/>
+                </DataTrigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="CategorySidebarContainerStyle"
                TargetType="Border">
             <Setter Property="Padding"
-                Value="0"/>
+                    Value="0"/>
             <Style.Triggers>
-            <DataTrigger Binding="{Binding IsCategorySidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}}"
-                     Value="True">
-                <Setter Property="Padding"
-                    Value="12"/>
-            </DataTrigger>
+                <DataTrigger Binding="{Binding IsCategorySidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}}"
+                             Value="True">
+                    <Setter Property="Padding"
+                            Value="12"/>
+                </DataTrigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="CategorySidebarExpandedContentStyle"
                TargetType="Grid">
             <Setter Property="Visibility"
-                Value="Collapsed"/>
+                    Value="Collapsed"/>
             <Setter Property="IsHitTestVisible"
-                Value="False"/>
+                    Value="False"/>
             <Style.Triggers>
-            <DataTrigger Binding="{Binding IsCategorySidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}}"
-                     Value="True">
-                <Setter Property="Visibility"
-                    Value="Visible"/>
-                <Setter Property="IsHitTestVisible"
-                    Value="True"/>
-            </DataTrigger>
+                <DataTrigger Binding="{Binding IsCategorySidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}}"
+                             Value="True">
+                    <Setter Property="Visibility"
+                            Value="Visible"/>
+                    <Setter Property="IsHitTestVisible"
+                            Value="True"/>
+                </DataTrigger>
             </Style.Triggers>
         </Style>
 
@@ -68,7 +65,7 @@
             <Setter Property="Margin"
                     Value="{x:Static local:MainWindow.CategorySidebarPinnedContentMargin}"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding IsChecked, ElementName=CategorySidebarPinToggleButton}"
+                <DataTrigger Binding="{Binding IsPinned, ElementName=CategorySidebar}"
                              Value="False">
                     <Setter Property="Margin"
                             Value="0"/>
@@ -238,9 +235,9 @@
         <Style x:Key="HeaderToggleCheckBoxStyle"
                TargetType="CheckBox">
             <Setter Property="Foreground"
-                Value="{DynamicResource Brush.TextPrimary}"/>
+                    Value="{DynamicResource Brush.TextPrimary}"/>
             <Setter Property="FontSize"
-                Value="12"/>
+                    Value="12"/>
             <Setter Property="Cursor"
                     Value="Hand"/>
             <Setter Property="VerticalContentAlignment"
@@ -278,22 +275,22 @@
                                      Value="True">
                                 <Setter TargetName="Track"
                                         Property="Background"
-                                    Value="#1A6DB3F8"/>
+                                        Value="#1A6DB3F8"/>
                                 <Setter TargetName="Track"
                                         Property="BorderBrush"
-                                    Value="#6DB3F8"/>
+                                        Value="#6DB3F8"/>
                                 <Setter TargetName="Thumb"
                                         Property="HorizontalAlignment"
                                         Value="Right"/>
                                 <Setter TargetName="Thumb"
                                         Property="Fill"
-                                    Value="#6DB3F8"/>
+                                        Value="#6DB3F8"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver"
                                      Value="True">
                                 <Setter TargetName="Track"
                                         Property="BorderBrush"
-                                    Value="#8DBFFB"/>
+                                        Value="#8DBFFB"/>
                             </Trigger>
                             <Trigger Property="IsEnabled"
                                      Value="False">
@@ -727,196 +724,21 @@
                                       DismissRequested="DismissUpdateButton_Click"/>
 
         <Grid Grid.Row="3">
-            <Border x:Name="CategorySidebarHoverZone"
-                    Style="{StaticResource CategorySidebarHoverZoneStyle}"
-                Width="12"
-                    Margin="-12,0,0,0"
-                    HorizontalAlignment="Left"
-                    Background="Transparent"
-                    Panel.ZIndex="5"
-                    MouseEnter="CategorySidebarHoverZone_MouseEnter"
-                    MouseLeave="CategorySidebarHoverZone_MouseLeave"/>
-
-            <Border x:Name="CategorySidebarContainer"
-                    Style="{StaticResource CategorySidebarContainerStyle}"
-                    Width="{x:Static local:MainWindow.CategorySidebarExpandedWidth}"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Stretch"
-                    Background="{DynamicResource Brush.Surface}"
-                    BorderBrush="{DynamicResource Brush.ItemBorder}"
-                    BorderThickness="1"
-                    CornerRadius="8"
-                    ClipToBounds="True"
-                    Panel.ZIndex="10"
-                    MouseEnter="CategorySidebarContainer_MouseEnter"
-                    MouseLeave="CategorySidebarContainer_MouseLeave">
-                <Grid>
-                    <Grid x:Name="CategorySidebarExpandedContent"
-                          Style="{StaticResource CategorySidebarExpandedContentStyle}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="10"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[SectionLabel_Category]}"
-                                       FontSize="13"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource Brush.TextPrimary}"
-                                       VerticalAlignment="Center"/>
-
-                            <ToggleButton x:Name="CategorySidebarPinToggleButton"
-                                          Grid.Column="1"
-                                          Width="24"
-                                          Height="24"
-                                          Margin="8,0,0,0"
-                                          Padding="0"
-                                          Background="Transparent"
-                                          BorderBrush="Transparent"
-                                          BorderThickness="0"
-                                          Cursor="Hand"
-                                          Foreground="{DynamicResource Brush.TextPrimary}"
-                                          FontSize="12"
-                                          IsChecked="True"
-                                          AutomationProperties.Name="{Binding RelativeSource={RelativeSource Self}, Path=ToolTip}"
-                                          Click="CategorySidebarPinToggleButton_Click">
-                                <ToggleButton.Style>
-                                    <Style TargetType="ToggleButton">
-                                        <Setter Property="ToolTip"
-                                                Value="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_UnpinCategorySidebar]}"/>
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="ToggleButton">
-                                                    <Border x:Name="ToggleBorder"
-                                                            Background="Transparent"
-                                                            CornerRadius="6">
-                                                        <ContentPresenter HorizontalAlignment="Center"
-                                                                          VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver"
-                                                                 Value="True">
-                                                            <Setter TargetName="ToggleBorder"
-                                                                    Property="Background"
-                                                                    Value="{DynamicResource Brush.ItemBackground}"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsChecked"
-                                                                 Value="False">
-                                                            <Setter Property="Opacity"
-                                                                    Value="0.55"/>
-                                                            <Setter Property="ToolTip"
-                                                                    Value="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_PinCategorySidebar]}"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </ToggleButton.Style>
-                                <Grid Width="14"
-                                      Height="14">
-                                    <TextBlock Text="&#xE840;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="12"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
-                                    <Border Width="14"
-                                            Height="1.4"
-                                            Background="{DynamicResource Brush.TextPrimary}"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Opacity="0.9"
-                                            RenderTransformOrigin="0.5,0.5">
-                                        <Border.RenderTransform>
-                                            <RotateTransform Angle="-35"/>
-                                        </Border.RenderTransform>
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Visibility"
-                                                        Value="Collapsed"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
-                                                                 Value="False">
-                                                        <Setter Property="Visibility"
-                                                                Value="Visible"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                    </Border>
-                                </Grid>
-                            </ToggleButton>
-                        </Grid>
-
-                        <ListBox Grid.Row="2"
-                                 ItemsSource="{Binding FilterCategoryNames}"
-                                 SelectedItem="{Binding SelectedCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 BorderThickness="0"
-                                 Background="Transparent">
-                            <ListBox.ItemContainerStyle>
-                                <Style TargetType="ListBoxItem">
-                                    <Setter Property="Padding"
-                                            Value="0"/>
-                                    <Setter Property="Margin"
-                                            Value="0,0,0,4"/>
-                                    <Setter Property="HorizontalContentAlignment"
-                                            Value="Stretch"/>
-                                    <Setter Property="Foreground"
-                                            Value="{DynamicResource Brush.TextSecondary}"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="ListBoxItem">
-                                                <Border x:Name="ItemBorder"
-                                                        Padding="10,6"
-                                                        CornerRadius="6"
-                                                        Background="Transparent"
-                                                        BorderThickness="1"
-                                                        BorderBrush="Transparent">
-                                                    <ContentPresenter HorizontalAlignment="Stretch"
-                                                                      VerticalAlignment="Center"/>
-                                                </Border>
-                                                <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsMouseOver"
-                                                             Value="True">
-                                                        <Setter Property="Foreground"
-                                                                Value="{DynamicResource Brush.TextPrimary}"/>
-                                                    </Trigger>
-                                                    <Trigger Property="IsSelected"
-                                                             Value="True">
-                                                        <Setter TargetName="ItemBorder"
-                                                                Property="Background"
-                                                                Value="{DynamicResource Brush.ItemBackground}"/>
-                                                        <Setter TargetName="ItemBorder"
-                                                                Property="BorderBrush"
-                                                                Value="{DynamicResource Brush.SurfaceBorder}"/>
-                                                        <Setter Property="Foreground"
-                                                                Value="{DynamicResource Brush.TextPrimary}"/>
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </ListBox.ItemContainerStyle>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding}"
-                                               FontSize="13"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </Grid>
-                </Grid>
-            </Border>
+            <controls:CategorySidebarControl x:Name="CategorySidebar"
+                                             HorizontalAlignment="Left"
+                                             VerticalAlignment="Stretch"
+                                             HoverZoneDragOver="CategorySidebarHoverZone_DragOver"
+                                             HoverZoneDragLeave="CategorySidebarHoverZone_DragLeave"
+                                             SidebarDragOver="CategorySidebarContainer_DragOver"
+                                             SidebarDragLeave="CategorySidebarContainer_DragLeave"
+                                             SidebarDrop="CategorySidebarContainer_Drop"
+                                             CreateDropTargetDragOver="CategorySidebarCreateDropTarget_DragOver"
+                                             CreateDropTargetDragLeave="CategorySidebarCreateDropTarget_DragLeave"
+                                             CreateDropTargetDrop="CategorySidebarCreateDropTarget_Drop"
+                                             PinToggleClick="CategorySidebarPinToggleButton_Click"/>
 
             <Grid x:Name="MainContentContainer"
-                Style="{StaticResource MainContentContainerStyle}">
+                  Style="{StaticResource MainContentContainerStyle}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="8"/>
@@ -946,58 +768,58 @@
                                 Background="{DynamicResource Brush.Surface}"
                                 CornerRadius="8">
                             <StackPanel>
-                            <controls:SuggestionInputControl
-                                InputComboBoxStyle="{StaticResource ModernComboBoxStyle}"
-                                Suggestions="{Binding QuickAddSuggestions}"
-                                Text="{Binding QuickAddNameOrPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_NameOrPath]}"/>
-                            <Grid Margin="0,8,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="130"/>
-                                    <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="86"/>
-                                </Grid.ColumnDefinitions>
-                                <controls:SuggestionInputControl Grid.Column="0"
-                                                                 InputComboBoxStyle="{StaticResource QuickAddCompactComboBoxStyle}"
-                                                                 Suggestions="{Binding CategoryNames}"
-                                                                 Text="{Binding QuickAddCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                 ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Category]}"/>
-                                <TextBox Grid.Column="2"
-                                         Text="{Binding QuickAddArguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource QuickAddCompactTextBoxStyle}"
-                                         ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Arguments]}"/>
-                                <Button Grid.Column="4"
-                                        Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_Add]}"
-                                        Click="QuickAddButton_Click"
-                                        Height="28"
-                                        Style="{StaticResource RoundedSecondaryButtonStyle}"/>
-                            </Grid>
-                            <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Hint_AddApp]}"
-                                       Margin="0,8,0,0"
-                                       FontSize="11"
-                                       Foreground="{DynamicResource Brush.TextTertiary}"/>
-                            <TextBlock Margin="0,6,0,0"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"
-                                       TextWrapping="Wrap"
-                                       Text="{Binding QuickAddFeedback.Message}"
-                                       Visibility="{Binding QuickAddFeedback.MessageVisibility}">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground"
-                                                Value="{DynamicResource Brush.QuickAddInfoText}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding QuickAddFeedback.Severity}"
-                                                         Value="{x:Static vm:QuickAddMessageSeverity.Warning}">
-                                                <Setter Property="Foreground"
-                                                        Value="{DynamicResource Brush.QuickAddWarningText}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
+                                <controls:SuggestionInputControl
+                                    InputComboBoxStyle="{StaticResource ModernComboBoxStyle}"
+                                    Suggestions="{Binding QuickAddSuggestions}"
+                                    Text="{Binding QuickAddNameOrPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_NameOrPath]}"/>
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="86"/>
+                                    </Grid.ColumnDefinitions>
+                                    <controls:SuggestionInputControl Grid.Column="0"
+                                                                     InputComboBoxStyle="{StaticResource QuickAddCompactComboBoxStyle}"
+                                                                     Suggestions="{Binding CategoryNames}"
+                                                                     Text="{Binding QuickAddCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Category]}"/>
+                                    <TextBox Grid.Column="2"
+                                             Text="{Binding QuickAddArguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource QuickAddCompactTextBoxStyle}"
+                                             ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Arguments]}"/>
+                                    <Button Grid.Column="4"
+                                            Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_Add]}"
+                                            Click="QuickAddButton_Click"
+                                            Height="28"
+                                            Style="{StaticResource RoundedSecondaryButtonStyle}"/>
+                                </Grid>
+                                <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Hint_AddApp]}"
+                                           Margin="0,8,0,0"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource Brush.TextTertiary}"/>
+                                <TextBlock Margin="0,6,0,0"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           TextWrapping="Wrap"
+                                           Text="{Binding QuickAddFeedback.Message}"
+                                           Visibility="{Binding QuickAddFeedback.MessageVisibility}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground"
+                                                    Value="{DynamicResource Brush.QuickAddInfoText}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding QuickAddFeedback.Severity}"
+                                                             Value="{x:Static vm:QuickAddMessageSeverity.Warning}">
+                                                    <Setter Property="Foreground"
+                                                            Value="{DynamicResource Brush.QuickAddWarningText}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </StackPanel>
                         </Border>
                     </Expander>
@@ -1139,53 +961,132 @@
                                         </ContextMenu>
                                     </Border.ContextMenu>
                                     <Grid>
-                                    <Grid>
-                                        <Grid.Style>
-                                            <Style TargetType="Grid">
-                                                <Setter Property="Visibility"
-                                                        Value="Visible"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                 Value="True">
-                                                        <Setter Property="Visibility"
-                                                                Value="Collapsed"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Grid.Style>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="20"/>
-                                            <ColumnDefinition Width="8"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="26"/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <TextBlock Grid.Column="0"
-                                                   Text="::"
-                                                   VerticalAlignment="Center"
-                                                   HorizontalAlignment="Center"
-                                                   FontSize="11"
-                                                   FontWeight="Bold"
-                                                   Foreground="{DynamicResource Brush.TextTertiary}"
-                                                   ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_DragToReorder]}"/>
-
-                                        <Button Grid.Column="2"
-                                                Click="LaunchItemButton_Click"
-                                                Tag="{Binding}"
-                                                ToolTip="{Binding DisplayName}">
-                                            <Button.Style>
-                                                <Style TargetType="Button"
-                                                       BasedOn="{StaticResource LaunchTileButtonStyle}">
+                                        <Grid>
+                                            <Grid.Style>
+                                                <Style TargetType="Grid">
+                                                    <Setter Property="Visibility"
+                                                            Value="Visible"/>
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsRenaming}"
+                                                        <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                      Value="True">
                                                             <Setter Property="Visibility"
                                                                     Value="Collapsed"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
-                                            </Button.Style>
-                                            <Grid>
+                                            </Grid.Style>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="20"/>
+                                                <ColumnDefinition Width="8"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="26"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0"
+                                                       Text="::"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       FontSize="11"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource Brush.TextTertiary}"
+                                                       ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_DragToReorder]}"/>
+
+                                            <Button Grid.Column="2"
+                                                    Click="LaunchItemButton_Click"
+                                                    Tag="{Binding}"
+                                                    ToolTip="{Binding DisplayName}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button"
+                                                           BasedOn="{StaticResource LaunchTileButtonStyle}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsRenaming}"
+                                                                         Value="True">
+                                                                <Setter Property="Visibility"
+                                                                        Value="Collapsed"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="30"/>
+                                                        <ColumnDefinition Width="10"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Border Grid.RowSpan="2"
+                                                            Grid.Column="0"
+                                                            Width="28"
+                                                            Height="28"
+                                                            CornerRadius="5"
+                                                            Background="{DynamicResource Brush.IconBackground}"
+                                                            VerticalAlignment="Center">
+                                                        <Grid>
+                                                            <Image Source="{Binding IconSource}"
+                                                                   Width="16"
+                                                                   Height="16"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"/>
+                                                            <TextBlock Text="&#xE7BA;"
+                                                                       FontFamily="Segoe MDL2 Assets"
+                                                                       FontSize="10"
+                                                                       HorizontalAlignment="Right"
+                                                                       VerticalAlignment="Bottom"
+                                                                       Margin="0,0,-1,-1"
+                                                                       Foreground="{DynamicResource Brush.NotificationWarningBorder}"
+                                                                       ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Visibility"
+                                                                                Value="Collapsed"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsPathMissing}"
+                                                                                         Value="True">
+                                                                                <Setter Property="Visibility"
+                                                                                        Value="Visible"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </Grid>
+                                                    </Border>
+
+                                                    <TextBlock Grid.Column="2"
+                                                               Text="{Binding DisplayName}"
+                                                               FontSize="13"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource Brush.TextPrimary}"/>
+
+                                                    <TextBlock Grid.Row="1"
+                                                               Grid.Column="2"
+                                                               Margin="0,2,0,0"
+                                                               Text="{Binding FullPath}"
+                                                               FontSize="11"
+                                                               Foreground="{DynamicResource Brush.TextTertiary}"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                </Grid>
+                                            </Button>
+
+                                            <Grid Grid.Column="2"
+                                                  Margin="8">
+                                                <Grid.Style>
+                                                    <Style TargetType="Grid">
+                                                        <Setter Property="Visibility"
+                                                                Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsRenaming}"
+                                                                         Value="True">
+                                                                <Setter Property="Visibility"
+                                                                        Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Grid.Style>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto"/>
                                                     <RowDefinition Height="Auto"/>
@@ -1234,11 +1135,18 @@
                                                     </Grid>
                                                 </Border>
 
-                                                <TextBlock Grid.Column="2"
-                                                           Text="{Binding DisplayName}"
-                                                           FontSize="13"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource Brush.TextPrimary}"/>
+                                                <TextBox Grid.Column="2"
+                                                         Text="{Binding EditingName, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="13"
+                                                         FontWeight="SemiBold"
+                                                         Foreground="{DynamicResource Brush.TextPrimary}"
+                                                         Background="Transparent"
+                                                         BorderThickness="0"
+                                                         Padding="0"
+                                                         VerticalAlignment="Center"
+                                                         IsVisibleChanged="RenameTextBox_IsVisibleChanged"
+                                                         KeyDown="RenameTextBox_KeyDown"
+                                                         LostFocus="RenameTextBox_LostFocus"/>
 
                                                 <TextBlock Grid.Row="1"
                                                            Grid.Column="2"
@@ -1248,179 +1156,93 @@
                                                            Foreground="{DynamicResource Brush.TextTertiary}"
                                                            TextTrimming="CharacterEllipsis"/>
                                             </Grid>
-                                        </Button>
 
-                                        <Grid Grid.Column="2"
-                                              Margin="8">
-                                            <Grid.Style>
-                                                <Style TargetType="Grid">
+                                            <Button Grid.Column="3"
+                                                    Content="×"
+                                                    Click="DeleteButton_Click"
+                                                    Tag="{Binding}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button"
+                                                           BasedOn="{StaticResource HeaderIconButtonStyle}">
+                                                        <Setter Property="Width"
+                                                                Value="26"/>
+                                                        <Setter Property="Height"
+                                                                Value="26"/>
+                                                        <Setter Property="FontSize"
+                                                                Value="13"/>
+                                                        <Setter Property="FontWeight"
+                                                                Value="SemiBold"/>
+                                                        <Setter Property="VerticalAlignment"
+                                                                Value="Center"/>
+                                                        <Setter Property="ToolTip"
+                                                                Value="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Delete]}"/>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </Grid>
+
+                                        <Button Click="LaunchItemButton_Click"
+                                                Tag="{Binding}"
+                                                Width="60"
+                                                Height="60"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                ToolTip="{Binding DisplayName}">
+                                            <Button.Style>
+                                                <Style TargetType="Button"
+                                                       BasedOn="{StaticResource LaunchTileButtonStyle}">
                                                     <Setter Property="Visibility"
                                                             Value="Collapsed"/>
+                                                    <Setter Property="Padding"
+                                                            Value="6"/>
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsRenaming}"
+                                                        <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                      Value="True">
                                                             <Setter Property="Visibility"
                                                                     Value="Visible"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
-                                            </Grid.Style>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="30"/>
-                                                <ColumnDefinition Width="10"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <Border Grid.RowSpan="2"
-                                                    Grid.Column="0"
-                                                    Width="28"
-                                                    Height="28"
-                                                    CornerRadius="5"
-                                                    Background="{DynamicResource Brush.IconBackground}"
-                                                    VerticalAlignment="Center">
-                                                <Grid>
-                                                    <Image Source="{Binding IconSource}"
-                                                           Width="16"
-                                                           Height="16"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Center"/>
-                                                    <TextBlock Text="&#xE7BA;"
-                                                               FontFamily="Segoe MDL2 Assets"
-                                                               FontSize="10"
-                                                               HorizontalAlignment="Right"
-                                                               VerticalAlignment="Bottom"
-                                                               Margin="0,0,-1,-1"
-                                                               Foreground="{DynamicResource Brush.NotificationWarningBorder}"
-                                                               ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock">
-                                                                <Setter Property="Visibility"
-                                                                        Value="Collapsed"/>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsPathMissing}"
-                                                                                 Value="True">
-                                                                        <Setter Property="Visibility"
-                                                                                Value="Visible"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
-                                                </Grid>
-                                            </Border>
-
-                                            <TextBox Grid.Column="2"
-                                                     Text="{Binding EditingName, UpdateSourceTrigger=PropertyChanged}"
-                                                     FontSize="13"
-                                                     FontWeight="SemiBold"
-                                                     Foreground="{DynamicResource Brush.TextPrimary}"
-                                                     Background="Transparent"
-                                                     BorderThickness="0"
-                                                     Padding="0"
-                                                     VerticalAlignment="Center"
-                                                     IsVisibleChanged="RenameTextBox_IsVisibleChanged"
-                                                     KeyDown="RenameTextBox_KeyDown"
-                                                     LostFocus="RenameTextBox_LostFocus"/>
-
-                                            <TextBlock Grid.Row="1"
-                                                       Grid.Column="2"
-                                                       Margin="0,2,0,0"
-                                                       Text="{Binding FullPath}"
-                                                       FontSize="11"
-                                                       Foreground="{DynamicResource Brush.TextTertiary}"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                        </Grid>
-
-                                        <Button Grid.Column="3"
-                                                Content="×"
-                                                Click="DeleteButton_Click"
-                                                Tag="{Binding}">
-                                            <Button.Style>
-                                                <Style TargetType="Button"
-                                                       BasedOn="{StaticResource HeaderIconButtonStyle}">
-                                                    <Setter Property="Width"
-                                                            Value="26"/>
-                                                    <Setter Property="Height"
-                                                            Value="26"/>
-                                                    <Setter Property="FontSize"
-                                                            Value="13"/>
-                                                    <Setter Property="FontWeight"
-                                                            Value="SemiBold"/>
-                                                    <Setter Property="VerticalAlignment"
-                                                            Value="Center"/>
-                                                    <Setter Property="ToolTip"
-                                                            Value="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Delete]}"/>
-                                                </Style>
                                             </Button.Style>
+                                            <Grid>
+                                                <Border Width="44"
+                                                        Height="44"
+                                                        CornerRadius="9"
+                                                        Background="{DynamicResource Brush.IconBackground}"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center">
+                                                    <Grid>
+                                                        <Image Source="{Binding IconSource}"
+                                                               Width="28"
+                                                               Height="28"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                        <TextBlock Text="&#xE7BA;"
+                                                                   FontFamily="Segoe MDL2 Assets"
+                                                                   FontSize="12"
+                                                                   HorizontalAlignment="Right"
+                                                                   VerticalAlignment="Bottom"
+                                                                   Margin="0,0,0,0"
+                                                                   Foreground="{DynamicResource Brush.NotificationWarningBorder}"
+                                                                   ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Visibility"
+                                                                            Value="Collapsed"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsPathMissing}"
+                                                                                     Value="True">
+                                                                            <Setter Property="Visibility"
+                                                                                    Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                </Border>
+                                            </Grid>
                                         </Button>
-                                    </Grid>
-
-                                    <Button Click="LaunchItemButton_Click"
-                                            Tag="{Binding}"
-                                            Width="60"
-                                            Height="60"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            ToolTip="{Binding DisplayName}">
-                                        <Button.Style>
-                                            <Style TargetType="Button"
-                                                   BasedOn="{StaticResource LaunchTileButtonStyle}">
-                                                <Setter Property="Visibility"
-                                                        Value="Collapsed"/>
-                                                <Setter Property="Padding"
-                                                        Value="6"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                 Value="True">
-                                                        <Setter Property="Visibility"
-                                                                Value="Visible"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                        <Grid>
-                                            <Border Width="44"
-                                                    Height="44"
-                                                    CornerRadius="9"
-                                                    Background="{DynamicResource Brush.IconBackground}"
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center">
-                                                <Grid>
-                                                    <Image Source="{Binding IconSource}"
-                                                           Width="28"
-                                                           Height="28"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Center"/>
-                                                    <TextBlock Text="&#xE7BA;"
-                                                               FontFamily="Segoe MDL2 Assets"
-                                                               FontSize="12"
-                                                               HorizontalAlignment="Right"
-                                                               VerticalAlignment="Bottom"
-                                                               Margin="0,0,0,0"
-                                                               Foreground="{DynamicResource Brush.NotificationWarningBorder}"
-                                                               ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock">
-                                                                <Setter Property="Visibility"
-                                                                        Value="Collapsed"/>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsPathMissing}"
-                                                                                 Value="True">
-                                                                        <Setter Property="Visibility"
-                                                                                Value="Visible"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
-                                                </Grid>
-                                            </Border>
-                                        </Grid>
-                                    </Button>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

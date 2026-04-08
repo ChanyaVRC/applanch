@@ -25,7 +25,7 @@ public sealed class MainWindowViewModel : ObservableObject
     private bool _refreshingSuggestions;
     private bool _suspendPersistence;
     private string _quickAddNameOrPath = string.Empty;
-    private string _quickAddCategory = LauncherEntry.DefaultCategory;
+    private string _quickAddCategory = Category.Default.ToDisplayLabel();
     private string _quickAddArguments = string.Empty;
 
     public MainWindowViewModel()
@@ -184,9 +184,20 @@ public sealed class MainWindowViewModel : ObservableObject
         LaunchItems.Insert(Math.Clamp(index, 0, LaunchItems.Count), item);
     }
 
-    public void UpdateItemCategory(LaunchItemViewModel item, string newCategory)
+    internal void UpdateItemCategory(LaunchItemViewModel item, Category category)
     {
-        item.Category = newCategory;
+        item.Category = category;
+    }
+
+    internal bool TryMoveItemToCategory(LaunchItemViewModel item, Category category)
+    {
+        if (category.IsAll || item.Category == category)
+        {
+            return false;
+        }
+
+        item.Category = category;
+        return true;
     }
 
     public void UpdateItemArguments(LaunchItemViewModel item, string newArguments)
@@ -304,8 +315,13 @@ public sealed class MainWindowViewModel : ObservableObject
             return false;
         }
 
-        return LaunchCategoryCatalog.IsAllCategoriesLabel(SelectedCategory)
-            || launchItem.Category == SelectedCategory;
+        if (Category.FromInput(SelectedCategory).IsAll)
+        {
+            return true;
+        }
+
+        var selectedCategory = Category.FromInput(SelectedCategory);
+        return launchItem.Category == selectedCategory;
     }
 
     private void PersistCurrentOrder()
@@ -366,13 +382,13 @@ public sealed class MainWindowViewModel : ObservableObject
         {
             foreach (var item in LaunchItems)
             {
-                var normalizedCategory = LaunchItemNormalization.NormalizeCategory(item.Category);
-                if (item.Category == normalizedCategory)
+                var category = Category.FromInput(item.Category.Value);
+                if (item.Category == category)
                 {
                     continue;
                 }
 
-                item.Category = normalizedCategory;
+                item.Category = category;
                 categoryUpdated = true;
             }
         }
@@ -381,10 +397,12 @@ public sealed class MainWindowViewModel : ObservableObject
             _suspendPersistence = false;
         }
 
-        var normalizedQuickAddCategory = LaunchItemNormalization.NormalizeCategory(QuickAddCategory);
-        if (_quickAddCategory != normalizedQuickAddCategory)
+        var quickAddCategory = Category.FromInput(QuickAddCategory);
+        var displayQuickAddCategory = quickAddCategory.ToDisplayLabel();
+
+        if (_quickAddCategory != displayQuickAddCategory)
         {
-            _quickAddCategory = normalizedQuickAddCategory;
+            _quickAddCategory = displayQuickAddCategory;
             OnPropertyChanged(nameof(QuickAddCategory));
         }
 
@@ -404,6 +422,13 @@ public sealed class MainWindowViewModel : ObservableObject
 
     private void EnsureSelectedCategoryIsValid()
     {
+        var defaultCategoryLabel = Category.Default.ToDisplayLabel();
+        if (string.IsNullOrWhiteSpace(SelectedCategory) && FilterCategoryNames.Contains(defaultCategoryLabel))
+        {
+            SelectedCategory = defaultCategoryLabel;
+            return;
+        }
+
         if (!FilterCategoryNames.Contains(SelectedCategory))
         {
             SelectedCategory = AllCategoriesLabel;
@@ -414,13 +439,17 @@ public sealed class MainWindowViewModel : ObservableObject
     {
         QuickAddNameOrPath = string.Empty;
         QuickAddArguments = string.Empty;
-        QuickAddCategory = LaunchCategoryCatalog.IsAllCategoriesLabel(SelectedCategory)
-            ? LauncherEntry.DefaultCategory
-            : SelectedCategory;
+        if (Category.FromInput(SelectedCategory).IsAll)
+        {
+            QuickAddCategory = Category.Default.ToDisplayLabel();
+            return;
+        }
+
+        QuickAddCategory = SelectedCategory;
     }
 
     private static LauncherEntry ToLauncherEntry(LaunchItemViewModel item) =>
-        new(item.FullPath, item.Category, item.Arguments, item.DisplayName);
+        new(item.FullPath, item.Category.Value, item.Arguments, item.DisplayName);
 
     private void SetSelectedLaunchItem(LaunchItemViewModel? value)
     {

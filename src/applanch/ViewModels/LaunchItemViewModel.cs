@@ -10,7 +10,7 @@ namespace applanch.ViewModels;
 public sealed class LaunchItemViewModel : ObservableObject
 {
     private string _displayName;
-    private string _category;
+    private Category _category;
     private string _arguments;
     private bool _isRenaming;
     private string _editingName = string.Empty;
@@ -21,17 +21,27 @@ public sealed class LaunchItemViewModel : ObservableObject
     private bool _isPathMissing;
 
     public LaunchItemViewModel(LaunchPath fullPath, string category, string arguments, string displayName)
+        : this(fullPath, Category.FromInput(category), arguments, displayName, null)
+    {
+    }
+
+    public LaunchItemViewModel(LaunchPath fullPath, Category category, string arguments, string displayName)
         : this(fullPath, category, arguments, displayName, null)
     {
     }
 
     internal LaunchItemViewModel(LaunchPath fullPath, string category, string arguments, string displayName, ILaunchItemIconProvider? iconProvider)
+        : this(fullPath, Category.FromInput(category), arguments, displayName, iconProvider)
+    {
+    }
+
+    internal LaunchItemViewModel(LaunchPath fullPath, Category category, string arguments, string displayName, ILaunchItemIconProvider? iconProvider)
     {
         FullPath = fullPath;
         _dispatcher = Dispatcher.CurrentDispatcher;
         _iconProvider = iconProvider ?? LaunchItemIconProvider.Shared;
         _displayName = LaunchItemNormalization.NormalizeDisplayName(displayName, FullPath.Value);
-        _category = LaunchItemNormalization.NormalizeCategory(category);
+        _category = category;
         _arguments = LaunchItemNormalization.NormalizeArguments(arguments);
         _isPathMissing = ComputeIsPathMissing();
 
@@ -75,10 +85,21 @@ public sealed class LaunchItemViewModel : ObservableObject
         set => SetNormalizedString(ref _arguments, value, LaunchItemNormalization.NormalizeArguments, nameof(Arguments));
     }
 
-    public string Category
+    public Category Category
     {
         get => _category;
-        set => SetNormalizedString(ref _category, value, LaunchItemNormalization.NormalizeCategory, nameof(Category));
+        set => SetCategory(value, nameof(Category));
+    }
+
+    private void SetCategory(Category value, string propertyName)
+    {
+        if (_category == value)
+        {
+            return;
+        }
+
+        _category = value;
+        OnPropertyChanged(propertyName);
     }
 
     private void SetNormalizedString(ref string field, string value, Func<string, string> normalize, string propertyName)

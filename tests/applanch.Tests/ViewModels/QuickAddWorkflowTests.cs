@@ -138,7 +138,7 @@ public class QuickAddWorkflowTests
         Assert.True(result.IsSuccess);
         Assert.NotNull(newItem);
         Assert.Equal("NewApp", newItem.DisplayName);
-        Assert.Equal("Ops", newItem.Category);
+        Assert.Equal("Ops", newItem.Category.Value);
         Assert.Equal("-v", newItem.Arguments);
     }
 

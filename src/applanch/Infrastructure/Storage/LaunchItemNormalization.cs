@@ -5,91 +5,60 @@ namespace applanch.Infrastructure.Storage;
 
 internal static class LaunchItemNormalization
 {
-    // Collect every localized form of "DefaultCategory" so that a category stored
-    // under one language is correctly re-mapped when the app runs under another.
-    private static readonly HashSet<string> KnownDefaultCategories =
-        BuildKnownDefaultCategories();
+    // Collect localized forms of "DefaultCategory" so persisted labels map to the canonical internal value.
+    private static readonly HashSet<string> KnownDefaultCategories = BuildKnownDefaultCategories();
 
     private static HashSet<string> BuildKnownDefaultCategories()
     {
-        var rm = new ResourceManager(typeof(AppResources).FullName!, typeof(AppResources).Assembly);
-        var set = new HashSet<string>(StringComparer.Ordinal);
+        var resourceManager = new ResourceManager(typeof(AppResources).FullName!, typeof(AppResources).Assembly);
+        var categories = new HashSet<string>(StringComparer.Ordinal);
+
         foreach (var culture in LanguageOptionMap.EnumerateSupportedCultures(includeInvariantCulture: true))
         {
-            var value = rm.GetString("DefaultCategory", culture);
-            if (value is not null)
+            var value = resourceManager.GetString(nameof(AppResources.DefaultCategory), culture);
+            if (!string.IsNullOrWhiteSpace(value))
             {
-                set.Add(value);
+                categories.Add(value);
             }
         }
 
-        return set;
+        return categories;
     }
 
     public static string NormalizeCategory(string? category)
     {
-        if (category is null)
+        var trimmed = category?.Trim();
+        if (string.IsNullOrEmpty(trimmed))
         {
             return LauncherEntry.DefaultCategory;
         }
-
-        var trimmed = category.AsSpan().Trim();
-        if (trimmed.IsEmpty)
+        if (KnownDefaultCategories.Contains(trimmed))
         {
             return LauncherEntry.DefaultCategory;
         }
-
-        if (IsKnownDefaultCategory(trimmed))
-        {
-            return LauncherEntry.DefaultCategory;
-        }
-
-        return trimmed.Length == category.Length ? category : trimmed.ToString();
+        return trimmed;
     }
 
     public static string NormalizeArguments(string? arguments)
     {
-        if (arguments is null)
+        var trimmed = arguments?.Trim();
+        if (string.IsNullOrEmpty(trimmed))
         {
             return string.Empty;
         }
 
-        var trimmed = arguments.AsSpan().Trim();
-        if (trimmed.IsEmpty)
-        {
-            return string.Empty;
-        }
-
-        return trimmed.Length == arguments.Length ? arguments : trimmed.ToString();
+        return trimmed;
     }
 
     public static string NormalizeDisplayName(string? displayName, string path)
     {
-        if (displayName is null)
+        var trimmed = displayName?.Trim();
+        if (string.IsNullOrEmpty(trimmed))
         {
             return GetDisplayNameFromPath(path);
         }
 
-        var trimmed = displayName.AsSpan().Trim();
-        if (trimmed.IsEmpty)
-        {
-            return GetDisplayNameFromPath(path);
-        }
-
-        return trimmed.Length == displayName.Length ? displayName : trimmed.ToString();
-    }
-
-    private static bool IsKnownDefaultCategory(ReadOnlySpan<char> category)
-    {
-        foreach (var known in KnownDefaultCategories)
-        {
-            if (category.Equals(known, StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return trimmed;
     }
 
     private static string GetDisplayNameFromPath(string path) =>

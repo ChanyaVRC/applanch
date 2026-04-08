@@ -20,11 +20,11 @@ public class LaunchCategoryCatalogTests
 
         var categories = LaunchCategoryCatalog.BuildCategoryNames(items, CategorySortMode.AsAdded);
 
-        Assert.Equal(["Ops", "Dev", "Neko"], categories);
+        Assert.Equal(["Ops", "Dev", "Neko", AppResources.DefaultCategory], categories);
     }
 
     [Fact]
-    public void BuildCategoryNames_PinsDefaultCategoryLast()
+    public void BuildCategoryNames_PinsDefaultCategoryLabelLast()
     {
         var items = new[]
         {
@@ -35,7 +35,7 @@ public class LaunchCategoryCatalogTests
 
         var categories = LaunchCategoryCatalog.BuildCategoryNames(items, CategorySortMode.Alphabetical);
 
-        Assert.Equal(LauncherEntry.DefaultCategory, categories.Last());
+        Assert.Equal(AppResources.DefaultCategory, categories.Last());
     }
 
     [Fact]

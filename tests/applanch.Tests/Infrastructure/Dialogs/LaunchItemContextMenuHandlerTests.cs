@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using applanch.Infrastructure.Dialogs;
+using applanch.Infrastructure.Storage;
 using applanch.Tests.TestSupport;
 using applanch.ViewModels;
 using Xunit;
@@ -38,14 +39,15 @@ public class LaunchItemContextMenuHandlerTests
             var owner = new Window();
             var sut = new LaunchItemContextMenuHandler(interaction, owner);
 
-            string? applied = null;
+            Category? applied = null;
             sut.EditCategory(
                 sender,
                 ["Dev", "Ops", "", "Ops"],
                 "prompt",
                 (_, value) => applied = value);
 
-            Assert.Equal("Ops", applied);
+            Assert.NotNull(applied);
+            Assert.Equal("Ops", applied.Value.Value);
             Assert.Equal("Dev", interaction.LastPromptWithSuggestionsInitialValue);
             Assert.Equal(new[] { "Dev", "Ops" }, interaction.LastSuggestions);
         });

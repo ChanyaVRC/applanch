@@ -11,7 +11,7 @@ internal sealed class LaunchItemContextMenuHandler(IUserInteractionService inter
         object sender,
         IEnumerable<string> categoryNames,
         string promptTitle,
-        Action<LaunchItemViewModel, string> applyCategory)
+        Action<LaunchItemViewModel, Category> applyCategory)
     {
         var item = GetTargetItem(sender);
         if (item is null)
@@ -19,9 +19,7 @@ internal sealed class LaunchItemContextMenuHandler(IUserInteractionService inter
             return;
         }
 
-        var currentCategory = string.IsNullOrWhiteSpace(item.Category)
-            ? LauncherEntry.DefaultCategory
-            : item.Category;
+        var currentCategory = item.Category.ToDisplayLabel();
 
         var suggestions = categoryNames
             .Append(currentCategory)
@@ -29,9 +27,7 @@ internal sealed class LaunchItemContextMenuHandler(IUserInteractionService inter
             .Distinct(StringComparer.Ordinal)
             .ToArray();
 
-        var initialCategory = string.IsNullOrWhiteSpace(item.Category)
-            ? currentCategory
-            : item.Category;
+        var initialCategory = currentCategory;
 
         var newValue = interactionService.PromptWithSuggestions(promptTitle, initialCategory, suggestions, owner);
         if (newValue is null)
@@ -39,7 +35,7 @@ internal sealed class LaunchItemContextMenuHandler(IUserInteractionService inter
             return;
         }
 
-        applyCategory(item, newValue);
+        applyCategory(item, Category.FromInput(newValue));
     }
 
     internal void EditValue(
