@@ -26,7 +26,7 @@ internal static class ThemeOptionsProvider
         return visibleThemes
             .Select(static x => new ThemeOption(
                 x.Id,
-                x.DisplayName.ResolveCurrentCulture(),
+                x.DisplayName,
                 IsSystemOption: x.Id == ThemePaletteConfigurationLoader.SystemThemeId))
             .ToList();
     }

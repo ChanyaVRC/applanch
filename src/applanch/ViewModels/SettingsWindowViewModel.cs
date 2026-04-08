@@ -230,7 +230,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
         if (languageChanged)
         {
-            ReloadThemeOptions();
+            RefreshThemeOptionsForCurrentCulture();
         }
 
         OnPropertyChanged(string.Empty);
@@ -244,7 +244,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
         if (languageChanged)
         {
-            ReloadThemeOptions();
+            RefreshThemeOptionsForCurrentCulture();
         }
 
         OnPropertyChanged(string.Empty);
@@ -330,13 +330,17 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
         if (languageChanged)
         {
-            ReloadThemeOptions();
+            RefreshThemeOptionsForCurrentCulture();
         }
     }
 
-    private void ReloadThemeOptions()
+    private void RefreshThemeOptionsForCurrentCulture()
     {
-        _themeOptions = _themeOptionsProvider();
+        foreach (var option in _themeOptions)
+        {
+            option.NotifyDisplayNameChanged();
+        }
+
         OnPropertyChanged(nameof(ThemeOptions));
         OnPropertyChanged(nameof(IsThemeSelectionVisible));
         OnPropertyChanged(nameof(SelectedThemeId));

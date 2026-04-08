@@ -2,6 +2,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows;
+using System.Globalization;
 using applanch.Events;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
@@ -20,22 +21,39 @@ public sealed class SettingsThemeSelectionUiTests
         WpfTestHost.RunInSta(() =>
         {
             var appEvent = new AppEvent();
-            var culturePhase = "before";
-            appEvent.Register(AppEvents.Commit, _ => culturePhase = "after");
+            appEvent.Register(AppEvents.Commit, payload =>
+            {
+                var settings = Assert.IsType<AppSettings>(payload);
+                var cultureName = settings.Language == LanguageOption.Japanese ? "ja-JP" : "en-US";
+                var culture = new CultureInfo(cultureName);
+                CultureInfo.CurrentUICulture = culture;
+                CultureInfo.CurrentCulture = culture;
+            });
+
+            using var cultureScope = new CultureScope("en-US");
 
             IReadOnlyList<ThemeOption> ThemeOptionsProvider()
             {
-                return culturePhase == "before"
-                    ?
-                    [
-                        new ThemeOption(ThemePaletteConfigurationLoader.SystemThemeId, "System", IsSystemOption: true),
-                        new ThemeOption(ThemePaletteConfigurationLoader.LightThemeId, "Light")
-                    ]
-                    :
-                    [
-                        new ThemeOption(ThemePaletteConfigurationLoader.SystemThemeId, "システム", IsSystemOption: true),
-                        new ThemeOption(ThemePaletteConfigurationLoader.LightThemeId, "ライト")
-                    ];
+                return
+                [
+                    new ThemeOption(
+                        ThemePaletteConfigurationLoader.SystemThemeId,
+                        new LocalizedText(
+                            "System",
+                            new Dictionary<LanguageOption, string>
+                            {
+                                [LanguageOption.Japanese] = "システム"
+                            }),
+                        IsSystemOption: true),
+                    new ThemeOption(
+                        ThemePaletteConfigurationLoader.LightThemeId,
+                        new LocalizedText(
+                            "Light",
+                            new Dictionary<LanguageOption, string>
+                            {
+                                [LanguageOption.Japanese] = "ライト"
+                            }))
+                ];
             }
 
             var vm = new SettingsWindowViewModel(
