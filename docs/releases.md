@@ -4,6 +4,24 @@ Notable user-facing changes per version. For full commit history and downloadabl
 
 ---
 
+## v0.5.6 — April 8, 2026
+
+### New
+
+- **Version display in UI** — The current app version is now shown in the main header and in the Settings window.
+
+### Fixed
+
+- **Settings window reliability** — Fixed an issue where the Settings window could fail to appear and the app process might not shut down correctly in some flows.
+- **Bundled config diagnostics** — Added floating warning notifications when bundled configuration files are missing or invalid at startup.
+
+### Improved
+
+- **Theme palette config** — Theme palette loading has been refactored for better maintainability, and user-defined themes now support an optional `"disabled": true` flag.
+- **Getting started docs** — The getting started guides now use richer UI screenshots and clearer walkthrough-style explanations.
+
+---
+
 ## v0.5.5 — April 8, 2026
 
 ### Fixed
