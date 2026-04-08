@@ -93,6 +93,7 @@ public sealed partial class MainWindow : Window
         _appEvent?.Register(AppEvents.Refresh, OnAppRefreshRequested);
         _appEvent?.Register(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
         _appEvent?.Register(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
+        BundledConfigLoadNotificationCenter.Reported += OnBundledConfigLoadIssueReported;
         ViewModel.ApplySettings(_settings);
         ApplyCategorySidebarPinnedSetting(_settings.CategorySidebarPinned, animate: false);
     }
@@ -102,6 +103,7 @@ public sealed partial class MainWindow : Window
         _appEvent?.Unregister(AppEvents.Refresh, OnAppRefreshRequested);
         _appEvent?.Unregister(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
         _appEvent?.Unregister(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
+        BundledConfigLoadNotificationCenter.Reported -= OnBundledConfigLoadIssueReported;
 
         if (_settingsWindow is { IsLoaded: true })
         {
@@ -127,6 +129,7 @@ public sealed partial class MainWindow : Window
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
         ScheduleLaunchListInitialRealization();
+        ShowBundledConfigLoadIssues(BundledConfigLoadNotificationCenter.DrainPending());
 
         if (_settings.CheckForUpdatesOnStartup)
         {
@@ -148,6 +151,11 @@ public sealed partial class MainWindow : Window
     private void OnUpdateAvailabilityChanged(AppUpdateInfo? update)
     {
         Dispatcher.InvokeIfRequired(() => ApplyUpdateAvailability(update));
+    }
+
+    private void OnBundledConfigLoadIssueReported(BundledConfigLoadIssue issue)
+    {
+        Dispatcher.InvokeIfRequired(() => ShowBundledConfigLoadIssues([issue]));
     }
 
     private void ApplyUpdateAvailability(AppUpdateInfo? update)
@@ -596,6 +604,24 @@ public sealed partial class MainWindow : Window
     {
         ViewModel.FloatingNotification.Show(message, MapNotificationIcon(icon), actionText, action);
         FloatingNotification.ShowNotification();
+    }
+
+    private void ShowBundledConfigLoadIssues(IReadOnlyList<BundledConfigLoadIssue> issues)
+    {
+        if (issues.Count == 0)
+        {
+            return;
+        }
+
+        var message = string.Join(Environment.NewLine, issues.Select(FormatBundledConfigLoadIssue));
+        ShowFloatingNotification(message, MessageBoxImage.Warning);
+    }
+
+    private static string FormatBundledConfigLoadIssue(BundledConfigLoadIssue issue)
+    {
+        return issue.IsInvalidFormat
+            ? string.Format(Strings.Notification_BundledConfigInvalidFormat, issue.FileName)
+            : string.Format(Strings.Notification_BundledConfigMissing, issue.FileName);
     }
 
     private void HideFloatingNotification()

@@ -36,7 +36,7 @@ internal static class ConfigJsonPathResolver
             .OrderBy(static path => path, StringComparer.OrdinalIgnoreCase);
     }
 
-    internal static IEnumerable<string> EnumerateBundledAndUserDefined(
+    internal static IEnumerable<ConfigJsonPathCandidate> EnumerateBundledAndUserDefined(
         string appBaseDirectory,
         string bundledFileName,
         string userDefinedSubDirectoryName)
@@ -46,6 +46,7 @@ internal static class ConfigJsonPathResolver
         ArgumentException.ThrowIfNullOrWhiteSpace(userDefinedSubDirectoryName);
 
         return EnumerateUserDefinedJsonPaths(appBaseDirectory, userDefinedSubDirectoryName)
-            .Prepend(GetBundledPath(appBaseDirectory, bundledFileName));
+            .Select(static path => new ConfigJsonPathCandidate(path, IsBundled: false))
+            .Prepend(new ConfigJsonPathCandidate(GetBundledPath(appBaseDirectory, bundledFileName), IsBundled: true));
     }
 }

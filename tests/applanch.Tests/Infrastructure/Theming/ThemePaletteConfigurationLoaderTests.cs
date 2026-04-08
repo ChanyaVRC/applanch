@@ -1,5 +1,6 @@
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
+using applanch.Infrastructure.Utilities;
 using applanch.Tests.TestSupport;
 using Xunit;
 
@@ -103,6 +104,7 @@ public sealed class ThemePaletteConfigurationLoaderTests
     [Fact]
     public void TryLoadFromDirectory_WhenConfigMissing_ReturnsFalse()
     {
+        using var scope = BundledConfigLoadNotificationTestScope.Enter();
         var root = CreateTempDirectory();
         var appBase = Path.Combine(root, "appbase");
         Directory.CreateDirectory(Path.Combine(appBase, "Config"));
@@ -112,6 +114,33 @@ public sealed class ThemePaletteConfigurationLoaderTests
             var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out _);
 
             Assert.False(loaded);
+            Assert.Contains(
+                BundledConfigLoadNotificationCenter.DrainPending(),
+                static issue => issue == new BundledConfigLoadIssue("theme-palette.json", IsInvalidFormat: false));
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void TryLoadFromDirectory_WhenConfigIsInvalid_ReportsInvalidFormat()
+    {
+        using var scope = BundledConfigLoadNotificationTestScope.Enter();
+        var root = CreateTempDirectory();
+        var appBase = Path.Combine(root, "appbase");
+        Directory.CreateDirectory(Path.Combine(appBase, "Config"));
+        File.WriteAllText(Path.Combine(appBase, "Config", "theme-palette.json"), "{");
+
+        try
+        {
+            var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out _);
+
+            Assert.False(loaded);
+            Assert.Contains(
+                BundledConfigLoadNotificationCenter.DrainPending(),
+                static issue => issue == new BundledConfigLoadIssue("theme-palette.json", IsInvalidFormat: true));
         }
         finally
         {

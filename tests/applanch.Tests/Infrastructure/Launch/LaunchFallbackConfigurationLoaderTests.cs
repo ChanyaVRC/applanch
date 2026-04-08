@@ -1,4 +1,5 @@
 using applanch.Infrastructure.Launch;
+using applanch.Infrastructure.Utilities;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Launch;
@@ -57,6 +58,7 @@ public sealed class LaunchFallbackConfigurationLoaderTests
     [Fact]
     public void LoadFromDirectory_WhenNoBundledOrUserDefined_ReturnsEmpty()
     {
+        using var scope = BundledConfigLoadNotificationTestScope.Enter();
         var root = CreateTempDirectory();
         var appBase = Path.Combine(root, "appbase");
         Directory.CreateDirectory(Path.Combine(appBase, "Config"));
@@ -66,6 +68,33 @@ public sealed class LaunchFallbackConfigurationLoaderTests
             var config = LaunchFallbackConfigurationLoader.LoadFromDirectory(appBase);
 
             Assert.Empty(config.Rules);
+            Assert.Contains(
+                BundledConfigLoadNotificationCenter.DrainPending(),
+                static issue => issue == new BundledConfigLoadIssue("launch-fallbacks.json", IsInvalidFormat: false));
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void LoadFromDirectory_WhenBundledJsonIsInvalid_ReportsInvalidFormat()
+    {
+        using var scope = BundledConfigLoadNotificationTestScope.Enter();
+        var root = CreateTempDirectory();
+        var appBase = Path.Combine(root, "appbase");
+        Directory.CreateDirectory(Path.Combine(appBase, "Config"));
+        File.WriteAllText(Path.Combine(appBase, "Config", "launch-fallbacks.json"), "{");
+
+        try
+        {
+            var config = LaunchFallbackConfigurationLoader.LoadFromDirectory(appBase);
+
+            Assert.Empty(config.Rules);
+            Assert.Contains(
+                BundledConfigLoadNotificationCenter.DrainPending(),
+                static issue => issue == new BundledConfigLoadIssue("launch-fallbacks.json", IsInvalidFormat: true));
         }
         finally
         {

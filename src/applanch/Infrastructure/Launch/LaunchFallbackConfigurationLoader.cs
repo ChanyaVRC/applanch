@@ -1,5 +1,3 @@
-using System.IO;
-using System.Text.Json;
 using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Launch;
@@ -7,12 +5,7 @@ namespace applanch.Infrastructure.Launch;
 internal static class LaunchFallbackConfigurationLoader
 {
     private const string UserDefinedLaunchFallbacksDirectoryName = "launch-fallbacks";
-
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        ReadCommentHandling = JsonCommentHandling.Skip,
-    };
+    private const string ConfigDescription = "launch fallback config";
 
     internal static LaunchFallbackConfiguration Load()
     {
@@ -24,30 +17,22 @@ internal static class LaunchFallbackConfigurationLoader
         var merged = new LaunchFallbackConfiguration { Rules = [] };
         var loadedAny = false;
 
-        foreach (var path in ConfigJsonPathResolver.EnumerateBundledAndUserDefined(
+        foreach (var candidate in ConfigJsonPathResolver.EnumerateBundledAndUserDefined(
                      appBaseDirectory,
                      "launch-fallbacks.json",
                      UserDefinedLaunchFallbacksDirectoryName))
         {
-            if (!File.Exists(path))
-            {
-                continue;
-            }
-
             try
             {
-                var json = File.ReadAllText(path);
-                var config = JsonSerializer.Deserialize<LaunchFallbackConfiguration>(json, JsonOptions);
-                if (config is not null)
-                {
-                    AppLogger.Instance.Info($"Loaded launch fallback config: {path}");
-                    merged.Rules.AddRange(config.Rules);
-                    loadedAny = true;
-                }
+                var config = ConfigJsonLoadHelper.Load<LaunchFallbackConfiguration>(
+                    candidate,
+                    ConfigDescription);
+
+                merged.Rules.AddRange(config.Rules);
+                loadedAny = true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                AppLogger.Instance.Warn($"Failed to load launch fallback config '{path}': {ex.Message}");
             }
         }
 

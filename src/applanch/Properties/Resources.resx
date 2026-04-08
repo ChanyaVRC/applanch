@@ -419,6 +419,12 @@
   <data name="Notification_DiagnosticsCopied" xml:space="preserve">
     <value>Diagnostics copied to clipboard.</value>
   </data>
+  <data name="Notification_BundledConfigMissing" xml:space="preserve">
+    <value>Bundled config file is missing.&#xA;{0}</value>
+  </data>
+  <data name="Notification_BundledConfigInvalidFormat" xml:space="preserve">
+    <value>Bundled config file has an invalid format.&#xA;{0}</value>
+  </data>
   <data name="AllCategories" xml:space="preserve">
     <value>All</value>
   </data>

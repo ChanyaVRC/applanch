@@ -419,6 +419,12 @@
   <data name="Notification_DiagnosticsCopied" xml:space="preserve">
     <value>診断情報をクリップボードへコピーしました。</value>
   </data>
+  <data name="Notification_BundledConfigMissing" xml:space="preserve">
+    <value>同梱の設定ファイルが見つかりません。&#xA;{0}</value>
+  </data>
+  <data name="Notification_BundledConfigInvalidFormat" xml:space="preserve">
+    <value>同梱の設定ファイルの形式が不正です。&#xA;{0}</value>
+  </data>
   <data name="AllCategories" xml:space="preserve">
     <value>すべて</value>
   </data>

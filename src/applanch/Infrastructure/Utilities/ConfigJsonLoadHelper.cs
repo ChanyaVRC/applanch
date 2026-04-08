@@ -1,0 +1,87 @@
+using System.IO;
+using System.Text.Json;
+
+namespace applanch.Infrastructure.Utilities;
+
+internal static class ConfigJsonLoadHelper
+{
+    internal static JsonSerializerOptions SerializerOptions { get; } = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        AllowTrailingCommas = true,
+    };
+
+    internal static JsonDocumentOptions DocumentOptions { get; } = new()
+    {
+        CommentHandling = JsonCommentHandling.Skip,
+        AllowTrailingCommas = true,
+    };
+
+    internal static T Load<T>(ConfigJsonPathCandidate candidate, string configDescription)
+    {
+        return Load(
+            candidate,
+            configDescription,
+            static path => DeserializeFile<T>(path, SerializerOptions));
+    }
+
+    internal static T Load<T>(
+        ConfigJsonPathCandidate candidate,
+        string configDescription,
+        Func<string, T> loader)
+    {
+        try
+        {
+            var loaded = loader(candidate.Path);
+            AppLogger.Instance.Info($"Loaded {configDescription}: {candidate.Path}");
+            return loaded;
+        }
+        catch (Exception exception)
+        {
+            LogLoadFailure(configDescription, candidate.Path, exception, candidate.IsBundled);
+            if (candidate.IsBundled)
+            {
+                ReportBundledFailure(candidate.Path, exception);
+            }
+
+            throw;
+        }
+    }
+
+    internal static T DeserializeFile<T>(string path, JsonSerializerOptions options)
+    {
+        if (!File.Exists(path))
+        {
+            throw new FileNotFoundException("Config file not found.", path);
+        }
+
+        var json = File.ReadAllText(path);
+        return JsonSerializer.Deserialize<T>(json, options)
+            ?? throw new InvalidDataException("Config file has an invalid format.");
+    }
+
+    internal static void LogLoadFailure(string configDescription, string path, Exception exception, bool isBundled)
+    {
+        var message = $"Failed to load {configDescription} '{path}'";
+
+        if (isBundled)
+        {
+            AppLogger.Instance.Error(exception, message);
+            return;
+        }
+
+        AppLogger.Instance.Warn($"{message}: {exception.Message}");
+    }
+
+    internal static void ReportBundledFailure(string path, Exception exception)
+    {
+        if (exception is FileNotFoundException)
+        {
+            BundledConfigLoadNotificationCenter.ReportMissing(path);
+            return;
+        }
+
+        BundledConfigLoadNotificationCenter.ReportInvalidFormat(path);
+    }
+}

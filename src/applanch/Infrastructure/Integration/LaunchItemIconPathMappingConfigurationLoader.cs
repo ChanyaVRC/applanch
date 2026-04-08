@@ -1,5 +1,3 @@
-using System.IO;
-using System.Text.Json;
 using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Integration;
@@ -7,13 +5,7 @@ namespace applanch.Infrastructure.Integration;
 internal static class LaunchItemIconPathMappingConfigurationLoader
 {
     private const string UserDefinedIconPathMappingsDirectoryName = "icon-path-mappings";
-
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true,
-    };
+    private const string ConfigDescription = "icon path mapping config";
 
     internal static LaunchItemIconPathMappingConfiguration Load()
     {
@@ -25,30 +17,22 @@ internal static class LaunchItemIconPathMappingConfigurationLoader
         var merged = new LaunchItemIconPathMappingConfiguration { Rules = [] };
         var loadedAny = false;
 
-        foreach (var path in ConfigJsonPathResolver.EnumerateBundledAndUserDefined(
+        foreach (var candidate in ConfigJsonPathResolver.EnumerateBundledAndUserDefined(
                      appBaseDirectory,
                      "icon-path-mappings.json",
                      UserDefinedIconPathMappingsDirectoryName))
         {
-            if (!File.Exists(path))
-            {
-                continue;
-            }
-
             try
             {
-                var json = File.ReadAllText(path);
-                var config = JsonSerializer.Deserialize<LaunchItemIconPathMappingConfiguration>(json, JsonOptions);
-                if (config is not null)
-                {
-                    AppLogger.Instance.Info($"Loaded icon path mapping config: {path}");
-                    merged.Rules.AddRange(config.Rules);
-                    loadedAny = true;
-                }
+                var config = ConfigJsonLoadHelper.Load<LaunchItemIconPathMappingConfiguration>(
+                    candidate,
+                    ConfigDescription);
+
+                merged.Rules.AddRange(config.Rules);
+                loadedAny = true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                AppLogger.Instance.Warn($"Failed to load icon path mapping config '{path}': {ex.Message}");
             }
         }
 

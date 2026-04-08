@@ -8,6 +8,7 @@ namespace applanch.Infrastructure.Theming;
 
 internal static class ThemePaletteConfigurationLoader
 {
+    private const string ConfigDescription = "theme palette config";
     internal const string SystemThemeId = "system";
     internal const string LightThemeId = "light";
     internal const string DarkThemeId = "dark";
@@ -95,14 +96,20 @@ internal static class ThemePaletteConfigurationLoader
 
         foreach (var path in ConfigJsonPathResolver.EnumerateUserDefinedJsonPaths(appBaseDirectory, UserDefinedThemePaletteDirectoryName))
         {
-            if (!TryParseFile(path, out var parsed))
+            try
             {
-                continue;
-            }
+                var parsed = ConfigJsonLoadHelper.Load(
+                    new ConfigJsonPathCandidate(path, IsBundled: false),
+                    ConfigDescription,
+                    LoadThemePaletteConfiguration);
 
-            merged = merged is null
-                ? parsed
-                : Merge(merged, parsed);
+                merged = merged is null
+                    ? parsed
+                    : Merge(merged, parsed);
+            }
+            catch (Exception)
+            {
+            }
         }
 
         if (merged is null)
@@ -161,46 +168,37 @@ internal static class ThemePaletteConfigurationLoader
         ArgumentNullException.ThrowIfNull(appBaseDirectory);
 
         var path = ConfigJsonPathResolver.GetBundledPath(appBaseDirectory, "theme-palette.json");
-        if (!File.Exists(path))
+        try
         {
-            AppLogger.Instance.Info($"Theme palette config not found: {path}");
-            configuration = FallbackConfiguration;
-            return false;
+            var loadedConfiguration = ConfigJsonLoadHelper.Load(
+                new ConfigJsonPathCandidate(path, IsBundled: true),
+                ConfigDescription,
+                LoadThemePaletteConfiguration);
+
+            configuration = loadedConfiguration;
+            return true;
+        }
+        catch (Exception)
+        {
         }
 
-        return TryParseFile(path, out configuration);
+        configuration = FallbackConfiguration;
+        return false;
     }
 
-    private static bool TryParseFile(string path, out ThemePaletteConfiguration configuration)
+    private static ThemePaletteConfiguration LoadThemePaletteConfiguration(string path)
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        try
-        {
-            using var stream = File.OpenRead(path);
-            using var doc = JsonDocument.Parse(stream, new JsonDocumentOptions
-            {
-                CommentHandling = JsonCommentHandling.Skip,
-                AllowTrailingCommas = true,
-            });
+        using var stream = File.OpenRead(path);
+        using var doc = JsonDocument.Parse(stream, ConfigJsonLoadHelper.DocumentOptions);
 
-            if (!TryParseConfiguration(doc.RootElement, out var parsedConfiguration))
-            {
-                AppLogger.Instance.Warn($"Theme palette config has no valid entries: {path}");
-                configuration = FallbackConfiguration;
-                return false;
-            }
-
-            configuration = parsedConfiguration;
-            AppLogger.Instance.Info($"Loaded theme palette config: {path}");
-            return true;
-        }
-        catch (Exception ex)
+        if (!TryParseConfiguration(doc.RootElement, out var parsedConfiguration))
         {
-            AppLogger.Instance.Warn($"Failed to load theme palette config '{path}': {ex.Message}");
-            configuration = FallbackConfiguration;
-            return false;
+            throw new InvalidDataException("Theme palette config has no valid entries.");
         }
+
+        return parsedConfiguration;
     }
 
     private static bool TryParseConfiguration(JsonElement root, out ThemePaletteConfiguration configuration)
