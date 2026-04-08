@@ -27,10 +27,12 @@ internal sealed class EntriesFromSpecJsonConverter : JsonConverter<EntriesFromSp
 
             foreach (var property in obj.RootElement.EnumerateObject())
             {
-                var normalizedModeName = Normalize(property.Name);
-                var systemMode = SystemThemeModeExtensions.TryParseFromThemeId(normalizedModeName);
+                if (property.Value.ValueKind != JsonValueKind.String)
+                {
+                    continue;
+                }
 
-                if (systemMode is null || property.Value.ValueKind != JsonValueKind.String)
+                if (SystemThemeModeExtensions.TryParseFromThemeId(Normalize(property.Name)) is not { } systemMode)
                 {
                     continue;
                 }
@@ -38,7 +40,7 @@ internal sealed class EntriesFromSpecJsonConverter : JsonConverter<EntriesFromSp
                 var source = Normalize(property.Value.GetString());
                 if (source.Length > 0)
                 {
-                    sources[systemMode.Value] = source;
+                    sources[systemMode] = source;
                 }
             }
 
