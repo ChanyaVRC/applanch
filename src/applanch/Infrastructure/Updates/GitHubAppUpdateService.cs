@@ -2,6 +2,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using applanch.Infrastructure.Storage;
@@ -108,10 +109,10 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
         log.Info($"Current exe: {currentExePath}, target dir: {currentDir}");
 
         var scriptPath = Path.Combine(tempDir, "apply-update.cmd");
-        WriteUpdateScript(scriptPath, currentExePath, extractDir, currentDir);
+        WriteUpdateScript(scriptPath, Process.GetCurrentProcess().Id, currentExePath, extractDir, currentDir);
         log.Info($"Update script written to {scriptPath}");
 
-        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+        Process.Start(new ProcessStartInfo
         {
             FileName = "cmd.exe",
             Arguments = $"/c \"{scriptPath}\"",
@@ -164,16 +165,35 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
     internal static bool IsNewer(string candidate, string current) =>
         SemanticVersion.Parse(candidate).CompareTo(SemanticVersion.Parse(current)) > 0;
 
-    private static void WriteUpdateScript(string scriptPath, string currentExePath, string extractDir, string targetDir)
+    internal static string[] BuildUpdateScriptLines(int processId, string currentExePath, string extractDir, string targetDir, string cleanupDir)
     {
-        var lines = new[]
-        {
+        return
+        [
             "@echo off",
-            "timeout /t 2 /nobreak > nul",
-            $"xcopy /s /y /q \"{extractDir}\\*\" \"{targetDir}\\\"",
+            "setlocal",
+            ":wait_for_exit",
+            $"tasklist /FI \"PID eq {processId}\" 2>NUL | find \"{processId}\" >NUL",
+            "if not errorlevel 1 (",
+            "  timeout /t 1 /nobreak > nul",
+            "  goto wait_for_exit",
+            ")",
+            $"robocopy \"{extractDir}\" \"{targetDir}\" /e /r:5 /w:1 /nfl /ndl /njh /njs /nc /ns /np > nul",
+            "if errorlevel 8 exit /b %errorlevel%",
             $"start \"\" \"{currentExePath}\"",
-            $"rmdir /s /q \"{Path.GetDirectoryName(scriptPath)}\"",
-        };
+            $"rmdir /s /q \"{cleanupDir}\"",
+            "endlocal",
+        ];
+    }
+
+    private static void WriteUpdateScript(string scriptPath, int processId, string currentExePath, string extractDir, string targetDir)
+    {
+        var lines = BuildUpdateScriptLines(
+            processId,
+            currentExePath,
+            extractDir,
+            targetDir,
+            Path.GetDirectoryName(scriptPath) ?? Path.GetTempPath());
+
         File.WriteAllLines(scriptPath, lines);
     }
 

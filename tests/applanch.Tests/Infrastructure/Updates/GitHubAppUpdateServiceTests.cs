@@ -199,6 +199,25 @@ public class GitHubAppUpdateServiceTests
         Assert.True(File.Exists(Path.Combine(extractDir, "hello.txt")));
     }
 
+    [Fact]
+    public void BuildUpdateScriptLines_WaitsForOldProcess_AndRestartsOnlyAfterSuccessfulCopy()
+    {
+        var lines = GitHubAppUpdateService.BuildUpdateScriptLines(
+            4321,
+            @"C:\Apps\applanch\applanch.exe",
+            @"C:\Temp\update\extracted",
+            @"C:\Apps\applanch",
+            @"C:\Temp\update");
+
+        Assert.Contains(":wait_for_exit", lines);
+        Assert.Contains("tasklist /FI \"PID eq 4321\" 2>NUL | find \"4321\" >NUL", lines);
+        Assert.Contains("if not errorlevel 1 (", lines);
+        Assert.Contains("robocopy \"C:\\Temp\\update\\extracted\" \"C:\\Apps\\applanch\" /e /r:5 /w:1 /nfl /ndl /njh /njs /nc /ns /np > nul", lines);
+        Assert.Contains("if errorlevel 8 exit /b %errorlevel%", lines);
+        Assert.Contains("start \"\" \"C:\\Apps\\applanch\\applanch.exe\"", lines);
+        Assert.Contains("rmdir /s /q \"C:\\Temp\\update\"", lines);
+    }
+
     private sealed class FailsThenJsonHandler(int failuresBeforeSuccess, string responseJson) : HttpMessageHandler
     {
         private int _remainingFailures = failuresBeforeSuccess;
