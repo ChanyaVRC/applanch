@@ -224,14 +224,11 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
     internal void ApplyExternalSettings(AppSettings settings)
     {
-        var languageChanged = _language != settings.Language;
+        var previousLanguage = _language;
         _current = settings;
         LoadFields(settings);
 
-        if (languageChanged)
-        {
-            RefreshThemeOptionsForCurrentCulture();
-        }
+        RefreshThemeOptionsIfLanguageChanged(previousLanguage, _language);
 
         OnPropertyChanged(string.Empty);
     }
@@ -239,13 +236,10 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     internal void ResetToDefaults()
     {
         var defaults = new AppSettings();
-        var languageChanged = _language != defaults.Language;
+        var previousLanguage = _language;
         LoadFields(defaults);
 
-        if (languageChanged)
-        {
-            RefreshThemeOptionsForCurrentCulture();
-        }
+        RefreshThemeOptionsIfLanguageChanged(previousLanguage, _language);
 
         OnPropertyChanged(string.Empty);
         Commit();
@@ -301,7 +295,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
     private void Commit()
     {
-        var languageChanged = _current.Language != _language;
+        var previousLanguage = _current.Language;
 
         _current = _current with
         {
@@ -328,7 +322,12 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         SettingsChanged = true;
         _appEvent.Invoke(AppEvents.Commit, _current);
 
-        if (languageChanged)
+        RefreshThemeOptionsIfLanguageChanged(previousLanguage, _current.Language);
+    }
+
+    private void RefreshThemeOptionsIfLanguageChanged(LanguageOption previousLanguage, LanguageOption nextLanguage)
+    {
+        if (previousLanguage != nextLanguage)
         {
             RefreshThemeOptionsForCurrentCulture();
         }

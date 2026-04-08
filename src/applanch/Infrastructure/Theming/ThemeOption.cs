@@ -1,9 +1,14 @@
+using System.ComponentModel;
+
 namespace applanch.Infrastructure.Theming;
 
-internal sealed class ThemeOption : System.ComponentModel.INotifyPropertyChanged
+internal sealed class ThemeOption : INotifyPropertyChanged
 {
     internal ThemeOption(string themeId, LocalizedText displayNameText, bool IsSystemOption = false)
     {
+        ArgumentNullException.ThrowIfNull(themeId);
+        ArgumentNullException.ThrowIfNull(displayNameText);
+
         ThemeId = themeId;
         DisplayNameText = displayNameText;
         this.IsSystemOption = IsSystemOption;
@@ -17,10 +22,10 @@ internal sealed class ThemeOption : System.ComponentModel.INotifyPropertyChanged
 
     public string DisplayName => DisplayNameText.ResolveCurrentCulture();
 
-    public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     internal void NotifyDisplayNameChanged()
     {
-        PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(DisplayName)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayName)));
     }
 }
