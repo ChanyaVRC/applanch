@@ -4,6 +4,20 @@ Notable user-facing changes per version. For full commit history and downloadabl
 
 ---
 
+## v0.5.7 — April 9, 2026
+
+### Fixed
+
+- **Theme selection localization refresh** — Fixed an issue where the selected theme label in Settings could remain in the previous language after changing app language.
+
+### Improved
+
+- **Theme option update flow** — Simplified theme option refresh behavior and reduced duplication in settings update paths.
+- **Theme option lookup performance** — Switched theme option resolution to dictionary-based lookups for more direct O(1) access by theme ID.
+- **Internal settings model cleanup** — Consolidated settings draft update paths to improve readability and maintainability.
+
+---
+
 ## v0.5.6 — April 8, 2026
 
 ### New
