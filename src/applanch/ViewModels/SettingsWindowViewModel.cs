@@ -16,24 +16,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     private readonly Func<IReadOnlyList<ThemeOption>> _themeOptionsProvider;
     private IReadOnlyList<ThemeOption> _themeOptions;
     private AppSettings _current;
-    private string _themeId = ThemePaletteConfigurationLoader.SystemThemeId;
-    private PostLaunchBehavior _postLaunchBehavior;
-    private bool _checkForUpdatesOnStartup;
-    private UpdateInstallBehavior _updateInstallBehavior;
-    private bool _debugUpdate;
-    private bool _startMinimizedOnLaunch;
-    private bool _launchAtWindowsStartup;
-    private bool _registerContextMenuOnStartup;
-    private bool _fetchHttpIcons;
-    private bool _allowPrivateNetworkHttpIconRequests;
-    private bool _confirmBeforeLaunch;
-    private bool _confirmBeforeDelete;
-    private int _quickAddSuggestionLimit = AppSettings.DefaultQuickAddSuggestionLimit;
-    private CategorySortMode _categorySortMode;
-    private AppListSortMode _appListSortMode;
-    private bool _launchItemIconOnlyMode;
-    private bool _runAsAdministrator;
-    private LanguageOption _language;
+    private AppSettings _draft;
 
     internal SettingsWindowViewModel(
         AppSettings settings,
@@ -44,7 +27,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         _themeOptionsProvider = themeOptionsProvider ?? ThemeOptionsProvider.Load;
         _themeOptions = _themeOptionsProvider();
         _current = settings;
-        LoadFields(settings);
+        _draft = settings;
     }
 
     public IReadOnlyList<ThemeOption> ThemeOptions => _themeOptions;
@@ -69,7 +52,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
     public string SelectedThemeId
     {
-        get => _themeId;
+        get => _draft.ThemeId;
         set
         {
             if (!IsThemeSelectionVisible)
@@ -84,12 +67,12 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             }
 
             var selectedThemeId = _themeOptions[selectedIndex].ThemeId;
-            if (string.Equals(_themeId, selectedThemeId, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(_draft.ThemeId, selectedThemeId, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
 
-            _themeId = selectedThemeId;
+            _draft = _draft with { ThemeId = selectedThemeId };
             OnPropertyChanged();
             OnPropertyChanged(nameof(ThemeIndex));
             OnPropertyChanged(nameof(SelectedThemeDisplayName));
@@ -101,88 +84,88 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     {
         get
         {
-            var themeIndex = ResolveThemeIndex(_themeId);
+            var themeIndex = ResolveThemeIndex(_draft.ThemeId);
             return themeIndex >= 0 ? _themeOptions[themeIndex].DisplayName : string.Empty;
         }
     }
 
     public PostLaunchBehavior SelectedPostLaunchBehavior
     {
-        get => _postLaunchBehavior;
-        set => SetFieldAndCommit(ref _postLaunchBehavior, value);
+        get => _draft.PostLaunchBehavior;
+        set => SetDraftValue(value, static settings => settings.PostLaunchBehavior, static (settings, v) => settings with { PostLaunchBehavior = v });
     }
 
     public bool CheckForUpdatesOnStartup
     {
-        get => _checkForUpdatesOnStartup;
-        set => SetFieldAndCommit(ref _checkForUpdatesOnStartup, value);
+        get => _draft.CheckForUpdatesOnStartup;
+        set => SetDraftValue(value, static settings => settings.CheckForUpdatesOnStartup, static (settings, v) => settings with { CheckForUpdatesOnStartup = v });
     }
 
     public UpdateInstallBehavior SelectedUpdateInstallBehavior
     {
-        get => _updateInstallBehavior;
-        set => SetFieldAndCommit(ref _updateInstallBehavior, value);
+        get => _draft.UpdateInstallBehavior;
+        set => SetDraftValue(value, static settings => settings.UpdateInstallBehavior, static (settings, v) => settings with { UpdateInstallBehavior = v });
     }
 
     public bool DebugUpdate
     {
-        get => _debugUpdate;
-        set => SetFieldAndCommit(ref _debugUpdate, value);
+        get => _draft.DebugUpdate;
+        set => SetDraftValue(value, static settings => settings.DebugUpdate, static (settings, v) => settings with { DebugUpdate = v });
     }
 
     public bool StartMinimizedOnLaunch
     {
-        get => _startMinimizedOnLaunch;
-        set => SetFieldAndCommit(ref _startMinimizedOnLaunch, value);
+        get => _draft.StartMinimizedOnLaunch;
+        set => SetDraftValue(value, static settings => settings.StartMinimizedOnLaunch, static (settings, v) => settings with { StartMinimizedOnLaunch = v });
     }
 
     public bool LaunchAtWindowsStartup
     {
-        get => _launchAtWindowsStartup;
-        set => SetFieldAndCommit(ref _launchAtWindowsStartup, value);
+        get => _draft.LaunchAtWindowsStartup;
+        set => SetDraftValue(value, static settings => settings.LaunchAtWindowsStartup, static (settings, v) => settings with { LaunchAtWindowsStartup = v });
     }
 
     public bool RegisterContextMenuOnStartup
     {
-        get => _registerContextMenuOnStartup;
-        set => SetFieldAndCommit(ref _registerContextMenuOnStartup, value);
+        get => _draft.RegisterContextMenuOnStartup;
+        set => SetDraftValue(value, static settings => settings.RegisterContextMenuOnStartup, static (settings, v) => settings with { RegisterContextMenuOnStartup = v });
     }
 
     public bool FetchHttpIcons
     {
-        get => _fetchHttpIcons;
-        set => SetFieldAndCommit(ref _fetchHttpIcons, value);
+        get => _draft.FetchHttpIcons;
+        set => SetDraftValue(value, static settings => settings.FetchHttpIcons, static (settings, v) => settings with { FetchHttpIcons = v });
     }
 
     public bool AllowPrivateNetworkHttpIconRequests
     {
-        get => _allowPrivateNetworkHttpIconRequests;
-        set => SetFieldAndCommit(ref _allowPrivateNetworkHttpIconRequests, value);
+        get => _draft.AllowPrivateNetworkHttpIconRequests;
+        set => SetDraftValue(value, static settings => settings.AllowPrivateNetworkHttpIconRequests, static (settings, v) => settings with { AllowPrivateNetworkHttpIconRequests = v });
     }
 
     public bool ConfirmBeforeLaunch
     {
-        get => _confirmBeforeLaunch;
-        set => SetFieldAndCommit(ref _confirmBeforeLaunch, value);
+        get => _draft.ConfirmBeforeLaunch;
+        set => SetDraftValue(value, static settings => settings.ConfirmBeforeLaunch, static (settings, v) => settings with { ConfirmBeforeLaunch = v });
     }
 
     public bool ConfirmBeforeDelete
     {
-        get => _confirmBeforeDelete;
-        set => SetFieldAndCommit(ref _confirmBeforeDelete, value);
+        get => _draft.ConfirmBeforeDelete;
+        set => SetDraftValue(value, static settings => settings.ConfirmBeforeDelete, static (settings, v) => settings with { ConfirmBeforeDelete = v });
     }
 
     public int QuickAddSuggestionLimit
     {
-        get => _quickAddSuggestionLimit;
+        get => _draft.QuickAddSuggestionLimit;
         set
         {
-            if (_quickAddSuggestionLimit == value || !QuickAddSuggestionLimitOptionsValues.Contains(value))
+            if (_draft.QuickAddSuggestionLimit == value || !QuickAddSuggestionLimitOptionsValues.Contains(value))
             {
                 return;
             }
 
-            _quickAddSuggestionLimit = value;
+            _draft = _draft with { QuickAddSuggestionLimit = value };
             OnPropertyChanged();
             Commit();
         }
@@ -190,32 +173,32 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
     public CategorySortMode SelectedCategorySortMode
     {
-        get => _categorySortMode;
-        set => SetFieldAndCommit(ref _categorySortMode, value);
+        get => _draft.CategorySortMode;
+        set => SetDraftValue(value, static settings => settings.CategorySortMode, static (settings, v) => settings with { CategorySortMode = v });
     }
 
     public AppListSortMode SelectedAppListSortMode
     {
-        get => _appListSortMode;
-        set => SetFieldAndCommit(ref _appListSortMode, value);
+        get => _draft.AppListSortMode;
+        set => SetDraftValue(value, static settings => settings.AppListSortMode, static (settings, v) => settings with { AppListSortMode = v });
     }
 
     public bool LaunchItemIconOnlyMode
     {
-        get => _launchItemIconOnlyMode;
-        set => SetFieldAndCommit(ref _launchItemIconOnlyMode, value);
+        get => _draft.LaunchItemIconOnlyMode;
+        set => SetDraftValue(value, static settings => settings.LaunchItemIconOnlyMode, static (settings, v) => settings with { LaunchItemIconOnlyMode = v });
     }
 
     public bool RunAsAdministrator
     {
-        get => _runAsAdministrator;
-        set => SetFieldAndCommit(ref _runAsAdministrator, value);
+        get => _draft.RunAsAdministrator;
+        set => SetDraftValue(value, static settings => settings.RunAsAdministrator, static (settings, v) => settings with { RunAsAdministrator = v });
     }
 
     public LanguageOption SelectedLanguage
     {
-        get => _language;
-        set => SetFieldAndCommit(ref _language, value);
+        get => _draft.Language;
+        set => SetDraftValue(value, static settings => settings.Language, static (settings, v) => settings with { Language = v });
     }
 
     public bool SettingsChanged { get; private set; }
@@ -224,11 +207,11 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
     internal void ApplyExternalSettings(AppSettings settings)
     {
-        var previousLanguage = _language;
+        var previousLanguage = _draft.Language;
         _current = settings;
-        LoadFields(settings);
+        _draft = settings;
 
-        RefreshThemeOptionsIfLanguageChanged(previousLanguage, _language);
+        RefreshThemeOptionsIfLanguageChanged(previousLanguage, _draft.Language);
 
         OnPropertyChanged(string.Empty);
     }
@@ -236,10 +219,10 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     internal void ResetToDefaults()
     {
         var defaults = new AppSettings();
-        var previousLanguage = _language;
-        LoadFields(defaults);
+        var previousLanguage = _draft.Language;
+        _draft = defaults;
 
-        RefreshThemeOptionsIfLanguageChanged(previousLanguage, _language);
+        RefreshThemeOptionsIfLanguageChanged(previousLanguage, _draft.Language);
 
         OnPropertyChanged(string.Empty);
         Commit();
@@ -260,34 +243,19 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         return builder.ToString();
     }
 
-    private void LoadFields(AppSettings settings)
+    private bool SetDraftValue<T>(
+        T value,
+        Func<AppSettings, T> getter,
+        Func<AppSettings, T, AppSettings> updater,
+        [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
     {
-        _themeId = settings.ThemeId;
-        _postLaunchBehavior = settings.PostLaunchBehavior;
-        _checkForUpdatesOnStartup = settings.CheckForUpdatesOnStartup;
-        _updateInstallBehavior = settings.UpdateInstallBehavior;
-        _debugUpdate = settings.DebugUpdate;
-        _startMinimizedOnLaunch = settings.StartMinimizedOnLaunch;
-        _launchAtWindowsStartup = settings.LaunchAtWindowsStartup;
-        _registerContextMenuOnStartup = settings.RegisterContextMenuOnStartup;
-        _fetchHttpIcons = settings.FetchHttpIcons;
-        _allowPrivateNetworkHttpIconRequests = settings.AllowPrivateNetworkHttpIconRequests;
-        _confirmBeforeLaunch = settings.ConfirmBeforeLaunch;
-        _confirmBeforeDelete = settings.ConfirmBeforeDelete;
-        _quickAddSuggestionLimit = settings.QuickAddSuggestionLimit;
-        _categorySortMode = settings.CategorySortMode;
-        _appListSortMode = settings.AppListSortMode;
-        _launchItemIconOnlyMode = settings.LaunchItemIconOnlyMode;
-        _runAsAdministrator = settings.RunAsAdministrator;
-        _language = settings.Language;
-    }
-
-    private bool SetFieldAndCommit<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
-    {
-        if (!SetField(ref field, value, propertyName))
+        if (EqualityComparer<T>.Default.Equals(getter(_draft), value))
         {
             return false;
         }
+
+        _draft = updater(_draft, value);
+        OnPropertyChanged(propertyName);
 
         Commit();
         return true;
@@ -297,27 +265,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     {
         var previousLanguage = _current.Language;
 
-        _current = _current with
-        {
-            ThemeId = _themeId,
-            PostLaunchBehavior = _postLaunchBehavior,
-            CheckForUpdatesOnStartup = _checkForUpdatesOnStartup,
-            UpdateInstallBehavior = _updateInstallBehavior,
-            DebugUpdate = _debugUpdate,
-            StartMinimizedOnLaunch = _startMinimizedOnLaunch,
-            LaunchAtWindowsStartup = _launchAtWindowsStartup,
-            RegisterContextMenuOnStartup = _registerContextMenuOnStartup,
-            FetchHttpIcons = _fetchHttpIcons,
-            AllowPrivateNetworkHttpIconRequests = _allowPrivateNetworkHttpIconRequests,
-            ConfirmBeforeLaunch = _confirmBeforeLaunch,
-            ConfirmBeforeDelete = _confirmBeforeDelete,
-            QuickAddSuggestionLimit = _quickAddSuggestionLimit,
-            CategorySortMode = _categorySortMode,
-            AppListSortMode = _appListSortMode,
-            LaunchItemIconOnlyMode = _launchItemIconOnlyMode,
-            RunAsAdministrator = _runAsAdministrator,
-            Language = _language,
-        };
+        _current = _draft;
 
         SettingsChanged = true;
         _appEvent.Invoke(AppEvents.Commit, _current);
@@ -354,7 +302,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             return -1;
         }
 
-        var themeIndex = ResolveThemeIndex(_themeId);
+        var themeIndex = ResolveThemeIndex(_draft.ThemeId);
         if (themeIndex >= 0)
         {
             return themeIndex;
