@@ -14,6 +14,7 @@ Notable user-facing changes per version. For full commit history and downloadabl
 
 - **Settings window reliability** — Fixed an issue where the Settings window could fail to appear and the app process might not shut down correctly in some flows.
 - **Bundled config diagnostics** — Added floating warning notifications when bundled configuration files are missing or invalid at startup.
+- **Update restart loop** — Fixed an issue where update application could trigger repeated restart behavior in some environments.
 
 ### Improved
 
