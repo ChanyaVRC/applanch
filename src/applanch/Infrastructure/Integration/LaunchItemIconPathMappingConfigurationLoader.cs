@@ -15,31 +15,14 @@ internal static class LaunchItemIconPathMappingConfigurationLoader
     internal static LaunchItemIconPathMappingConfiguration LoadFromDirectory(string appBaseDirectory)
     {
         var merged = new LaunchItemIconPathMappingConfiguration { Rules = [] };
-        var loadedAny = false;
-
-        foreach (var candidate in ConfigJsonPathResolver.EnumerateBundledAndUserDefined(
-                     appBaseDirectory,
-                     "icon-path-mappings.json",
-                     UserDefinedIconPathMappingsDirectoryName))
-        {
-            try
-            {
-                var config = ConfigJsonLoadHelper.Load<LaunchItemIconPathMappingConfiguration>(
-                    candidate,
-                    ConfigDescription);
-
-                merged.Rules.AddRange(config.Rules);
-                loadedAny = true;
-            }
-            catch (Exception)
-            {
-            }
-        }
-
-        if (!loadedAny)
-        {
-            AppLogger.Instance.Info("Icon path mapping config not found.");
-        }
+        ConfigJsonLoadHelper.LoadAndMerge(
+            ConfigJsonPathResolver.EnumerateBundledAndUserDefined(
+                appBaseDirectory,
+                "icon-path-mappings.json",
+                UserDefinedIconPathMappingsDirectoryName),
+            ConfigDescription,
+            static path => ConfigJsonLoadHelper.DeserializeFile<LaunchItemIconPathMappingConfiguration>(path, ConfigJsonLoadHelper.SerializerOptions),
+            config => merged.Rules.AddRange(config.Rules));
 
         return merged;
     }

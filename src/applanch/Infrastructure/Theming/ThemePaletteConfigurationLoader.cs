@@ -94,23 +94,18 @@ internal static class ThemePaletteConfigurationLoader
 
         ThemePaletteConfiguration? merged = null;
 
-        foreach (var path in ConfigJsonPathResolver.EnumerateUserDefinedJsonPaths(appBaseDirectory, UserDefinedThemePaletteDirectoryName))
-        {
-            try
+        ConfigJsonLoadHelper.LoadAndMerge(
+            ConfigJsonPathResolver
+                .EnumerateUserDefinedJsonPaths(appBaseDirectory, UserDefinedThemePaletteDirectoryName)
+                .Select(static path => new ConfigJsonPathCandidate(path, IsBundled: false)),
+            ConfigDescription,
+            LoadThemePaletteConfiguration,
+            parsed =>
             {
-                var parsed = ConfigJsonLoadHelper.Load(
-                    new ConfigJsonPathCandidate(path, IsBundled: false),
-                    ConfigDescription,
-                    LoadThemePaletteConfiguration);
-
                 merged = merged is null
                     ? parsed
                     : Merge(merged, parsed);
-            }
-            catch (Exception)
-            {
-            }
-        }
+            });
 
         if (merged is null)
         {
@@ -191,184 +186,125 @@ internal static class ThemePaletteConfigurationLoader
         ArgumentNullException.ThrowIfNull(path);
 
         using var stream = File.OpenRead(path);
-        using var doc = JsonDocument.Parse(stream, ConfigJsonLoadHelper.DocumentOptions);
+        var dto = JsonSerializer.Deserialize<ThemePaletteConfigurationDto>(
+            stream,
+            ConfigJsonLoadHelper.SerializerOptions)
+            ?? throw new InvalidDataException("Theme palette config is null or invalid.");
 
-        if (!TryParseConfiguration(doc.RootElement, out var parsedConfiguration))
+        var themes = BuildThemesFromDto(dto);
+        if (themes.Length == 0)
         {
             throw new InvalidDataException("Theme palette config has no valid entries.");
         }
 
-        return parsedConfiguration;
+        return new ThemePaletteConfiguration(themes, LoadedFromConfig: true);
     }
 
-    private static bool TryParseConfiguration(JsonElement root, out ThemePaletteConfiguration configuration)
+    private static ThemeDefinition[] BuildThemesFromDto(ThemePaletteConfigurationDto dto)
     {
-        if (!TryParseThemesAndEntries(root, out var parsed))
+        var themes = new List<ThemeDefinition>();
+
+        foreach (var themeDto in dto.Themes)
         {
-            configuration = FallbackConfiguration;
-            return false;
-        }
-
-        configuration = new ThemePaletteConfiguration(
-            parsed.Themes,
-            parsed.Entries,
-            LoadedFromConfig: true);
-        return true;
-    }
-
-    private static bool TryParseThemesAndEntries(
-        JsonElement root,
-        out ParsedThemePalette parsed)
-    {
-        parsed = new ParsedThemePalette([], []);
-
-        if (!root.TryGetProperty("themes", out var themesNode) || themesNode.ValueKind != JsonValueKind.Array)
-        {
-            return false;
-        }
-
-        var estimatedThemeCount = themesNode.GetArrayLength();
-        var parsedThemes = new List<ThemeDefinition>(estimatedThemeCount);
-        var colorsByEntryKey = new Dictionary<string, Dictionary<string, string>>(estimatedThemeCount);
-
-        foreach (var themeNode in themesNode.EnumerateArray())
-        {
-            if (!TryGetStringProperty(themeNode, "id", out var rawThemeId))
-            {
-                continue;
-            }
-
-            var themeId = NormalizeThemeId(rawThemeId);
+            var themeId = NormalizeThemeId(themeDto.Id);
             if (string.IsNullOrEmpty(themeId))
             {
                 continue;
             }
 
-            parsedThemes.Add(ParseThemeDefinition(themeNode, themeId));
-
-            if (!themeNode.TryGetProperty("entries", out var entriesNode) || entriesNode.ValueKind != JsonValueKind.Array)
+            if (themeDto.Disabled)
             {
                 continue;
             }
 
-            foreach (var entryNode in entriesNode.EnumerateArray())
+            var displayName = ResolveDisplayName(themeId, themeDto.DisplayNames);
+            var themeDef = BuildThemeDefinition(themeId, displayName, themeDto.EntriesFrom);
+
+            // Apply entries from theme DTO if present
+            if (themeDto.Entries is not null && themeDef is FixedThemeDefinition fixedTheme)
             {
-                if (!TryGetStringProperty(entryNode, "key", out var key) || string.IsNullOrWhiteSpace(key))
+                var colorsByKey = new Dictionary<string, string>();
+                foreach (var entry in themeDto.Entries)
                 {
-                    continue;
+                    if (!string.IsNullOrWhiteSpace(entry.Key) && !string.IsNullOrWhiteSpace(entry.Hex))
+                    {
+                        colorsByKey[entry.Key] = entry.Hex;
+                    }
                 }
 
-                if (!TryGetStringProperty(entryNode, "hex", out var hex) || string.IsNullOrWhiteSpace(hex))
+                if (colorsByKey.Count > 0)
                 {
-                    continue;
+                    themeDef = new FixedThemeDefinition(
+                        fixedTheme.Id,
+                        fixedTheme.DisplayName,
+                        fixedTheme.InheritedThemeId,
+                        colorsByKey);
                 }
-
-                AddColorEntry(colorsByEntryKey, key, themeId, hex);
             }
+
+            themes.Add(themeDef);
         }
 
-        if (parsedThemes.Count == 0 || colorsByEntryKey.Count == 0)
-        {
-            return false;
-        }
-
-        parsed = new ParsedThemePalette(
-            parsedThemes.ToArray(),
-            colorsByEntryKey.Select(static x => new ThemePaletteEntry(x.Key, x.Value)).ToArray());
-
-        return true;
+        return themes.ToArray();
     }
 
-    private static ThemeDefinition ParseThemeDefinition(JsonElement themeNode, string themeId)
+    private static ThemeDefinition BuildThemeDefinition(
+        string themeId,
+        LocalizedText displayName,
+        System.Text.Json.JsonElement? entriesFrom)
     {
-        var displayName = ResolveDisplayName(themeId, ParseDisplayNames(themeNode));
-
-        if (!themeNode.TryGetProperty("entriesFrom", out var entriesFromNode))
+        if (!entriesFrom.HasValue)
         {
             return new FixedThemeDefinition(themeId, displayName);
         }
 
-        return entriesFromNode.ValueKind switch
+        return entriesFrom.Value.ValueKind switch
         {
-            JsonValueKind.String => ParseFixedThemeWithInheritance(themeId, displayName, entriesFromNode),
-            JsonValueKind.Object => ParseSystemDependentTheme(themeId, displayName, entriesFromNode),
+            JsonValueKind.String =>
+                new FixedThemeDefinition(themeId, displayName, NormalizeThemeId(entriesFrom.Value.GetString())),
+            JsonValueKind.Object =>
+                BuildSystemDependentThemeFromElements(themeId, displayName, entriesFrom.Value),
             _ => new FixedThemeDefinition(themeId, displayName),
         };
     }
 
-    private static FixedThemeDefinition ParseFixedThemeWithInheritance(
+    private static SystemDependentThemeDefinition BuildSystemDependentThemeFromElements(
         string themeId,
         LocalizedText displayName,
-        JsonElement entriesFromNode)
-    {
-        var sourceThemeId = NormalizeThemeId(entriesFromNode.GetString());
-
-        return string.IsNullOrEmpty(sourceThemeId)
-            ? new FixedThemeDefinition(themeId, displayName)
-            : new FixedThemeDefinition(themeId, displayName, sourceThemeId);
-    }
-
-    private static ThemeDefinition ParseSystemDependentTheme(
-        string themeId,
-        LocalizedText displayName,
-        JsonElement entriesFromNode)
-    {
-        var sourcesByMode = ParseSystemDependentSourcesByMode(entriesFromNode);
-
-        return sourcesByMode is null
-            ? new FixedThemeDefinition(themeId, displayName)
-            : new SystemDependentThemeDefinition(themeId, displayName, sourcesByMode);
-    }
-
-    private static Dictionary<SystemThemeMode, string>? ParseSystemDependentSourcesByMode(JsonElement entriesFromNode)
+        JsonElement modeElement)
     {
         var sources = new Dictionary<SystemThemeMode, string>();
 
-        foreach (var property in entriesFromNode.EnumerateObject())
+        foreach (var property in modeElement.EnumerateObject())
         {
-            var mode = NormalizeThemeId(property.Name);
-            var systemThemeMode = mode switch
+            var normalizedMode = NormalizeThemeId(property.Name);
+            var systemMode = normalizedMode switch
             {
                 LightThemeId => SystemThemeMode.Light,
                 DarkThemeId => SystemThemeMode.Dark,
                 _ => (SystemThemeMode?)null,
             };
-            if (systemThemeMode is null)
+
+            if (systemMode is null || property.Value.ValueKind != JsonValueKind.String)
             {
                 continue;
             }
 
-            if (property.Value.ValueKind != JsonValueKind.String)
+            var sourceThemeId = property.Value.GetString();
+            var normalizedSource = NormalizeThemeId(sourceThemeId);
+            if (!string.IsNullOrEmpty(normalizedSource))
             {
-                continue;
+                sources[systemMode.Value] = normalizedSource;
             }
-
-            var sourceThemeId = NormalizeThemeId(property.Value.GetString());
-            if (string.IsNullOrEmpty(sourceThemeId))
-            {
-                continue;
-            }
-
-            sources[systemThemeMode.Value] = sourceThemeId;
         }
 
-        return sources.Count == 0 ? null : sources;
+        return sources.Count == 0
+            ? new SystemDependentThemeDefinition(themeId, displayName, new Dictionary<SystemThemeMode, string>())
+            : new SystemDependentThemeDefinition(themeId, displayName, sources);
     }
 
-    private static void AddColorEntry(
-        Dictionary<string, Dictionary<string, string>> byKey,
-        string entryKey,
-        string themeId,
-        string hex)
-    {
-        if (!byKey.TryGetValue(entryKey, out var colors))
-        {
-            colors = new Dictionary<string, string>();
-            byKey[entryKey] = colors;
-        }
-
-        colors[themeId] = hex;
-    }
+    private static string NormalizeThemeId(string? themeId) =>
+        string.IsNullOrWhiteSpace(themeId) ? string.Empty : themeId.Trim().ToLowerInvariant();
 
     private static ThemePaletteEntry FallbackEntry(string key, string lightHex, string darkHex)
     {
@@ -381,31 +317,25 @@ internal static class ThemePaletteConfigurationLoader
             });
     }
 
-    private static string NormalizeThemeId(string? themeId) =>
-        string.IsNullOrWhiteSpace(themeId) ? string.Empty : themeId.Trim().ToLowerInvariant();
 
-    private static bool TryGetStringProperty(JsonElement node, string propertyName, out string value)
-    {
-        value = string.Empty;
-        if (!node.TryGetProperty(propertyName, out var propertyNode) || propertyNode.ValueKind != JsonValueKind.String)
-        {
-            return false;
-        }
-
-        var parsed = propertyNode.GetString();
-        if (parsed is null)
-        {
-            return false;
-        }
-
-        value = parsed;
-        return true;
-    }
 
     private static LocalizedText ResolveDisplayName(
         string themeId,
-        IReadOnlyDictionary<LanguageOption, string>? displayNames = null)
+        Dictionary<string, string>? displayNamesMap = null)
     {
+        var langs = new Dictionary<LanguageOption, string>();
+        if (displayNamesMap is not null)
+        {
+            foreach (var (cultureCode, displayName) in displayNamesMap)
+            {
+                if (!string.IsNullOrWhiteSpace(displayName) &&
+                    LanguageOptionMap.TryMapFromCultureCode(cultureCode, out var language))
+                {
+                    langs[language] = displayName;
+                }
+            }
+        }
+
         var normalizedThemeId = NormalizeThemeId(themeId);
         var fallback = normalizedThemeId switch
         {
@@ -415,32 +345,7 @@ internal static class ThemePaletteConfigurationLoader
             _ => ToTitleCase(themeId),
         };
 
-        return new LocalizedText(fallback, displayNames);
-    }
-
-    private static Dictionary<LanguageOption, string> ParseDisplayNames(JsonElement themeNode)
-    {
-        var displayNames = new Dictionary<LanguageOption, string>();
-        if (!themeNode.TryGetProperty("displayNames", out var displayNamesNode) || displayNamesNode.ValueKind != JsonValueKind.Object)
-        {
-            return displayNames;
-        }
-
-        foreach (var property in displayNamesNode.EnumerateObject())
-        {
-            var value = property.Value.GetString();
-            if (value is null)
-            {
-                continue;
-            }
-
-            if (LanguageOptionMap.TryMapFromCultureCode(property.Name, out var language))
-            {
-                displayNames[language] = value;
-            }
-        }
-
-        return displayNames;
+        return new LocalizedText(fallback, langs.Count > 0 ? langs : null);
     }
 
     private static string ToTitleCase(string value)

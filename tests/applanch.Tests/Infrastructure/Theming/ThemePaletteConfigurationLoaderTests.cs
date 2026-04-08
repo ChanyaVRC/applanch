@@ -35,10 +35,11 @@ public sealed class ThemePaletteConfigurationLoaderTests
 
         try
         {
+            // Sample is disabled by default, so it should not add any themes
             var loaded = ThemePaletteConfigurationLoader.TryLoadUserDefined(appBase, out var configuration);
 
-            Assert.True(loaded);
-            Assert.Contains(configuration.Themes, t => t.Id == "my-theme");
+            // No custom themes loaded because the sample theme is disabled
+            Assert.False(loaded);
         }
         finally
         {

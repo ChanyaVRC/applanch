@@ -5,12 +5,15 @@
 //   - New theme IDs are added to the theme selection list.
 //   - Existing theme IDs (e.g. "light", "dark") have their entries overridden per key.
 //
+// To disable a theme without removing it, add "disabled": true (optional).
+//
 // All brush keys must be valid CSS hex colors (#RRGGBB or #AARRGGBB).
 // Missing keys fall back to the built-in color for that theme.
 {
   "themes": [
     {
       "id": "my-theme",
+      "disabled": true,
       "displayNames": {
         "en": "My Theme",
         "ja": "マイテーマ"

@@ -15,31 +15,14 @@ internal static class LaunchFallbackConfigurationLoader
     internal static LaunchFallbackConfiguration LoadFromDirectory(string appBaseDirectory)
     {
         var merged = new LaunchFallbackConfiguration { Rules = [] };
-        var loadedAny = false;
-
-        foreach (var candidate in ConfigJsonPathResolver.EnumerateBundledAndUserDefined(
-                     appBaseDirectory,
-                     "launch-fallbacks.json",
-                     UserDefinedLaunchFallbacksDirectoryName))
-        {
-            try
-            {
-                var config = ConfigJsonLoadHelper.Load<LaunchFallbackConfiguration>(
-                    candidate,
-                    ConfigDescription);
-
-                merged.Rules.AddRange(config.Rules);
-                loadedAny = true;
-            }
-            catch (Exception)
-            {
-            }
-        }
-
-        if (!loadedAny)
-        {
-            AppLogger.Instance.Info("Launch fallback config not found.");
-        }
+        ConfigJsonLoadHelper.LoadAndMerge(
+            ConfigJsonPathResolver.EnumerateBundledAndUserDefined(
+                appBaseDirectory,
+                "launch-fallbacks.json",
+                UserDefinedLaunchFallbacksDirectoryName),
+            ConfigDescription,
+            static path => ConfigJsonLoadHelper.DeserializeFile<LaunchFallbackConfiguration>(path, ConfigJsonLoadHelper.SerializerOptions),
+            config => merged.Rules.AddRange(config.Rules));
 
         return merged;
     }

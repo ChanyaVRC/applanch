@@ -26,6 +26,25 @@ internal static class ConfigJsonLoadHelper
             static path => DeserializeFile<T>(path, SerializerOptions));
     }
 
+    internal static void LoadAndMerge<T>(
+        IEnumerable<ConfigJsonPathCandidate> candidates,
+        string configDescription,
+        Func<string, T> loader,
+        Action<T> merge)
+    {
+        foreach (var candidate in candidates)
+        {
+            try
+            {
+                var loaded = Load(candidate, configDescription, loader);
+                merge(loaded);
+            }
+            catch (Exception)
+            {
+            }
+        }
+    }
+
     internal static T Load<T>(
         ConfigJsonPathCandidate candidate,
         string configDescription,
