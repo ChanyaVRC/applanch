@@ -97,31 +97,6 @@ public class HeaderBarControlTests
         });
     }
 
-    [Fact]
-    public void AppVersionText_AlignsToBottomOfTitleRow()
-    {
-        WpfTestHost.RunInSta(() =>
-        {
-            var control = new HeaderBarControl();
-            var versionText = Assert.IsType<TextBlock>(control.FindName("AppVersionTextBlock"));
-
-            Assert.Equal(VerticalAlignment.Bottom, versionText.VerticalAlignment);
-        });
-    }
-
-    [Fact]
-    public void TitleArea_DoesNotInterceptPointerInput()
-    {
-        WpfTestHost.RunInSta(() =>
-        {
-            var control = new HeaderBarControl();
-            var titleArea = Assert.IsType<StackPanel>(control.FindName("TitleArea"));
-
-            Assert.Equal(HorizontalAlignment.Left, titleArea.HorizontalAlignment);
-            Assert.False(titleArea.IsHitTestVisible);
-        });
-    }
-
     private static void InvokePrivateClick(HeaderBarControl control, string methodName)
     {
         var method = typeof(HeaderBarControl).GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);

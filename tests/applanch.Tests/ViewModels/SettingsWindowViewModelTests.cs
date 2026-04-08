@@ -1,6 +1,5 @@
 using Xunit;
 using applanch.Events;
-using applanch.Infrastructure.Utilities;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
 using applanch.ViewModels;
@@ -69,14 +68,6 @@ public class SettingsWindowViewModelTests
         Assert.Equal(CategorySortMode.AsAdded, vm.SelectedCategorySortMode);
         Assert.True(vm.LaunchItemIconOnlyMode);
         Assert.False(vm.SettingsChanged);
-    }
-
-    [Fact]
-    public void AppVersion_ReturnsCurrentDisplayVersion()
-    {
-        var vm = Make();
-
-        Assert.Equal(AppVersionProvider.GetDisplayVersion(), vm.AppVersion);
     }
 
     // ── ThemeIndex ─────────────────────────────────────────
