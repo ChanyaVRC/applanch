@@ -21,23 +21,10 @@ public sealed class ThemeOptionsProviderTests
 
         var options = ThemeOptionsProvider.BuildOptions(configuration);
 
-        Assert.Collection(
-            options,
-            option =>
-            {
-                Assert.Equal(ThemePaletteConfigurationLoader.SystemThemeId, option.ThemeId);
-                Assert.True(option.IsSystemOption);
-            },
-            option =>
-            {
-                Assert.Equal(ThemePaletteConfigurationLoader.LightThemeId, option.ThemeId);
-                Assert.False(option.IsSystemOption);
-            },
-            option =>
-            {
-                Assert.Equal("monochrome", option.ThemeId);
-                Assert.False(option.IsSystemOption);
-            });
+        Assert.Equal(3, options.Count);
+        Assert.True(options[ThemePaletteConfigurationLoader.SystemThemeId].IsSystemOption);
+        Assert.False(options[ThemePaletteConfigurationLoader.LightThemeId].IsSystemOption);
+        Assert.False(options["monochrome"].IsSystemOption);
     }
 
     [Fact]
@@ -53,10 +40,10 @@ public sealed class ThemeOptionsProviderTests
 
         var options = ThemeOptionsProvider.BuildOptions(configuration);
 
-        Assert.Collection(
-            options,
-            option => Assert.Equal(ThemePaletteConfigurationLoader.LightThemeId, option.ThemeId),
-            option => Assert.Equal("monochrome", option.ThemeId));
+        Assert.Equal(2, options.Count);
+        Assert.True(options.ContainsKey(ThemePaletteConfigurationLoader.LightThemeId));
+        Assert.True(options.ContainsKey("monochrome"));
+        Assert.False(options.ContainsKey(ThemePaletteConfigurationLoader.SystemThemeId));
     }
 
     [Fact]
@@ -78,7 +65,8 @@ public sealed class ThemeOptionsProviderTests
 
         using var cultureScope = new CultureScope("ja-JP");
 
-        var option = Assert.Single(ThemeOptionsProvider.BuildOptions(configuration));
+        var options = ThemeOptionsProvider.BuildOptions(configuration);
+        var option = Assert.Single(options.Values);
 
         Assert.Equal("システム設定", option.DisplayName);
         Assert.True(option.IsSystemOption);
@@ -97,7 +85,8 @@ public sealed class ThemeOptionsProviderTests
 
         var options = ThemeOptionsProvider.BuildOptions(configuration);
 
-        Assert.DoesNotContain(options, x => x.ThemeId == "hidden-theme");
-        Assert.Contains(options, x => x.ThemeId == ThemePaletteConfigurationLoader.LightThemeId);
+        Assert.DoesNotContain("hidden-theme", options.Keys);
+        Assert.Single(options);
+        Assert.True(options.ContainsKey(ThemePaletteConfigurationLoader.LightThemeId));
     }
 }

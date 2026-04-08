@@ -13,40 +13,40 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     private static readonly int[] QuickAddSuggestionLimitOptionsValues = [10, 20, 30, 50, 100];
 
     private readonly AppEvent _appEvent;
-    private readonly Func<IReadOnlyList<ThemeOption>> _themeOptionsProvider;
-    private IReadOnlyList<ThemeOption> _themeOptions;
+    private readonly Func<IReadOnlyDictionary<string, ThemeOption>> _themeOptionsProvider;
+    private IReadOnlyDictionary<string, ThemeOption> _themeOptionsMap;
     private AppSettings _current;
     private AppSettings _draft;
 
     internal SettingsWindowViewModel(
         AppSettings settings,
         AppEvent appEvent,
-        Func<IReadOnlyList<ThemeOption>>? themeOptionsProvider = null)
+        Func<IReadOnlyDictionary<string, ThemeOption>>? themeOptionsProvider = null)
     {
         _appEvent = appEvent;
         _themeOptionsProvider = themeOptionsProvider ?? ThemeOptionsProvider.Load;
-        _themeOptions = _themeOptionsProvider();
+        _themeOptionsMap = _themeOptionsProvider();
         _current = settings;
         _draft = settings;
     }
 
-    public IReadOnlyList<ThemeOption> ThemeOptions => _themeOptions;
+    public IReadOnlyList<ThemeOption> ThemeOptions => _themeOptionsMap.Values.ToList();
 
     public IReadOnlyList<int> QuickAddSuggestionLimitOptions => QuickAddSuggestionLimitOptionsValues;
 
-    public bool IsThemeSelectionVisible => _themeOptions.Count > 0;
+    public bool IsThemeSelectionVisible => _themeOptionsMap.Count > 0;
 
     public int ThemeIndex
     {
         get => ResolveThemeIndex();
         set
         {
-            if (!IsThemeSelectionVisible || value < 0 || value >= _themeOptions.Count)
+            if (!IsThemeSelectionVisible || value < 0 || value >= _themeOptionsMap.Count)
             {
                 return;
             }
 
-            SelectedThemeId = _themeOptions[value].ThemeId;
+            SelectedThemeId = _themeOptionsMap.Values.ElementAt(value).ThemeId;
         }
     }
 
@@ -55,24 +55,17 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         get => _draft.ThemeId;
         set
         {
-            if (!IsThemeSelectionVisible)
+            if (!IsThemeSelectionVisible || !_themeOptionsMap.ContainsKey(value))
             {
                 return;
             }
 
-            var selectedIndex = ResolveThemeIndex(value);
-            if (selectedIndex < 0)
+            if (string.Equals(_draft.ThemeId, value, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
 
-            var selectedThemeId = _themeOptions[selectedIndex].ThemeId;
-            if (string.Equals(_draft.ThemeId, selectedThemeId, StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
-
-            _draft = _draft with { ThemeId = selectedThemeId };
+            _draft = _draft with { ThemeId = value };
             OnPropertyChanged();
             OnPropertyChanged(nameof(ThemeIndex));
             OnPropertyChanged(nameof(SelectedThemeDisplayName));
@@ -84,8 +77,9 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     {
         get
         {
-            var themeIndex = ResolveThemeIndex(_draft.ThemeId);
-            return themeIndex >= 0 ? _themeOptions[themeIndex].DisplayName : string.Empty;
+            return _themeOptionsMap.TryGetValue(_draft.ThemeId, out var theme)
+                ? theme.DisplayName
+                : string.Empty;
         }
     }
 
@@ -279,7 +273,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
     private void RefreshThemeOptionsForCurrentCulture()
     {
-        foreach (var option in _themeOptions)
+        foreach (var option in _themeOptionsMap.Values)
         {
             option.NotifyDisplayNameChanged();
         }
@@ -298,25 +292,18 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             return -1;
         }
 
-        var themeIndex = ResolveThemeIndex(_draft.ThemeId);
-        if (themeIndex >= 0)
+        if (_themeOptionsMap.ContainsKey(_draft.ThemeId))
         {
-            return themeIndex;
-        }
-
-        return 0;
-    }
-
-    private int ResolveThemeIndex(string themeId)
-    {
-        for (var i = 0; i < _themeOptions.Count; i++)
-        {
-            if (string.Equals(_themeOptions[i].ThemeId, themeId, StringComparison.OrdinalIgnoreCase))
+            var values = _themeOptionsMap.Values.ToList();
+            for (var i = 0; i < values.Count; i++)
             {
-                return i;
+                if (string.Equals(values[i].ThemeId, _draft.ThemeId, StringComparison.OrdinalIgnoreCase))
+                {
+                    return i;
+                }
             }
         }
 
-        return -1;
+        return 0;
     }
 }

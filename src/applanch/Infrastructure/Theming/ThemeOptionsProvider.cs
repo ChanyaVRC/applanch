@@ -2,32 +2,25 @@ namespace applanch.Infrastructure.Theming;
 
 internal static class ThemeOptionsProvider
 {
-    internal static IReadOnlyList<ThemeOption> Load()
+    internal static IReadOnlyDictionary<string, ThemeOption> Load()
     {
         if (!ThemePaletteConfigurationLoader.TryLoadForSettings(out var configuration))
         {
-            return [];
+            return new Dictionary<string, ThemeOption>();
         }
 
         return BuildOptions(configuration);
     }
 
-    internal static IReadOnlyList<ThemeOption> BuildOptions(ThemePaletteConfiguration configuration)
+    internal static IReadOnlyDictionary<string, ThemeOption> BuildOptions(ThemePaletteConfiguration configuration)
     {
-        var visibleThemes = configuration.Themes
+        return configuration.Themes
             .Where(static x => x.IsVisibleInThemeList)
-            .ToArray();
-
-        if (visibleThemes.Length == 0)
-        {
-            return [];
-        }
-
-        return visibleThemes
-            .Select(static x => new ThemeOption(
-                x.Id,
-                x.DisplayName,
-                IsSystemOption: x.Id == ThemePaletteConfigurationLoader.SystemThemeId))
-            .ToList();
+            .ToDictionary(
+                static x => x.Id,
+                static x => new ThemeOption(
+                    x.Id,
+                    x.DisplayName,
+                    IsSystemOption: x.Id == ThemePaletteConfigurationLoader.SystemThemeId));
     }
 }

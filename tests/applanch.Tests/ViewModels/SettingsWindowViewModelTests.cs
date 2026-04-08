@@ -10,13 +10,16 @@ namespace applanch.Tests;
 
 public class SettingsWindowViewModelTests
 {
-    private static readonly IReadOnlyList<ThemeOption> ThemeOptions =
+    private static readonly ThemeOption[] ThemeOptionsList =
     [
         new ThemeOption(ThemePaletteConfigurationLoader.SystemThemeId, new LocalizedText("System"), IsSystemOption: true),
         new ThemeOption(ThemePaletteConfigurationLoader.LightThemeId, new LocalizedText("Light")),
         new ThemeOption(ThemePaletteConfigurationLoader.DarkThemeId, new LocalizedText("Dark")),
         new ThemeOption("monochrome", new LocalizedText("Monochrome"))
     ];
+
+    private static IReadOnlyDictionary<string, ThemeOption> ThemeOptions =>
+        ThemeOptionsList.ToDictionary(x => x.ThemeId);
 
     private static SettingsWindowViewModel Make(
         AppSettings? settings = null,
@@ -211,11 +214,11 @@ public class SettingsWindowViewModelTests
             CultureInfo.CurrentCulture = culture;
         });
 
-        IReadOnlyList<ThemeOption> ThemeOptionsProvider()
+        IReadOnlyDictionary<string, ThemeOption> ThemeOptionsProvider()
         {
             providerCallCount++;
-            return
-            [
+            var options = new[]
+            {
                 new ThemeOption(
                     ThemePaletteConfigurationLoader.SystemThemeId,
                     new LocalizedText(
@@ -233,7 +236,8 @@ public class SettingsWindowViewModelTests
                         {
                             [LanguageOption.Japanese] = "ライト"
                         }))
-            ];
+            };
+            return options.ToDictionary(x => x.ThemeId);
         }
 
         using var cultureScope = new CultureScope("en-US");
@@ -243,7 +247,7 @@ public class SettingsWindowViewModelTests
         vm.SelectedLanguage = LanguageOption.Japanese;
 
         Assert.Equal(1, providerCallCount);
-        Assert.Equal("システム", vm.ThemeOptions[0].DisplayName);
+        Assert.Equal("システム", vm.ThemeOptions.First().DisplayName);
     }
 
     [Fact]
@@ -425,11 +429,11 @@ public class SettingsWindowViewModelTests
         var appEvent = new AppEvent();
         var providerCallCount = 0;
 
-        IReadOnlyList<ThemeOption> ThemeOptionsProvider()
+        IReadOnlyDictionary<string, ThemeOption> ThemeOptionsProvider()
         {
             providerCallCount++;
-            return
-            [
+            var options = new[]
+            {
                 new ThemeOption(
                     ThemePaletteConfigurationLoader.SystemThemeId,
                     new LocalizedText(
@@ -447,7 +451,8 @@ public class SettingsWindowViewModelTests
                         {
                             [LanguageOption.Japanese] = "ライト"
                         }))
-            ];
+            };
+            return options.ToDictionary(x => x.ThemeId);
         }
 
         using var cultureScope = new CultureScope("en-US");
@@ -461,6 +466,6 @@ public class SettingsWindowViewModelTests
         vm.ApplyExternalSettings(new AppSettings { Language = LanguageOption.Japanese });
 
         Assert.Equal(1, providerCallCount);
-        Assert.Equal("システム", vm.ThemeOptions[0].DisplayName);
+        Assert.Equal("システム", vm.ThemeOptions.First().DisplayName);
     }
 }

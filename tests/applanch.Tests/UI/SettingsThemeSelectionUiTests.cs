@@ -32,10 +32,10 @@ public sealed class SettingsThemeSelectionUiTests
 
             using var cultureScope = new CultureScope("en-US");
 
-            IReadOnlyList<ThemeOption> ThemeOptionsProvider()
+            IReadOnlyDictionary<string, ThemeOption> ThemeOptionsProvider()
             {
-                return
-                [
+                var options = new[]
+                {
                     new ThemeOption(
                         ThemePaletteConfigurationLoader.SystemThemeId,
                         new LocalizedText(
@@ -53,7 +53,8 @@ public sealed class SettingsThemeSelectionUiTests
                             {
                                 [LanguageOption.Japanese] = "ライト"
                             }))
-                ];
+                };
+                return options.ToDictionary(x => x.ThemeId);
             }
 
             var vm = new SettingsWindowViewModel(
