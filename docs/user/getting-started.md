@@ -14,19 +14,34 @@ It focuses on fast launch workflows with category-based organization, quick-add 
 See the [Install Guide](install.md) for full instructions.
 After installing, run **applanch.exe** to open the main window.
 
-## Screenshots
+## Quick UI Tour
+
+Use these screenshots as a map while following the steps below.
 
 Main window (sidebar pinned):
 
 ![Main window (sidebar pinned)](https://github.com/user-attachments/assets/821bc69d-d421-459e-b546-694d9427fef0)
 
+What to look for:
+- Top quick-add input: type a path or app name here to add items.
+- Left category sidebar: switch between categories or create new ones.
+- Header controls (top-right): open settings and switch display mode quickly.
+
 Main window (sidebar unpinned):
 
 ![Main window (sidebar unpinned)](https://github.com/user-attachments/assets/2564a2e5-2401-41ec-81f5-a031e3a77568)
 
+What this shows:
+- Sidebar can be collapsed to keep focus on the item list.
+- You can toggle pinned/unpinned behavior from the header pin control.
+
 Settings window:
 
 ![Settings window](https://github.com/user-attachments/assets/7aa5d24e-4cc2-4229-b60d-6a14eeda271d)
+
+What to do here:
+- Change theme, language, startup, and launch behavior in one place.
+- See [Settings Reference](settings.md) for full option details.
 
 ## Add Your First Item
 
