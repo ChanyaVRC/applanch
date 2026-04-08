@@ -128,6 +128,9 @@
   <data name="Window_Settings" xml:space="preserve">
     <value>Settings</value>
   </data>
+  <data name="Label_Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
   <data name="Section_Appearance" xml:space="preserve">
     <value>Appearance</value>
   </data>

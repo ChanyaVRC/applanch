@@ -1,10 +1,13 @@
 using System.Windows;
 using System.Windows.Controls;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch.Controls;
 
 public sealed partial class HeaderBarControl : UserControl
 {
+    private static readonly string DefaultAppVersionText = $"v{AppVersionProvider.GetDisplayVersion()}";
+
     public HeaderBarControl()
     {
         InitializeComponent();
@@ -21,6 +24,19 @@ public sealed partial class HeaderBarControl : UserControl
     {
         get => (Visibility)GetValue(UpdateButtonVisibilityProperty);
         set => SetValue(UpdateButtonVisibilityProperty, value);
+    }
+
+    public static readonly DependencyProperty AppVersionTextProperty =
+        DependencyProperty.Register(
+            nameof(AppVersionText),
+            typeof(string),
+            typeof(HeaderBarControl),
+            new PropertyMetadata(DefaultAppVersionText));
+
+    public string AppVersionText
+    {
+        get => (string)GetValue(AppVersionTextProperty);
+        set => SetValue(AppVersionTextProperty, value);
     }
 
     public event RoutedEventHandler? UpdateRequested;

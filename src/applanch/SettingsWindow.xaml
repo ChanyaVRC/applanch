@@ -236,6 +236,16 @@
                 Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_ResetToDefaults]}"
                 Click="ResetToDefaults_Click"/>
 
+            <TextBlock Grid.Column="1"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontSize="12"
+                       Foreground="{DynamicResource Brush.TextTertiary}">
+                <Run Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Label_Version]}"/>
+                <Run Text=" "/>
+                <Run Text="{Binding AppVersion}"/>
+            </TextBlock>
+
             <Button Grid.Column="2"
                 HorizontalAlignment="Right"
                 Style="{StaticResource RoundedButtonStyle}"

@@ -220,6 +220,8 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
     public bool SettingsChanged { get; private set; }
 
+    public string AppVersion => AppVersionProvider.GetDisplayVersion();
+
     internal void ApplyExternalSettings(AppSettings settings)
     {
         var languageChanged = _language != settings.Language;

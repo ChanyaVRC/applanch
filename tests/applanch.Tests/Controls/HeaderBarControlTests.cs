@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using applanch.Controls;
+using applanch.Infrastructure.Utilities;
 using applanch.Tests.TestSupport;
 using Xunit;
 
@@ -67,6 +68,32 @@ public class HeaderBarControlTests
             WpfTestHost.DoEvents();
 
             Assert.Equal(Visibility.Visible, updateButton.Visibility);
+        });
+    }
+
+    [Fact]
+    public void AppVersionText_DefaultsToCurrentVersion()
+    {
+        WpfTestHost.RunInSta(() =>
+        {
+            var control = new HeaderBarControl();
+
+            Assert.Equal($"v{AppVersionProvider.GetDisplayVersion()}", control.AppVersionText);
+        });
+    }
+
+    [Fact]
+    public void AppVersionTextProperty_UpdatesHeaderVersionText()
+    {
+        WpfTestHost.RunInSta(() =>
+        {
+            var control = new HeaderBarControl();
+            var versionText = Assert.IsType<TextBlock>(control.FindName("AppVersionTextBlock"));
+
+            control.AppVersionText = "v9.9.9";
+            WpfTestHost.DoEvents();
+
+            Assert.Equal("v9.9.9", versionText.Text);
         });
     }
 
