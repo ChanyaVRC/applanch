@@ -37,7 +37,7 @@ public class MainWindowOpenLocationTests
     [Fact]
     public void TryCreateOpenLocationStartInfo_MissingPath_ReturnsFalse()
     {
-        var canOpen = MainWindow.TryCreateOpenLocationStartInfo(new LaunchPath(@"C:\\this\\path\\does-not-exist"), out _);
+        var canOpen = MainWindow.TryCreateOpenLocationStartInfo(new LaunchPath(@"C:\this\path\does-not-exist"), out _);
 
         Assert.False(canOpen);
     }
@@ -53,7 +53,7 @@ public class MainWindowOpenLocationTests
     [Fact]
     public void ShouldOfferDeleteActionForMissingPath_MissingPath_ReturnsTrue()
     {
-        var shouldOffer = MainWindow.ShouldOfferDeleteActionForMissingPath(new LaunchPath(@"C:\\this\\path\\does-not-exist"));
+        var shouldOffer = MainWindow.ShouldOfferDeleteActionForMissingPath(new LaunchPath(@"C:\this\path\does-not-exist"));
 
         Assert.True(shouldOffer);
     }

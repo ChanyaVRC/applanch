@@ -105,7 +105,7 @@ public class LaunchItemIconProviderTests
             var provider = CreateProvider(httpClient: new HttpClient(handler));
             provider.ApplySettings(new AppSettings());
 
-            var icon = await provider.GetDeferredIconAsync(new LaunchPath(@"C:\\Tools\\Tool.exe"));
+            var icon = await provider.GetDeferredIconAsync(new LaunchPath(@"C:\Tools\Tool.exe"));
 
             Assert.Null(icon);
             Assert.Empty(handler.RequestedUris);

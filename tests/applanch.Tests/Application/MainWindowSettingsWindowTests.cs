@@ -152,7 +152,7 @@ public sealed class MainWindowSettingsWindowTests
         {
             return
             [
-                new LauncherEntry(new LaunchPath(@"C:\\Tools\\App.exe"), LauncherEntry.DefaultCategory, string.Empty, "App")
+                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), LauncherEntry.DefaultCategory, string.Empty, "App")
             ];
         }
 

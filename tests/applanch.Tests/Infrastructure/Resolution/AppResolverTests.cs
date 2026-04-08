@@ -632,7 +632,7 @@ public class AppResolverTests
     public void LoadInstalledAppsFromUninstallRoot_WhenEntryIsValid_AddsApp()
     {
         var tempDir = CreateTempDirectory();
-        var rootPath = @"Software\\applanch-tests\\uninstall-" + Guid.NewGuid().ToString("N");
+        var rootPath = @"Software\applanch-tests\uninstall-" + Guid.NewGuid().ToString("N");
         try
         {
             var exePath = Path.Combine(tempDir, "InstalledTool.exe");
@@ -670,7 +670,7 @@ public class AppResolverTests
     [Fact]
     public void LoadInstalledAppsFromUninstallRoot_BlankDisplayName_IsIgnored()
     {
-        var rootPath = @"Software\\applanch-tests\\uninstall-" + Guid.NewGuid().ToString("N");
+        var rootPath = @"Software\applanch-tests\uninstall-" + Guid.NewGuid().ToString("N");
         try
         {
             using (var root = Registry.CurrentUser.CreateSubKey(rootPath))

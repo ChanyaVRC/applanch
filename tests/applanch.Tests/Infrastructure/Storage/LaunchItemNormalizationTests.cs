@@ -40,7 +40,7 @@ public class LaunchItemNormalizationTests
     [Fact]
     public void NormalizeDisplayName_Whitespace_UsesPathFileNameWithoutExtension()
     {
-        var result = LaunchItemNormalization.NormalizeDisplayName(" ", @"C:\\Tools\\MyApp.exe");
+        var result = LaunchItemNormalization.NormalizeDisplayName(" ", @"C:\Tools\MyApp.exe");
 
         Assert.Equal("MyApp", result);
     }
@@ -48,7 +48,7 @@ public class LaunchItemNormalizationTests
     [Fact]
     public void NormalizeDisplayName_TrimsExplicitName()
     {
-        var result = LaunchItemNormalization.NormalizeDisplayName("  Custom Name  ", @"C:\\Tools\\MyApp.exe");
+        var result = LaunchItemNormalization.NormalizeDisplayName("  Custom Name  ", @"C:\Tools\MyApp.exe");
 
         Assert.Equal("Custom Name", result);
     }

@@ -50,7 +50,7 @@ public class QuickAddWorkflowTests
     [Fact]
     public void TryCreateLaunchItem_DuplicatePath_ReturnsInformationFailure()
     {
-        var existingPath = @"C:\\Tools\\App.exe";
+        var existingPath = @"C:\Tools\App.exe";
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
@@ -69,11 +69,11 @@ public class QuickAddWorkflowTests
     [Fact]
     public void TryCreateLaunchItem_DuplicatePathWithDifferentNotation_ReturnsInformationFailure()
     {
-        var existingPath = @"C:\\Tools\\App.exe";
+        var existingPath = @"C:\Tools\App.exe";
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = Resolved(@"C:\\Tools\\.\\App.exe", "App"),
+            ResolvedApp = Resolved(@"C:\Tools\.\App.exe", "App"),
         };
         var workflow = new QuickAddWorkflow(resolver);
         var existingItems = new[] { Item(existingPath, "Dev", string.Empty, "App") };
@@ -88,11 +88,11 @@ public class QuickAddWorkflowTests
     [Fact]
     public void TryCreateLaunchItem_DuplicatePathWithDifferentDriveLetterCase_ReturnsInformationFailure()
     {
-        var existingPath = @"C:\\Tools\\App.exe";
+        var existingPath = @"C:\Tools\App.exe";
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = Resolved(@"c:\\Tools\\App.exe", "App"),
+            ResolvedApp = Resolved(@"c:\Tools\App.exe", "App"),
         };
         var workflow = new QuickAddWorkflow(resolver);
         var existingItems = new[] { Item(existingPath, "Dev", string.Empty, "App") };
@@ -107,11 +107,11 @@ public class QuickAddWorkflowTests
     [Fact]
     public void TryCreateLaunchItem_DuplicateDirectoryPathWithTrailingSeparator_ReturnsInformationFailure()
     {
-        var existingPath = @"C:\\Tools\\Folder";
+        var existingPath = @"C:\Tools\Folder";
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = Resolved(@"C:\\Tools\\Folder\\", "Folder"),
+            ResolvedApp = Resolved(@"C:\Tools\Folder\", "Folder"),
         };
         var workflow = new QuickAddWorkflow(resolver);
         var existingItems = new[] { Item(existingPath, "Dev", string.Empty, "Folder") };
@@ -129,7 +129,7 @@ public class QuickAddWorkflowTests
         var resolver = new FakeResolver
         {
             ShouldResolve = true,
-            ResolvedApp = Resolved(@"C:\\Tools\\NewApp.exe", "NewApp"),
+            ResolvedApp = Resolved(@"C:\Tools\NewApp.exe", "NewApp"),
         };
         var workflow = new QuickAddWorkflow(resolver);
 

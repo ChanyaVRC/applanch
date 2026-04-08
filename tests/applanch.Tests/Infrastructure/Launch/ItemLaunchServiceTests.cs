@@ -52,7 +52,7 @@ public class ItemLaunchServiceTests
         var launcher = new FakeProcessLauncher();
         var service = new ItemLaunchService(launcher.Start);
 
-        var result = service.TryLaunch(new LaunchPath(@"C:\\missing\\file.exe"), string.Empty);
+        var result = service.TryLaunch(new LaunchPath(@"C:\missing\file.exe"), string.Empty);
 
         Assert.False(result.IsSuccess);
         Assert.Equal(System.Windows.MessageBoxImage.Warning, result.Icon);
