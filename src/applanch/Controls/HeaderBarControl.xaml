@@ -63,18 +63,23 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
-                <StackPanel Orientation="Horizontal"
-                            VerticalAlignment="Bottom">
+                <Grid VerticalAlignment="Bottom">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
                     <TextBlock Text="Applanch"
                                FontSize="22"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource Brush.TextPrimary}"/>
                     <TextBlock x:Name="AppVersionTextBlock"
+                               Grid.Column="1"
                                Text="{Binding AppVersionText, ElementName=Root}"
-                               Margin="8,0,0,2"
+                               Margin="8,0,0,1"
                                FontSize="12"
+                               VerticalAlignment="Bottom"
                                Foreground="{DynamicResource Brush.TextTertiary}"/>
-                </StackPanel>
+                </Grid>
                 <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Subtitle]}"
                            Margin="0,4,0,0"
                            FontSize="12"
