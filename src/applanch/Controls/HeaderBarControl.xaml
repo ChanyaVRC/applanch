@@ -62,8 +62,12 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0">
-                <Grid VerticalAlignment="Bottom">
+            <StackPanel x:Name="TitleArea"
+                        Grid.Column="0"
+                        HorizontalAlignment="Left"
+                        IsHitTestVisible="False">
+                <Grid HorizontalAlignment="Left"
+                      VerticalAlignment="Bottom">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
