@@ -236,15 +236,20 @@
                 Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_ResetToDefaults]}"
                 Click="ResetToDefaults_Click"/>
 
-            <TextBlock Grid.Column="1"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       FontSize="12"
-                       Foreground="{DynamicResource Brush.TextTertiary}">
-                <Run Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Label_Version]}"/>
-                <Run Text=" "/>
-                <Run Text="{Binding AppVersion}"/>
-            </TextBlock>
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Label_Version]}"
+                           FontSize="12"
+                           Foreground="{DynamicResource Brush.TextTertiary}"/>
+                <TextBlock Text=" "
+                           FontSize="12"
+                           Foreground="{DynamicResource Brush.TextTertiary}"/>
+                <TextBlock Text="{Binding AppVersion}"
+                           FontSize="12"
+                           Foreground="{DynamicResource Brush.TextTertiary}"/>
+            </StackPanel>
 
             <Button Grid.Column="2"
                 HorizontalAlignment="Right"

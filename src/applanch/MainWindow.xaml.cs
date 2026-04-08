@@ -102,6 +102,14 @@ public sealed partial class MainWindow : Window
         _appEvent?.Unregister(AppEvents.Refresh, OnAppRefreshRequested);
         _appEvent?.Unregister(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
         _appEvent?.Unregister(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
+
+        if (_settingsWindow is { IsLoaded: true })
+        {
+            _settingsWindow.Closed -= OnSettingsWindowClosed;
+            _settingsWindow.Close();
+            _settingsWindow = null;
+        }
+
         base.OnClosed(e);
     }
 
@@ -346,13 +354,38 @@ public sealed partial class MainWindow : Window
     {
         if (_settingsWindow is { IsLoaded: true })
         {
-            _settingsWindow.Activate();
+            EnsureSettingsWindowVisible(_settingsWindow);
             return;
         }
 
         _settingsWindow = new SettingsWindow(this, _settings, _interactionService);
         _settingsWindow.Closed += OnSettingsWindowClosed;
         _settingsWindow.Show();
+        EnsureSettingsWindowVisible(_settingsWindow);
+    }
+
+    private void EnsureSettingsWindowVisible(SettingsWindow window)
+    {
+        if (window.WindowState == WindowState.Minimized)
+        {
+            window.WindowState = WindowState.Normal;
+        }
+
+        if (!window.IsVisible)
+        {
+            window.Show();
+        }
+
+        window.Owner ??= this;
+        window.WindowStartupLocation = WindowStartupLocation.Manual;
+
+        var ownerWidth = ActualWidth > 0 ? ActualWidth : Width;
+        var ownerHeight = ActualHeight > 0 ? ActualHeight : Height;
+        window.Left = Left + Math.Max((ownerWidth - window.Width) / 2, 0);
+        window.Top = Top + Math.Max((ownerHeight - window.Height) / 2, 0);
+
+        window.Activate();
+        _ = window.Focus();
     }
 
     private void OnSettingsWindowClosed(object? sender, EventArgs e)
