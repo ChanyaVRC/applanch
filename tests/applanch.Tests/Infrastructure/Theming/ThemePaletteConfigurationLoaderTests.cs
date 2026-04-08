@@ -35,11 +35,12 @@ public sealed class ThemePaletteConfigurationLoaderTests
 
         try
         {
-            // Sample is disabled by default, so it should not add any themes
+            // Sample has enabled=false by default, so the definition is loaded but hidden from options
             var loaded = ThemePaletteConfigurationLoader.TryLoadUserDefined(appBase, out var configuration);
 
-            // No custom themes loaded because the sample theme is disabled
-            Assert.False(loaded);
+            Assert.True(loaded);
+            var myTheme = Assert.Single(configuration.Themes, t => t.Id == "my-theme");
+            Assert.False(myTheme.IsVisibleInThemeList);
         }
         finally
         {
@@ -184,7 +185,9 @@ public sealed class ThemePaletteConfigurationLoaderTests
             var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out var configuration);
 
             Assert.True(loaded);
-            var theme = Assert.Single(configuration.Themes);
+            var themes = configuration.Themes;
+            Assert.Contains(themes, t => t.Id == "ocean");
+            var theme = Assert.Single(themes, t => t.Id == "ocean");
             using var cultureScope = new CultureScope("fr-FR");
             Assert.Equal("Ocean", theme.DisplayName.ResolveCurrentCulture());
             Assert.Equal("オーシャン", theme.DisplayName.Resolve(LanguageOption.Japanese));
@@ -414,7 +417,7 @@ public sealed class ThemePaletteConfigurationLoaderTests
             var loaded = ThemePaletteConfigurationLoader.TryLoadUserDefined(appBase, out var configuration);
 
             Assert.True(loaded);
-            var theme = Assert.Single(configuration.Themes);
+            var theme = Assert.Single(configuration.Themes, t => t.Id == "ocean");
             Assert.Equal("ocean", theme.Id);
             Assert.Equal("Ocean", theme.DisplayName.Resolve(LanguageOption.English));
             var entry = Assert.Single(configuration.Entries);

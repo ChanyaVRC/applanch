@@ -14,28 +14,20 @@ internal static class ThemeOptionsProvider
 
     internal static IReadOnlyList<ThemeOption> BuildOptions(ThemePaletteConfiguration configuration)
     {
-        if (configuration.Themes.Count == 0)
+        var visibleThemes = configuration.Themes
+            .Where(static x => x.IsVisibleInThemeList)
+            .ToArray();
+
+        if (visibleThemes.Length == 0)
         {
             return [];
         }
 
-        var hasSystemTheme = configuration.Themes.Any(static x =>
-            x.Id == ThemePaletteConfigurationLoader.SystemThemeId);
-        var options = new List<ThemeOption>(configuration.Themes.Count + (hasSystemTheme ? 0 : 1));
-
-        if (!hasSystemTheme)
-        {
-            options.Add(new ThemeOption(
-                ThemePaletteConfigurationLoader.SystemThemeId,
-                AppResources.Theme_System,
-                IsSystemOption: true));
-        }
-
-        options.AddRange(configuration.Themes.Select(static x => new ThemeOption(
-            x.Id,
-            x.DisplayName.ResolveCurrentCulture(),
-            IsSystemOption: x.Id == ThemePaletteConfigurationLoader.SystemThemeId)));
-
-        return options;
+        return visibleThemes
+            .Select(static x => new ThemeOption(
+                x.Id,
+                x.DisplayName.ResolveCurrentCulture(),
+                IsSystemOption: x.Id == ThemePaletteConfigurationLoader.SystemThemeId))
+            .ToList();
     }
 }

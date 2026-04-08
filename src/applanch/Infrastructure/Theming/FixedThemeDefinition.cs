@@ -4,7 +4,8 @@ internal sealed class FixedThemeDefinition(
     string id,
     LocalizedText displayName,
     string? inheritedThemeId = null,
-    IReadOnlyDictionary<string, string>? colorsByKey = null) : ThemeDefinition(id, displayName)
+    IReadOnlyDictionary<string, string>? colorsByKey = null,
+    bool isVisibleInThemeList = true) : ThemeDefinition(id, displayName, isVisibleInThemeList)
 {
     internal string? InheritedThemeId { get; } = inheritedThemeId;
 

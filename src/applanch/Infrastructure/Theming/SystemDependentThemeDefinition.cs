@@ -3,7 +3,8 @@ namespace applanch.Infrastructure.Theming;
 internal sealed class SystemDependentThemeDefinition(
     string id,
     LocalizedText displayName,
-    IReadOnlyDictionary<SystemThemeMode, string> sourcesByMode) : ThemeDefinition(id, displayName)
+    IReadOnlyDictionary<SystemThemeMode, string> sourcesByMode,
+    bool isVisibleInThemeList = true) : ThemeDefinition(id, displayName, isVisibleInThemeList)
 {
     private static readonly IReadOnlyDictionary<string, string> EmptyColors = new Dictionary<string, string>();
 

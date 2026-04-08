@@ -62,7 +62,8 @@ internal sealed class ThemePaletteConfiguration
                 fixedTheme.Id,
                 fixedTheme.DisplayName,
                 fixedTheme.InheritedThemeId,
-                new Dictionary<string, string>(colorsByKey)),
+                new Dictionary<string, string>(colorsByKey),
+                fixedTheme.IsVisibleInThemeList),
             _ => theme,
         };
     }

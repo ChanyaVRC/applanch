@@ -10,9 +10,9 @@ internal sealed record ThemePaletteConfigurationDto(
 internal sealed record ThemeDto(
     string Id,
     Dictionary<string, string>? DisplayNames = null,
-    System.Text.Json.JsonElement? EntriesFrom = null,
+    EntriesFromSpec? EntriesFrom = null,
     IReadOnlyList<ThemeEntryDto>? Entries = null,
-    bool Disabled = false);
+    bool Enabled = true);
 
 internal sealed record ThemeEntryDto(
     string Key,

@@ -6,15 +6,19 @@ internal abstract class ThemeDefinition
 {
     protected ThemeDefinition(
         string id,
-        LocalizedText displayName)
+        LocalizedText displayName,
+        bool isVisibleInThemeList = true)
     {
         Id = id.ToLowerInvariant();
         DisplayName = displayName;
+        IsVisibleInThemeList = isVisibleInThemeList;
     }
 
     internal string Id { get; }
 
     internal LocalizedText DisplayName { get; }
+
+    internal bool IsVisibleInThemeList { get; }
 
     internal abstract IReadOnlyDictionary<string, string> ColorsByKey { get; }
 

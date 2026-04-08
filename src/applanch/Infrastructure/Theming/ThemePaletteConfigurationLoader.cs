@@ -14,10 +14,25 @@ internal static class ThemePaletteConfigurationLoader
     internal const string DarkThemeId = "dark";
 
     private const string UserDefinedThemePaletteDirectoryName = "theme-palette";
-    private static readonly ThemePaletteConfiguration FallbackConfiguration = new(
-        [
-            new FixedThemeDefinition(LightThemeId, ResolveDisplayName(LightThemeId)),
-            new FixedThemeDefinition(DarkThemeId, ResolveDisplayName(DarkThemeId)),
+
+    private static ThemeDefinition[] CreateFallbackThemes()
+    {
+        // Creates the three built-in themes that are always guaranteed to exist:
+        // light (fixed), dark (fixed), and system (system-dependent).
+        // These mirror what's defined in theme-palette.json but provide fallback
+        // when configuration file is unavailable.
+        return new ThemeDefinition[]
+        {
+            new FixedThemeDefinition(
+                LightThemeId,
+                ResolveDisplayName(LightThemeId),
+                inheritedThemeId: null,
+                BuildLightFallbackColors()),
+            new FixedThemeDefinition(
+                DarkThemeId,
+                ResolveDisplayName(DarkThemeId),
+                inheritedThemeId: null,
+                BuildDarkFallbackColors()),
             new SystemDependentThemeDefinition(
                 SystemThemeId,
                 ResolveDisplayName(SystemThemeId),
@@ -25,29 +40,60 @@ internal static class ThemePaletteConfigurationLoader
                 {
                     [SystemThemeMode.Light] = LightThemeId,
                     [SystemThemeMode.Dark] = DarkThemeId,
-                })
-        ],
-        [
-            FallbackEntry("Brush.AppBackground", "#F1F5F9", "#0B1220"),
-            FallbackEntry("Brush.Surface", "#FFFFFF", "#131D31"),
-            FallbackEntry("Brush.SurfaceBorder", "#D0D7E2", "#223149"),
-            FallbackEntry("Brush.TextPrimary", "#0F172A", "#E2E8F0"),
-            FallbackEntry("Brush.TextSecondary", "#475569", "#9FB2C9"),
-            FallbackEntry("Brush.TextTertiary", "#64748B", "#7C93AF"),
-            FallbackEntry("Brush.ItemBackground", "#F8FAFC", "#111C30"),
-            FallbackEntry("Brush.ItemBorder", "#D7DEE8", "#2A3B57"),
-            FallbackEntry("Brush.IconBackground", "#E2E8F0", "#20304B"),
-            FallbackEntry("Brush.NotificationInfoBackground", "#FFFFFF", "#131D31"),
-            FallbackEntry("Brush.NotificationInfoBorder", "#D7DEE8", "#2A3B57"),
-            FallbackEntry("Brush.NotificationWarningBackground", "#FFF7ED", "#2B2111"),
-            FallbackEntry("Brush.NotificationWarningBorder", "#FDBA74", "#B45309"),
-            FallbackEntry("Brush.NotificationErrorBackground", "#FEF2F2", "#2A1618"),
-            FallbackEntry("Brush.NotificationErrorBorder", "#FCA5A5", "#B45353"),
-            FallbackEntry("Brush.NotificationProgressTrack", "#E2E8F0", "#2A3B57"),
-            FallbackEntry("Brush.NotificationProgressValue", "#94A3B8", "#7C93AF"),
-            FallbackEntry("Brush.QuickAddInfoText", "#B45309", "#FBBF24"),
-            FallbackEntry("Brush.QuickAddWarningText", "#92400E", "#F59E0B")
-        ],
+                }),
+        };
+    }
+
+    private static Dictionary<string, string> BuildLightFallbackColors() =>
+        new()
+        {
+            { "Brush.AppBackground", "#F1F5F9" },
+            { "Brush.Surface", "#FFFFFF" },
+            { "Brush.SurfaceBorder", "#D0D7E2" },
+            { "Brush.TextPrimary", "#0F172A" },
+            { "Brush.TextSecondary", "#475569" },
+            { "Brush.TextTertiary", "#64748B" },
+            { "Brush.ItemBackground", "#F8FAFC" },
+            { "Brush.ItemBorder", "#D7DEE8" },
+            { "Brush.IconBackground", "#E2E8F0" },
+            { "Brush.NotificationInfoBackground", "#FFFFFF" },
+            { "Brush.NotificationInfoBorder", "#D7DEE8" },
+            { "Brush.NotificationWarningBackground", "#FFF7ED" },
+            { "Brush.NotificationWarningBorder", "#FDBA74" },
+            { "Brush.NotificationErrorBackground", "#FEF2F2" },
+            { "Brush.NotificationErrorBorder", "#FCA5A5" },
+            { "Brush.NotificationProgressTrack", "#E2E8F0" },
+            { "Brush.NotificationProgressValue", "#94A3B8" },
+            { "Brush.QuickAddInfoText", "#B45309" },
+            { "Brush.QuickAddWarningText", "#92400E" },
+        };
+
+    private static Dictionary<string, string> BuildDarkFallbackColors() =>
+        new()
+        {
+            { "Brush.AppBackground", "#0B1220" },
+            { "Brush.Surface", "#131D31" },
+            { "Brush.SurfaceBorder", "#223149" },
+            { "Brush.TextPrimary", "#E2E8F0" },
+            { "Brush.TextSecondary", "#9FB2C9" },
+            { "Brush.TextTertiary", "#7C93AF" },
+            { "Brush.ItemBackground", "#111C30" },
+            { "Brush.ItemBorder", "#2A3B57" },
+            { "Brush.IconBackground", "#20304B" },
+            { "Brush.NotificationInfoBackground", "#131D31" },
+            { "Brush.NotificationInfoBorder", "#2A3B57" },
+            { "Brush.NotificationWarningBackground", "#2B2111" },
+            { "Brush.NotificationWarningBorder", "#B45309" },
+            { "Brush.NotificationErrorBackground", "#2A1618" },
+            { "Brush.NotificationErrorBorder", "#B45353" },
+            { "Brush.NotificationProgressTrack", "#2A3B57" },
+            { "Brush.NotificationProgressValue", "#7C93AF" },
+            { "Brush.QuickAddInfoText", "#FBBF24" },
+            { "Brush.QuickAddWarningText", "#F59E0B" },
+        };
+
+    private static readonly ThemePaletteConfiguration FallbackConfiguration = new(
+        CreateFallbackThemes(),
         LoadedFromConfig: false);
 
     internal static ThemePaletteConfiguration LoadForRuntime()
@@ -56,7 +102,8 @@ internal static class ThemePaletteConfigurationLoader
             ? configuration
             : FallbackConfiguration;
 
-        return MergeWithUserDefinedIfAvailable(AppContext.BaseDirectory, builtIn);
+        var merged = MergeWithUserDefinedIfAvailable(AppContext.BaseDirectory, builtIn);
+        return EnsureBuiltInThemesExist(merged);
     }
 
     internal static bool TryLoadForSettings(out ThemePaletteConfiguration configuration)
@@ -68,8 +115,20 @@ internal static class ThemePaletteConfigurationLoader
         }
 
         configuration = MergeWithUserDefinedIfAvailable(AppContext.BaseDirectory, builtIn);
+        configuration = EnsureBuiltInThemesExist(configuration);
         return true;
     }
+
+    /// <summary>
+    /// Gets the set of built-in theme IDs that are always guaranteed to exist.
+    /// </summary>
+    private static IReadOnlyList<string> BuiltInThemeIds => FallbackConfiguration.Themes.Select(t => t.Id).ToList();
+
+    /// <summary>
+    /// Determines whether the given theme ID is a built-in theme (system, light, or dark).
+    /// </summary>
+    internal static bool IsBuiltInTheme(string? themeId) =>
+        !string.IsNullOrWhiteSpace(themeId) && BuiltInThemeIds.Contains(themeId);
 
     private static ThemePaletteConfiguration MergeWithUserDefinedIfAvailable(
         string appBaseDirectory,
@@ -152,7 +211,8 @@ internal static class ThemePaletteConfigurationLoader
                 overlayFixedTheme.Id,
                 overlayFixedTheme.DisplayName,
                 overlayFixedTheme.InheritedThemeId,
-                mergedColors);
+                mergedColors,
+                overlayFixedTheme.IsVisibleInThemeList);
         }
 
         return overlay;
@@ -200,6 +260,24 @@ internal static class ThemePaletteConfigurationLoader
         return new ThemePaletteConfiguration(themes, LoadedFromConfig: true);
     }
 
+    private static ThemePaletteConfiguration EnsureBuiltInThemesExist(ThemePaletteConfiguration configuration)
+    {
+        var themesById = configuration.Themes.ToDictionary(static t => t.Id);
+        var builtInThemes = FallbackConfiguration.Themes;
+        var missingBuiltIn = builtInThemes.Where(t => !themesById.ContainsKey(t.Id)).ToList();
+
+        if (missingBuiltIn.Count == 0)
+        {
+            return configuration;
+        }
+
+        // Rebuild configuration with added built-in themes
+        var allThemes = new List<ThemeDefinition>(configuration.Themes);
+        allThemes.AddRange(missingBuiltIn);
+
+        return new ThemePaletteConfiguration(allThemes, configuration.Entries, LoadedFromConfig: true);
+    }
+
     private static ThemeDefinition[] BuildThemesFromDto(ThemePaletteConfigurationDto dto)
     {
         var themes = new List<ThemeDefinition>();
@@ -212,13 +290,12 @@ internal static class ThemePaletteConfigurationLoader
                 continue;
             }
 
-            if (themeDto.Disabled)
-            {
-                continue;
-            }
-
             var displayName = ResolveDisplayName(themeId, themeDto.DisplayNames);
-            var themeDef = BuildThemeDefinition(themeId, displayName, themeDto.EntriesFrom);
+            var themeDef = BuildThemeDefinition(
+                themeId,
+                displayName,
+                themeDto.EntriesFrom,
+                themeDto.Enabled);
 
             // Apply entries from theme DTO if present
             if (themeDto.Entries is not null && themeDef is FixedThemeDefinition fixedTheme)
@@ -238,7 +315,8 @@ internal static class ThemePaletteConfigurationLoader
                         fixedTheme.Id,
                         fixedTheme.DisplayName,
                         fixedTheme.InheritedThemeId,
-                        colorsByKey);
+                        colorsByKey,
+                        fixedTheme.IsVisibleInThemeList);
                 }
             }
 
@@ -251,73 +329,48 @@ internal static class ThemePaletteConfigurationLoader
     private static ThemeDefinition BuildThemeDefinition(
         string themeId,
         LocalizedText displayName,
-        System.Text.Json.JsonElement? entriesFrom)
+        EntriesFromSpec? entriesFrom,
+        bool isVisibleInThemeList)
     {
-        if (!entriesFrom.HasValue)
+        if (entriesFrom is null)
         {
-            return new FixedThemeDefinition(themeId, displayName);
+            return new FixedThemeDefinition(themeId, displayName, isVisibleInThemeList: isVisibleInThemeList);
         }
 
-        return entriesFrom.Value.ValueKind switch
+        return entriesFrom switch
         {
-            JsonValueKind.String =>
-                new FixedThemeDefinition(themeId, displayName, NormalizeThemeId(entriesFrom.Value.GetString())),
-            JsonValueKind.Object =>
-                BuildSystemDependentThemeFromElements(themeId, displayName, entriesFrom.Value),
-            _ => new FixedThemeDefinition(themeId, displayName),
+            InheritedEntriesFromSpec inherited =>
+                new FixedThemeDefinition(
+                    themeId,
+                    displayName,
+                    NormalizeThemeId(inherited.SourceThemeId),
+                    isVisibleInThemeList: isVisibleInThemeList),
+            SystemDependentEntriesFromSpec systemDependent =>
+                BuildSystemDependentThemeFromSpec(
+                    themeId,
+                    displayName,
+                    systemDependent,
+                    isVisibleInThemeList),
+            _ => new FixedThemeDefinition(themeId, displayName, isVisibleInThemeList: isVisibleInThemeList),
         };
     }
 
-    private static SystemDependentThemeDefinition BuildSystemDependentThemeFromElements(
+    private static SystemDependentThemeDefinition BuildSystemDependentThemeFromSpec(
         string themeId,
         LocalizedText displayName,
-        JsonElement modeElement)
+        SystemDependentEntriesFromSpec entriesFrom,
+        bool isVisibleInThemeList)
     {
-        var sources = new Dictionary<SystemThemeMode, string>();
+        var normalizedSources = entriesFrom.SourcesByMode
+            .ToDictionary(static entry => entry.Key, entry => NormalizeThemeId(entry.Value));
 
-        foreach (var property in modeElement.EnumerateObject())
-        {
-            var normalizedMode = NormalizeThemeId(property.Name);
-            var systemMode = normalizedMode switch
-            {
-                LightThemeId => SystemThemeMode.Light,
-                DarkThemeId => SystemThemeMode.Dark,
-                _ => (SystemThemeMode?)null,
-            };
-
-            if (systemMode is null || property.Value.ValueKind != JsonValueKind.String)
-            {
-                continue;
-            }
-
-            var sourceThemeId = property.Value.GetString();
-            var normalizedSource = NormalizeThemeId(sourceThemeId);
-            if (!string.IsNullOrEmpty(normalizedSource))
-            {
-                sources[systemMode.Value] = normalizedSource;
-            }
-        }
-
-        return sources.Count == 0
-            ? new SystemDependentThemeDefinition(themeId, displayName, new Dictionary<SystemThemeMode, string>())
-            : new SystemDependentThemeDefinition(themeId, displayName, sources);
+        return normalizedSources.Count == 0
+            ? new SystemDependentThemeDefinition(themeId, displayName, new Dictionary<SystemThemeMode, string>(), isVisibleInThemeList)
+            : new SystemDependentThemeDefinition(themeId, displayName, normalizedSources, isVisibleInThemeList);
     }
 
     private static string NormalizeThemeId(string? themeId) =>
         string.IsNullOrWhiteSpace(themeId) ? string.Empty : themeId.Trim().ToLowerInvariant();
-
-    private static ThemePaletteEntry FallbackEntry(string key, string lightHex, string darkHex)
-    {
-        return new ThemePaletteEntry(
-            key,
-            new Dictionary<string, string>
-            {
-                [LightThemeId] = lightHex,
-                [DarkThemeId] = darkHex,
-            });
-    }
-
-
 
     private static LocalizedText ResolveDisplayName(
         string themeId,
@@ -336,14 +389,9 @@ internal static class ThemePaletteConfigurationLoader
             }
         }
 
-        var normalizedThemeId = NormalizeThemeId(themeId);
-        var fallback = normalizedThemeId switch
-        {
-            SystemThemeId => AppResources.Theme_System,
-            LightThemeId => AppResources.Theme_Light,
-            DarkThemeId => AppResources.Theme_Dark,
-            _ => ToTitleCase(themeId),
-        };
+        // All themes use title-case name as fallback if not defined in config
+        // Built-in themes (light, dark, system) have display names in theme-palette.json
+        var fallback = ToTitleCase(themeId);
 
         return new LocalizedText(fallback, langs.Count > 0 ? langs : null);
     }

@@ -41,7 +41,7 @@ public sealed class ThemeOptionsProviderTests
     }
 
     [Fact]
-    public void BuildOptions_WhenConfigurationOmitsSystem_PrependsSyntheticSystemOption()
+    public void BuildOptions_WhenConfigurationOmitsSystem_DoesNotIncludeMissingSystem()
     {
         var configuration = new ThemePaletteConfiguration(
             [
@@ -55,11 +55,6 @@ public sealed class ThemeOptionsProviderTests
 
         Assert.Collection(
             options,
-            option =>
-            {
-                Assert.Equal(ThemePaletteConfigurationLoader.SystemThemeId, option.ThemeId);
-                Assert.True(option.IsSystemOption);
-            },
             option => Assert.Equal(ThemePaletteConfigurationLoader.LightThemeId, option.ThemeId),
             option => Assert.Equal("monochrome", option.ThemeId));
     }
@@ -87,5 +82,22 @@ public sealed class ThemeOptionsProviderTests
 
         Assert.Equal("システム設定", option.DisplayName);
         Assert.True(option.IsSystemOption);
+    }
+
+    [Fact]
+    public void BuildOptions_WhenThemeIsHidden_ExcludesItFromOptions()
+    {
+        var configuration = new ThemePaletteConfiguration(
+            [
+                new FixedThemeDefinition(ThemePaletteConfigurationLoader.LightThemeId, new LocalizedText("Light")),
+                new FixedThemeDefinition("hidden-theme", new LocalizedText("Hidden"), isVisibleInThemeList: false)
+            ],
+            [],
+            LoadedFromConfig: true);
+
+        var options = ThemeOptionsProvider.BuildOptions(configuration);
+
+        Assert.DoesNotContain(options, x => x.ThemeId == "hidden-theme");
+        Assert.Contains(options, x => x.ThemeId == ThemePaletteConfigurationLoader.LightThemeId);
     }
 }

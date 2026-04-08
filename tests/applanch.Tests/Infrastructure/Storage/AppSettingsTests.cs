@@ -7,7 +7,7 @@ namespace applanch.Tests.Infrastructure.Storage;
 public class AppSettingsTests
 {
     [Fact]
-    public void Normalize_WhenThemeIdIsNull_UsesSystemThemeId()
+    public void Normalize_WhenThemeIdIsNull_ReturnsSystemThemeId()
     {
         var settings = new AppSettings { ThemeId = null! };
 
@@ -17,7 +17,7 @@ public class AppSettingsTests
     }
 
     [Fact]
-    public void Normalize_WhenThemeIdIsWhitespace_UsesSystemThemeId()
+    public void Normalize_WhenThemeIdIsWhitespace_ReturnsSystemThemeId()
     {
         var settings = new AppSettings { ThemeId = "   " };
 
