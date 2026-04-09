@@ -59,7 +59,7 @@ internal sealed record AppSettings
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Instance.Warn($"Failed to rewrite normalized settings: {ex.Message}");
+                    AppLogger.Instance.Warn(ex, "Failed to rewrite normalized settings");
                 }
             }
 

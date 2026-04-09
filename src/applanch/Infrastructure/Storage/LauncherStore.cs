@@ -70,7 +70,7 @@ internal static class LauncherStore
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Failed to quarantine corrupted launch items file '{StoreFilePath}': {ex.Message}");
+            AppLogger.Instance.Warn(ex, $"Failed to quarantine corrupted launch items file '{StoreFilePath}'");
         }
     }
 

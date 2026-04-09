@@ -49,16 +49,16 @@ internal sealed class AppLogger : IDisposable
         Write($"[{DateTime.Now:HH:mm:ss.fff}] [WARN] [{source}] {message}");
     }
 
+    public void Warn(Exception ex, string? message = null, [CallerMemberName] string? caller = null, [CallerFilePath] string? file = null)
+    {
+        var source = FormatSource(caller, file);
+        WriteException("WARN", source, ex, message);
+    }
+
     public void Error(Exception ex, string? message = null, [CallerMemberName] string? caller = null, [CallerFilePath] string? file = null)
     {
         var source = FormatSource(caller, file);
-        var prefix = message is not null ? $"{message} — " : "";
-        Write($"[{DateTime.Now:HH:mm:ss.fff}] [ERROR] [{source}] {prefix}{ex.GetType().Name}: {ex.Message}");
-        if (ex.InnerException is { } inner)
-        {
-            Write($"  Inner: {inner.GetType().Name}: {inner.Message}");
-        }
-        Write($"  StackTrace: {ex.StackTrace}");
+        WriteException("ERROR", source, ex, message);
     }
 
     public void Dispose()
@@ -117,6 +117,18 @@ internal sealed class AppLogger : IDisposable
     {
         var fileName = file is not null ? Path.GetFileNameWithoutExtension(file) : null;
         return fileName is not null ? $"{fileName}.{caller}" : caller ?? "Unknown";
+    }
+
+    private void WriteException(string level, string source, Exception ex, string? message)
+    {
+        var prefix = message is not null ? $"{message} — " : "";
+        Write($"[{DateTime.Now:HH:mm:ss.fff}] [{level}] [{source}] {prefix}{ex.GetType().Name}: {ex.Message}");
+        if (ex.InnerException is { } inner)
+        {
+            Write($"  Inner: {inner.GetType().Name}: {inner.Message}");
+        }
+
+        Write($"  StackTrace: {ex.StackTrace}");
     }
 
     internal static string ResolveLogDirectory(string? overrideDirectory = null, string? processName = null)

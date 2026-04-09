@@ -101,13 +101,13 @@ internal static partial class AppResolver
             }
             catch (UnauthorizedAccessException ex)
             {
-                AppLogger.Instance.Warn($"Access denied while enumerating file system entries in '{directory}': {ex.Message}");
+                AppLogger.Instance.Warn(ex, $"Access denied while enumerating file system entries in '{directory}'");
                 entries = null;
                 return false;
             }
             catch (IOException ex)
             {
-                AppLogger.Instance.Warn($"I/O error while enumerating file system entries in '{directory}': {ex.Message}");
+                AppLogger.Instance.Warn(ex, $"I/O error while enumerating file system entries in '{directory}'");
                 entries = null;
                 return false;
             }
@@ -122,12 +122,12 @@ internal static partial class AppResolver
             }
             catch (UnauthorizedAccessException ex)
             {
-                AppLogger.Instance.Warn($"Access denied while opening uninstall registry root '{hive.Name}\\{subKeyPath}': {ex.Message}");
+                AppLogger.Instance.Warn(ex, $"Access denied while opening uninstall registry root '{hive.Name}\\{subKeyPath}'");
                 return;
             }
             catch (SecurityException ex)
             {
-                AppLogger.Instance.Warn($"Security error while opening uninstall registry root '{hive.Name}\\{subKeyPath}': {ex.Message}");
+                AppLogger.Instance.Warn(ex, $"Security error while opening uninstall registry root '{hive.Name}\\{subKeyPath}'");
                 return;
             }
 
@@ -143,12 +143,12 @@ internal static partial class AppResolver
             }
             catch (UnauthorizedAccessException ex)
             {
-                AppLogger.Instance.Warn($"Access denied while enumerating uninstall subkeys in '{root.Name}': {ex.Message}");
+                AppLogger.Instance.Warn(ex, $"Access denied while enumerating uninstall subkeys in '{root.Name}'");
                 return;
             }
             catch (SecurityException ex)
             {
-                AppLogger.Instance.Warn($"Security error while enumerating uninstall subkeys in '{root.Name}': {ex.Message}");
+                AppLogger.Instance.Warn(ex, $"Security error while enumerating uninstall subkeys in '{root.Name}'");
                 return;
             }
 

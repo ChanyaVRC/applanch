@@ -219,7 +219,7 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
             catch (Exception ex) when (ShouldRetry(ex, cancellationToken) && attempt < MaxRetryAttempts)
             {
                 var delay = TimeSpan.FromMilliseconds(BaseRetryDelay.TotalMilliseconds * Math.Pow(2, attempt - 1));
-                AppLogger.Instance.Warn($"Retrying {FormatOperation(operation)} after transient error (attempt {attempt}/{MaxRetryAttempts - 1}): {ex.Message}");
+                AppLogger.Instance.Warn(ex, $"Retrying {FormatOperation(operation)} after transient error (attempt {attempt}/{MaxRetryAttempts - 1})");
                 await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
             }
         }

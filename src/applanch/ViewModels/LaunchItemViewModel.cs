@@ -169,7 +169,7 @@ public sealed class LaunchItemViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Failed to update icon for '{FullPath.Value}': {ex.Message}");
+            AppLogger.Instance.Warn(ex, $"Failed to update icon for '{FullPath.Value}'");
         }
     }
 }

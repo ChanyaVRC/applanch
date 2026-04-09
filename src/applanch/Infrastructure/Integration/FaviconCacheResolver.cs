@@ -49,7 +49,7 @@ internal sealed class FaviconCacheResolver : IFaviconCacheResolver
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Failed to read favicon cache for '{faviconUri}': {ex.Message}");
+            AppLogger.Instance.Warn(ex, $"Failed to read favicon cache for '{faviconUri}'");
             return null;
         }
     }
@@ -67,7 +67,7 @@ internal sealed class FaviconCacheResolver : IFaviconCacheResolver
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Failed to write favicon cache for '{faviconUri}': {ex.Message}");
+            AppLogger.Instance.Warn(ex, $"Failed to write favicon cache for '{faviconUri}'");
         }
         finally
         {
@@ -79,7 +79,7 @@ internal sealed class FaviconCacheResolver : IFaviconCacheResolver
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Instance.Warn($"Failed to clean favicon temp file '{tempPath}': {ex.Message}");
+                    AppLogger.Instance.Warn(ex, $"Failed to clean favicon temp file '{tempPath}'");
                 }
             }
         }
@@ -96,7 +96,7 @@ internal sealed class FaviconCacheResolver : IFaviconCacheResolver
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Failed to decode favicon: {ex.Message}");
+            AppLogger.Instance.Warn(ex, "Failed to decode favicon");
             return null;
         }
     }
@@ -122,7 +122,7 @@ internal sealed class FaviconCacheResolver : IFaviconCacheResolver
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Failed to quarantine corrupted favicon cache file '{cachePath}': {ex.Message}");
+            AppLogger.Instance.Warn(ex, $"Failed to quarantine corrupted favicon cache file '{cachePath}'");
         }
     }
 }

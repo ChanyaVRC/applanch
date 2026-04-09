@@ -82,7 +82,7 @@ public sealed partial class SettingsWindow : Window
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Failed to remove context menu entries: {ex.Message}");
+            AppLogger.Instance.Warn(ex, "Failed to remove context menu entries");
             _interactionService.Show(
                 LocalizedStrings.Instance[nameof(AppResources.Error_RemoveContextMenuEntries)],
                 LocalizedStrings.Instance[nameof(AppResources.Window_Settings)],
@@ -103,7 +103,7 @@ public sealed partial class SettingsWindow : Window
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Failed to start external process for '{target}': {ex.Message}");
+            AppLogger.Instance.Warn(ex, $"Failed to start external process for '{target}'");
         }
 
         _interactionService.Show(

@@ -64,7 +64,7 @@ internal sealed class NetworkPolicyResolver : INetworkPolicyResolver
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Failed to resolve favicon host '{uri.Host}': {ex.Message}");
+            AppLogger.Instance.Warn(ex, $"Failed to resolve favicon host '{uri.Host}'");
             return false;
         }
     }

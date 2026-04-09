@@ -105,7 +105,7 @@ internal sealed class SparsePackageRegistrar(
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Sparse package registration check failed: {ex.Message}");
+            AppLogger.Instance.Warn(ex, "Sparse package registration check failed");
             return false;
         }
     }
@@ -140,7 +140,7 @@ internal sealed class SparsePackageRegistrar(
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Sparse package registration error: {ex.Message}");
+            AppLogger.Instance.Warn(ex, "Sparse package registration error");
             return false;
         }
     }

@@ -33,4 +33,24 @@ public class AppLoggerTests
 
         Assert.Equal(@"C:\override-logs", directory);
     }
+
+    [Fact]
+    public void Warn_WithException_LogsExceptionDetails()
+    {
+        var marker = $"warn-test-{Guid.NewGuid():N}";
+        var ex = new InvalidOperationException("outer", new Exception("inner"));
+
+        AppLogger.Instance.Warn(ex, marker);
+
+        using var stream = new FileStream(
+            AppLogger.LogFilePathValue,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.ReadWrite | FileShare.Delete);
+        using var reader = new StreamReader(stream);
+        var log = reader.ReadToEnd();
+        Assert.Contains(marker, log, StringComparison.Ordinal);
+        Assert.Contains("InvalidOperationException: outer", log, StringComparison.Ordinal);
+        Assert.Contains("Inner: Exception: inner", log, StringComparison.Ordinal);
+    }
 }

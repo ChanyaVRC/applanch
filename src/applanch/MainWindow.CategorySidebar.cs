@@ -55,15 +55,18 @@ public sealed partial class MainWindow
 
     private void CategorySidebarContainer_Drop(object sender, DragEventArgs e)
     {
+        e.Effects = DragDropEffects.None;
         try
         {
-            ApplyCategoryDrop(e.Data, e.OriginalSource);
-            e.Effects = DragDropEffects.Move;
+            if (CanDropToCategorySidebar(e.Data, e.OriginalSource))
+            {
+                ApplyCategoryDrop(e.Data, e.OriginalSource);
+                e.Effects = DragDropEffects.Move;
+            }
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Category drop failed: {ex.Message}");
-            e.Effects = DragDropEffects.None;
+            AppLogger.Instance.Warn(ex, "Category drop failed");
         }
 
         ClearCategoryDragTargets();
@@ -92,7 +95,7 @@ public sealed partial class MainWindow
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Category create drop failed: {ex.Message}");
+            AppLogger.Instance.Warn(ex, "Category create drop failed");
             e.Effects = DragDropEffects.None;
         }
 
@@ -212,8 +215,8 @@ public sealed partial class MainWindow
 
         var targetCategory = _interactionService.PromptWithSuggestions(
             Strings.Prompt_CreateCategory,
-            string.Empty,
-            ViewModel.CategoryNames.Select(static category => category.ToDisplayLabel()),
+            Category.Default,
+            ViewModel.CategoryNames,
             this);
 
         if (targetCategory is null || string.IsNullOrWhiteSpace(targetCategory.Value.Text))
@@ -223,6 +226,18 @@ public sealed partial class MainWindow
 
         MoveItemToCategory(draggedItem!, Category.FromInput(targetCategory.Value.Text));
         return true;
+    }
+
+    internal bool CanDropToCategorySidebar(IDataObject data, object? originalSource)
+    {
+        var draggedItem = GetDraggedItem(data);
+        Debug.Assert(
+            draggedItem is not null,
+            "Drag-over should only run with valid dragged item data.");
+
+        var targetCategory = ResolveCategoryDropTargetOrSelectedCategory(originalSource);
+        return targetCategory is { } resolvedTargetCategory &&
+               CanApplyCategoryDrop(draggedItem, resolvedTargetCategory);
     }
 
     internal void ApplyCategoryDrop(IDataObject data, object? originalSource)

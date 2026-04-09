@@ -165,7 +165,7 @@ internal static class PathNormalization
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Path normalization failed for '{path}': {ex.Message}");
+            AppLogger.Instance.Warn(ex, $"Path normalization failed for '{path}'");
             return path;
         }
     }

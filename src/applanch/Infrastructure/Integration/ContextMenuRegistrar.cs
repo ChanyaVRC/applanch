@@ -168,7 +168,7 @@ internal sealed class ContextMenuRegistrar(
             return false;
         }
 
-        AppLogger.Instance.Warn($"{operation} {reason}: {ex.Message}");
+        AppLogger.Instance.Warn(ex, $"{operation} {reason}");
         return true;
     }
 

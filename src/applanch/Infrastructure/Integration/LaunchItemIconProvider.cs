@@ -166,7 +166,7 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
         }
         catch (Exception ex)
         {
-            AppLogger.Instance.Warn($"Failed to load favicon from '{faviconUri}': {ex.Message}");
+            AppLogger.Instance.Warn(ex, $"Failed to load favicon from '{faviconUri}'");
         }
 
         return null;

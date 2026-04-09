@@ -255,7 +255,7 @@ internal sealed class LaunchFallbackResolver(LaunchFallbackConfiguration configu
         }
         catch (AppIdResolutionException ex)
         {
-            AppLogger.Instance.Warn($"App ID resolution failed for source '{rule.AppIdSource}' and path '{launchPath.Value}': {ex.Message}");
+            AppLogger.Instance.Warn(ex, $"App ID resolution failed for source '{rule.AppIdSource}' and path '{launchPath.Value}'");
             return null;
         }
     }
