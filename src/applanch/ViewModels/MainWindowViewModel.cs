@@ -21,7 +21,7 @@ public sealed class MainWindowViewModel : ObservableObject
     private IReadOnlyList<LauncherEntry> _lastPersistedEntries;
     private AppSettings _settings;
     private LaunchItemViewModel? _selectedLaunchItem;
-    private string _selectedCategory = AllCategoriesLabel;
+    private Category _selectedCategory = Category.All;
     private bool _refreshingSuggestions;
     private bool _suspendPersistence;
     private string _quickAddNameOrPath = string.Empty;
@@ -130,15 +130,16 @@ public sealed class MainWindowViewModel : ObservableObject
 
     public string SelectedCategory
     {
-        get => _selectedCategory;
+        get => _selectedCategory.ToDisplayLabel();
         set
         {
-            if (_selectedCategory == value)
+            var newCategory = Category.FromInput(value);
+            if (_selectedCategory == newCategory)
             {
                 return;
             }
 
-            _selectedCategory = value;
+            _selectedCategory = newCategory;
             FilteredLaunchItems.Refresh();
             OnPropertyChanged(nameof(SelectedCategory));
             OnPropertyChanged(nameof(EmptyMessageVisibility));
@@ -315,13 +316,12 @@ public sealed class MainWindowViewModel : ObservableObject
             return false;
         }
 
-        if (Category.FromInput(SelectedCategory).IsAll)
+        if (_selectedCategory.IsAll)
         {
             return true;
         }
 
-        var selectedCategory = Category.FromInput(SelectedCategory);
-        return launchItem.Category == selectedCategory;
+        return launchItem.Category == _selectedCategory;
     }
 
     private void PersistCurrentOrder()
@@ -422,30 +422,27 @@ public sealed class MainWindowViewModel : ObservableObject
 
     private void EnsureSelectedCategoryIsValid()
     {
-        var defaultCategoryLabel = Category.Default.ToDisplayLabel();
-        if (string.IsNullOrWhiteSpace(SelectedCategory) && FilterCategoryNames.Contains(defaultCategoryLabel))
+        if (FilterCategoryNames.Contains(_selectedCategory.ToDisplayLabel()))
         {
-            SelectedCategory = defaultCategoryLabel;
             return;
         }
 
-        if (!FilterCategoryNames.Contains(SelectedCategory))
-        {
-            SelectedCategory = AllCategoriesLabel;
-        }
+        // Reset to All categories if current selection is invalid
+        _selectedCategory = Category.All;
+        OnPropertyChanged(nameof(SelectedCategory));
     }
 
     private void ResetQuickAddFieldsAfterAdd()
     {
         QuickAddNameOrPath = string.Empty;
         QuickAddArguments = string.Empty;
-        if (Category.FromInput(SelectedCategory).IsAll)
+        if (_selectedCategory.IsAll)
         {
             QuickAddCategory = Category.Default.ToDisplayLabel();
             return;
         }
 
-        QuickAddCategory = SelectedCategory;
+        QuickAddCategory = _selectedCategory.ToDisplayLabel();
     }
 
     private static LauncherEntry ToLauncherEntry(LaunchItemViewModel item) =>
