@@ -150,7 +150,7 @@ public sealed class MainWindowCategorySidebarTests
 
                 var categoryListBox = Assert.IsType<ListBox>(VisualTreeUtilities.FindVisualChild<ListBox>(sidebar));
                 categoryListBox.UpdateLayout();
-                var opsItem = Assert.IsType<ListBoxItem>(categoryListBox.ItemContainerGenerator.ContainerFromItem("Ops"));
+                var opsItem = Assert.IsType<ListBoxItem>(categoryListBox.ItemContainerGenerator.ContainerFromItem(Category.FromInput("Ops")));
 
                 Assert.Equal(DragDropEffects.Move, window.GetCategorySidebarDropEffect(data, opsItem));
                 Assert.True(window.IsCategoryDropTargetHighlighted(opsItem));
@@ -582,11 +582,39 @@ public sealed class MainWindowCategorySidebarTests
             return PromptResult;
         }
 
-        public string? PromptWithSuggestions(string title, string initialValue, IEnumerable<string> suggestions, Window owner)
+        public PromptResult<string>? PromptWithSuggestions(string title, string initialValue, IEnumerable<string> suggestions, Window owner)
         {
             LastPromptWithSuggestionsTitle = title;
-            LastSuggestions = suggestions.ToArray();
-            return PromptWithSuggestionsResult;
+            LastSuggestions = suggestions
+                .Where(static value => !string.IsNullOrWhiteSpace(value))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+            if (PromptWithSuggestionsResult is null)
+            {
+                return null;
+            }
+
+            var selectedSuggestion = LastSuggestions.FirstOrDefault(value => string.Equals(value, PromptWithSuggestionsResult, StringComparison.Ordinal));
+            return new PromptResult<string>(PromptWithSuggestionsResult, selectedSuggestion);
+        }
+
+        public PromptResult<T?>? PromptWithSuggestions<T>(string title, T initialValue, IEnumerable<T> suggestions, Window owner)
+        {
+            LastPromptWithSuggestionsTitle = title;
+            LastSuggestions = suggestions
+            .Select(static value => value?.ToString() ?? string.Empty)
+                .Where(static value => !string.IsNullOrWhiteSpace(value))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+
+            if (PromptWithSuggestionsResult is null)
+            {
+                return null;
+            }
+
+            var selectedSuggestion = LastSuggestions.FirstOrDefault(value => string.Equals(value, PromptWithSuggestionsResult, StringComparison.Ordinal));
+            var selectedItem = suggestions.FirstOrDefault(value => string.Equals(value?.ToString(), selectedSuggestion, StringComparison.Ordinal));
+            return new PromptResult<T?>(PromptWithSuggestionsResult, selectedItem);
         }
     }
 

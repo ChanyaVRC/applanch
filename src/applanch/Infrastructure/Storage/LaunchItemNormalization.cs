@@ -6,23 +6,24 @@ namespace applanch.Infrastructure.Storage;
 internal static class LaunchItemNormalization
 {
     // Collect localized forms of "DefaultCategory" so persisted labels map to the canonical internal value.
-    private static readonly HashSet<string> KnownDefaultCategories = BuildKnownDefaultCategories();
+    private static readonly HashSet<string> KnownDefaultCategoriesLabels = BuildKnownLabels(nameof(AppResources.DefaultCategory));
+    private static readonly HashSet<string> KnownAllCategoriesLabels = BuildKnownLabels(nameof(AppResources.AllCategories));
 
-    private static HashSet<string> BuildKnownDefaultCategories()
+    private static HashSet<string> BuildKnownLabels(string resourceName)
     {
         var resourceManager = new ResourceManager(typeof(AppResources).FullName!, typeof(AppResources).Assembly);
-        var categories = new HashSet<string>(StringComparer.Ordinal);
+        var labels = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var culture in LanguageOptionMap.EnumerateSupportedCultures(includeInvariantCulture: true))
         {
-            var value = resourceManager.GetString(nameof(AppResources.DefaultCategory), culture);
+            var value = resourceManager.GetString(resourceName, culture);
             if (!string.IsNullOrWhiteSpace(value))
             {
-                categories.Add(value);
+                labels.Add(value);
             }
         }
 
-        return categories;
+        return labels;
     }
 
     public static string NormalizeCategory(string? category)
@@ -32,10 +33,15 @@ internal static class LaunchItemNormalization
         {
             return LauncherEntry.DefaultCategory;
         }
-        if (KnownDefaultCategories.Contains(trimmed))
+        if (KnownDefaultCategoriesLabels.Contains(trimmed))
         {
             return LauncherEntry.DefaultCategory;
         }
+        if (KnownAllCategoriesLabels.Contains(trimmed))
+        {
+            return LauncherEntry.AllCategories;
+        }
+
         return trimmed;
     }
 

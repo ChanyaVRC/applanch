@@ -113,9 +113,14 @@ public sealed class MainWindowStartupTests
             return initialValue;
         }
 
-        public string? PromptWithSuggestions(string title, string initialValue, IEnumerable<string> suggestions, Window owner)
+        public PromptResult<string>? PromptWithSuggestions(string title, string initialValue, IEnumerable<string> suggestions, Window owner)
         {
-            return initialValue;
+            return new PromptResult<string>(initialValue, initialValue);
+        }
+
+        public PromptResult<T?>? PromptWithSuggestions<T>(string title, T initialValue, IEnumerable<T> suggestions, Window owner)
+        {
+            return new PromptResult<T?>(initialValue?.ToString() ?? string.Empty, initialValue);
         }
     }
 

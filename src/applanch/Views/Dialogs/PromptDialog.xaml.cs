@@ -1,25 +1,49 @@
 ﻿using System.Windows;
+using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Theming;
 
 namespace applanch.Views.Dialogs;
 
 public sealed partial class PromptDialog : Window
 {
-    public bool UseSuggestions { get; }
+    public bool UseSuggestions => SuggestionTexts.Count > 0;
 
-    public IReadOnlyList<string> Suggestions { get; }
+    public IReadOnlyList<object?> Suggestions { get; }
+
+    public IReadOnlyList<string> SuggestionTexts { get; }
 
     public string InitialValue { get; }
 
-    public PromptDialog(string title, string initialValue, Window owner, IEnumerable<string>? suggestions = null)
+    public PromptDialog(string title, object? initialValue, Window owner, IEnumerable<object?>? suggestions = null)
     {
-        var suggestionList = suggestions?
-            .Where(static v => !string.IsNullOrWhiteSpace(v))
-            .Distinct(StringComparer.Ordinal)
-            .ToArray() ?? [];
-        Suggestions = suggestionList;
-        UseSuggestions = suggestionList.Length > 0;
-        InitialValue = initialValue;
+        if (suggestions is null || !suggestions.Any())
+        {
+            Suggestions = Array.Empty<object?>();
+            SuggestionTexts = Array.Empty<string>();
+        }
+        else
+        {
+            var seenTexts = new HashSet<string>(StringComparer.Ordinal);
+            var normalizedItems = new List<object?>();
+            var normalizedTexts = new List<string>();
+
+            foreach (var value in suggestions)
+            {
+                var text = GetPromptText(value);
+                if (string.IsNullOrWhiteSpace(text) || !seenTexts.Add(text))
+                {
+                    continue;
+                }
+
+                normalizedItems.Add(value);
+                normalizedTexts.Add(text);
+            }
+
+            Suggestions = normalizedItems;
+            SuggestionTexts = normalizedTexts;
+        }
+
+        InitialValue = GetPromptText(initialValue);
 
         InitializeComponent();
         Title = title;
@@ -45,7 +69,40 @@ public sealed partial class PromptDialog : Window
         InputTextBox.SelectAll();
     }
 
-    public string InputValue => UseSuggestions
-        ? InputSuggestion.Text?.Trim() ?? string.Empty
-        : InputTextBox.Text.Trim();
+    public PromptResult<object?> Input
+    {
+        get
+        {
+            var text = UseSuggestions
+                ? InputSuggestion.Text?.Trim() ?? string.Empty
+                : InputTextBox.Text.Trim();
+            var selectedSuggestion = ResolveSelectedSuggestion(text);
+            return new PromptResult<object?>(text, selectedSuggestion);
+        }
+    }
+
+    public string InputValue => Input.Text;
+
+    private static string GetPromptText(object? value)
+    {
+        return value?.ToString() ?? string.Empty;
+    }
+
+    private object? ResolveSelectedSuggestion(string text)
+    {
+        if (!UseSuggestions)
+        {
+            return null;
+        }
+
+        for (var i = 0; i < SuggestionTexts.Count; i++)
+        {
+            if (string.Equals(SuggestionTexts[i], text, StringComparison.Ordinal))
+            {
+                return Suggestions[i];
+            }
+        }
+
+        return null;
+    }
 }

@@ -9,7 +9,7 @@ internal sealed class LaunchItemContextMenuHandler(IUserInteractionService inter
 {
     internal void EditCategory(
         object sender,
-        IEnumerable<string> categoryNames,
+        IEnumerable<Category> categoryNames,
         string promptTitle,
         Action<LaunchItemViewModel, Category> applyCategory)
     {
@@ -19,23 +19,22 @@ internal sealed class LaunchItemContextMenuHandler(IUserInteractionService inter
             return;
         }
 
-        var currentCategory = item.Category.ToDisplayLabel();
-
-        var suggestions = categoryNames
-            .Append(currentCategory)
-            .Where(static name => !string.IsNullOrWhiteSpace(name))
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-
-        var initialCategory = currentCategory;
-
-        var newValue = interactionService.PromptWithSuggestions(promptTitle, initialCategory, suggestions, owner);
-        if (newValue is null)
+        var currentCategory = item.Category;
+        var promptResult = interactionService.PromptWithSuggestions(
+            promptTitle,
+            currentCategory,
+            categoryNames.Append(item.Category),
+            owner);
+        if (promptResult is null)
         {
             return;
         }
 
-        applyCategory(item, Category.FromInput(newValue));
+        var selectedCategory = promptResult.Value.SelectedItem;
+        var resolvedCategory = string.Equals(selectedCategory.ToString(), promptResult.Value.Text, StringComparison.Ordinal)
+            ? selectedCategory
+            : Category.FromInput(promptResult.Value.Text);
+        applyCategory(item, resolvedCategory);
     }
 
     internal void EditValue(

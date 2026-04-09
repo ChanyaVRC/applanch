@@ -32,13 +32,19 @@ internal sealed class UserInteractionService : IUserInteractionService
     public string? Prompt(string title, string initialValue, Window owner)
     {
         var dialog = new PromptDialog(title, initialValue, owner);
-        return dialog.ShowDialog() == true ? dialog.InputValue : null;
+        return dialog.ShowDialog() == true ? dialog.Input.Text : null;
     }
 
-    public string? PromptWithSuggestions(string title, string initialValue, IEnumerable<string> suggestions, Window owner)
+    public PromptResult<T?>? PromptWithSuggestions<T>(string title, T initialValue, IEnumerable<T> suggestions, Window owner)
     {
-        var dialog = new PromptDialog(title, initialValue, owner, suggestions);
-        return dialog.ShowDialog() == true ? dialog.InputValue : null;
+        var dialog = new PromptDialog(title, initialValue, owner, suggestions.Cast<object?>());
+        if (dialog.ShowDialog() != true)
+        {
+            return null;
+        }
+
+        var input = dialog.Input;
+        return new PromptResult<T?>(input.Text, input.SelectedItem is T { } item ? item : default);
     }
 
     private static Window? ResolveOwnerWindow()

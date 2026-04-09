@@ -10,6 +10,7 @@ internal sealed record LauncherEntry(
     string DisplayName)
 {
     public static string DefaultCategory => string.Empty;
+    public static string AllCategories => "*";
 
     internal LauncherEntry(string path, string category, string arguments, string displayName)
         : this(

@@ -146,16 +146,14 @@ public sealed partial class MainWindow
         ActivateCategoryDragUi(isCreateDropTargetActive: false, clearCategoryHighlight: false);
 
         var targetCategory = ResolveCategoryDropTargetOrSelectedCategory(originalSource);
-        if (targetCategory is null)
+        if (targetCategory is not { } resolvedTargetCategory)
         {
             ClearCategoryDropHighlight();
             return DragDropEffects.None;
         }
 
-        var category = Category.FromInput(targetCategory);
-
         var effect = DragDropEffects.None;
-        if (CanApplyCategoryDrop(draggedItem, category))
+        if (CanApplyCategoryDrop(draggedItem, resolvedTargetCategory))
         {
             effect = DragDropEffects.Move;
         }
@@ -164,7 +162,7 @@ public sealed partial class MainWindow
         if (effect == DragDropEffects.Move)
         {
             highlightTarget = ResolveCategoryDropTargetContainer(originalSource)
-                ?? ResolveCategoryDropTargetContainerByCategory(category.ToDisplayLabel());
+                ?? ResolveCategoryDropTargetContainerByCategory(resolvedTargetCategory);
         }
 
         UpdateCategoryDropHighlight(highlightTarget);
@@ -218,15 +216,15 @@ public sealed partial class MainWindow
         var targetCategory = _interactionService.PromptWithSuggestions(
             Strings.Prompt_CreateCategory,
             string.Empty,
-            ViewModel.CategoryNames,
+            ViewModel.CategoryNames.Select(static category => category.ToDisplayLabel()),
             this);
 
-        if (string.IsNullOrWhiteSpace(targetCategory))
+        if (targetCategory is null || string.IsNullOrWhiteSpace(targetCategory.Value.Text))
         {
             throw new OperationCanceledException("Category create drop canceled: no category was provided.");
         }
 
-        MoveItemToCategory(draggedItem!, Category.FromInput(targetCategory));
+        MoveItemToCategory(draggedItem!, Category.FromInput(targetCategory.Value.Text));
     }
 
     internal void ApplyCategoryDrop(IDataObject data, object? originalSource)
@@ -241,7 +239,7 @@ public sealed partial class MainWindow
             draggedItem is not null,
             "Category-drop should only run after drag-over accepted a launch item.");
 
-        MoveItemToCategory(draggedItem!, Category.FromInput(targetCategory));
+        MoveItemToCategory(draggedItem!, targetCategory!.Value);
     }
 
     internal void MoveItemToCategory(LaunchItemViewModel item, Category targetCategory)
@@ -252,22 +250,22 @@ public sealed partial class MainWindow
         if (!ViewModel.TryMoveItemToCategory(item, targetCategory))
         {
             throw new InvalidOperationException(
-                $"Category move failed for '{item.DisplayName}': '{previousCategory.Value}' -> '{targetCategory.Value}'.");
+                $"Category move failed for '{item.DisplayName}': '{previousCategory}' -> '{targetCategory}'.");
         }
 
         ShowFloatingNotification(
-            string.Format(Strings.Notification_ItemCategoryChanged, item.DisplayName, previousCategory.Value, item.Category.Value),
+            string.Format(Strings.Notification_ItemCategoryChanged, item.DisplayName, previousCategory, item.Category),
             MessageBoxImage.Information);
     }
 
-    internal static string? ResolveCategoryDropTarget(object? originalSource)
+    internal static Category? ResolveCategoryDropTarget(object? originalSource)
     {
-        if (ResolveCategoryDropTargetContainer(originalSource) is not { DataContext: string category })
+        if (ResolveCategoryDropTargetContainer(originalSource) is not { DataContext: Category category })
         {
             return null;
         }
 
-        if (Category.FromInput(category).IsAll)
+        if (category.IsAll)
         {
             return null;
         }
@@ -282,7 +280,7 @@ public sealed partial class MainWindow
             : null;
     }
 
-    private string? ResolveCategoryDropTargetOrSelectedCategory(object? originalSource)
+    private Category? ResolveCategoryDropTargetOrSelectedCategory(object? originalSource)
     {
         var directTarget = ResolveCategoryDropTarget(originalSource);
         if (directTarget is not null)
@@ -292,7 +290,7 @@ public sealed partial class MainWindow
 
         // Keep blank-space sidebar drop intuitive by treating the selected category as the target.
         var selectedCategory = ViewModel.SelectedCategory;
-        if (Category.FromInput(selectedCategory).IsAll)
+        if (selectedCategory.IsAll)
         {
             return null;
         }
@@ -300,7 +298,7 @@ public sealed partial class MainWindow
         return selectedCategory;
     }
 
-    private ListBoxItem? ResolveCategoryDropTargetContainerByCategory(string category)
+    private ListBoxItem? ResolveCategoryDropTargetContainerByCategory(Category category)
     {
         return CategorySidebar.ResolveCategoryItemContainer(category);
     }

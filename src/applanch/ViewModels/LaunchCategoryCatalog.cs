@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Resources;
 using applanch.Infrastructure.Storage;
 
@@ -15,28 +14,26 @@ internal static class LaunchCategoryCatalog
         return Category.FromInput(category).IsAll || KnownAllCategoriesLabels.Contains(category);
     }
 
-    internal static List<string> BuildCategoryNames(IEnumerable<LaunchItemViewModel> items, CategorySortMode sortMode)
+    internal static List<Category> BuildCategoryNames(IEnumerable<LaunchItemViewModel> items, CategorySortMode sortMode)
     {
         var categories = CollectCategories(items);
 
         if (sortMode != CategorySortMode.AsAdded)
         {
-            categories.Sort(StringComparer.CurrentCulture);
+            categories.Sort((a, b) => a.ToDisplayLabel().CompareTo(b.ToDisplayLabel()));
         }
 
-        var defaultCategoryLabel = Category.Default.ToDisplayLabel();
-        Debug.Assert(!string.IsNullOrWhiteSpace(defaultCategoryLabel), "Default category should have a non-empty display label.");
-
-        categories.Remove(defaultCategoryLabel);
-        categories.Add(defaultCategoryLabel);
+        // Ensure Default category is at the end
+        categories.Remove(Category.Default);
+        categories.Add(Category.Default);
 
         return categories;
     }
 
-    private static List<string> CollectCategories(IEnumerable<LaunchItemViewModel> items)
+    private static List<Category> CollectCategories(IEnumerable<LaunchItemViewModel> items)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
-        var categories = new List<string>();
+        var categories = new List<Category>();
 
         foreach (var item in items)
         {
@@ -46,7 +43,7 @@ internal static class LaunchCategoryCatalog
                 continue;
             }
 
-            categories.Add(category.Value);
+            categories.Add(category);
         }
 
         return categories;

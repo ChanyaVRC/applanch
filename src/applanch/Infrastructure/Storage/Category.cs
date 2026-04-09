@@ -3,10 +3,13 @@ namespace applanch.Infrastructure.Storage;
 public readonly record struct Category
 {
     public static Category Default => new(LauncherEntry.DefaultCategory);
+    public static Category All => new(LauncherEntry.AllCategories);
 
     public string Value { get; }
 
-    public bool IsDefault => string.IsNullOrEmpty(Value);
+    public bool IsDefault => Value == LauncherEntry.DefaultCategory;
+
+    public bool IsAll => Value == LauncherEntry.AllCategories;
 
     private Category(string value)
     {
@@ -24,9 +27,13 @@ public readonly record struct Category
         {
             return AppResources.DefaultCategory;
         }
+        if (IsAll)
+        {
+            return AppResources.AllCategories;
+        }
 
         return Value;
     }
 
-    public override string ToString() => Value;
+    public override string ToString() => ToDisplayLabel();
 }

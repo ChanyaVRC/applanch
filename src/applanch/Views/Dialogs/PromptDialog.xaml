@@ -200,7 +200,7 @@
         <!-- Suggestion mode: SuggestionInputControl wraps ComboBox logic -->
         <controls:SuggestionInputControl x:Name="InputSuggestion"
                                          InputComboBoxStyle="{StaticResource DialogComboBoxStyle}"
-                                         Suggestions="{Binding Suggestions, Mode=OneWay}"
+                                         Suggestions="{Binding SuggestionTexts, Mode=OneWay}"
                                          Text="{Binding InitialValue, Mode=OneWay}">
             <controls:SuggestionInputControl.Style>
                 <Style TargetType="controls:SuggestionInputControl">

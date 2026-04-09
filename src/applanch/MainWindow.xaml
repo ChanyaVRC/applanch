@@ -6,6 +6,7 @@
         xmlns:controls="clr-namespace:applanch.Controls"
         xmlns:local="clr-namespace:applanch"
         xmlns:vm="clr-namespace:applanch.ViewModels"
+        xmlns:wpf="clr-namespace:applanch.Infrastructure.Wpf"
         mc:Ignorable="d"
         xmlns:res="clr-namespace:applanch.Properties"
         Title="Applanch"
@@ -17,6 +18,7 @@
         Loaded="MainWindow_Loaded"
         Background="{DynamicResource Brush.AppBackground}">
     <Window.Resources>
+        <wpf:CategoryDisplayConverter x:Key="CategoryDisplayConverter"/>
         <Style x:Key="CategorySidebarHoverZoneStyle"
                TargetType="Border">
             <Setter Property="Visibility"
@@ -783,7 +785,7 @@
                                     </Grid.ColumnDefinitions>
                                     <controls:SuggestionInputControl Grid.Column="0"
                                                                      InputComboBoxStyle="{StaticResource QuickAddCompactComboBoxStyle}"
-                                                                     Suggestions="{Binding CategoryNames}"
+                                                                     Suggestions="{Binding CategoryNames, Converter={StaticResource CategoryDisplayConverter}}"
                                                                      Text="{Binding QuickAddCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                      ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Category]}"/>
                                     <TextBox Grid.Column="2"

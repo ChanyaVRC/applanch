@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using applanch.Infrastructure.Presentation;
+using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Utilities;
 
 namespace applanch.Controls;
@@ -150,7 +151,7 @@ public sealed partial class CategorySidebarControl : UserControl
                IsDescendantOf(dependencyObject, CategorySidebarCreateDropTarget);
     }
 
-    public ListBoxItem? ResolveCategoryItemContainer(string category)
+    public ListBoxItem? ResolveCategoryItemContainer(Category category)
     {
         if (VisualTreeUtilities.FindVisualChild<ListBox>(CategorySidebarContainer) is not { } categoryListBox)
         {

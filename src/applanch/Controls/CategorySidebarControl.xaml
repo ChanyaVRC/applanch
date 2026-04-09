@@ -1,8 +1,10 @@
 <UserControl x:Class="applanch.Controls.CategorySidebarControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:app="clr-namespace:applanch">
+             xmlns:app="clr-namespace:applanch"
+             xmlns:wpf="clr-namespace:applanch.Infrastructure.Wpf">
     <UserControl.Resources>
+        <wpf:CategoryDisplayConverter x:Key="CategoryDisplayConverter"/>
         <Style x:Key="CategorySidebarHoverZoneStyle"
                TargetType="Border">
             <Setter Property="Visibility"
@@ -249,7 +251,7 @@
                         </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding}"
+                                <TextBlock Text="{Binding Converter={StaticResource CategoryDisplayConverter}}"
                                            FontSize="13"/>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

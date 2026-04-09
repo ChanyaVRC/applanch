@@ -73,9 +73,9 @@ public sealed class MainWindowViewModel : ObservableObject
 
     public ObservableCollection<LaunchItemViewModel> LaunchItems { get; }
 
-    public ObservableCollection<string> CategoryNames { get; }
+    public ObservableCollection<Category> CategoryNames { get; }
 
-    public ObservableCollection<string> FilterCategoryNames { get; }
+    public ObservableCollection<Category> FilterCategoryNames { get; }
 
     public ObservableCollection<string> QuickAddSuggestions { get; }
 
@@ -128,18 +128,17 @@ public sealed class MainWindowViewModel : ObservableObject
         set => SetField(ref _quickAddArguments, value);
     }
 
-    public string SelectedCategory
+    public Category SelectedCategory
     {
-        get => _selectedCategory.ToDisplayLabel();
+        get => _selectedCategory;
         set
         {
-            var newCategory = Category.FromInput(value);
-            if (_selectedCategory == newCategory)
+            if (_selectedCategory == value)
             {
                 return;
             }
 
-            _selectedCategory = newCategory;
+            _selectedCategory = value;
             FilteredLaunchItems.Refresh();
             OnPropertyChanged(nameof(SelectedCategory));
             OnPropertyChanged(nameof(EmptyMessageVisibility));
@@ -416,13 +415,13 @@ public sealed class MainWindowViewModel : ObservableObject
     {
         var categories = LaunchCategoryCatalog.BuildCategoryNames(LaunchItems, _settings.CategorySortMode);
         ReplaceCollection(CategoryNames, categories);
-        ReplaceCollection(FilterCategoryNames, [AllCategoriesLabel, .. categories]);
+        ReplaceCollection(FilterCategoryNames, [Category.All, .. categories]);
         EnsureSelectedCategoryIsValid();
     }
 
     private void EnsureSelectedCategoryIsValid()
     {
-        if (FilterCategoryNames.Contains(_selectedCategory.ToDisplayLabel()))
+        if (FilterCategoryNames.Contains(_selectedCategory))
         {
             return;
         }
@@ -522,9 +521,9 @@ public sealed class MainWindowViewModel : ObservableObject
     private void EnsureSelectedItem() =>
         SelectedLaunchItem ??= FilteredLaunchItems.Cast<LaunchItemViewModel>().FirstOrDefault();
 
-    private static void ReplaceCollection(ObservableCollection<string> target, IEnumerable<string> values)
+    private static void ReplaceCollection<T>(ObservableCollection<T> target, IEnumerable<T> values) where T : IEquatable<T>
     {
-        if (target.SequenceEqual(values, StringComparer.Ordinal))
+        if (target.SequenceEqual(values))
         {
             return;
         }

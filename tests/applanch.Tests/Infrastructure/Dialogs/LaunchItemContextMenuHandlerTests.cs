@@ -34,7 +34,7 @@ public class LaunchItemContextMenuHandlerTests
             var sender = BuildSender(item);
             var interaction = new FakeUserInteractionService
             {
-                PromptWithSuggestionsResult = "Ops",
+                PromptWithSuggestionsResult = Category.FromInput("Ops"),
             };
             var owner = new Window();
             var sut = new LaunchItemContextMenuHandler(interaction, owner);
@@ -48,7 +48,7 @@ public class LaunchItemContextMenuHandlerTests
 
             Assert.NotNull(applied);
             Assert.Equal("Ops", applied.Value.Value);
-            Assert.Equal("Dev", interaction.LastPromptWithSuggestionsInitialValue);
+            Assert.Equal("Dev", interaction.LastPromptWithSuggestionsInitialValueText);
             Assert.Equal(new[] { "Dev", "Ops", AppResources.DefaultCategory }, interaction.LastSuggestions);
         });
     }
@@ -119,8 +119,8 @@ public class LaunchItemContextMenuHandlerTests
     private sealed class FakeUserInteractionService : IUserInteractionService
     {
         internal string? PromptResult { get; init; } = "value";
-        internal string? PromptWithSuggestionsResult { get; init; } = "value";
-        internal string LastPromptWithSuggestionsInitialValue { get; private set; } = string.Empty;
+        internal object? PromptWithSuggestionsResult { get; init; } = "value";
+        internal string LastPromptWithSuggestionsInitialValueText { get; private set; } = string.Empty;
         internal string[] LastSuggestions { get; private set; } = [];
 
         public void Show(string message, string caption, MessageBoxImage icon)
@@ -137,11 +137,50 @@ public class LaunchItemContextMenuHandlerTests
             return PromptResult;
         }
 
-        public string? PromptWithSuggestions(string title, string initialValue, IEnumerable<string> suggestions, Window owner)
+        public PromptResult<string>? PromptWithSuggestions(string title, string initialValue, IEnumerable<string> suggestions, Window owner)
         {
-            LastPromptWithSuggestionsInitialValue = initialValue;
-            LastSuggestions = suggestions.ToArray();
-            return PromptWithSuggestionsResult;
+            LastPromptWithSuggestionsInitialValueText = initialValue;
+            LastSuggestions = suggestions
+                .Where(static value => !string.IsNullOrWhiteSpace(value))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+
+            if (PromptWithSuggestionsResult is not string stringResult)
+            {
+                return null;
+            }
+
+            var selectedSuggestion = LastSuggestions.FirstOrDefault(value => string.Equals(value, stringResult, StringComparison.Ordinal));
+            return new PromptResult<string>(stringResult, selectedSuggestion);
+        }
+
+        public PromptResult<T?>? PromptWithSuggestions<T>(string title, T initialValue, IEnumerable<T> suggestions, Window owner)
+        {
+            LastPromptWithSuggestionsInitialValueText = initialValue?.ToString() ?? string.Empty;
+            LastSuggestions = suggestions
+                .Select(static value => value?.ToString() ?? string.Empty)
+                .Where(static value => !string.IsNullOrWhiteSpace(value))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+
+            if (PromptWithSuggestionsResult is null)
+            {
+                return null;
+            }
+
+            if (PromptWithSuggestionsResult is T typedResult)
+            {
+                return new PromptResult<T?>(typedResult?.ToString() ?? string.Empty, typedResult);
+            }
+
+            if (PromptWithSuggestionsResult is string stringResult)
+            {
+                var selectedSuggestion = LastSuggestions.FirstOrDefault(value => string.Equals(value, stringResult, StringComparison.Ordinal));
+                var selectedItem = suggestions.FirstOrDefault(value => string.Equals(value?.ToString(), selectedSuggestion, StringComparison.Ordinal));
+                return new PromptResult<T?>(stringResult, selectedItem);
+            }
+
+            throw new InvalidOperationException($"Unsupported prompt result type: {PromptWithSuggestionsResult.GetType().FullName}.");
         }
     }
 
