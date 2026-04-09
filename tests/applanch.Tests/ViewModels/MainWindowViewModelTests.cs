@@ -304,8 +304,8 @@ public class MainWindowViewModelTests
 
         Assert.True(categoryChanges > 0);
         Assert.True(filterCategoryChanges > 0);
-        Assert.Contains("QA", vm.CategoryNames);
-        Assert.DoesNotContain("Dev", vm.CategoryNames);
+        Assert.Contains(vm.CategoryNames, c => c.Value == "QA");
+        Assert.DoesNotContain(vm.CategoryNames, c => c.Value == "Dev");
         Assert.Equal(1, store.SaveCallCount);
     }
 
@@ -400,7 +400,7 @@ public class MainWindowViewModelTests
         ]);
 
         var vm = CreateViewModel(store: store);
-        vm.SelectedCategory = "Dev";
+        vm.SelectedCategory = Category.FromInput("Dev");
 
         var filtered = vm.FilteredLaunchItems.Cast<LaunchItemViewModel>().ToList();
         Assert.Single(filtered);
@@ -417,12 +417,12 @@ public class MainWindowViewModelTests
         ]);
 
         var vm = CreateViewModel(store: store);
-        vm.SelectedCategory = "Ops";
+        vm.SelectedCategory = Category.FromInput("Ops");
 
         var opsItem = vm.LaunchItems.Single(item => item.Category == Category.FromInput("Ops"));
         vm.RemoveItem(opsItem);
 
-        Assert.Equal(AppResources.AllCategories, vm.SelectedCategory);
+        Assert.Equal(AppResources.AllCategories, vm.SelectedCategory.ToDisplayLabel());
     }
 
     [Fact]
@@ -440,7 +440,7 @@ public class MainWindowViewModelTests
         };
 
         var vm = CreateViewModel(store, resolver);
-        vm.SelectedCategory = "Dev";
+        vm.SelectedCategory = Category.FromInput("Dev");
         vm.QuickAddCategory = "Ops";
         vm.QuickAddNameOrPath = "b";
 
@@ -463,7 +463,7 @@ public class MainWindowViewModelTests
         ]);
 
         var vm = CreateViewModel(store: store);
-        vm.SelectedCategory = "Dev";
+        vm.SelectedCategory = Category.FromInput("Dev");
         vm.SelectedLaunchItem = vm.LaunchItems.Single(x => x.DisplayName == "B");
 
         vm.RemoveItem(vm.SelectedLaunchItem!);
@@ -542,7 +542,7 @@ public class MainWindowViewModelTests
         vm.PreviewMoveItem(3, 1);
         Assert.Equal(4, store.SaveCallCount); // preview must not persist
 
-        vm.SelectedCategory = "Dev";
+        vm.SelectedCategory = Category.FromInput("Dev");
         var devFiltered = vm.FilteredLaunchItems.Cast<LaunchItemViewModel>().Select(x => x.DisplayName).ToList();
         Assert.Equal(new[] { "A", "D-App" }, devFiltered);
 
@@ -580,7 +580,7 @@ public class MainWindowViewModelTests
         var vm = CreateViewModel(store, resolver);
 
         // Phase 1: select Dev category and a concrete selected item.
-        vm.SelectedCategory = "Dev";
+        vm.SelectedCategory = Category.FromInput("Dev");
         vm.SelectedLaunchItem = vm.LaunchItems.Single(x => x.DisplayName == "Beta");
         Assert.Equal("Beta", vm.SelectedLaunchItem.DisplayName);
 
@@ -596,12 +596,12 @@ public class MainWindowViewModelTests
         Assert.Equal(2, store.SaveCallCount);
 
         // Dev category should disappear, selected category should reset to all.
-        Assert.Equal(AppResources.AllCategories, vm.SelectedCategory);
-        Assert.DoesNotContain("Dev", vm.CategoryNames);
-        Assert.Contains("Ops", vm.CategoryNames);
+        Assert.Equal(AppResources.AllCategories, vm.SelectedCategory.ToDisplayLabel());
+        Assert.DoesNotContain(vm.CategoryNames, c => c.Value == "Dev");
+        Assert.Contains(vm.CategoryNames, c => c.Value == "Ops");
 
         // Phase 4: set Ops filter and remove all Ops entries, expecting empty filtered view.
-        vm.SelectedCategory = "Ops";
+        vm.SelectedCategory = Category.FromInput("Ops");
         foreach (var item in vm.LaunchItems.Where(x => x.Category == Category.FromInput("Ops")).ToList())
         {
             vm.RemoveItem(item);
@@ -628,7 +628,7 @@ public class MainWindowViewModelTests
             {
                 vm.ApplySettings(new AppSettings { Language = LanguageOption.English });
 
-                Assert.Equal(AppResources.AllCategories, vm.SelectedCategory);
+                Assert.Equal(AppResources.AllCategories, vm.SelectedCategory.ToDisplayLabel());
                 Assert.False(vm.FilteredLaunchItems.IsEmpty);
                 Assert.Equal(Visibility.Collapsed, vm.EmptyMessageVisibility);
             }
@@ -757,7 +757,9 @@ public class MainWindowViewModelTests
 
         var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.AsAdded });
 
-        Assert.Equal(["Ops", "Dev", "Neko", AppResources.DefaultCategory], vm.CategoryNames);
+        Assert.Equal(
+            new[] { "Ops", "Dev", "Neko", AppResources.DefaultCategory },
+            vm.CategoryNames.Select(c => c.ToDisplayLabel()));
     }
 
     [Fact]
@@ -773,7 +775,7 @@ public class MainWindowViewModelTests
 
         var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.AsAdded });
 
-        Assert.Equal(AppResources.DefaultCategory, vm.CategoryNames.Last());
+        Assert.Equal(AppResources.DefaultCategory, vm.CategoryNames.Last().ToDisplayLabel());
     }
 
     [Fact]
@@ -789,7 +791,7 @@ public class MainWindowViewModelTests
 
         var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.Alphabetical });
 
-        Assert.Equal(AppResources.DefaultCategory, vm.CategoryNames.Last());
+        Assert.Equal(AppResources.DefaultCategory, vm.CategoryNames.Last().ToDisplayLabel());
     }
 
     [Fact]
@@ -817,11 +819,15 @@ public class MainWindowViewModelTests
         ]);
 
         var vm = CreateViewModel(store: store, settings: new AppSettings { CategorySortMode = CategorySortMode.AsAdded });
-        Assert.Equal(["Ops", "Dev", AppResources.DefaultCategory], vm.CategoryNames);
+        Assert.Equal(
+            new[] { "Ops", "Dev", AppResources.DefaultCategory },
+            vm.CategoryNames.Select(c => c.ToDisplayLabel()));
 
         vm.ApplySettings(new AppSettings { CategorySortMode = CategorySortMode.Alphabetical });
 
-        Assert.Equal(["Dev", "Ops", AppResources.DefaultCategory], vm.CategoryNames);
+        Assert.Equal(
+            new[] { "Dev", "Ops", AppResources.DefaultCategory },
+            vm.CategoryNames.Select(c => c.ToDisplayLabel()));
     }
 
     [Fact]

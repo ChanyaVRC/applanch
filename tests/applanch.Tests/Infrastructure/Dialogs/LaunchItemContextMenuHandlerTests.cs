@@ -42,14 +42,14 @@ public class LaunchItemContextMenuHandlerTests
             Category? applied = null;
             sut.EditCategory(
                 sender,
-                ["Dev", "Ops", "", "Ops"],
+                new[] { Category.FromInput("Dev"), Category.FromInput("Ops"), Category.FromInput(""), Category.FromInput("Ops") },
                 "prompt",
                 (_, value) => applied = value);
 
             Assert.NotNull(applied);
             Assert.Equal("Ops", applied.Value.Value);
             Assert.Equal("Dev", interaction.LastPromptWithSuggestionsInitialValue);
-            Assert.Equal(new[] { "Dev", "Ops" }, interaction.LastSuggestions);
+            Assert.Equal(new[] { "Dev", "Ops", AppResources.DefaultCategory }, interaction.LastSuggestions);
         });
     }
 

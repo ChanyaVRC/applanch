@@ -20,7 +20,9 @@ public class LaunchCategoryCatalogTests
 
         var categories = LaunchCategoryCatalog.BuildCategoryNames(items, CategorySortMode.AsAdded);
 
-        Assert.Equal(["Ops", "Dev", "Neko", AppResources.DefaultCategory], categories);
+        Assert.Equal(
+            new[] { "Ops", "Dev", "Neko", AppResources.DefaultCategory },
+            categories.Select(c => c.ToDisplayLabel()));
     }
 
     [Fact]
@@ -35,7 +37,7 @@ public class LaunchCategoryCatalogTests
 
         var categories = LaunchCategoryCatalog.BuildCategoryNames(items, CategorySortMode.Alphabetical);
 
-        Assert.Equal(AppResources.DefaultCategory, categories.Last());
+        Assert.Equal(AppResources.DefaultCategory, categories.Last().ToDisplayLabel());
     }
 
     [Fact]
