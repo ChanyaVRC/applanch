@@ -1,6 +1,7 @@
 using Microsoft.Win32;
 using System.IO;
 using System.Globalization;
+using System.Diagnostics;
 using System.Windows;
 using applanch.Events;
 using applanch.Infrastructure.Dialogs;
@@ -25,6 +26,7 @@ public sealed partial class App : Application
     private readonly ContextMenuRegistrar _contextMenuRegistrar = new();
     private readonly SparsePackageRegistrar _sparsePackageRegistrar = new();
     private readonly StartupRegistrationService _startupRegistrationService = new();
+    private readonly DataBindingTraceListener _dataBindingTraceListener = new(AppLogger.Instance);
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -32,6 +34,7 @@ public sealed partial class App : Application
 
         RegisterLifecycleEventHandlers();
         RegisterGlobalExceptionHandlers();
+        RegisterDataBindingTraceLogging();
 
         AppLogger.Instance.Info("Application starting");
         _settings = AppSettings.Load();
@@ -56,8 +59,28 @@ public sealed partial class App : Application
         Events.Unregister(AppEvents.Commit, OnSettingsCommitted);
         Events.Unregister(AppEvents.Refresh, Refresh);
         SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
+        UnregisterDataBindingTraceLogging();
         AppLogger.Instance.Dispose();
         base.OnExit(e);
+    }
+
+    private void RegisterDataBindingTraceLogging()
+    {
+        var source = PresentationTraceSources.DataBindingSource;
+        if (!source.Listeners.Contains(_dataBindingTraceListener))
+        {
+            source.Listeners.Add(_dataBindingTraceListener);
+        }
+
+        if (source.Switch.Level < SourceLevels.Warning)
+        {
+            source.Switch.Level = SourceLevels.Warning;
+        }
+    }
+
+    private void UnregisterDataBindingTraceLogging()
+    {
+        PresentationTraceSources.DataBindingSource.Listeners.Remove(_dataBindingTraceListener);
     }
 
     private void RegisterLifecycleEventHandlers()
