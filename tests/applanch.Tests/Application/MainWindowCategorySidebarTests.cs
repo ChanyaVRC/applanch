@@ -247,7 +247,7 @@ public sealed class MainWindowCategorySidebarTests
 
                 Assert.Equal(DragDropEffects.Move, window.GetCategoryCreateDropEffect(data));
                 Assert.True(window.IsCategoryCreateDropTargetActive);
-                window.ApplyCategoryCreateDrop(data);
+                Assert.True(window.ApplyCategoryCreateDrop(data));
 
                 Assert.Equal("Research", viewModel.LaunchItems[0].Category.Value);
                 Assert.Equal(1, store.SaveCallCount);
@@ -437,50 +437,6 @@ public sealed class MainWindowCategorySidebarTests
 
                 Assert.Equal(LauncherEntry.DefaultCategory, viewModel.LaunchItems[0].Category.Value);
                 Assert.Equal(1, store.SaveCallCount);
-            }
-            finally
-            {
-                window.Close();
-                WpfTestHost.DoEvents();
-            }
-        });
-    }
-
-    [Fact]
-    public void MoveItemToCategory_ThrowsReasonWhenMoveRejected()
-    {
-        WpfTestHost.RunInSta(() =>
-        {
-            WpfTestHost.EnsureAppResources();
-
-            var settings = new AppSettings
-            {
-                CheckForUpdatesOnStartup = false,
-            };
-
-            var store = new FakeStore(
-            [
-                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), "Dev", string.Empty, "App")
-            ]);
-
-            var viewModel = new MainWindowViewModel(
-                new FakeResolver(),
-                store,
-                settings);
-
-            var window = new MainWindow(
-                viewModel,
-                new FakeLaunchService(),
-                new FakeInteractionService(),
-                static _ => new FakeUpdateService(),
-                settings);
-
-            WpfTestHost.ShowOffscreen(window);
-
-            try
-            {
-                var ex = Assert.Throws<InvalidOperationException>(() => window.MoveItemToCategory(viewModel.LaunchItems[0], Category.FromInput("Dev")));
-                Assert.Contains("Category move failed", ex.Message, StringComparison.Ordinal);
             }
             finally
             {

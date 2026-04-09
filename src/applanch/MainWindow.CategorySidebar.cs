@@ -86,12 +86,9 @@ public sealed partial class MainWindow
     {
         try
         {
-            ApplyCategoryCreateDrop(e.Data);
-            e.Effects = DragDropEffects.Move;
-        }
-        catch (OperationCanceledException)
-        {
-            e.Effects = DragDropEffects.None;
+            e.Effects = ApplyCategoryCreateDrop(e.Data)
+                ? DragDropEffects.Move
+                : DragDropEffects.None;
         }
         catch (Exception ex)
         {
@@ -206,7 +203,7 @@ public sealed partial class MainWindow
         CategorySidebar.SetCreateDropTargetActive(false);
     }
 
-    internal void ApplyCategoryCreateDrop(IDataObject data)
+    internal bool ApplyCategoryCreateDrop(IDataObject data)
     {
         var draggedItem = GetDraggedItem(data);
         Debug.Assert(
@@ -221,10 +218,11 @@ public sealed partial class MainWindow
 
         if (targetCategory is null || string.IsNullOrWhiteSpace(targetCategory.Value.Text))
         {
-            throw new OperationCanceledException("Category create drop canceled: no category was provided.");
+            return false;
         }
 
         MoveItemToCategory(draggedItem!, Category.FromInput(targetCategory.Value.Text));
+        return true;
     }
 
     internal void ApplyCategoryDrop(IDataObject data, object? originalSource)
@@ -247,10 +245,13 @@ public sealed partial class MainWindow
         ArgumentNullException.ThrowIfNull(item);
 
         var previousCategory = item.Category;
-        if (!ViewModel.TryMoveItemToCategory(item, targetCategory))
+        var moved = ViewModel.TryMoveItemToCategory(item, targetCategory);
+        Debug.Assert(
+            moved,
+            $"Category move failed for '{item.DisplayName}': '{previousCategory}' -> '{targetCategory}'.");
+        if (!moved)
         {
-            throw new InvalidOperationException(
-                $"Category move failed for '{item.DisplayName}': '{previousCategory}' -> '{targetCategory}'.");
+            return;
         }
 
         ShowFloatingNotification(
