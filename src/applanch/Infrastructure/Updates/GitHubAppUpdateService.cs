@@ -10,7 +10,7 @@ using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Updates;
 
-internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
+internal sealed class GitHubAppUpdateService : IAppUpdateService
 {
     private const string Owner = "ChanyaVRC";
     private const string Repo = "applanch";
@@ -23,6 +23,7 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
     };
     private static readonly Lock ReleasesCacheLock = new();
     private static Task<IReadOnlyList<GitHubRelease>>? CachedReleasesTask;
+    private static readonly Lazy<HttpClient> DefaultHttpClient = new(CreateDefaultHttpClient);
 
     private readonly HttpClient _httpClient;
     private readonly SemanticVersion _currentVersion;
@@ -40,7 +41,7 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
     }
 
     public GitHubAppUpdateService(bool debugUpdate, bool allowPrereleaseUpdates = false)
-        : this(CreateDefaultHttpClient(), AppVersionProvider.CurrentVersion, debugUpdate, allowPrereleaseUpdates)
+        : this(DefaultHttpClient.Value, AppVersionProvider.CurrentVersion, debugUpdate, allowPrereleaseUpdates)
     {
     }
 
@@ -159,8 +160,6 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
         log.Info($"Extracted {extractedFiles.Length} files");
         return extractDir;
     }
-
-    public void Dispose() => _httpClient.Dispose();
 
     internal static bool IsNewer(SemanticVersion candidate, SemanticVersion current) =>
         candidate.CompareTo(current) > 0;
