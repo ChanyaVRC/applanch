@@ -9,7 +9,7 @@ public abstract class ObservableObject : INotifyPropertyChanged
 
     protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
     {
-        if (Equals(field, value))
+        if (EqualityComparer<T>.Default.Equals(field, value))
         {
             return false;
         }
