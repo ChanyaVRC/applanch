@@ -26,6 +26,8 @@ public sealed partial class MainWindow : Window
     public static readonly Duration CategorySidebarAnimationDuration = new(TimeSpan.FromMilliseconds(220));
     // 188 = CategorySidebarExpandedWidth (172) + 16px gap between sidebar and main content
     public static readonly Thickness CategorySidebarPinnedContentMargin = new(188, 0, 0, 0);
+    private const double ReorderDeltaThreshold = 0.5;
+    private static readonly Duration ReorderAnimationDuration = new(TimeSpan.FromMilliseconds(170));
 
     private readonly DragReorderState _dragReorderState = new();
     private readonly IItemLaunchService _itemLaunchService;
@@ -815,39 +817,33 @@ public sealed partial class MainWindow : Window
                 var translate = EnsureTranslateTransform(container);
                 translate.BeginAnimation(TranslateTransform.XProperty, null);
                 translate.BeginAnimation(TranslateTransform.YProperty, null);
-
-                if (Math.Abs(deltaX) >= 0.5)
-                {
-                    var animX = new DoubleAnimation
-                    {
-                        From = deltaX,
-                        To = 0,
-                        Duration = TimeSpan.FromMilliseconds(170),
-                        EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
-                    };
-
-                    translate.BeginAnimation(TranslateTransform.XProperty, animX, HandoffBehavior.SnapshotAndReplace);
-                }
-
-                if (Math.Abs(deltaY) >= 0.5)
-                {
-                    var animY = new DoubleAnimation
-                    {
-                        From = deltaY,
-                        To = 0,
-                        Duration = TimeSpan.FromMilliseconds(170),
-                        EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
-                    };
-
-                    translate.BeginAnimation(TranslateTransform.YProperty, animY, HandoffBehavior.SnapshotAndReplace);
-                }
+                BeginReorderAxisAnimation(translate, TranslateTransform.XProperty, deltaX);
+                BeginReorderAxisAnimation(translate, TranslateTransform.YProperty, deltaY);
             }
         }, DispatcherPriority.Loaded);
     }
 
     internal static bool HasSignificantReorderDelta(double deltaX, double deltaY)
     {
-        return Math.Abs(deltaX) >= 0.5 || Math.Abs(deltaY) >= 0.5;
+        return Math.Abs(deltaX) >= ReorderDeltaThreshold || Math.Abs(deltaY) >= ReorderDeltaThreshold;
+    }
+
+    private static void BeginReorderAxisAnimation(TranslateTransform translate, DependencyProperty axisProperty, double delta)
+    {
+        if (Math.Abs(delta) < ReorderDeltaThreshold)
+        {
+            return;
+        }
+
+        var animation = new DoubleAnimation
+        {
+            From = delta,
+            To = 0,
+            Duration = ReorderAnimationDuration,
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+        };
+
+        translate.BeginAnimation(axisProperty, animation, HandoffBehavior.SnapshotAndReplace);
     }
 
     // ── Static utilities ────────────────────────────────────
