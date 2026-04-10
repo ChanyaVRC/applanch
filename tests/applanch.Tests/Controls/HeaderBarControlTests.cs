@@ -119,6 +119,31 @@ public class HeaderBarControlTests
         });
     }
 
+    [Fact]
+    public void PrereleaseBadge_UsesFixedLabel()
+    {
+        WpfTestHost.RunInSta(() =>
+        {
+            var control = new HeaderBarControl();
+            var prereleaseBadge = Assert.IsType<Border>(control.FindName("PrereleaseBadge"));
+            var badgeText = Assert.IsType<TextBlock>(prereleaseBadge.Child);
+
+            Assert.Equal("PRERELEASE", badgeText.Text);
+        });
+    }
+
+    [Fact]
+    public void PrereleaseBadge_HasSquareCorners()
+    {
+        WpfTestHost.RunInSta(() =>
+        {
+            var control = new HeaderBarControl();
+            var prereleaseBadge = Assert.IsType<Border>(control.FindName("PrereleaseBadge"));
+
+            Assert.Equal(new CornerRadius(0), prereleaseBadge.CornerRadius);
+        });
+    }
+
     private static void InvokePrivateClick(HeaderBarControl control, string methodName)
     {
         var method = typeof(HeaderBarControl).GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
