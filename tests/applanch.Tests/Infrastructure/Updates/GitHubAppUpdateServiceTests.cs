@@ -18,7 +18,7 @@ public class GitHubAppUpdateServiceTests
     [InlineData("1.0.0", "1.0.0-rc1", true)]
     public void IsNewer_ReturnsExpected(string candidate, string current, bool expected)
     {
-        Assert.Equal(expected, GitHubAppUpdateService.IsNewer(candidate, current));
+        Assert.Equal(expected, GitHubAppUpdateService.IsNewer(SemanticVersion.Parse(candidate), SemanticVersion.Parse(current)));
     }
 
     [Fact]
@@ -32,7 +32,7 @@ public class GitHubAppUpdateServiceTests
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, "1.0.0");
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"));
 
         var result = await service.CheckForUpdateAsync();
 
@@ -90,13 +90,13 @@ public class GitHubAppUpdateServiceTests
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, "1.0.0");
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"));
 
         var result = await service.GetAvailableUpdatesAsync();
 
         Assert.Collection(
             result,
-            update => Assert.Equal("2.0.0", update.NewVersion));
+            update => Assert.Equal(SemanticVersion.Parse("2.0.0"), update.NewVersion));
     }
 
     [Fact]
@@ -122,13 +122,13 @@ public class GitHubAppUpdateServiceTests
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, "1.0.0", allowPrereleaseUpdates: true);
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), allowPrereleaseUpdates: true);
 
         var result = await service.GetAvailableUpdatesAsync();
 
         Assert.Collection(
             result,
-            update => Assert.Equal("2.0.0-beta.1", update.NewVersion));
+            update => Assert.Equal(SemanticVersion.Parse("2.0.0-beta.1"), update.NewVersion));
     }
 
     [Fact]
@@ -150,13 +150,13 @@ public class GitHubAppUpdateServiceTests
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, "1.0.0");
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"));
 
         var result = await service.CheckForUpdateAsync();
 
         Assert.NotNull(result);
-        Assert.Equal("2.0.0", result.NewVersion);
-        Assert.Equal("1.0.0", result.CurrentVersion);
+        Assert.Equal(SemanticVersion.Parse("2.0.0"), result.NewVersion);
+        Assert.Equal(SemanticVersion.Parse("1.0.0"), result.CurrentVersion);
         Assert.Equal(new Uri($"https://github.com/ChanyaVRC/applanch/releases/download/v2.0.0/applanch-2.0.0-{rid}.zip"), result.AssetDownloadUrl);
     }
 
@@ -178,7 +178,7 @@ public class GitHubAppUpdateServiceTests
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, "1.0.0");
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"));
 
         var result = await service.CheckForUpdateAsync();
 
@@ -204,12 +204,12 @@ public class GitHubAppUpdateServiceTests
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, "1.0.0", debugUpdate: true);
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), debugUpdate: true);
 
         var result = await service.CheckForUpdateAsync();
 
         Assert.NotNull(result);
-        Assert.Equal("1.0.0", result.NewVersion);
+        Assert.Equal(SemanticVersion.Parse("1.0.0"), result.NewVersion);
     }
 
     [Fact]
@@ -249,12 +249,12 @@ public class GitHubAppUpdateServiceTests
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, "1.0.0", allowPrereleaseUpdates: true);
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), allowPrereleaseUpdates: true);
 
         var result = await service.CheckForUpdateAsync();
 
         Assert.NotNull(result);
-        Assert.Equal("2.0.0-beta.1", result.NewVersion);
+        Assert.Equal(SemanticVersion.Parse("2.0.0-beta.1"), result.NewVersion);
     }
 
     [Fact]
@@ -277,12 +277,12 @@ public class GitHubAppUpdateServiceTests
 
         using var client = new HttpClient(new FailsThenJsonHandler(1, json));
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, "1.0.0");
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"));
 
         var result = await service.CheckForUpdateAsync();
 
         Assert.NotNull(result);
-        Assert.Equal("2.0.0", result.NewVersion);
+        Assert.Equal(SemanticVersion.Parse("2.0.0"), result.NewVersion);
     }
 
     [Fact]
@@ -300,7 +300,7 @@ public class GitHubAppUpdateServiceTests
 
         var handler = new ZipHttpMessageHandler(zipStream.ToArray());
         using var client = new HttpClient(handler);
-        var service = new GitHubAppUpdateService(client, "1.0.0");
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"));
 
         using var tempDirectory = TemporaryDirectory.Create("applanch-test");
 
@@ -327,7 +327,7 @@ public class GitHubAppUpdateServiceTests
 
         zipStream.Position = 0;
         using var client = new HttpClient(new FailsThenZipHandler(1, zipStream.ToArray()));
-        var service = new GitHubAppUpdateService(client, "1.0.0");
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"));
 
         using var tempDirectory = TemporaryDirectory.Create("applanch-test");
         var extractDir = await service.DownloadAndExtractAsync(new Uri("https://example.com/test.zip"), tempDirectory.Path);

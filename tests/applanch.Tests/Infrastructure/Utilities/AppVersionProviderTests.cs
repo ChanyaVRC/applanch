@@ -6,18 +6,12 @@ namespace applanch.Tests.Infrastructure.Utilities;
 public class AppVersionProviderTests
 {
     [Fact]
-    public void GetDisplayVersion_ReturnsNonEmptyValue()
+    public void CurrentVersion_ReturnsSemanticVersion()
     {
-        var version = AppVersionProvider.GetDisplayVersion();
+        var version = AppVersionProvider.CurrentVersion;
 
-        Assert.False(string.IsNullOrWhiteSpace(version));
-    }
-
-    [Fact]
-    public void GetDisplayVersion_DoesNotContainBuildMetadataSuffix()
-    {
-        var version = AppVersionProvider.GetDisplayVersion();
-
-        Assert.DoesNotContain('+', version);
+        Assert.True(version.Major >= 0);
+        Assert.True(version.Minor >= 0);
+        Assert.True(version.Patch >= 0);
     }
 }

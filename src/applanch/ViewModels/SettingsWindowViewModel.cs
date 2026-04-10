@@ -219,7 +219,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
     public bool SettingsChanged { get; private set; }
 
-    public string AppVersion => AppVersionProvider.GetDisplayVersion();
+    public string AppVersion => AppVersionProvider.CurrentVersion.ToString();
 
     public AppUpdateInfo? SelectedAvailableUpdate
     {
@@ -281,7 +281,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             ReplaceCollection(AvailableUpdates, updates);
 
             SelectedAvailableUpdate = AvailableUpdates
-                .FirstOrDefault(update => string.Equals(update.NewVersion, previousSelection, StringComparison.Ordinal))
+                .FirstOrDefault(update => update.NewVersion == previousSelection)
                 ?? AvailableUpdates.FirstOrDefault();
 
             AvailableUpdatesStatusMessage = AvailableUpdates.Count == 0
@@ -326,7 +326,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     internal string CreateDiagnosticsText()
     {
         var builder = new StringBuilder(256);
-        builder.AppendLine($"App version: {AppVersionProvider.GetDisplayVersion()}");
+        builder.AppendLine($"App version: {AppVersionProvider.CurrentVersion}");
         builder.AppendLine($"OS: {RuntimeInformation.OSDescription.Trim()}");
         builder.AppendLine($".NET: {RuntimeInformation.FrameworkDescription}");
         builder.AppendLine($"UI culture: {CultureInfo.CurrentUICulture.Name}");

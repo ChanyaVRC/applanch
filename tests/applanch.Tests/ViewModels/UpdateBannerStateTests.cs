@@ -149,8 +149,8 @@ public class UpdateBannerStateTests
     private static AppUpdateInfo CreateUpdate(string version)
     {
         return new AppUpdateInfo(
-            version,
-            "1.0.0",
+            SemanticVersion.Parse(version),
+            SemanticVersion.Parse("1.0.0"),
             new Uri("https://example.com/download.zip"),
             new Uri("https://example.com/release"));
     }

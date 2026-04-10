@@ -11,7 +11,7 @@ public sealed class UpdateBannerState : ObservableObject
     private Visibility _headerButtonVisibility = Visibility.Collapsed;
     private Visibility _actionButtonVisibility = Visibility.Visible;
     private AppUpdateInfo? _pendingUpdate;
-    private string? _lastAutoApplyAttemptedVersion;
+    private SemanticVersion? _lastAutoApplyAttemptedVersion;
     private bool _isAutoApplyingUpdate;
     private bool _shouldAutoApplyPendingUpdate;
 
@@ -127,6 +127,6 @@ public sealed class UpdateBannerState : ObservableObject
             return false;
         }
 
-        return !string.Equals(_lastAutoApplyAttemptedVersion, update.NewVersion, StringComparison.Ordinal);
+        return _lastAutoApplyAttemptedVersion != update.NewVersion;
     }
 }

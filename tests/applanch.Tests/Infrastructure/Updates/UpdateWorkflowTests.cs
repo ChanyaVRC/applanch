@@ -14,7 +14,7 @@ public class UpdateWorkflowTests
     [Fact]
     public async Task CheckForUpdateSafeAsync_ReturnsUpdate_WhenServiceSucceeds()
     {
-        var expected = new AppUpdateInfo("2.0.0", "1.0.0", new Uri("https://example.com/a.zip"), new Uri("https://example.com/r"));
+        var expected = new AppUpdateInfo(SemanticVersion.Parse("2.0.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/a.zip"), new Uri("https://example.com/r"));
         var workflow = new UpdateWorkflow(new FakeAppUpdateService
         {
             CheckResult = expected,
@@ -30,7 +30,7 @@ public class UpdateWorkflowTests
     {
         var expected = new[]
         {
-            new AppUpdateInfo("2.0.0", "1.0.0", new Uri("https://example.com/a.zip"), new Uri("https://example.com/r")),
+            new AppUpdateInfo(SemanticVersion.Parse("2.0.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/a.zip"), new Uri("https://example.com/r")),
         };
         var workflow = new UpdateWorkflow(new FakeAppUpdateService
         {
@@ -82,7 +82,7 @@ public class UpdateWorkflowTests
     [Fact]
     public async Task ApplyUpdateSafeAsync_ReturnsSuccess_WhenServiceSucceeds()
     {
-        var update = new AppUpdateInfo("2.0.0", "1.0.0", new Uri("https://example.com/a.zip"), new Uri("https://example.com/r"));
+        var update = new AppUpdateInfo(SemanticVersion.Parse("2.0.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/a.zip"), new Uri("https://example.com/r"));
         var workflow = new UpdateWorkflow(new FakeAppUpdateService());
 
         var result = await workflow.ApplyUpdateSafeAsync(update);
@@ -95,7 +95,7 @@ public class UpdateWorkflowTests
     [Fact]
     public async Task ApplyUpdateSafeAsync_ReturnsFailure_WhenServiceThrows()
     {
-        var update = new AppUpdateInfo("2.0.0", "1.0.0", new Uri("https://example.com/a.zip"), new Uri("https://example.com/r"));
+        var update = new AppUpdateInfo(SemanticVersion.Parse("2.0.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/a.zip"), new Uri("https://example.com/r"));
         var workflow = new UpdateWorkflow(new FakeAppUpdateService
         {
             ThrowOnApply = true,
@@ -111,7 +111,7 @@ public class UpdateWorkflowTests
     [Fact]
     public async Task ApplyUpdateSafeAsync_ReturnsNetworkFailureReason_WhenHttpThrows()
     {
-        var update = new AppUpdateInfo("2.0.0", "1.0.0", new Uri("https://example.com/a.zip"), new Uri("https://example.com/r"));
+        var update = new AppUpdateInfo(SemanticVersion.Parse("2.0.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/a.zip"), new Uri("https://example.com/r"));
         var workflow = new UpdateWorkflow(new FakeAppUpdateService
         {
             ThrowHttpOnApply = true,
@@ -126,7 +126,7 @@ public class UpdateWorkflowTests
     [Fact]
     public async Task ApplyUpdateSafeAsync_ReturnsIoFailureReason_WhenIoThrows()
     {
-        var update = new AppUpdateInfo("2.0.0", "1.0.0", new Uri("https://example.com/a.zip"), new Uri("https://example.com/r"));
+        var update = new AppUpdateInfo(SemanticVersion.Parse("2.0.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/a.zip"), new Uri("https://example.com/r"));
         var workflow = new UpdateWorkflow(new FakeAppUpdateService
         {
             ThrowIoOnApply = true,
@@ -141,7 +141,7 @@ public class UpdateWorkflowTests
     [Fact]
     public async Task ApplyUpdateSafeAsync_PropagatesCancellation()
     {
-        var update = new AppUpdateInfo("2.0.0", "1.0.0", new Uri("https://example.com/a.zip"), new Uri("https://example.com/r"));
+        var update = new AppUpdateInfo(SemanticVersion.Parse("2.0.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/a.zip"), new Uri("https://example.com/r"));
         var workflow = new UpdateWorkflow(new FakeAppUpdateService
         {
             ThrowCanceledOnApply = true,
@@ -153,7 +153,7 @@ public class UpdateWorkflowTests
     [Fact]
     public async Task SetUpdateService_ReplacesBehavior()
     {
-        var update = new AppUpdateInfo("2.0.0", "1.0.0", new Uri("https://example.com/a.zip"), new Uri("https://example.com/r"));
+        var update = new AppUpdateInfo(SemanticVersion.Parse("2.0.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/a.zip"), new Uri("https://example.com/r"));
         var workflow = new UpdateWorkflow(new FakeAppUpdateService
         {
             ThrowOnApply = true,

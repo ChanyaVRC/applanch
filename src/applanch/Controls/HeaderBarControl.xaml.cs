@@ -7,7 +7,7 @@ namespace applanch.Controls;
 
 public sealed partial class HeaderBarControl : UserControl
 {
-    private static readonly string DefaultAppVersionText = $"v{AppVersionProvider.GetDisplayVersion()}";
+    private static readonly string DefaultAppVersionText = $"v{AppVersionProvider.CurrentVersion}";
 
     public HeaderBarControl()
     {

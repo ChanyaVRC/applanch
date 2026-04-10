@@ -4,7 +4,19 @@ internal readonly record struct SemanticVersion(int Major, int Minor, int Patch,
 {
     public bool IsPrerelease => !string.IsNullOrEmpty(Prerelease);
 
+    public override string ToString()
+    {
+        return IsPrerelease
+            ? $"{Major}.{Minor}.{Patch}-{Prerelease}"
+            : $"{Major}.{Minor}.{Patch}";
+    }
+
     public static SemanticVersion Parse(string input)
+    {
+        return Parse(input.AsSpan());
+    }
+
+    public static SemanticVersion Parse(ReadOnlySpan<char> input)
     {
         if (!TryParse(input, out var result))
             throw new FormatException($"'{input}' is not a valid semantic version.");
@@ -13,7 +25,22 @@ internal readonly record struct SemanticVersion(int Major, int Minor, int Patch,
 
     public static bool TryParse(string input, out SemanticVersion result)
     {
-        var span = input.AsSpan();
+        return TryParse(input.AsSpan(), out result);
+    }
+
+    public static bool TryParse(ReadOnlySpan<char> input, out SemanticVersion result)
+    {
+        if (input.IsEmpty)
+        {
+            result = default;
+            return false;
+        }
+
+        var span = input.Trim();
+        if (!span.IsEmpty && (span[0] == 'v' || span[0] == 'V'))
+        {
+            span = span[1..];
+        }
 
         Span<Range> prereleaseParts = stackalloc Range[2];
         var prereleasePartCount = span.Split(prereleaseParts, '-');

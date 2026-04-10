@@ -85,8 +85,8 @@ public class SettingsWindowViewModelTests
     {
         var expected = new[]
         {
-            new AppUpdateInfo("2.0.0", "1.0.0", new Uri("https://example.com/2.zip"), new Uri("https://example.com/r2")),
-            new AppUpdateInfo("1.5.0", "1.0.0", new Uri("https://example.com/15.zip"), new Uri("https://example.com/r15")),
+            new AppUpdateInfo(SemanticVersion.Parse("2.0.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/2.zip"), new Uri("https://example.com/r2")),
+            new AppUpdateInfo(SemanticVersion.Parse("1.5.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/15.zip"), new Uri("https://example.com/r15")),
         };
         var vm = Make(updateServiceFactory: _ => new FakeAppUpdateService { AvailableUpdates = expected });
 
@@ -116,7 +116,7 @@ public class SettingsWindowViewModelTests
         {
             AvailableUpdates =
             [
-                new AppUpdateInfo("2.0.0", "1.0.0", new Uri("https://example.com/2.zip"), new Uri("https://example.com/r2")),
+                new AppUpdateInfo(SemanticVersion.Parse("2.0.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/2.zip"), new Uri("https://example.com/r2")),
             ],
         };
         var vm = Make(updateServiceFactory: _ => fakeService);
@@ -126,7 +126,7 @@ public class SettingsWindowViewModelTests
 
         Assert.NotNull(result);
         Assert.True(result is { IsSuccess: true });
-        Assert.Equal("2.0.0", fakeService.LastAppliedUpdate!.NewVersion);
+        Assert.Equal(SemanticVersion.Parse("2.0.0"), fakeService.LastAppliedUpdate!.NewVersion);
     }
 
     // ── ThemeIndex ─────────────────────────────────────────

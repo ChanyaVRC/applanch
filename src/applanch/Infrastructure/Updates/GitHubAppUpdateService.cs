@@ -23,7 +23,7 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
     };
 
     private readonly HttpClient _httpClient;
-    private readonly string _currentVersion;
+    private readonly SemanticVersion _currentVersion;
     private readonly bool _debugUpdate;
     private readonly bool _allowPrereleaseUpdates;
 
@@ -38,11 +38,11 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
     }
 
     public GitHubAppUpdateService(bool debugUpdate, bool allowPrereleaseUpdates = false)
-        : this(CreateDefaultHttpClient(), AppVersionProvider.GetDisplayVersion(), debugUpdate, allowPrereleaseUpdates)
+        : this(CreateDefaultHttpClient(), AppVersionProvider.CurrentVersion, debugUpdate, allowPrereleaseUpdates)
     {
     }
 
-    internal GitHubAppUpdateService(HttpClient httpClient, string currentVersion, bool debugUpdate = false, bool allowPrereleaseUpdates = false)
+    internal GitHubAppUpdateService(HttpClient httpClient, SemanticVersion currentVersion, bool debugUpdate = false, bool allowPrereleaseUpdates = false)
     {
         _httpClient = httpClient;
         _currentVersion = currentVersion;
@@ -60,7 +60,7 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
         {
             if (!ShouldIncludeRelease(release) ||
                 !TryCreateUpdateInfo(release, out var update) ||
-                string.Equals(update.NewVersion, _currentVersion, StringComparison.Ordinal))
+                update.NewVersion == _currentVersion)
             {
                 continue;
             }
@@ -83,7 +83,7 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
                     continue;
                 }
 
-                if (!_debugUpdate && !IsNewer(listedUpdate.NewVersion, _currentVersion))
+                if (!_debugUpdate && listedUpdate.NewVersion.CompareTo(_currentVersion) <= 0)
                 {
                     continue;
                 }
@@ -119,7 +119,7 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
             return null;
         }
 
-        if (!_debugUpdate && !IsNewer(update.NewVersion, _currentVersion))
+        if (!_debugUpdate && update.NewVersion.CompareTo(_currentVersion) <= 0)
         {
             log.Info($"No update needed: {update.NewVersion} is not newer than {_currentVersion}");
             return null;
@@ -195,8 +195,8 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
 
     public void Dispose() => _httpClient.Dispose();
 
-    internal static bool IsNewer(string candidate, string current) =>
-        SemanticVersion.Parse(candidate).CompareTo(SemanticVersion.Parse(current)) > 0;
+    internal static bool IsNewer(SemanticVersion candidate, SemanticVersion current) =>
+        candidate.CompareTo(current) > 0;
 
     private bool ShouldIncludeRelease(GitHubRelease release) =>
         _allowPrereleaseUpdates || !release.Prerelease;
@@ -218,7 +218,13 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
     private bool TryCreateUpdateInfo(GitHubRelease release, out AppUpdateInfo update)
     {
         update = default!;
-        var releaseVersion = release.TagName.TrimStart('v');
+        var releaseVersionText = release.TagName.TrimStart('v');
+        if (!SemanticVersion.TryParse(releaseVersionText, out var releaseVersion))
+        {
+            AppLogger.Instance.Warn($"Release tag '{release.TagName}' is not a valid semantic version.");
+            return false;
+        }
+
         AppLogger.Instance.Info($"Release candidate: {release.TagName} (parsed: {releaseVersion}), assets: {release.Assets.Count}");
 
         var rid = RuntimeInformation.RuntimeIdentifier;
@@ -279,7 +285,7 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
     private static HttpClient CreateDefaultHttpClient()
     {
         var client = new HttpClient();
-        client.DefaultRequestHeaders.UserAgent.ParseAdd($"applanch/{AppVersionProvider.GetDisplayVersion()}");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd($"applanch/{AppVersionProvider.CurrentVersion}");
         return client;
     }
 

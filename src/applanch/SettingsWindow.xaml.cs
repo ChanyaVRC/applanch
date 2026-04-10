@@ -160,7 +160,7 @@ public sealed partial class SettingsWindow : Window
 
     internal static string CreateReportBugBody()
     {
-        var appVersion = AppVersionProvider.GetDisplayVersion();
+        var appVersion = AppVersionProvider.CurrentVersion;
 
         return string.Format(
             CultureInfo.CurrentCulture,
