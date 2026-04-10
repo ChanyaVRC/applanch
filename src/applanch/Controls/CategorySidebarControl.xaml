@@ -5,6 +5,7 @@
              xmlns:wpf="clr-namespace:applanch.Infrastructure.Wpf">
     <UserControl.Resources>
         <wpf:CategoryDisplayConverter x:Key="CategoryDisplayConverter"/>
+        <wpf:CategorySelectionConverter x:Key="CategorySelectionConverter"/>
         <Style x:Key="CategorySidebarHoverZoneStyle"
                TargetType="Border">
             <Setter Property="Visibility"
@@ -188,7 +189,7 @@
                     <ListBox Grid.Row="1"
                              Margin="0,10,0,0"
                              ItemsSource="{Binding FilterCategoryNames}"
-                             SelectedItem="{Binding SelectedCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             SelectedItem="{Binding SelectedCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource CategorySelectionConverter}}"
                              BorderThickness="0"
                              Background="Transparent">
                         <ListBox.ItemContainerStyle>
