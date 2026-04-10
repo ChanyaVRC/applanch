@@ -1,4 +1,5 @@
 using applanch.Infrastructure.Resolution;
+using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Utilities;
 using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;
@@ -13,7 +14,7 @@ public class QuickAddWorkflowTests
     {
         var workflow = new QuickAddWorkflow(new FakeResolver());
 
-        var result = workflow.TryCreateLaunchItem("   ", "Dev", string.Empty, [], out var newItem);
+        var result = workflow.TryCreateLaunchItem("   ", Category.FromInput("Dev"), string.Empty, [], out var newItem);
 
         Assert.False(result.IsSuccess);
         Assert.Equal(QuickAddMessageSeverity.Information, result.Severity);
@@ -25,7 +26,7 @@ public class QuickAddWorkflowTests
     {
         var workflow = new QuickAddWorkflow(new FakeResolver());
 
-        var result = workflow.TryCreateLaunchItem("unknown", "Dev", string.Empty, [], out var newItem);
+        var result = workflow.TryCreateLaunchItem("unknown", Category.FromInput("Dev"), string.Empty, [], out var newItem);
 
         Assert.False(result.IsSuccess);
         Assert.Equal(QuickAddMessageSeverity.Warning, result.Severity);
@@ -40,7 +41,7 @@ public class QuickAddWorkflowTests
     {
         var workflow = new QuickAddWorkflow(new FakeResolver());
 
-        var result = workflow.TryCreateLaunchItem(input, "Dev", string.Empty, [], out var newItem);
+        var result = workflow.TryCreateLaunchItem(input, Category.FromInput("Dev"), string.Empty, [], out var newItem);
 
         Assert.False(result.IsSuccess);
         Assert.Equal(QuickAddMessageSeverity.Warning, result.Severity);
@@ -59,7 +60,7 @@ public class QuickAddWorkflowTests
         var workflow = new QuickAddWorkflow(resolver);
         var existingItems = new[] { Item(existingPath, "Dev", string.Empty, "App") };
 
-        var result = workflow.TryCreateLaunchItem("app", "Dev", string.Empty, existingItems, out var newItem);
+        var result = workflow.TryCreateLaunchItem("app", Category.FromInput("Dev"), string.Empty, existingItems, out var newItem);
 
         Assert.False(result.IsSuccess);
         Assert.Equal(QuickAddMessageSeverity.Information, result.Severity);
@@ -78,7 +79,7 @@ public class QuickAddWorkflowTests
         var workflow = new QuickAddWorkflow(resolver);
         var existingItems = new[] { Item(existingPath, "Dev", string.Empty, "App") };
 
-        var result = workflow.TryCreateLaunchItem("app", "Dev", string.Empty, existingItems, out var newItem);
+        var result = workflow.TryCreateLaunchItem("app", Category.FromInput("Dev"), string.Empty, existingItems, out var newItem);
 
         Assert.False(result.IsSuccess);
         Assert.Equal(QuickAddMessageSeverity.Information, result.Severity);
@@ -97,7 +98,7 @@ public class QuickAddWorkflowTests
         var workflow = new QuickAddWorkflow(resolver);
         var existingItems = new[] { Item(existingPath, "Dev", string.Empty, "App") };
 
-        var result = workflow.TryCreateLaunchItem("app", "Dev", string.Empty, existingItems, out var newItem);
+        var result = workflow.TryCreateLaunchItem("app", Category.FromInput("Dev"), string.Empty, existingItems, out var newItem);
 
         Assert.False(result.IsSuccess);
         Assert.Equal(QuickAddMessageSeverity.Information, result.Severity);
@@ -116,7 +117,7 @@ public class QuickAddWorkflowTests
         var workflow = new QuickAddWorkflow(resolver);
         var existingItems = new[] { Item(existingPath, "Dev", string.Empty, "Folder") };
 
-        var result = workflow.TryCreateLaunchItem("folder", "Dev", string.Empty, existingItems, out var newItem);
+        var result = workflow.TryCreateLaunchItem("folder", Category.FromInput("Dev"), string.Empty, existingItems, out var newItem);
 
         Assert.False(result.IsSuccess);
         Assert.Equal(QuickAddMessageSeverity.Information, result.Severity);
@@ -133,7 +134,7 @@ public class QuickAddWorkflowTests
         };
         var workflow = new QuickAddWorkflow(resolver);
 
-        var result = workflow.TryCreateLaunchItem("newapp", "Ops", "-v", [], out var newItem);
+        var result = workflow.TryCreateLaunchItem("newapp", Category.FromInput("Ops"), "-v", [], out var newItem);
 
         Assert.True(result.IsSuccess);
         Assert.NotNull(newItem);
@@ -152,7 +153,7 @@ public class QuickAddWorkflowTests
         };
         var workflow = new QuickAddWorkflow(resolver);
 
-        var result = workflow.TryCreateLaunchItem("newapp", "Ops", "-v", [], out var newItem);
+        var result = workflow.TryCreateLaunchItem("newapp", Category.FromInput("Ops"), "-v", [], out var newItem);
 
         Assert.True(result.IsSuccess);
         Assert.NotNull(newItem);
@@ -170,7 +171,7 @@ public class QuickAddWorkflowTests
         };
         var workflow = new QuickAddWorkflow(resolver);
 
-        var result = workflow.TryCreateLaunchItem("example", "Web", string.Empty, [], out var newItem);
+        var result = workflow.TryCreateLaunchItem("example", Category.FromInput("Web"), string.Empty, [], out var newItem);
 
         Assert.True(result.IsSuccess);
         Assert.NotNull(newItem);
@@ -199,6 +200,6 @@ public class QuickAddWorkflowTests
 
     private static LaunchItemViewModel Item(string path, string category, string arguments, string displayName)
     {
-        return new LaunchItemViewModel(new LaunchPath(path), category, arguments, displayName);
+        return new LaunchItemViewModel(new LaunchPath(path), Category.FromInput(category), arguments, displayName);
     }
 }

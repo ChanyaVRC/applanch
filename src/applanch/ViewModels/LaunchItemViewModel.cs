@@ -4,6 +4,7 @@ using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Utilities;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Runtime.CompilerServices;
 
 namespace applanch.ViewModels;
 
@@ -20,18 +21,8 @@ public sealed class LaunchItemViewModel : ObservableObject
     private int _iconRefreshVersion;
     private bool _isPathMissing;
 
-    public LaunchItemViewModel(LaunchPath fullPath, string category, string arguments, string displayName)
-        : this(fullPath, Category.FromInput(category), arguments, displayName, null)
-    {
-    }
-
     public LaunchItemViewModel(LaunchPath fullPath, Category category, string arguments, string displayName)
         : this(fullPath, category, arguments, displayName, null)
-    {
-    }
-
-    internal LaunchItemViewModel(LaunchPath fullPath, string category, string arguments, string displayName, ILaunchItemIconProvider? iconProvider)
-        : this(fullPath, Category.FromInput(category), arguments, displayName, iconProvider)
     {
     }
 
@@ -54,8 +45,7 @@ public sealed class LaunchItemViewModel : ObservableObject
         set => SetNormalizedString(
             ref _displayName,
             value,
-            valueToNormalize => LaunchItemNormalization.NormalizeDisplayName(valueToNormalize, FullPath.Value),
-            nameof(DisplayName));
+            valueToNormalize => LaunchItemNormalization.NormalizeDisplayName(valueToNormalize, FullPath.Value));
     }
 
     public bool IsRenaming
@@ -82,27 +72,16 @@ public sealed class LaunchItemViewModel : ObservableObject
     public string Arguments
     {
         get => _arguments;
-        set => SetNormalizedString(ref _arguments, value, LaunchItemNormalization.NormalizeArguments, nameof(Arguments));
+        set => SetNormalizedString(ref _arguments, value, LaunchItemNormalization.NormalizeArguments);
     }
 
     public Category Category
     {
         get => _category;
-        set => SetCategory(value, nameof(Category));
+        set => SetField(ref _category, value);
     }
 
-    private void SetCategory(Category value, string propertyName)
-    {
-        if (_category == value)
-        {
-            return;
-        }
-
-        _category = value;
-        OnPropertyChanged(propertyName);
-    }
-
-    private void SetNormalizedString(ref string field, string value, Func<string, string> normalize, string propertyName)
+    private void SetNormalizedString(ref string field, string value, Func<string, string> normalize, [CallerMemberName] string propertyName = "")
     {
         var normalized = normalize(value);
         if (field == normalized)

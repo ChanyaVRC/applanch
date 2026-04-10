@@ -1,4 +1,5 @@
 using System.Windows;
+using applanch.Infrastructure.Storage;
 using applanch.ViewModels;
 using Xunit;
 
@@ -12,7 +13,7 @@ public class DragReorderStateTests
         var state = new DragReorderState
         {
             DragStartPoint = new Point(10, 20),
-            DraggedItem = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "App"),
+            DraggedItem = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "App"),
             LastDragPreviewIndex = 3,
         };
 
@@ -29,7 +30,7 @@ public class DragReorderStateTests
         var state = new DragReorderState
         {
             LastDragPreviewIndex = 1,
-            DraggedItem = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "App"),
+            DraggedItem = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "App"),
         };
 
         var shouldPersist = state.ConsumeShouldPersistOrder();
@@ -45,7 +46,7 @@ public class DragReorderStateTests
         var state = new DragReorderState
         {
             LastDragPreviewIndex = null,
-            DraggedItem = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "App"),
+            DraggedItem = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "App"),
         };
 
         var shouldPersist = state.ConsumeShouldPersistOrder();

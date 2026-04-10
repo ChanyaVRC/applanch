@@ -48,6 +48,6 @@ public class LaunchCategoryCatalogTests
 
     private static LaunchItemViewModel Item(string category)
     {
-        return new LaunchItemViewModel(new LaunchPath(@"C:\Tools\App.exe"), category, string.Empty, category);
+        return new LaunchItemViewModel(new LaunchPath(@"C:\Tools\App.exe"), Category.FromInput(category), string.Empty, category);
     }
 }

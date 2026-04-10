@@ -16,7 +16,7 @@ public class LaunchItemContextMenuHandlerTests
     {
         WpfTestHost.RunInSta(() =>
         {
-            var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "App");
+            var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "App");
             var sender = BuildSender(item);
 
             var result = LaunchItemContextMenuHandler.GetTargetItem(sender);
@@ -30,7 +30,7 @@ public class LaunchItemContextMenuHandlerTests
     {
         WpfTestHost.RunInSta(() =>
         {
-            var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "App");
+            var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "App");
             var sender = BuildSender(item);
             var interaction = new FakeUserInteractionService
             {
@@ -58,7 +58,7 @@ public class LaunchItemContextMenuHandlerTests
     {
         WpfTestHost.RunInSta(() =>
         {
-            var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", "-a", "App");
+            var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), Category.FromInput("Dev"), "-a", "App");
             var sender = BuildSender(item);
             var interaction = new FakeUserInteractionService
             {
@@ -78,7 +78,7 @@ public class LaunchItemContextMenuHandlerTests
     {
         WpfTestHost.RunInSta(() =>
         {
-            var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "App");
+            var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "App");
             var sender = BuildSender(item);
             var sut = new LaunchItemContextMenuHandler(new FakeUserInteractionService(), new Window());
 
@@ -94,7 +94,7 @@ public class LaunchItemContextMenuHandlerTests
     {
         WpfTestHost.RunInSta(() =>
         {
-            var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), "Dev", string.Empty, "App");
+            var item = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "App");
             var sender = BuildSender(item);
             var sut = new LaunchItemContextMenuHandler(new FakeUserInteractionService(), new Window());
 

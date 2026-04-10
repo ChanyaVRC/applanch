@@ -25,7 +25,7 @@ public sealed class MainWindowViewModel : ObservableObject
     private bool _refreshingSuggestions;
     private bool _suspendPersistence;
     private string _quickAddNameOrPath = string.Empty;
-    private string _quickAddCategory = Category.Default.ToDisplayLabel();
+    private Category _quickAddCategory = Category.Default;
     private string _quickAddArguments = string.Empty;
 
     public MainWindowViewModel()
@@ -116,7 +116,7 @@ public sealed class MainWindowViewModel : ObservableObject
         }
     }
 
-    public string QuickAddCategory
+    public Category QuickAddCategory
     {
         get => _quickAddCategory;
         set => SetField(ref _quickAddCategory, value);
@@ -396,14 +396,8 @@ public sealed class MainWindowViewModel : ObservableObject
             _suspendPersistence = false;
         }
 
-        var quickAddCategory = Category.FromInput(QuickAddCategory);
-        var displayQuickAddCategory = quickAddCategory.ToDisplayLabel();
-
-        if (_quickAddCategory != displayQuickAddCategory)
-        {
-            _quickAddCategory = displayQuickAddCategory;
-            OnPropertyChanged(nameof(QuickAddCategory));
-        }
+        // Force UI refresh for localized category labels displayed via converter.
+        OnPropertyChanged(nameof(QuickAddCategory));
 
         if (categoryUpdated)
         {
@@ -437,15 +431,15 @@ public sealed class MainWindowViewModel : ObservableObject
         QuickAddArguments = string.Empty;
         if (_selectedCategory.IsAll)
         {
-            QuickAddCategory = Category.Default.ToDisplayLabel();
+            QuickAddCategory = Category.Default;
             return;
         }
 
-        QuickAddCategory = _selectedCategory.ToDisplayLabel();
+        QuickAddCategory = _selectedCategory;
     }
 
     private static LauncherEntry ToLauncherEntry(LaunchItemViewModel item) =>
-        new(item.FullPath, item.Category.Value, item.Arguments, item.DisplayName);
+        new(item.FullPath, item.Category, item.Arguments, item.DisplayName);
 
     private void SetSelectedLaunchItem(LaunchItemViewModel? value)
     {

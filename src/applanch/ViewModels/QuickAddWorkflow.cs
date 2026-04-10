@@ -1,5 +1,6 @@
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Integration;
+using applanch.Infrastructure.Storage;
 
 namespace applanch.ViewModels;
 
@@ -12,7 +13,7 @@ internal sealed class QuickAddWorkflow(IAppResolver appResolver, ILaunchItemIcon
 
     internal QuickAddResult TryCreateLaunchItem(
         string quickAddNameOrPath,
-        string quickAddCategory,
+        Category quickAddCategory,
         string quickAddArguments,
         IEnumerable<LaunchItemViewModel> existingItems,
         out LaunchItemViewModel? newItem)

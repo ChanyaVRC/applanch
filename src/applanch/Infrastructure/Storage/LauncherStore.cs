@@ -76,10 +76,10 @@ internal static class LauncherStore
 
     public static void Add(string path)
     {
-        Add(path, LauncherEntry.DefaultCategory, string.Empty, null);
+        Add(path, Category.Default, string.Empty, null);
     }
 
-    public static void Add(string path, string category, string arguments, string? displayName)
+    public static void Add(string path, Category category, string arguments, string? displayName)
     {
         EnsureStorageDirectory();
 
@@ -97,7 +97,7 @@ internal static class LauncherStore
 
         existing.Add(new LauncherEntry(
             new LaunchPath(normalizedPath),
-            LaunchItemNormalization.NormalizeCategory(category),
+            category,
             LaunchItemNormalization.NormalizeArguments(arguments),
             LaunchItemNormalization.NormalizeDisplayName(displayName, normalizedPath))
         {
@@ -124,7 +124,7 @@ internal static class LauncherStore
 
         var entries = File.ReadAllLines(LegacyStoreFilePath)
             .Where(static line => !string.IsNullOrWhiteSpace(line))
-            .Select(static path => new LauncherEntry(path, LauncherEntry.DefaultCategory, string.Empty, Path.GetFileName(path)))
+            .Select(static path => new LauncherEntry(path, Category.Default, string.Empty, Path.GetFileName(path)))
             .ToList();
 
         var normalized = NormalizeEntries(entries);
@@ -178,7 +178,7 @@ internal static class LauncherStore
         normalizedEntry = entry with
         {
             Path = new LaunchPath(normalizedPath),
-            Category = LaunchItemNormalization.NormalizeCategory(entry.Category),
+            Category = Category.FromInput(entry.Category.Value),
             Arguments = LaunchItemNormalization.NormalizeArguments(entry.Arguments),
             DisplayName = LaunchItemNormalization.NormalizeDisplayName(entry.DisplayName, normalizedPath),
             IsNormalized = true

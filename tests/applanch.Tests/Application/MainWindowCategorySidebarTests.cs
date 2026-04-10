@@ -105,8 +105,8 @@ public sealed class MainWindowCategorySidebarTests
 
             var store = new FakeStore(
             [
-                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), "Dev", string.Empty, "App"),
-                new LauncherEntry(new LaunchPath(@"C:\Tools\Ops.exe"), "Ops", string.Empty, "OpsApp")
+                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), Category.FromInput("Dev"), string.Empty, "App"),
+                new LauncherEntry(new LaunchPath(@"C:\Tools\Ops.exe"), Category.FromInput("Ops"), string.Empty, "OpsApp")
             ]);
 
             var viewModel = new MainWindowViewModel(
@@ -206,8 +206,8 @@ public sealed class MainWindowCategorySidebarTests
 
             var store = new FakeStore(
             [
-                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), "Dev", string.Empty, "App"),
-                new LauncherEntry(new LaunchPath(@"C:\Tools\Ops.exe"), "Ops", string.Empty, "OpsApp")
+                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), Category.FromInput("Dev"), string.Empty, "App"),
+                new LauncherEntry(new LaunchPath(@"C:\Tools\Ops.exe"), Category.FromInput("Ops"), string.Empty, "OpsApp")
             ]);
 
             var viewModel = new MainWindowViewModel(
@@ -281,7 +281,7 @@ public sealed class MainWindowCategorySidebarTests
 
             var store = new FakeStore(
             [
-                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), "Dev", string.Empty, "App")
+                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), Category.FromInput("Dev"), string.Empty, "App")
             ]);
 
             var viewModel = new MainWindowViewModel(
@@ -363,7 +363,7 @@ public sealed class MainWindowCategorySidebarTests
 
             var store = new FakeStore(
             [
-                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), "Dev", string.Empty, "App")
+                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), Category.FromInput("Dev"), string.Empty, "App")
             ]);
 
             var viewModel = new MainWindowViewModel(
@@ -413,7 +413,7 @@ public sealed class MainWindowCategorySidebarTests
 
             var store = new FakeStore(
             [
-                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), "Dev", string.Empty, "App")
+                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), Category.FromInput("Dev"), string.Empty, "App")
             ]);
 
             var viewModel = new MainWindowViewModel(
@@ -478,7 +478,7 @@ public sealed class MainWindowCategorySidebarTests
         {
             _entries = entries ??
             [
-                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), LauncherEntry.DefaultCategory, string.Empty, "App")
+                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), Category.Default, string.Empty, "App")
             ];
         }
 

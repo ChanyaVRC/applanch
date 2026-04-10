@@ -139,7 +139,7 @@ public sealed class MainWindowIconModeRenderTests
         {
             return
             [
-                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), LauncherEntry.DefaultCategory, string.Empty, "App")
+                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), Category.Default, string.Empty, "App")
             ];
         }
 

@@ -786,7 +786,7 @@
                                     <controls:SuggestionInputControl Grid.Column="0"
                                                                      InputComboBoxStyle="{StaticResource QuickAddCompactComboBoxStyle}"
                                                                      Suggestions="{Binding CategoryNames, Converter={StaticResource CategoryDisplayConverter}}"
-                                                                     Text="{Binding QuickAddCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Text="{Binding QuickAddCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource CategoryDisplayConverter}}"
                                                                      ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Category]}"/>
                                     <TextBox Grid.Column="2"
                                              Text="{Binding QuickAddArguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"

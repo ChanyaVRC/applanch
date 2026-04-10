@@ -58,7 +58,7 @@ public class LauncherStoreNormalizationTests
 
         var entries = new[]
         {
-            new LauncherEntry(driveSpecifier, "Misc", string.Empty, "Drive")
+            new LauncherEntry(driveSpecifier, Category.FromInput("Misc"), string.Empty, "Drive")
         };
 
         var normalized = InvokeNormalizeEntries(entries).ToList();
@@ -72,7 +72,7 @@ public class LauncherStoreNormalizationTests
     {
         var entries = new[]
         {
-            new LauncherEntry("\\Temp\\Tool.exe", "Misc", string.Empty, "Tool")
+            new LauncherEntry("\\Temp\\Tool.exe", Category.FromInput("Misc"), string.Empty, "Tool")
         };
 
         var normalized = InvokeNormalizeEntries(entries);
@@ -96,16 +96,16 @@ public class LauncherStoreNormalizationTests
     {
         var entries = new[]
         {
-            new LauncherEntry("  C:\\Apps\\Tool.exe  ", "  Dev  ", "  -a  ", "  Tool Name  "),
-            new LauncherEntry("c:\\apps\\tool.exe", "", "", ""),
-            new LauncherEntry("", "Ops", "-x", "X")
+            new LauncherEntry("  C:\\Apps\\Tool.exe  ", Category.FromInput("  Dev  "), "  -a  ", "  Tool Name  "),
+            new LauncherEntry("c:\\apps\\tool.exe", Category.FromInput(""), "", ""),
+            new LauncherEntry("", Category.FromInput("Ops"), "-x", "X")
         };
 
         var normalized = InvokeNormalizeEntries(entries).ToList();
 
         Assert.Single(normalized);
         Assert.Equal(@"C:\Apps\Tool.exe", normalized[0].Path.Value);
-        Assert.Equal("Dev", normalized[0].Category);
+        Assert.Equal("Dev", normalized[0].Category.Value);
         Assert.Equal("-a", normalized[0].Arguments);
         Assert.Equal("Tool Name", normalized[0].DisplayName);
     }
@@ -126,8 +126,8 @@ public class LauncherStoreNormalizationTests
         {
             var entries = new[]
             {
-                new LauncherEntry(placeholderPath, "Misc", string.Empty, "Placeholder"),
-                new LauncherEntry(@"C:\Apps\Tool.exe", "Misc", string.Empty, "Tool"),
+                new LauncherEntry(placeholderPath, Category.FromInput("Misc"), string.Empty, "Placeholder"),
+                new LauncherEntry(@"C:\Apps\Tool.exe", Category.FromInput("Misc"), string.Empty, "Tool"),
             };
 
             var normalized = InvokeNormalizeEntries(entries).ToList();
@@ -160,8 +160,8 @@ public class LauncherStoreNormalizationTests
         {
             var entries = new[]
             {
-                new LauncherEntry(placeholderPath, "Misc", string.Empty, "Placeholder"),
-                new LauncherEntry(@"C:\Apps\Tool.exe", "Misc", string.Empty, "Tool"),
+                new LauncherEntry(placeholderPath, Category.FromInput("Misc"), string.Empty, "Placeholder"),
+                new LauncherEntry(@"C:\Apps\Tool.exe", Category.FromInput("Misc"), string.Empty, "Tool"),
             };
 
             var normalized = InvokeNormalizeEntries(entries).ToList();

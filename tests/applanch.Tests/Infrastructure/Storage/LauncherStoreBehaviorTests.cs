@@ -22,12 +22,12 @@ public class LauncherStoreBehaviorTests
     {
         using var scope = new StoreIsolationScope();
 
-        LauncherStore.Add("  C:\\Tools\\MyApp.exe  ", "  Dev  ", "  --run  ", "  My App  ");
+        LauncherStore.Add("  C:\\Tools\\MyApp.exe  ", Category.FromInput("  Dev  "), "  --run  ", "  My App  ");
 
         var entries = LauncherStore.LoadAll();
         var entry = Assert.Single(entries);
         Assert.Equal(Path.GetFullPath(@"C:\Tools\MyApp.exe"), entry.Path.Value);
-        Assert.Equal("Dev", entry.Category);
+        Assert.Equal("Dev", entry.Category.Value);
         Assert.Equal("--run", entry.Arguments);
         Assert.Equal("My App", entry.DisplayName);
     }
@@ -37,12 +37,12 @@ public class LauncherStoreBehaviorTests
     {
         using var scope = new StoreIsolationScope();
 
-        LauncherStore.Add(@"C:\Tools\Dupe.exe", "Dev", "--first", "First");
-        LauncherStore.Add(@"c:\tools\dupe.exe", "Ops", "--second", "Second");
+        LauncherStore.Add(@"C:\Tools\Dupe.exe", Category.FromInput("Dev"), "--first", "First");
+        LauncherStore.Add(@"c:\tools\dupe.exe", Category.FromInput("Ops"), "--second", "Second");
 
         var entries = LauncherStore.LoadAll();
         var entry = Assert.Single(entries);
-        Assert.Equal("Dev", entry.Category);
+        Assert.Equal("Dev", entry.Category.Value);
         Assert.Equal("--first", entry.Arguments);
         Assert.Equal("First", entry.DisplayName);
     }
@@ -105,8 +105,8 @@ public class LauncherStoreBehaviorTests
 
         var input = new[]
         {
-            new LauncherEntry(@"C:\Apps\ToolA.exe", "Dev", "-a", "Tool A"),
-            new LauncherEntry(@"C:\Apps\ToolB.exe", "Ops", "-b", "Tool B")
+            new LauncherEntry(@"C:\Apps\ToolA.exe", Category.FromInput("Dev"), "-a", "Tool A"),
+            new LauncherEntry(@"C:\Apps\ToolB.exe", Category.FromInput("Ops"), "-b", "Tool B")
         };
 
         LauncherStore.SaveAll(input);
