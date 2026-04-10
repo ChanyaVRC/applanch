@@ -148,6 +148,33 @@ public class SettingsWindowViewModelTests
         Assert.Equal(SemanticVersion.Parse("2.0.0"), fakeService.LastAppliedUpdate!.NewVersion);
     }
 
+    [Fact]
+    public async Task ApplySelectedUpdateAsync_DoesNotStartSecondApply_WhileApplyInProgress()
+    {
+        var gate = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var fakeService = new FakeAppUpdateService
+        {
+            AvailableUpdates =
+            [
+                new AppUpdateInfo(SemanticVersion.Parse("2.0.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/2.zip"), new Uri("https://example.com/r2")),
+            ],
+            ApplyGate = gate,
+        };
+        var vm = Make(updateServiceFactory: _ => fakeService);
+        await vm.RefreshAvailableUpdatesAsync();
+
+        var firstApplyTask = vm.ApplySelectedUpdateAsync();
+        var secondApplyResult = await vm.ApplySelectedUpdateAsync();
+
+        Assert.Null(secondApplyResult);
+        Assert.Equal(1, fakeService.ApplyCallCount);
+
+        gate.SetResult(true);
+        var firstApplyResult = await firstApplyTask;
+
+        Assert.True(firstApplyResult is { IsSuccess: true });
+    }
+
     // ── ThemeIndex ─────────────────────────────────────────
 
     [Fact]
@@ -560,6 +587,8 @@ public class SettingsWindowViewModelTests
     private sealed class FakeAppUpdateService : IAppUpdateService
     {
         internal IReadOnlyList<AppUpdateInfo> AvailableUpdates { get; init; } = [];
+        internal TaskCompletionSource<bool>? ApplyGate { get; init; }
+        internal int ApplyCallCount { get; private set; }
         internal AppUpdateInfo? LastAppliedUpdate { get; private set; }
 
         public Task<IReadOnlyList<AppUpdateInfo>> GetAvailableUpdatesAsync(CancellationToken cancellationToken = default)
@@ -575,7 +604,8 @@ public class SettingsWindowViewModelTests
         public Task ApplyUpdateAsync(AppUpdateInfo update, CancellationToken cancellationToken = default)
         {
             LastAppliedUpdate = update;
-            return Task.CompletedTask;
+            ApplyCallCount++;
+            return ApplyGate?.Task ?? Task.CompletedTask;
         }
     }
 }

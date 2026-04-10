@@ -297,7 +297,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
     internal async Task<UpdateApplyResult?> ApplySelectedUpdateAsync(CancellationToken cancellationToken = default)
     {
-        if (SelectedAvailableUpdate is null)
+        if (SelectedAvailableUpdate is null || _isApplyingSelectedUpdate || _isRefreshingAvailableUpdates)
         {
             return null;
         }
