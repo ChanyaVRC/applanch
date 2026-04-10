@@ -33,7 +33,7 @@ internal sealed class LaunchListDragDropResolver
         return true;
     }
 
-    internal int GetDropIndex(ListBox listBox, IReadOnlyList<LaunchItemViewModel> items, int oldIndex, Point listPosition)
+    internal int GetDropIndex(ListBox listBox, IReadOnlyList<LaunchItemViewModel> items, int oldIndex, Point listPosition, bool isIconOnlyMode)
     {
         var count = items.Count;
         if (count <= 1)
@@ -41,7 +41,7 @@ internal sealed class LaunchListDragDropResolver
             return oldIndex;
         }
 
-        var desiredInsertIndex = ResolveDesiredInsertIndex(listBox, items, oldIndex, listPosition);
+        var desiredInsertIndex = ResolveDesiredInsertIndex(listBox, items, oldIndex, listPosition, isIconOnlyMode);
         return DragReorderIndexCalculator.Calculate(oldIndex, desiredInsertIndex, count);
     }
 
@@ -49,7 +49,8 @@ internal sealed class LaunchListDragDropResolver
         ListBox listBox,
         IReadOnlyList<LaunchItemViewModel> items,
         int oldIndex,
-        Point listPosition)
+        Point listPosition,
+        bool isIconOnlyMode)
     {
         if (listPosition.Y <= 0)
         {
@@ -77,9 +78,16 @@ internal sealed class LaunchListDragDropResolver
 
         var containerOrigin = targetContainer.TranslatePoint(new Point(0, 0), listBox);
         var dropOnItem = new Point(listPosition.X - containerOrigin.X, listPosition.Y - containerOrigin.Y);
-        var insertAfter = dropOnItem.Y > targetContainer.ActualHeight / 2;
+        var insertAfter = ShouldInsertAfter(dropOnItem, targetContainer.RenderSize, isIconOnlyMode);
 
         return insertAfter ? targetIndex + 1 : targetIndex;
+    }
+
+    internal static bool ShouldInsertAfter(Point dropOnItem, Size itemSize, bool isIconOnlyMode)
+    {
+        return isIconOnlyMode
+            ? dropOnItem.X > itemSize.Width / 2
+            : dropOnItem.Y > itemSize.Height / 2;
     }
 
     private static int FindIndex(IReadOnlyList<LaunchItemViewModel> items, LaunchItemViewModel target)

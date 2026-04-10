@@ -758,7 +758,7 @@ public sealed partial class MainWindow : Window
 
     private void ApplyDragPreviewMove(ListBox listBox, int oldIndex, Point listPosition)
     {
-        var newIndex = _dragDropResolver.GetDropIndex(listBox, ViewModel.LaunchItems, oldIndex, listPosition);
+        var newIndex = _dragDropResolver.GetDropIndex(listBox, ViewModel.LaunchItems, oldIndex, listPosition, ViewModel.IsLaunchItemIconOnlyMode);
         if (newIndex >= 0 && newIndex != oldIndex && _dragReorderState.LastDragPreviewIndex != newIndex)
         {
             var previousPositions = CaptureItemTopPositions(listBox);

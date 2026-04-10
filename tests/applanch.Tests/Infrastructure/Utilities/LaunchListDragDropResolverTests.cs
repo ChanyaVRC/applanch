@@ -85,7 +85,7 @@ public class LaunchListDragDropResolverTests
             var listBox = CreateMeasuredListBox();
             var sut = new LaunchListDragDropResolver();
 
-            var newIndex = sut.GetDropIndex(listBox, items, oldIndex: 2, new Point(10, -5));
+            var newIndex = sut.GetDropIndex(listBox, items, oldIndex: 2, new Point(10, -5), isIconOnlyMode: false);
 
             Assert.Equal(0, newIndex);
         });
@@ -105,7 +105,7 @@ public class LaunchListDragDropResolverTests
             var listBox = CreateMeasuredListBox();
             var sut = new LaunchListDragDropResolver();
 
-            var newIndex = sut.GetDropIndex(listBox, items, oldIndex: 0, new Point(10, listBox.ActualHeight + 1));
+            var newIndex = sut.GetDropIndex(listBox, items, oldIndex: 0, new Point(10, listBox.ActualHeight + 1), isIconOnlyMode: false);
 
             Assert.Equal(2, newIndex);
         });
@@ -125,10 +125,30 @@ public class LaunchListDragDropResolverTests
             var listBox = CreateMeasuredListBox();
             var sut = new LaunchListDragDropResolver();
 
-            var newIndex = sut.GetDropIndex(listBox, items, oldIndex: 1, new Point(10, 60));
+            var newIndex = sut.GetDropIndex(listBox, items, oldIndex: 1, new Point(10, 60), isIconOnlyMode: false);
 
             Assert.Equal(1, newIndex);
         });
+    }
+
+    [Fact]
+    public void ShouldInsertAfter_IconMode_UsesHorizontalMidpoint()
+    {
+        var beforeMidpoint = LaunchListDragDropResolver.ShouldInsertAfter(new Point(20, 80), new Size(72, 120), isIconOnlyMode: true);
+        var afterMidpoint = LaunchListDragDropResolver.ShouldInsertAfter(new Point(50, 20), new Size(72, 120), isIconOnlyMode: true);
+
+        Assert.False(beforeMidpoint);
+        Assert.True(afterMidpoint);
+    }
+
+    [Fact]
+    public void ShouldInsertAfter_ListMode_UsesVerticalMidpoint()
+    {
+        var beforeMidpoint = LaunchListDragDropResolver.ShouldInsertAfter(new Point(120, 20), new Size(240, 48), isIconOnlyMode: false);
+        var afterMidpoint = LaunchListDragDropResolver.ShouldInsertAfter(new Point(10, 30), new Size(240, 48), isIconOnlyMode: false);
+
+        Assert.False(beforeMidpoint);
+        Assert.True(afterMidpoint);
     }
 
     private static ListBox CreateMeasuredListBox()
