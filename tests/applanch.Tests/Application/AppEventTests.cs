@@ -1,6 +1,7 @@
 using applanch.Events;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Updates;
+using applanch.Tests.TestSupport;
 using Xunit;
 
 namespace applanch.Tests.Application;
@@ -10,7 +11,7 @@ public class AppEventTests
     [Fact]
     public void InvokeCommit_NotifiesRegisteredHandlers()
     {
-        var appEvent = new AppEvent();
+        var appEvent = AppEventFactory.Create();
         AppSettings? committed = null;
         appEvent.Register(AppEvents.Commit, settings => committed = settings);
         var settings = new AppSettings { DebugUpdate = true };
@@ -23,7 +24,7 @@ public class AppEventTests
     [Fact]
     public void UnregisterCommit_StopsNotifications()
     {
-        var appEvent = new AppEvent();
+        var appEvent = AppEventFactory.Create();
         var callCount = 0;
         void Handler(AppSettings _) => callCount++;
         appEvent.Register(AppEvents.Commit, Handler);
@@ -37,7 +38,7 @@ public class AppEventTests
     [Fact]
     public void InvokeRefresh_NotifiesRegisteredHandlers()
     {
-        var appEvent = new AppEvent();
+        var appEvent = AppEventFactory.Create();
         AppSettings? refreshed = null;
         appEvent.Register(AppEvents.Refresh, settings => refreshed = settings);
         var settings = new AppSettings { LaunchAtWindowsStartup = true };
@@ -50,7 +51,7 @@ public class AppEventTests
     [Fact]
     public void UnregisterRefresh_StopsNotifications()
     {
-        var appEvent = new AppEvent();
+        var appEvent = AppEventFactory.Create();
         var callCount = 0;
         void Handler(AppSettings _) => callCount++;
         appEvent.Register(AppEvents.Refresh, Handler);
@@ -64,7 +65,7 @@ public class AppEventTests
     [Fact]
     public void InvokeUpdateCheckRequested_NotifiesRegisteredHandlers()
     {
-        var appEvent = new AppEvent();
+        var appEvent = AppEventFactory.Create();
         var callCount = 0;
         void Handler() => callCount++;
         appEvent.Register(AppEvents.UpdateCheckRequested, Handler);
@@ -77,7 +78,7 @@ public class AppEventTests
     [Fact]
     public void UnregisterUpdateCheckRequested_StopsNotifications()
     {
-        var appEvent = new AppEvent();
+        var appEvent = AppEventFactory.Create();
         var callCount = 0;
         void Handler() => callCount++;
         appEvent.Register(AppEvents.UpdateCheckRequested, Handler);
@@ -91,7 +92,7 @@ public class AppEventTests
     [Fact]
     public void InvokeUpdateAvailabilityChanged_NotifiesRegisteredHandlers()
     {
-        var appEvent = new AppEvent();
+        var appEvent = AppEventFactory.Create();
         AppUpdateInfo? notified = null;
         appEvent.Register(AppEvents.UpdateAvailabilityChanged, update => notified = update);
         var updateInfo = new AppUpdateInfo(SemanticVersion.Parse("2.0.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/download"), new Uri("https://example.com/release"));
@@ -104,7 +105,7 @@ public class AppEventTests
     [Fact]
     public void UnregisterUpdateAvailabilityChanged_StopsNotifications()
     {
-        var appEvent = new AppEvent();
+        var appEvent = AppEventFactory.Create();
         var callCount = 0;
         void Handler(AppUpdateInfo? _) => callCount++;
         appEvent.Register(AppEvents.UpdateAvailabilityChanged, Handler);

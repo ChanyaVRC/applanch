@@ -20,7 +20,7 @@ public sealed class SettingsThemeSelectionUiTests
     {
         WpfTestHost.RunInSta(() =>
         {
-            var appEvent = new AppEvent();
+            var appEvent = AppEventFactory.Create();
             appEvent.Register(AppEvents.Commit, payload =>
             {
                 var settings = Assert.IsType<AppSettings>(payload);

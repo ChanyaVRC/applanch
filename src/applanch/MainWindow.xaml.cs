@@ -40,7 +40,7 @@ public sealed partial class MainWindow : Window
     private bool _isLaunchItemCategoryDragSessionActive;
     private AppSettings _settings;
     private SettingsWindow? _settingsWindow;
-    private readonly AppEvent? _appEvent;
+    private readonly AppEvent _appEvent;
     private readonly Func<AppSettings, IAppUpdateService> _updateServiceFactory;
     private bool _isLaunchListRealizationScheduled;
     private MainWindowViewModel ViewModel { get; }
@@ -109,10 +109,10 @@ public sealed partial class MainWindow : Window
         RegisterCategorySidebarPartNames();
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
-        _appEvent = (Application.Current as App)?.Events;
-        _appEvent?.Register(AppEvents.Refresh, OnAppRefreshRequested);
-        _appEvent?.Register(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
-        _appEvent?.Register(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
+        _appEvent = AppEvent.Instance;
+        _appEvent.Register(AppEvents.Refresh, OnAppRefreshRequested);
+        _appEvent.Register(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
+        _appEvent.Register(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
         BundledConfigLoadNotificationCenter.Reported += OnBundledConfigLoadIssueReported;
         ViewModel.ApplySettings(_settings);
         ApplyCategorySidebarPinnedSetting(_settings.CategorySidebarPinned, animate: false);
@@ -129,9 +129,9 @@ public sealed partial class MainWindow : Window
 
     protected override void OnClosed(EventArgs e)
     {
-        _appEvent?.Unregister(AppEvents.Refresh, OnAppRefreshRequested);
-        _appEvent?.Unregister(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
-        _appEvent?.Unregister(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
+        _appEvent.Unregister(AppEvents.Refresh, OnAppRefreshRequested);
+        _appEvent.Unregister(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
+        _appEvent.Unregister(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
         BundledConfigLoadNotificationCenter.Reported -= OnBundledConfigLoadIssueReported;
 
         if (_settingsWindow is { IsLoaded: true })
@@ -162,14 +162,14 @@ public sealed partial class MainWindow : Window
 
         if (_settings.CheckForUpdatesOnStartup)
         {
-            _appEvent?.Invoke(AppEvents.UpdateCheckRequested);
+            _appEvent.Invoke(AppEvents.UpdateCheckRequested);
         }
     }
 
     private async Task RunUpdateCheckAsync()
     {
         var update = await _updateWorkflow.CheckForUpdateSafeAsync().ConfigureAwait(false);
-        _appEvent?.Invoke(AppEvents.UpdateAvailabilityChanged, update);
+        _appEvent.Invoke(AppEvents.UpdateAvailabilityChanged, update);
     }
 
     private void OnUpdateCheckRequested()

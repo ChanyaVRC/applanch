@@ -27,7 +27,7 @@ public class SettingsWindowViewModelTests
         Action<AppSettings>? onCommit = null,
         Func<AppSettings, IAppUpdateService>? updateServiceFactory = null)
     {
-        var appEvent = new AppEvent();
+        var appEvent = AppEventFactory.Create();
         if (onCommit is not null)
         {
             appEvent.Register(AppEvents.Commit, onCommit);
@@ -286,7 +286,7 @@ public class SettingsWindowViewModelTests
     [Fact]
     public void SelectedLanguage_Change_UpdatesThemeOptionDisplayNamesWithoutReloadingProvider()
     {
-        var appEvent = new AppEvent();
+        var appEvent = AppEventFactory.Create();
         var providerCallCount = 0;
 
         appEvent.Register(AppEvents.Commit, payload =>
@@ -514,7 +514,7 @@ public class SettingsWindowViewModelTests
     [Fact]
     public void ApplyExternalSettings_WhenLanguageChanges_UpdatesThemeOptionDisplayNamesWithoutReloadingProvider()
     {
-        var appEvent = new AppEvent();
+        var appEvent = AppEventFactory.Create();
         var providerCallCount = 0;
 
         IReadOnlyDictionary<string, ThemeOption> ThemeOptionsProvider()

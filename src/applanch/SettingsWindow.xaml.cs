@@ -27,7 +27,7 @@ public sealed partial class SettingsWindow : Window
     {
         InitializeComponent();
         Owner = owner;
-        _appEvent = (Application.Current as App)?.Events ?? new AppEvent();
+        _appEvent = AppEvent.Instance;
         _interactionService = interactionService;
         ViewModel = new SettingsWindowViewModel(
             settings,

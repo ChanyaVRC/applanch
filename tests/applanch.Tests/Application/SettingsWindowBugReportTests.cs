@@ -1,5 +1,4 @@
 using applanch.Tests.TestSupport;
-using applanch.Events;
 using applanch.Infrastructure.Storage;
 using applanch.ViewModels;
 using Xunit;
@@ -60,7 +59,7 @@ public class SettingsWindowBugReportTests
     [Fact]
     public void CreateDiagnosticsText_ContainsExpectedFields()
     {
-        var vm = new SettingsWindowViewModel(new AppSettings(), new AppEvent());
+        var vm = new SettingsWindowViewModel(new AppSettings(), AppEventFactory.Create());
 
         var text = vm.CreateDiagnosticsText();
 

@@ -20,7 +20,7 @@ public sealed partial class App : Application
 {
     internal const string RegisterArgument = "--register";
     internal const string UnregisterContextMenuArgument = "--unregister-context-menu";
-    internal AppEvent Events { get; } = new();
+    internal AppEvent Events { get; } = AppEvent.Instance;
     private AppSettings _settings = new();
     private readonly ThemeApplier _themeApplier = new();
     private readonly ContextMenuRegistrar _contextMenuRegistrar = new();

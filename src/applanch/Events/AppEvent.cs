@@ -5,6 +5,12 @@ namespace applanch.Events;
 
 internal sealed class AppEvent
 {
+    internal static AppEvent Instance { get; } = new();
+
+    private AppEvent()
+    {
+    }
+
     private readonly Dictionary<AppEventType, object> _channels = new()
     {
         [AppEventType.Commit] = new EventChannel<AppSettings>(),
