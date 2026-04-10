@@ -175,6 +175,31 @@ public class SettingsWindowViewModelTests
         Assert.True(firstApplyResult is { IsSuccess: true });
     }
 
+    [Fact]
+    public async Task ApplySelectedUpdateAsync_ChangesApplyButtonText_WhileApplyInProgress()
+    {
+        var gate = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var fakeService = new FakeAppUpdateService
+        {
+            AvailableUpdates =
+            [
+                new AppUpdateInfo(SemanticVersion.Parse("2.0.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/2.zip"), new Uri("https://example.com/r2")),
+            ],
+            ApplyGate = gate,
+        };
+        var vm = Make(updateServiceFactory: _ => fakeService);
+        await vm.RefreshAvailableUpdatesAsync();
+
+        var applyTask = vm.ApplySelectedUpdateAsync();
+
+        Assert.Equal(AppResources.Button_ApplyingSelectedVersion, vm.ApplySelectedVersionButtonText);
+
+        gate.SetResult(true);
+        await applyTask;
+
+        Assert.Equal(AppResources.Button_ApplySelectedVersion, vm.ApplySelectedVersionButtonText);
+    }
+
     // ── ThemeIndex ─────────────────────────────────────────
 
     [Fact]

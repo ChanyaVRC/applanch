@@ -317,6 +317,9 @@
   <data name="Button_ApplySelectedVersion" xml:space="preserve">
     <value>Install selected version</value>
   </data>
+  <data name="Button_ApplyingSelectedVersion" xml:space="preserve">
+    <value>Installing...</value>
+  </data>
   <data name="UpdateVersions_Loading" xml:space="preserve">
     <value>Checking available versions...</value>
   </data>

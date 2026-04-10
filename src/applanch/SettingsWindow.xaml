@@ -662,7 +662,7 @@
                                         Margin="12,6,0,0"
                                         HorizontalAlignment="Right"
                                         Style="{StaticResource RoundedButtonStyle}"
-                                        Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_ApplySelectedVersion]}"
+                                    Content="{Binding ApplySelectedVersionButtonText}"
                                         IsEnabled="{Binding CanApplySelectedUpdate}"
                                         Click="ApplySelectedVersion_Click"/>
                             </Grid>

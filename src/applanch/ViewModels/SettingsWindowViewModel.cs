@@ -238,6 +238,11 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         !_isRefreshingAvailableUpdates &&
         !_isApplyingSelectedUpdate;
 
+    public string ApplySelectedVersionButtonText =>
+        _isApplyingSelectedUpdate
+            ? AppResources.Button_ApplyingSelectedVersion
+            : AppResources.Button_ApplySelectedVersion;
+
     public string AvailableUpdatesStatusMessage
     {
         get => _availableUpdatesStatusMessage;
@@ -305,6 +310,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         ReplaceUpdateService(_updateServiceFactory(_draft));
         _isApplyingSelectedUpdate = true;
         OnPropertyChanged(nameof(CanApplySelectedUpdate));
+        OnPropertyChanged(nameof(ApplySelectedVersionButtonText));
 
         try
         {
@@ -314,6 +320,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         {
             _isApplyingSelectedUpdate = false;
             OnPropertyChanged(nameof(CanApplySelectedUpdate));
+            OnPropertyChanged(nameof(ApplySelectedVersionButtonText));
         }
     }
 

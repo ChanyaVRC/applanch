@@ -317,6 +317,9 @@
   <data name="Button_ApplySelectedVersion" xml:space="preserve">
     <value>選択したバージョンをインストール</value>
   </data>
+  <data name="Button_ApplyingSelectedVersion" xml:space="preserve">
+    <value>インストール中...</value>
+  </data>
   <data name="UpdateVersions_Loading" xml:space="preserve">
     <value>利用可能なバージョンを確認しています...</value>
   </data>
