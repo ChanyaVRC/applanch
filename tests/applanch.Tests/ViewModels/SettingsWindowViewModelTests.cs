@@ -110,6 +110,25 @@ public class SettingsWindowViewModelTests
     }
 
     [Fact]
+    public async Task RefreshAvailableUpdatesAsync_UsesLatestAllowPrereleaseSetting_WhenRecreatingService()
+    {
+        var createdSettings = new List<AppSettings>();
+        var vm = Make(
+            settings: new AppSettings { AllowPrereleaseUpdates = false },
+            updateServiceFactory: settings =>
+            {
+                createdSettings.Add(settings);
+                return new FakeAppUpdateService();
+            });
+
+        vm.AllowPrereleaseUpdates = true;
+        await vm.RefreshAvailableUpdatesAsync();
+
+        Assert.NotEmpty(createdSettings);
+        Assert.True(createdSettings[^1].AllowPrereleaseUpdates);
+    }
+
+    [Fact]
     public async Task ApplySelectedUpdateAsync_UsesSelectedAvailableUpdate()
     {
         var fakeService = new FakeAppUpdateService

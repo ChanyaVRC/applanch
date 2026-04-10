@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Threading;
 using applanch.Events;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Integration;
@@ -56,6 +57,7 @@ public sealed partial class SettingsWindow : Window
 
     private async void AllowPrereleaseUpdates_Click(object sender, RoutedEventArgs e)
     {
+        await Dispatcher.InvokeAsync(static () => { }, DispatcherPriority.DataBind);
         await ViewModel.RefreshAvailableUpdatesAsync();
     }
 
