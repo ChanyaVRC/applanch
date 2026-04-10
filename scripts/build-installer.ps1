@@ -33,6 +33,39 @@ $installerFileName = "applanch-$AppVersion-$Runtime-installer"
 $architecturesAllowed = if ($Runtime -eq 'win-x64') { 'x64compatible' } else { 'x86compatible' }
 $architecturesInstallIn64BitMode = if ($Runtime -eq 'win-x64') { 'x64compatible' } else { '' }
 
+function Get-VersionInfoVersion {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$VersionText
+    )
+
+    $versionMatch = [System.Text.RegularExpressions.Regex]::Match(
+        $VersionText,
+        '^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:-(?<pre>[0-9A-Za-z.-]+))?$')
+
+    if (-not $versionMatch.Success) {
+        Write-Error "Installer version '$VersionText' must match MAJOR.MINOR.PATCH[-suffix]."
+        exit 1
+    }
+
+    $major = $versionMatch.Groups['major'].Value
+    $minor = $versionMatch.Groups['minor'].Value
+    $patch = $versionMatch.Groups['patch'].Value
+    $revision = '0'
+
+    $pre = $versionMatch.Groups['pre'].Value
+    if (-not [string]::IsNullOrWhiteSpace($pre)) {
+        $revisionMatch = [System.Text.RegularExpressions.Regex]::Match($pre, '(\d+)(?!.*\d)')
+        if ($revisionMatch.Success) {
+            $revision = $revisionMatch.Groups[1].Value
+        }
+    }
+
+    return "$major.$minor.$patch.$revision"
+}
+
+$versionInfoVersion = Get-VersionInfoVersion -VersionText $AppVersion
+
 $iscc = Get-Command 'iscc.exe' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -First 1
 if ([string]::IsNullOrWhiteSpace($iscc)) {
     $knownPaths = @(
@@ -255,7 +288,7 @@ WizardSmallImageFile=__WIZARD_SMALL_IMAGE_FILE__
 VersionInfoCompany=ChanyaKushima
 VersionInfoDescription=applanch Installer
 VersionInfoProductName=applanch Installer
-VersionInfoVersion=__APP_VERSION__
+VersionInfoVersion=__VERSION_INFO_VERSION__
 UninstallDisplayIcon={app}\applanch.exe
 
 [Languages]
@@ -291,6 +324,7 @@ $installerScript = $installerScript.Replace('__OUTPUT_BASE_FILENAME__', $install
 $installerScript = $installerScript.Replace('__ARCH_ALLOWED__', $architecturesAllowed)
 $installerScript = $installerScript.Replace('__ARCH_INSTALL64__', $architecturesInstallIn64BitMode)
 $installerScript = $installerScript.Replace('__PUBLISH_DIR__', $resolvedPublishDir)
+$installerScript = $installerScript.Replace('__VERSION_INFO_VERSION__', $versionInfoVersion)
 $installerScript = $installerScript.Replace('__SETUP_ICON_FILE__', '"' + ((Resolve-Path $setupIconPath).Path) + '"')
 $installerScript = $installerScript.Replace('__WIZARD_IMAGE_FILE__', '"' + $wizardImagePath + '"')
 $installerScript = $installerScript.Replace('__WIZARD_SMALL_IMAGE_FILE__', '"' + $wizardSmallImagePath + '"')
