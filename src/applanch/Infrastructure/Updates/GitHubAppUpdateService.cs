@@ -44,6 +44,26 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
         AppLogger.Instance.Info($"Initialized: currentVersion={currentVersion}, debugUpdate={debugUpdate}");
     }
 
+    public async Task<IReadOnlyList<AppUpdateInfo>> GetAvailableUpdatesAsync(CancellationToken cancellationToken = default)
+    {
+        var releases = await FetchReleasesAsync(cancellationToken).ConfigureAwait(false);
+        var availableUpdates = new List<AppUpdateInfo>();
+
+        foreach (var release in releases)
+        {
+            if (release.Prerelease ||
+                !TryCreateUpdateInfo(release, out var update) ||
+                string.Equals(update.NewVersion, _currentVersion, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            availableUpdates.Add(update);
+        }
+
+        return availableUpdates;
+    }
+
     public async Task<AppUpdateInfo?> CheckForUpdateAsync(CancellationToken cancellationToken = default)
     {
         var log = AppLogger.Instance;
@@ -64,36 +84,19 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
             return null;
         }
 
-        var latestVersion = release.TagName.TrimStart('v');
-        log.Info($"Latest release: {release.TagName} (parsed: {latestVersion}), assets: {release.Assets.Count}");
-        if (!_debugUpdate && !IsNewer(latestVersion, _currentVersion))
+        if (!TryCreateUpdateInfo(release, out var update))
         {
-            log.Info($"No update needed: {latestVersion} is not newer than {_currentVersion}");
             return null;
         }
 
-        var rid = RuntimeInformation.RuntimeIdentifier;
-        var assetName = $"applanch-{latestVersion}-{rid}.zip";
-        log.Info($"Looking for asset: {assetName} (RID={rid})");
-        var asset = release.Assets.FirstOrDefault(a =>
-            string.Equals(a.Name, assetName, StringComparison.OrdinalIgnoreCase));
-
-        if (asset is null)
+        if (!_debugUpdate && !IsNewer(update.NewVersion, _currentVersion))
         {
-            var available = string.Join(", ", release.Assets.Select(static a => a.Name));
-            log.Info($"Matching asset not found. Available: [{available}]");
+            log.Info($"No update needed: {update.NewVersion} is not newer than {_currentVersion}");
             return null;
         }
 
-        if (!Uri.TryCreate(asset.BrowserDownloadUrl, UriKind.Absolute, out var assetDownloadUrl) ||
-            !Uri.TryCreate(release.HtmlUrl, UriKind.Absolute, out var releaseUrl))
-        {
-            log.Warn("Release metadata contains invalid URL values.");
-            return null;
-        }
-
-        log.Info($"Update available: {latestVersion}, download URL: {asset.BrowserDownloadUrl}");
-        return new AppUpdateInfo(latestVersion, _currentVersion, assetDownloadUrl, releaseUrl);
+        log.Info($"Update available: {update.NewVersion}, download URL: {update.AssetDownloadUrl}");
+        return update;
     }
 
     public async Task ApplyUpdateAsync(AppUpdateInfo update, CancellationToken cancellationToken = default)
@@ -164,6 +167,49 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
 
     internal static bool IsNewer(string candidate, string current) =>
         SemanticVersion.Parse(candidate).CompareTo(SemanticVersion.Parse(current)) > 0;
+
+    private async Task<IReadOnlyList<GitHubRelease>> FetchReleasesAsync(CancellationToken cancellationToken)
+    {
+        var releasesUri = new Uri($"https://api.github.com/repos/{Owner}/{Repo}/releases", UriKind.Absolute);
+        AppLogger.Instance.Info($"Fetching releases from {releasesUri}");
+        using var response = await SendWithRetryAsync(static (client, requestUrl, ct) =>
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            request.Headers.Accept.ParseAdd("application/vnd.github+json");
+            return client.SendAsync(request, ct);
+        }, releasesUri, RetryOperation.UpdateMetadata, cancellationToken).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<GitHubRelease>>(JsonOptions, cancellationToken).ConfigureAwait(false) ?? [];
+    }
+
+    private bool TryCreateUpdateInfo(GitHubRelease release, out AppUpdateInfo update)
+    {
+        update = default!;
+        var releaseVersion = release.TagName.TrimStart('v');
+        AppLogger.Instance.Info($"Release candidate: {release.TagName} (parsed: {releaseVersion}), assets: {release.Assets.Count}");
+
+        var rid = RuntimeInformation.RuntimeIdentifier;
+        var assetName = $"applanch-{releaseVersion}-{rid}.zip";
+        var asset = release.Assets.FirstOrDefault(a =>
+            string.Equals(a.Name, assetName, StringComparison.OrdinalIgnoreCase));
+
+        if (asset is null)
+        {
+            var available = string.Join(", ", release.Assets.Select(static a => a.Name));
+            AppLogger.Instance.Info($"Matching asset not found for {release.TagName}. Available: [{available}]");
+            return false;
+        }
+
+        if (!Uri.TryCreate(asset.BrowserDownloadUrl, UriKind.Absolute, out var assetDownloadUrl) ||
+            !Uri.TryCreate(release.HtmlUrl, UriKind.Absolute, out var releaseUrl))
+        {
+            AppLogger.Instance.Warn($"Release metadata contains invalid URL values for {release.TagName}.");
+            return false;
+        }
+
+        update = new AppUpdateInfo(releaseVersion, _currentVersion, assetDownloadUrl, releaseUrl);
+        return true;
+    }
 
     internal static string[] BuildUpdateScriptLines(int processId, string currentExePath, string extractDir, string targetDir, string cleanupDir)
     {

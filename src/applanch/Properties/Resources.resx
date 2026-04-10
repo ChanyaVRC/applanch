@@ -305,6 +305,18 @@
   <data name="Setting_UpdateInstallBehavior" xml:space="preserve">
     <value>When an update is found</value>
   </data>
+  <data name="Setting_AvailableVersion" xml:space="preserve">
+    <value>Version to install</value>
+  </data>
+  <data name="Button_ApplySelectedVersion" xml:space="preserve">
+    <value>Install selected version</value>
+  </data>
+  <data name="UpdateVersions_Loading" xml:space="preserve">
+    <value>Checking available versions...</value>
+  </data>
+  <data name="UpdateVersions_NoneAvailable" xml:space="preserve">
+    <value>No installable versions are available.</value>
+  </data>
   <data name="UpdateInstallBehavior_NotifyOnly" xml:space="preserve">
     <value>Notify only</value>
   </data>

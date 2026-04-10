@@ -1,9 +1,11 @@
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 using applanch.Events;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
+using applanch.Infrastructure.Updates;
 using applanch.Infrastructure.Utilities;
 
 namespace applanch.ViewModels;
@@ -14,25 +16,41 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
     private readonly AppEvent _appEvent;
     private readonly Func<IReadOnlyDictionary<string, ThemeOption>> _themeOptionsProvider;
+    private readonly Func<AppSettings, IAppUpdateService> _updateServiceFactory;
     private IReadOnlyDictionary<string, ThemeOption> _themeOptionsMap;
+    private readonly UpdateWorkflow _updateWorkflow;
     private AppSettings _current;
     private AppSettings _draft;
+    private IAppUpdateService _updateService;
+    private IDisposable? _ownedUpdateService;
+    private AppUpdateInfo? _selectedAvailableUpdate;
+    private bool _isRefreshingAvailableUpdates;
+    private bool _isApplyingSelectedUpdate;
+    private string _availableUpdatesStatusMessage = string.Empty;
 
     internal SettingsWindowViewModel(
         AppSettings settings,
         AppEvent appEvent,
-        Func<IReadOnlyDictionary<string, ThemeOption>>? themeOptionsProvider = null)
+        Func<IReadOnlyDictionary<string, ThemeOption>>? themeOptionsProvider = null,
+        Func<AppSettings, IAppUpdateService>? updateServiceFactory = null)
     {
         _appEvent = appEvent;
         _themeOptionsProvider = themeOptionsProvider ?? ThemeOptionsProvider.Load;
+        _updateServiceFactory = updateServiceFactory ?? (static settings => new GitHubAppUpdateService(settings.DebugUpdate));
         _themeOptionsMap = _themeOptionsProvider();
         _current = settings;
         _draft = settings;
+        _updateService = _updateServiceFactory(settings);
+        _ownedUpdateService = _updateService as IDisposable;
+        _updateWorkflow = new UpdateWorkflow(_updateService);
+        AvailableUpdates = [];
     }
 
     public IReadOnlyList<ThemeOption> ThemeOptions => _themeOptionsMap.Values.ToList();
 
     public IReadOnlyList<int> QuickAddSuggestionLimitOptions => QuickAddSuggestionLimitOptionsValues;
+
+    public ObservableCollection<AppUpdateInfo> AvailableUpdates { get; }
 
     public bool IsThemeSelectionVisible => _themeOptionsMap.Count > 0;
 
@@ -197,6 +215,29 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
     public string AppVersion => AppVersionProvider.GetDisplayVersion();
 
+    public AppUpdateInfo? SelectedAvailableUpdate
+    {
+        get => _selectedAvailableUpdate;
+        set
+        {
+            if (SetField(ref _selectedAvailableUpdate, value))
+            {
+                OnPropertyChanged(nameof(CanApplySelectedUpdate));
+            }
+        }
+    }
+
+    public bool CanApplySelectedUpdate =>
+        SelectedAvailableUpdate is not null &&
+        !_isRefreshingAvailableUpdates &&
+        !_isApplyingSelectedUpdate;
+
+    public string AvailableUpdatesStatusMessage
+    {
+        get => _availableUpdatesStatusMessage;
+        private set => SetField(ref _availableUpdatesStatusMessage, value);
+    }
+
     internal void ApplyExternalSettings(AppSettings settings)
     {
         var previousLanguage = _draft.Language;
@@ -218,6 +259,62 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
         OnPropertyChanged(string.Empty);
         Commit();
+    }
+
+    internal async Task RefreshAvailableUpdatesAsync(CancellationToken cancellationToken = default)
+    {
+        ReplaceUpdateService(_updateServiceFactory(_draft));
+        _isRefreshingAvailableUpdates = true;
+        AvailableUpdatesStatusMessage = AppResources.UpdateVersions_Loading;
+        OnPropertyChanged(nameof(CanApplySelectedUpdate));
+
+        try
+        {
+            var previousSelection = SelectedAvailableUpdate?.NewVersion;
+            var updates = await _updateWorkflow.GetAvailableUpdatesSafeAsync(cancellationToken);
+            ReplaceCollection(AvailableUpdates, updates);
+
+            SelectedAvailableUpdate = AvailableUpdates
+                .FirstOrDefault(update => string.Equals(update.NewVersion, previousSelection, StringComparison.Ordinal))
+                ?? AvailableUpdates.FirstOrDefault();
+
+            AvailableUpdatesStatusMessage = AvailableUpdates.Count == 0
+                ? AppResources.UpdateVersions_NoneAvailable
+                : string.Empty;
+        }
+        finally
+        {
+            _isRefreshingAvailableUpdates = false;
+            OnPropertyChanged(nameof(CanApplySelectedUpdate));
+        }
+    }
+
+    internal async Task<UpdateApplyResult?> ApplySelectedUpdateAsync(CancellationToken cancellationToken = default)
+    {
+        if (SelectedAvailableUpdate is null)
+        {
+            return null;
+        }
+
+        ReplaceUpdateService(_updateServiceFactory(_draft));
+        _isApplyingSelectedUpdate = true;
+        OnPropertyChanged(nameof(CanApplySelectedUpdate));
+
+        try
+        {
+            return await _updateWorkflow.ApplyUpdateSafeAsync(SelectedAvailableUpdate, cancellationToken);
+        }
+        finally
+        {
+            _isApplyingSelectedUpdate = false;
+            OnPropertyChanged(nameof(CanApplySelectedUpdate));
+        }
+    }
+
+    internal void Dispose()
+    {
+        _ownedUpdateService?.Dispose();
+        _ownedUpdateService = null;
     }
 
     internal string CreateDiagnosticsText()
@@ -263,6 +360,16 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         RefreshThemeOptionsIfLanguageChanged(previousLanguage, _current.Language);
     }
 
+    private void ReplaceUpdateService(IAppUpdateService updateService)
+    {
+        ArgumentNullException.ThrowIfNull(updateService);
+
+        _ownedUpdateService?.Dispose();
+        _updateService = updateService;
+        _ownedUpdateService = updateService as IDisposable;
+        _updateWorkflow.SetUpdateService(updateService);
+    }
+
     private void RefreshThemeOptionsIfLanguageChanged(LanguageOption previousLanguage, LanguageOption nextLanguage)
     {
         if (previousLanguage != nextLanguage)
@@ -305,5 +412,20 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         }
 
         return 0;
+    }
+
+    private static void ReplaceCollection<T>(ObservableCollection<T> target, IEnumerable<T> values)
+    {
+        var snapshot = values.ToList();
+        if (target.SequenceEqual(snapshot))
+        {
+            return;
+        }
+
+        target.Clear();
+        foreach (var value in snapshot)
+        {
+            target.Add(value);
+        }
     }
 }

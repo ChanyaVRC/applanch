@@ -26,6 +26,36 @@ public class UpdateWorkflowTests
     }
 
     [Fact]
+    public async Task GetAvailableUpdatesSafeAsync_ReturnsUpdates_WhenServiceSucceeds()
+    {
+        var expected = new[]
+        {
+            new AppUpdateInfo("2.0.0", "1.0.0", new Uri("https://example.com/a.zip"), new Uri("https://example.com/r")),
+        };
+        var workflow = new UpdateWorkflow(new FakeAppUpdateService
+        {
+            AvailableUpdatesResult = expected,
+        });
+
+        var result = await workflow.GetAvailableUpdatesSafeAsync();
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public async Task GetAvailableUpdatesSafeAsync_ReturnsEmpty_WhenServiceThrows()
+    {
+        var workflow = new UpdateWorkflow(new FakeAppUpdateService
+        {
+            ThrowOnAvailableUpdates = true,
+        });
+
+        var result = await workflow.GetAvailableUpdatesSafeAsync();
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
     public async Task CheckForUpdateSafeAsync_ReturnsNull_WhenServiceThrows()
     {
         var workflow = new UpdateWorkflow(new FakeAppUpdateService
@@ -145,13 +175,25 @@ public class UpdateWorkflowTests
 
     private sealed class FakeAppUpdateService : IAppUpdateService
     {
+        internal IReadOnlyList<AppUpdateInfo> AvailableUpdatesResult { get; init; } = [];
         internal AppUpdateInfo? CheckResult { get; init; }
+        internal bool ThrowOnAvailableUpdates { get; init; }
         internal bool ThrowOnCheck { get; init; }
         internal bool ThrowOnApply { get; init; }
         internal bool ThrowCanceledOnCheck { get; init; }
         internal bool ThrowCanceledOnApply { get; init; }
         internal bool ThrowHttpOnApply { get; init; }
         internal bool ThrowIoOnApply { get; init; }
+
+        public Task<IReadOnlyList<AppUpdateInfo>> GetAvailableUpdatesAsync(System.Threading.CancellationToken cancellationToken = default)
+        {
+            if (ThrowOnAvailableUpdates)
+            {
+                throw new InvalidOperationException("available updates failed");
+            }
+
+            return Task.FromResult(AvailableUpdatesResult);
+        }
 
         public Task<AppUpdateInfo?> CheckForUpdateAsync(System.Threading.CancellationToken cancellationToken = default)
         {

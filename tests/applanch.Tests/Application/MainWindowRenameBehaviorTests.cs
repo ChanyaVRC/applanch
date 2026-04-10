@@ -162,6 +162,11 @@ public sealed class MainWindowRenameBehaviorTests
 
     private sealed class FakeUpdateService : IAppUpdateService
     {
+        public Task<IReadOnlyList<AppUpdateInfo>> GetAvailableUpdatesAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IReadOnlyList<AppUpdateInfo>>([]);
+        }
+
         public Task<AppUpdateInfo?> CheckForUpdateAsync(CancellationToken cancellationToken = default)
         {
             return Task.FromResult<AppUpdateInfo?>(null);

@@ -40,6 +40,66 @@ public class GitHubAppUpdateServiceTests
     }
 
     [Fact]
+    public async Task GetAvailableUpdatesAsync_ReturnsStableInstallableVersions_ExcludingCurrentVersion()
+    {
+        var rid = System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier;
+        var handler = new JsonHttpMessageHandler(JsonSerializer.Serialize(new[]
+        {
+            new
+            {
+                tag_name = "v2.0.0",
+                html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v2.0.0",
+                prerelease = false,
+                assets = new[]
+                {
+                    new
+                    {
+                        name = $"applanch-2.0.0-{rid}.zip",
+                        browser_download_url = $"https://github.com/ChanyaVRC/applanch/releases/download/v2.0.0/applanch-2.0.0-{rid}.zip",
+                    },
+                },
+            },
+            new
+            {
+                tag_name = "v1.5.0-beta.1",
+                html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v1.5.0-beta.1",
+                prerelease = true,
+                assets = new[]
+                {
+                    new
+                    {
+                        name = $"applanch-1.5.0-beta.1-{rid}.zip",
+                        browser_download_url = $"https://github.com/ChanyaVRC/applanch/releases/download/v1.5.0-beta.1/applanch-1.5.0-beta.1-{rid}.zip",
+                    },
+                },
+            },
+            new
+            {
+                tag_name = "v1.0.0",
+                html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v1.0.0",
+                prerelease = false,
+                assets = new[]
+                {
+                    new
+                    {
+                        name = $"applanch-1.0.0-{rid}.zip",
+                        browser_download_url = $"https://github.com/ChanyaVRC/applanch/releases/download/v1.0.0/applanch-1.0.0-{rid}.zip",
+                    },
+                },
+            },
+        }));
+        using var client = new HttpClient(handler);
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
+        var service = new GitHubAppUpdateService(client, "1.0.0");
+
+        var result = await service.GetAvailableUpdatesAsync();
+
+        Assert.Collection(
+            result,
+            update => Assert.Equal("2.0.0", update.NewVersion));
+    }
+
+    [Fact]
     public async Task CheckForUpdateAsync_ReturnsUpdate_WhenNewerVersionAvailable()
     {
         var rid = System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier;

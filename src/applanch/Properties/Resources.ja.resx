@@ -305,6 +305,18 @@
   <data name="Setting_UpdateInstallBehavior" xml:space="preserve">
     <value>アップデート検出時の動作</value>
   </data>
+  <data name="Setting_AvailableVersion" xml:space="preserve">
+    <value>インストールするバージョン</value>
+  </data>
+  <data name="Button_ApplySelectedVersion" xml:space="preserve">
+    <value>選択したバージョンをインストール</value>
+  </data>
+  <data name="UpdateVersions_Loading" xml:space="preserve">
+    <value>利用可能なバージョンを確認しています...</value>
+  </data>
+  <data name="UpdateVersions_NoneAvailable" xml:space="preserve">
+    <value>インストール可能なバージョンはありません。</value>
+  </data>
   <data name="UpdateInstallBehavior_NotifyOnly" xml:space="preserve">
     <value>通知のみ</value>
   </data>

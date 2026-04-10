@@ -20,6 +20,23 @@ internal sealed class UpdateWorkflow
         _updateService = updateService;
     }
 
+    internal async Task<IReadOnlyList<AppUpdateInfo>> GetAvailableUpdatesSafeAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await _updateService.GetAvailableUpdatesAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Instance.Error(ex, "Loading available updates failed");
+            return [];
+        }
+    }
+
     internal async Task<AppUpdateInfo?> CheckForUpdateSafeAsync(CancellationToken cancellationToken = default)
     {
         try

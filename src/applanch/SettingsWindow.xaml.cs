@@ -7,6 +7,7 @@ using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
+using applanch.Infrastructure.Updates;
 using applanch.Infrastructure.Utilities;
 using applanch.ViewModels;
 
@@ -21,7 +22,7 @@ public sealed partial class SettingsWindow : Window
     private readonly ContextMenuRegistrar _contextMenuRegistrar = new();
     private SettingsWindowViewModel ViewModel { get; }
 
-    internal SettingsWindow(Window owner, AppSettings settings, IUserInteractionService interactionService)
+    internal SettingsWindow(Window owner, AppSettings settings, IUserInteractionService interactionService, Func<AppSettings, IAppUpdateService>? updateServiceFactory = null)
     {
         InitializeComponent();
         Owner = owner;
@@ -29,7 +30,8 @@ public sealed partial class SettingsWindow : Window
         _interactionService = interactionService;
         ViewModel = new SettingsWindowViewModel(
             settings,
-            _appEvent);
+            _appEvent,
+            updateServiceFactory: updateServiceFactory);
         _appEvent.Register(AppEvents.Refresh, OnAppRefreshRequested);
         DataContext = ViewModel;
     }
@@ -37,6 +39,7 @@ public sealed partial class SettingsWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         _appEvent.Unregister(AppEvents.Refresh, OnAppRefreshRequested);
+        ViewModel.Dispose();
         base.OnClosed(e);
     }
 
@@ -44,6 +47,11 @@ public sealed partial class SettingsWindow : Window
     {
         WindowCaptionThemeHelper.Apply(this);
         WindowIconThemeHelper.Apply(this, Application.Current.Resources);
+    }
+
+    private async void Window_Loaded(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.RefreshAvailableUpdatesAsync();
     }
 
     private void ResetToDefaults_Click(object sender, RoutedEventArgs e) =>
@@ -88,6 +96,26 @@ public sealed partial class SettingsWindow : Window
                 LocalizedStrings.Instance[nameof(AppResources.Window_Settings)],
                 MessageBoxImage.Warning);
         }
+    }
+
+    private async void ApplySelectedVersion_Click(object sender, RoutedEventArgs e)
+    {
+        var result = await ViewModel.ApplySelectedUpdateAsync();
+        if (result is { IsSuccess: true })
+        {
+            Application.Current.Shutdown();
+            return;
+        }
+
+        if (result is not { } applyResult)
+        {
+            return;
+        }
+
+        _interactionService.Show(
+            string.Format(AppResources.UpdateFailed, applyResult.ErrorMessage),
+            LocalizedStrings.Instance[nameof(AppResources.Window_Settings)],
+            MessageBoxImage.Error);
     }
 
     private void TryStartProcess(ProcessStartInfo startInfo, string target, string errorMessage)

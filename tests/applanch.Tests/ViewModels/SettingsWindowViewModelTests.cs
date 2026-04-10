@@ -3,6 +3,7 @@ using System.Globalization;
 using applanch.Events;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
+using applanch.Infrastructure.Updates;
 using applanch.Tests.TestSupport;
 using applanch.ViewModels;
 
@@ -23,7 +24,8 @@ public class SettingsWindowViewModelTests
 
     private static SettingsWindowViewModel Make(
         AppSettings? settings = null,
-        Action<AppSettings>? onCommit = null)
+        Action<AppSettings>? onCommit = null,
+        Func<AppSettings, IAppUpdateService>? updateServiceFactory = null)
     {
         var appEvent = new AppEvent();
         if (onCommit is not null)
@@ -34,7 +36,8 @@ public class SettingsWindowViewModelTests
         return new SettingsWindowViewModel(
             settings ?? new AppSettings(),
             appEvent,
-            () => ThemeOptions);
+            () => ThemeOptions,
+            updateServiceFactory);
     }
 
     // ── Initial state ──────────────────────────────────────
@@ -73,6 +76,55 @@ public class SettingsWindowViewModelTests
         Assert.Equal(CategorySortMode.AsAdded, vm.SelectedCategorySortMode);
         Assert.True(vm.LaunchItemIconOnlyMode);
         Assert.False(vm.SettingsChanged);
+    }
+
+    [Fact]
+    public async Task RefreshAvailableUpdatesAsync_LoadsAvailableVersionsAndSelectsFirst()
+    {
+        var expected = new[]
+        {
+            new AppUpdateInfo("2.0.0", "1.0.0", new Uri("https://example.com/2.zip"), new Uri("https://example.com/r2")),
+            new AppUpdateInfo("1.5.0", "1.0.0", new Uri("https://example.com/15.zip"), new Uri("https://example.com/r15")),
+        };
+        var vm = Make(updateServiceFactory: _ => new FakeAppUpdateService { AvailableUpdates = expected });
+
+        await vm.RefreshAvailableUpdatesAsync();
+
+        Assert.Equal(expected, vm.AvailableUpdates);
+        Assert.Equal(expected[0], vm.SelectedAvailableUpdate);
+        Assert.Equal(string.Empty, vm.AvailableUpdatesStatusMessage);
+    }
+
+    [Fact]
+    public async Task RefreshAvailableUpdatesAsync_WhenNoneAvailable_SetsStatusMessage()
+    {
+        var vm = Make(updateServiceFactory: _ => new FakeAppUpdateService());
+
+        await vm.RefreshAvailableUpdatesAsync();
+
+        Assert.Empty(vm.AvailableUpdates);
+        Assert.Equal(AppResources.UpdateVersions_NoneAvailable, vm.AvailableUpdatesStatusMessage);
+        Assert.False(vm.CanApplySelectedUpdate);
+    }
+
+    [Fact]
+    public async Task ApplySelectedUpdateAsync_UsesSelectedAvailableUpdate()
+    {
+        var fakeService = new FakeAppUpdateService
+        {
+            AvailableUpdates =
+            [
+                new AppUpdateInfo("2.0.0", "1.0.0", new Uri("https://example.com/2.zip"), new Uri("https://example.com/r2")),
+            ],
+        };
+        var vm = Make(updateServiceFactory: _ => fakeService);
+        await vm.RefreshAvailableUpdatesAsync();
+
+        var result = await vm.ApplySelectedUpdateAsync();
+
+        Assert.NotNull(result);
+        Assert.True(result is { IsSuccess: true });
+        Assert.Equal("2.0.0", fakeService.LastAppliedUpdate!.NewVersion);
     }
 
     // ── ThemeIndex ─────────────────────────────────────────
@@ -467,5 +519,27 @@ public class SettingsWindowViewModelTests
 
         Assert.Equal(1, providerCallCount);
         Assert.Equal("システム", vm.ThemeOptions.First().DisplayName);
+    }
+
+    private sealed class FakeAppUpdateService : IAppUpdateService
+    {
+        internal IReadOnlyList<AppUpdateInfo> AvailableUpdates { get; init; } = [];
+        internal AppUpdateInfo? LastAppliedUpdate { get; private set; }
+
+        public Task<IReadOnlyList<AppUpdateInfo>> GetAvailableUpdatesAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(AvailableUpdates);
+        }
+
+        public Task<AppUpdateInfo?> CheckForUpdateAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<AppUpdateInfo?>(null);
+        }
+
+        public Task ApplyUpdateAsync(AppUpdateInfo update, CancellationToken cancellationToken = default)
+        {
+            LastAppliedUpdate = update;
+            return Task.CompletedTask;
+        }
     }
 }

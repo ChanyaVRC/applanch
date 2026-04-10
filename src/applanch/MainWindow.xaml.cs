@@ -293,7 +293,7 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        _settingsWindow = new SettingsWindow(this, _settings, _interactionService);
+        _settingsWindow = new SettingsWindow(this, _settings, _interactionService, _updateServiceFactory);
         _settingsWindow.Closed += OnSettingsWindowClosed;
         _settingsWindow.Show();
         EnsureSettingsWindowVisible(_settingsWindow);
