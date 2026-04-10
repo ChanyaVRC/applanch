@@ -399,7 +399,7 @@ public class GitHubAppUpdateServiceTests
     }
 
     [Fact]
-    public async Task GetAvailableUpdatesAsync_DoesNotRefetchAfterFailedMetadataFetch()
+    public async Task GetAvailableUpdatesAsync_RefetchesAfterFailedMetadataFetch()
     {
         var firstHandler = new CountingFailingHttpMessageHandler();
         using var firstClient = new HttpClient(firstHandler);
@@ -431,10 +431,11 @@ public class GitHubAppUpdateServiceTests
         secondClient.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
         var secondService = new GitHubAppUpdateService(secondClient, SemanticVersion.Parse("1.0.0"));
 
-        await Assert.ThrowsAsync<HttpRequestException>(() => secondService.GetAvailableUpdatesAsync());
+        var secondResult = await secondService.GetAvailableUpdatesAsync();
 
         Assert.True(firstHandler.CallCount > 0);
-        Assert.Equal(0, secondHandler.CallCount);
+        Assert.True(secondHandler.CallCount > 0);
+        Assert.Single(secondResult);
     }
 
     [Fact]

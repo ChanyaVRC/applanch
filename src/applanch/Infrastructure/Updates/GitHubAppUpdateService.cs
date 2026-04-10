@@ -169,15 +169,7 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService
 
     private async Task<IReadOnlyList<GitHubRelease>> FetchReleasesAsync(CancellationToken cancellationToken)
     {
-        if (CachedReleasesTask is null)
-        {
-            lock (ReleasesCacheLock)
-            {
-                CachedReleasesTask ??= FetchReleasesFromGitHubAsync(CancellationToken.None);
-            }
-        }
-
-        Task<IReadOnlyList<GitHubRelease>> fetchTask = CachedReleasesTask;
+        var fetchTask = GetOrCreateCachedReleasesTask();
         try
         {
             return await fetchTask.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -185,6 +177,36 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             throw;
+        }
+        catch
+        {
+            InvalidateReleasesCache(fetchTask);
+            throw;
+        }
+    }
+
+    private Task<IReadOnlyList<GitHubRelease>> GetOrCreateCachedReleasesTask()
+    {
+        if (CachedReleasesTask is not null)
+        {
+            return CachedReleasesTask;
+        }
+
+        lock (ReleasesCacheLock)
+        {
+            CachedReleasesTask ??= FetchReleasesFromGitHubAsync(CancellationToken.None);
+            return CachedReleasesTask;
+        }
+    }
+
+    private void InvalidateReleasesCache(Task<IReadOnlyList<GitHubRelease>> failedTask)
+    {
+        lock (ReleasesCacheLock)
+        {
+            if (ReferenceEquals(CachedReleasesTask, failedTask))
+            {
+                CachedReleasesTask = null;
+            }
         }
     }
 
