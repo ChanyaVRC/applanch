@@ -36,7 +36,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     {
         _appEvent = appEvent;
         _themeOptionsProvider = themeOptionsProvider ?? ThemeOptionsProvider.Load;
-        _updateServiceFactory = updateServiceFactory ?? (static settings => new GitHubAppUpdateService(settings.DebugUpdate));
+        _updateServiceFactory = updateServiceFactory ?? (static settings => new GitHubAppUpdateService(settings.DebugUpdate, settings.AllowPrereleaseUpdates));
         _themeOptionsMap = _themeOptionsProvider();
         _current = settings;
         _draft = settings;
@@ -117,6 +117,12 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     {
         get => _draft.UpdateInstallBehavior;
         set => UpdateDraft(_draft with { UpdateInstallBehavior = value });
+    }
+
+    public bool AllowPrereleaseUpdates
+    {
+        get => _draft.AllowPrereleaseUpdates;
+        set => UpdateDraft(_draft with { AllowPrereleaseUpdates = value });
     }
 
     public bool DebugUpdate
@@ -328,6 +334,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         builder.AppendLine($"Log folder: {AppLogger.LogDirectoryPath}");
         builder.AppendLine($"Update check on startup: {CheckForUpdatesOnStartup}");
         builder.AppendLine($"Update install behavior: {SelectedUpdateInstallBehavior}");
+        builder.AppendLine($"Allow prerelease updates: {AllowPrereleaseUpdates}");
         builder.AppendLine($"Debug update mode: {DebugUpdate}");
         return builder.ToString();
     }

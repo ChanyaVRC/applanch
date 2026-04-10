@@ -25,23 +25,30 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
     private readonly HttpClient _httpClient;
     private readonly string _currentVersion;
     private readonly bool _debugUpdate;
+    private readonly bool _allowPrereleaseUpdates;
 
     public GitHubAppUpdateService()
-        : this(AppSettings.Load().DebugUpdate)
+        : this(AppSettings.Load())
     {
     }
 
-    public GitHubAppUpdateService(bool debugUpdate)
-        : this(CreateDefaultHttpClient(), AppVersionProvider.GetDisplayVersion(), debugUpdate)
+    private GitHubAppUpdateService(AppSettings settings)
+        : this(settings.DebugUpdate, settings.AllowPrereleaseUpdates)
     {
     }
 
-    internal GitHubAppUpdateService(HttpClient httpClient, string currentVersion, bool debugUpdate = false)
+    public GitHubAppUpdateService(bool debugUpdate, bool allowPrereleaseUpdates = false)
+        : this(CreateDefaultHttpClient(), AppVersionProvider.GetDisplayVersion(), debugUpdate, allowPrereleaseUpdates)
+    {
+    }
+
+    internal GitHubAppUpdateService(HttpClient httpClient, string currentVersion, bool debugUpdate = false, bool allowPrereleaseUpdates = false)
     {
         _httpClient = httpClient;
         _currentVersion = currentVersion;
         _debugUpdate = debugUpdate;
-        AppLogger.Instance.Info($"Initialized: currentVersion={currentVersion}, debugUpdate={debugUpdate}");
+        _allowPrereleaseUpdates = allowPrereleaseUpdates;
+        AppLogger.Instance.Info($"Initialized: currentVersion={currentVersion}, debugUpdate={debugUpdate}, allowPrereleaseUpdates={allowPrereleaseUpdates}");
     }
 
     public async Task<IReadOnlyList<AppUpdateInfo>> GetAvailableUpdatesAsync(CancellationToken cancellationToken = default)
@@ -51,7 +58,7 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
 
         foreach (var release in releases)
         {
-            if (release.Prerelease ||
+            if (!ShouldIncludeRelease(release) ||
                 !TryCreateUpdateInfo(release, out var update) ||
                 string.Equals(update.NewVersion, _currentVersion, StringComparison.Ordinal))
             {
@@ -66,6 +73,29 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
 
     public async Task<AppUpdateInfo?> CheckForUpdateAsync(CancellationToken cancellationToken = default)
     {
+        if (_allowPrereleaseUpdates)
+        {
+            var releases = await FetchReleasesAsync(cancellationToken).ConfigureAwait(false);
+            foreach (var listedRelease in releases)
+            {
+                if (!ShouldIncludeRelease(listedRelease) || !TryCreateUpdateInfo(listedRelease, out var listedUpdate))
+                {
+                    continue;
+                }
+
+                if (!_debugUpdate && !IsNewer(listedUpdate.NewVersion, _currentVersion))
+                {
+                    continue;
+                }
+
+                AppLogger.Instance.Info($"Update available: {listedUpdate.NewVersion}, download URL: {listedUpdate.AssetDownloadUrl}");
+                return listedUpdate;
+            }
+
+            AppLogger.Instance.Info("No eligible update found in releases list");
+            return null;
+        }
+
         var log = AppLogger.Instance;
         var releaseUri = new Uri($"https://api.github.com/repos/{Owner}/{Repo}/releases/latest", UriKind.Absolute);
         log.Info($"Fetching latest release from {releaseUri}");
@@ -167,6 +197,9 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
 
     internal static bool IsNewer(string candidate, string current) =>
         SemanticVersion.Parse(candidate).CompareTo(SemanticVersion.Parse(current)) > 0;
+
+    private bool ShouldIncludeRelease(GitHubRelease release) =>
+        _allowPrereleaseUpdates || !release.Prerelease;
 
     private async Task<IReadOnlyList<GitHubRelease>> FetchReleasesAsync(CancellationToken cancellationToken)
     {

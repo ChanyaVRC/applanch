@@ -16,6 +16,7 @@ internal sealed record AppSettings
     public int QuickAddSuggestionLimit { get; init; } = DefaultQuickAddSuggestionLimit;
     public bool CheckForUpdatesOnStartup { get; init; } = true;
     public UpdateInstallBehavior UpdateInstallBehavior { get; init; } = UpdateInstallBehavior.Manual;
+    public bool AllowPrereleaseUpdates { get; init; } = false;
     public bool StartMinimizedOnLaunch { get; init; } = false;
     public bool LaunchAtWindowsStartup { get; init; } = false;
     public bool RegisterContextMenuOnStartup { get; init; } = true;

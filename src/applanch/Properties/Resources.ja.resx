@@ -302,6 +302,12 @@
   <data name="Setting_CheckForUpdatesDesc" xml:space="preserve">
     <value>無効にすると、起動時にアップデートの確認を行いません。</value>
   </data>
+  <data name="Setting_AllowPrereleaseUpdates" xml:space="preserve">
+    <value>プレリリース版への更新を許可する</value>
+  </data>
+  <data name="Setting_AllowPrereleaseUpdatesDesc" xml:space="preserve">
+    <value>有効にすると、アップデート確認とインストール可能なバージョンにプレリリース版を含めます。</value>
+  </data>
   <data name="Setting_UpdateInstallBehavior" xml:space="preserve">
     <value>アップデート検出時の動作</value>
   </data>

@@ -302,6 +302,12 @@
   <data name="Setting_CheckForUpdatesDesc" xml:space="preserve">
     <value>When disabled, Applanch won't check for updates on startup.</value>
   </data>
+  <data name="Setting_AllowPrereleaseUpdates" xml:space="preserve">
+    <value>Allow prerelease updates</value>
+  </data>
+  <data name="Setting_AllowPrereleaseUpdatesDesc" xml:space="preserve">
+    <value>When enabled, prerelease builds are included in update checks and installable versions.</value>
+  </data>
   <data name="Setting_UpdateInstallBehavior" xml:space="preserve">
     <value>When an update is found</value>
   </data>

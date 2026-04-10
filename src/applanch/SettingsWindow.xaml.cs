@@ -54,6 +54,11 @@ public sealed partial class SettingsWindow : Window
         await ViewModel.RefreshAvailableUpdatesAsync();
     }
 
+    private async void AllowPrereleaseUpdates_Click(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.RefreshAvailableUpdatesAsync();
+    }
+
     private void ResetToDefaults_Click(object sender, RoutedEventArgs e) =>
         ViewModel.ResetToDefaults();
 

@@ -52,6 +52,7 @@ public class SettingsWindowViewModelTests
             PostLaunchBehavior = PostLaunchBehavior.KeepOpen,
             CheckForUpdatesOnStartup = false,
             UpdateInstallBehavior = UpdateInstallBehavior.NotifyOnly,
+            AllowPrereleaseUpdates = true,
             DebugUpdate = true,
             RegisterContextMenuOnStartup = false,
             FetchHttpIcons = false,
@@ -68,6 +69,7 @@ public class SettingsWindowViewModelTests
         Assert.Equal(PostLaunchBehavior.KeepOpen, vm.SelectedPostLaunchBehavior);
         Assert.False(vm.CheckForUpdatesOnStartup);
         Assert.Equal(UpdateInstallBehavior.NotifyOnly, vm.SelectedUpdateInstallBehavior);
+        Assert.True(vm.AllowPrereleaseUpdates);
         Assert.True(vm.DebugUpdate);
         Assert.False(vm.RegisterContextMenuOnStartup);
         Assert.False(vm.FetchHttpIcons);
@@ -252,6 +254,17 @@ public class SettingsWindowViewModelTests
     }
 
     [Fact]
+    public void AllowPrereleaseUpdates_Change_UpdatesSavedSettings()
+    {
+        AppSettings? committed = null;
+        var vm = Make(onCommit: s => committed = s);
+
+        vm.AllowPrereleaseUpdates = true;
+
+        Assert.True(committed!.AllowPrereleaseUpdates);
+    }
+
+    [Fact]
     public void SelectedLanguage_Change_UpdatesThemeOptionDisplayNamesWithoutReloadingProvider()
     {
         var appEvent = new AppEvent();
@@ -392,6 +405,7 @@ public class SettingsWindowViewModelTests
             PostLaunchBehavior = PostLaunchBehavior.KeepOpen,
             CheckForUpdatesOnStartup = false,
             UpdateInstallBehavior = UpdateInstallBehavior.NotifyOnly,
+            AllowPrereleaseUpdates = true,
             DebugUpdate = true,
             StartMinimizedOnLaunch = true,
             LaunchAtWindowsStartup = true,
@@ -415,6 +429,7 @@ public class SettingsWindowViewModelTests
         Assert.Equal(PostLaunchBehavior.CloseApp, vm.SelectedPostLaunchBehavior);
         Assert.Equal(defaults.CheckForUpdatesOnStartup, vm.CheckForUpdatesOnStartup);
         Assert.Equal(defaults.UpdateInstallBehavior, vm.SelectedUpdateInstallBehavior);
+        Assert.Equal(defaults.AllowPrereleaseUpdates, vm.AllowPrereleaseUpdates);
         Assert.Equal(defaults.DebugUpdate, vm.DebugUpdate);
         Assert.Equal(defaults.StartMinimizedOnLaunch, vm.StartMinimizedOnLaunch);
         Assert.Equal(defaults.LaunchAtWindowsStartup, vm.LaunchAtWindowsStartup);
@@ -457,6 +472,7 @@ public class SettingsWindowViewModelTests
             ThemeId = ThemePaletteConfigurationLoader.DarkThemeId,
             PostLaunchBehavior = PostLaunchBehavior.MinimizeWindow,
             CheckForUpdatesOnStartup = false,
+            AllowPrereleaseUpdates = true,
             RegisterContextMenuOnStartup = false,
             FetchHttpIcons = false,
             AllowPrivateNetworkHttpIconRequests = true,
@@ -468,6 +484,7 @@ public class SettingsWindowViewModelTests
         Assert.Equal(2, vm.ThemeIndex);
         Assert.Equal(PostLaunchBehavior.MinimizeWindow, vm.SelectedPostLaunchBehavior);
         Assert.False(vm.CheckForUpdatesOnStartup);
+        Assert.True(vm.AllowPrereleaseUpdates);
         Assert.False(vm.RegisterContextMenuOnStartup);
         Assert.False(vm.FetchHttpIcons);
         Assert.True(vm.AllowPrivateNetworkHttpIconRequests);

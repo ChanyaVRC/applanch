@@ -72,6 +72,14 @@ public class AppSettingsTests
     }
 
     [Fact]
+    public void Defaults_DisallowPrereleaseUpdates()
+    {
+        var settings = new AppSettings();
+
+        Assert.False(settings.AllowPrereleaseUpdates);
+    }
+
+    [Fact]
     public void Defaults_UseFiftyQuickAddSuggestions()
     {
         var settings = new AppSettings();
@@ -133,6 +141,16 @@ public class AppSettingsTests
         var normalized = AppSettings.Normalize(settings);
 
         Assert.False(normalized.CategorySidebarPinned);
+    }
+
+    [Fact]
+    public void Normalize_PreservesAllowPrereleaseUpdates()
+    {
+        var settings = new AppSettings { AllowPrereleaseUpdates = true };
+
+        var normalized = AppSettings.Normalize(settings);
+
+        Assert.True(normalized.AllowPrereleaseUpdates);
     }
 
 }

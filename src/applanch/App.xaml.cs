@@ -201,7 +201,7 @@ public sealed partial class App : Application
 
     private static Func<AppSettings, IAppUpdateService> CreateUpdateServiceFactory()
     {
-        return static settings => new GitHubAppUpdateService(settings.DebugUpdate);
+        return static settings => new GitHubAppUpdateService(settings.DebugUpdate, settings.AllowPrereleaseUpdates);
     }
 
     private static void ApplyLanguage(LanguageOption language)
