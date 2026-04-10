@@ -761,7 +761,7 @@ public sealed partial class MainWindow : Window
         var newIndex = _dragDropResolver.GetDropIndex(listBox, ViewModel.LaunchItems, oldIndex, listPosition, ViewModel.IsLaunchItemIconOnlyMode);
         if (newIndex >= 0 && newIndex != oldIndex && _dragReorderState.LastDragPreviewIndex != newIndex)
         {
-            var previousPositions = CaptureItemTopPositions(listBox);
+            var previousPositions = CaptureItemPositions(listBox);
             ViewModel.PreviewMoveItem(oldIndex, newIndex);
             AnimateReorderTransition(listBox, previousPositions);
             _dragReorderState.LastDragPreviewIndex = newIndex;
@@ -776,9 +776,9 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    private Dictionary<LaunchItemViewModel, double> CaptureItemTopPositions(ListBox listBox)
+    private Dictionary<LaunchItemViewModel, Point> CaptureItemPositions(ListBox listBox)
     {
-        var positions = new Dictionary<LaunchItemViewModel, double>();
+        var positions = new Dictionary<LaunchItemViewModel, Point>();
 
         foreach (var item in ViewModel.LaunchItems)
         {
@@ -787,44 +787,67 @@ public sealed partial class MainWindow : Window
                 continue;
             }
 
-            positions[item] = container.TranslatePoint(new Point(0, 0), listBox).Y;
+            positions[item] = container.TranslatePoint(new Point(0, 0), listBox);
         }
 
         return positions;
     }
 
-    private void AnimateReorderTransition(ListBox listBox, IReadOnlyDictionary<LaunchItemViewModel, double> previousPositions)
+    private void AnimateReorderTransition(ListBox listBox, IReadOnlyDictionary<LaunchItemViewModel, Point> previousPositions)
     {
         Dispatcher.BeginInvoke(() =>
         {
-            foreach (var (item, previousTop) in previousPositions)
+            foreach (var (item, previousPosition) in previousPositions)
             {
                 if (listBox.ItemContainerGenerator.ContainerFromItem(item) is not ListBoxItem container)
                 {
                     continue;
                 }
 
-                var currentTop = container.TranslatePoint(new Point(0, 0), listBox).Y;
-                var delta = previousTop - currentTop;
-                if (Math.Abs(delta) < 0.5)
+                var currentPosition = container.TranslatePoint(new Point(0, 0), listBox);
+                var deltaX = previousPosition.X - currentPosition.X;
+                var deltaY = previousPosition.Y - currentPosition.Y;
+                if (!HasSignificantReorderDelta(deltaX, deltaY))
                 {
                     continue;
                 }
 
                 var translate = EnsureTranslateTransform(container);
+                translate.BeginAnimation(TranslateTransform.XProperty, null);
                 translate.BeginAnimation(TranslateTransform.YProperty, null);
 
-                var anim = new DoubleAnimation
+                if (Math.Abs(deltaX) >= 0.5)
                 {
-                    From = delta,
-                    To = 0,
-                    Duration = TimeSpan.FromMilliseconds(170),
-                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
-                };
+                    var animX = new DoubleAnimation
+                    {
+                        From = deltaX,
+                        To = 0,
+                        Duration = TimeSpan.FromMilliseconds(170),
+                        EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                    };
 
-                translate.BeginAnimation(TranslateTransform.YProperty, anim, HandoffBehavior.SnapshotAndReplace);
+                    translate.BeginAnimation(TranslateTransform.XProperty, animX, HandoffBehavior.SnapshotAndReplace);
+                }
+
+                if (Math.Abs(deltaY) >= 0.5)
+                {
+                    var animY = new DoubleAnimation
+                    {
+                        From = deltaY,
+                        To = 0,
+                        Duration = TimeSpan.FromMilliseconds(170),
+                        EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                    };
+
+                    translate.BeginAnimation(TranslateTransform.YProperty, animY, HandoffBehavior.SnapshotAndReplace);
+                }
             }
         }, DispatcherPriority.Loaded);
+    }
+
+    internal static bool HasSignificantReorderDelta(double deltaX, double deltaY)
+    {
+        return Math.Abs(deltaX) >= 0.5 || Math.Abs(deltaY) >= 0.5;
     }
 
     // ── Static utilities ────────────────────────────────────

@@ -9,6 +9,30 @@ namespace applanch.Tests.Application;
 public class MainWindowTransformTests
 {
     [Fact]
+    public void HasSignificantReorderDelta_WhenOnlyHorizontalDeltaIsLarge_ReturnsTrue()
+    {
+        var result = MainWindow.HasSignificantReorderDelta(deltaX: 1.0, deltaY: 0.1);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void HasSignificantReorderDelta_WhenOnlyVerticalDeltaIsLarge_ReturnsTrue()
+    {
+        var result = MainWindow.HasSignificantReorderDelta(deltaX: 0.1, deltaY: 1.0);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void HasSignificantReorderDelta_WhenBothDeltasAreSmall_ReturnsFalse()
+    {
+        var result = MainWindow.HasSignificantReorderDelta(deltaX: 0.2, deltaY: 0.4);
+
+        Assert.False(result);
+    }
+
+    [Fact]
     public void EnsureTranslateTransform_WhenRenderTransformIsIdentity_WrapsAndAppendsTranslate()
     {
         WpfTestHost.RunInSta(() =>
