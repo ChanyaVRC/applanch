@@ -4,6 +4,25 @@ Notable user-facing changes per version. For full commit history and downloadabl
 
 ---
 
+## v0.6.0-rc.1 — April 11, 2026
+
+Release Candidate for the next applanch version.
+
+### New
+
+- **Prerelease update opt-in** — Added a setting to opt in to prerelease update channels.
+- **Selectable update targets** — Improved update UX so users can choose from available update versions in Settings.
+
+### Improved
+
+- **Prerelease visibility in UI** — Added clearer prerelease labeling in the main window and refined prerelease badge styling, including better theme awareness.
+- **Update metadata fetch workflow** — Simplified release metadata fetch flow and cache behavior to reduce unnecessary refetching after failures.
+- **Update HTTP client lifecycle** — Refined shared `HttpClient` usage and initialization behavior for update operations.
+
+### Notes
+
+- This is an `-rc` prerelease build intended for validation before stable release.
+
 ## v0.5.7 — April 9, 2026
 
 ### Fixed
