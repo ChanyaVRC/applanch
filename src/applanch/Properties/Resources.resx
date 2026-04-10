@@ -347,6 +347,9 @@
   <data name="Button_OpenLogFolder" xml:space="preserve">
     <value>Open log folder</value>
   </data>
+  <data name="VersionBadge_Prerelease" xml:space="preserve">
+    <value>PRERELEASE</value>
+  </data>
 
   <!-- Prompt dialog -->
   <data name="Button_Cancel" xml:space="preserve">

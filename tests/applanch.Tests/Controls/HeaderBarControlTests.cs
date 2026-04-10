@@ -85,6 +85,40 @@ public class HeaderBarControlTests
         });
     }
 
+    [Fact]
+    public void AppVersionTextProperty_ShowsPrereleaseBadge_ForPrereleaseVersion()
+    {
+        WpfTestHost.RunInSta(() =>
+        {
+            var control = new HeaderBarControl();
+            var prereleaseBadge = Assert.IsType<Border>(control.FindName("PrereleaseBadge"));
+
+            control.AppVersionText = "v2.0.0-beta.1";
+            WpfTestHost.DoEvents();
+
+            Assert.True(control.IsPrereleaseVersion);
+            Assert.Equal(Visibility.Visible, prereleaseBadge.Visibility);
+        });
+    }
+
+    [Fact]
+    public void AppVersionTextProperty_HidesPrereleaseBadge_ForStableVersion()
+    {
+        WpfTestHost.RunInSta(() =>
+        {
+            var control = new HeaderBarControl();
+            var prereleaseBadge = Assert.IsType<Border>(control.FindName("PrereleaseBadge"));
+
+            control.AppVersionText = "v2.0.0-beta.1";
+            WpfTestHost.DoEvents();
+            control.AppVersionText = "v2.0.0";
+            WpfTestHost.DoEvents();
+
+            Assert.False(control.IsPrereleaseVersion);
+            Assert.Equal(Visibility.Collapsed, prereleaseBadge.Visibility);
+        });
+    }
+
     private static void InvokePrivateClick(HeaderBarControl control, string methodName)
     {
         var method = typeof(HeaderBarControl).GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
