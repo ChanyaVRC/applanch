@@ -5,7 +5,7 @@
              xmlns:local="clr-namespace:applanch"
              x:Name="Root">
     <UserControl.Resources>
-                <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
         <Style x:Key="HeaderFlatHoverTextButtonStyle"
                TargetType="Button">
@@ -73,7 +73,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
-                                                                                                <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Applanch"
                                FontSize="22"
@@ -91,15 +91,15 @@
                             Margin="10,0,0,2"
                             Padding="7,2"
                             VerticalAlignment="Bottom"
-                            Background="#FDE7C7"
-                            BorderBrush="#D98324"
+                            Background="{DynamicResource Brush.Surface}"
+                            BorderBrush="{DynamicResource Brush.SurfaceBorder}"
                             BorderThickness="1"
                             CornerRadius="0"
                             Visibility="{Binding IsPrereleaseVersion, ElementName=Root, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <TextBlock Text="PRERELEASE"
                                    FontSize="10"
                                    FontWeight="SemiBold"
-                                   Foreground="#8A4B08"/>
+                                   Foreground="{DynamicResource Brush.TextSecondary}"/>
                     </Border>
                 </Grid>
                 <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Subtitle]}"
