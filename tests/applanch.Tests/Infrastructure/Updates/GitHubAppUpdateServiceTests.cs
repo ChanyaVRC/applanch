@@ -9,6 +9,11 @@ namespace applanch.Tests.Infrastructure.Updates;
 
 public class GitHubAppUpdateServiceTests
 {
+    public GitHubAppUpdateServiceTests()
+    {
+        GitHubAppUpdateService.ClearReleasesCache();
+    }
+
     [Theory]
     [InlineData("1.0.1", "1.0.0", true)]
     [InlineData("2.0.0", "1.9.9", true)]
@@ -24,11 +29,15 @@ public class GitHubAppUpdateServiceTests
     [Fact]
     public async Task CheckForUpdateAsync_ReturnsNull_WhenCurrentIsLatest()
     {
-        var handler = new JsonHttpMessageHandler(JsonSerializer.Serialize(new
+        var handler = new JsonHttpMessageHandler(JsonSerializer.Serialize(new[]
         {
-            tag_name = "v1.0.0",
-            html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v1.0.0",
-            assets = Array.Empty<object>(),
+            new
+            {
+                tag_name = "v1.0.0",
+                html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v1.0.0",
+                prerelease = false,
+                assets = Array.Empty<object>(),
+            },
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
@@ -135,16 +144,20 @@ public class GitHubAppUpdateServiceTests
     public async Task CheckForUpdateAsync_ReturnsUpdate_WhenNewerVersionAvailable()
     {
         var rid = System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier;
-        var handler = new JsonHttpMessageHandler(JsonSerializer.Serialize(new
+        var handler = new JsonHttpMessageHandler(JsonSerializer.Serialize(new[]
         {
-            tag_name = "v2.0.0",
-            html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v2.0.0",
-            assets = new[]
+            new
             {
-                new
+                tag_name = "v2.0.0",
+                html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v2.0.0",
+                prerelease = false,
+                assets = new[]
                 {
-                    name = $"applanch-2.0.0-{rid}.zip",
-                    browser_download_url = $"https://github.com/ChanyaVRC/applanch/releases/download/v2.0.0/applanch-2.0.0-{rid}.zip",
+                    new
+                    {
+                        name = $"applanch-2.0.0-{rid}.zip",
+                        browser_download_url = $"https://github.com/ChanyaVRC/applanch/releases/download/v2.0.0/applanch-2.0.0-{rid}.zip",
+                    },
                 },
             },
         }));
@@ -163,16 +176,20 @@ public class GitHubAppUpdateServiceTests
     [Fact]
     public async Task CheckForUpdateAsync_ReturnsNull_WhenNoMatchingAsset()
     {
-        var handler = new JsonHttpMessageHandler(JsonSerializer.Serialize(new
+        var handler = new JsonHttpMessageHandler(JsonSerializer.Serialize(new[]
         {
-            tag_name = "v2.0.0",
-            html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v2.0.0",
-            assets = new[]
+            new
             {
-                new
+                tag_name = "v2.0.0",
+                html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v2.0.0",
+                prerelease = false,
+                assets = new[]
                 {
-                    name = "applanch-2.0.0-linux-x64.zip",
-                    browser_download_url = "https://example.com/download",
+                    new
+                    {
+                        name = "applanch-2.0.0-linux-x64.zip",
+                        browser_download_url = "https://example.com/download",
+                    },
                 },
             },
         }));
@@ -189,16 +206,20 @@ public class GitHubAppUpdateServiceTests
     public async Task CheckForUpdateAsync_ReturnsUpdate_WhenDebugUpdateEnabled_EvenIfSameVersion()
     {
         var rid = System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier;
-        var handler = new JsonHttpMessageHandler(JsonSerializer.Serialize(new
+        var handler = new JsonHttpMessageHandler(JsonSerializer.Serialize(new[]
         {
-            tag_name = "v1.0.0",
-            html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v1.0.0",
-            assets = new[]
+            new
             {
-                new
+                tag_name = "v1.0.0",
+                html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v1.0.0",
+                prerelease = false,
+                assets = new[]
                 {
-                    name = $"applanch-1.0.0-{rid}.zip",
-                    browser_download_url = $"https://github.com/ChanyaVRC/applanch/releases/download/v1.0.0/applanch-1.0.0-{rid}.zip",
+                    new
+                    {
+                        name = $"applanch-1.0.0-{rid}.zip",
+                        browser_download_url = $"https://github.com/ChanyaVRC/applanch/releases/download/v1.0.0/applanch-1.0.0-{rid}.zip",
+                    },
                 },
             },
         }));
@@ -261,16 +282,20 @@ public class GitHubAppUpdateServiceTests
     public async Task CheckForUpdateAsync_RetriesTransientRequestFailure()
     {
         var rid = System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier;
-        var json = JsonSerializer.Serialize(new
+        var json = JsonSerializer.Serialize(new[]
         {
-            tag_name = "v2.0.0",
-            html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v2.0.0",
-            assets = new[]
+            new
             {
-                new
+                tag_name = "v2.0.0",
+                html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v2.0.0",
+                prerelease = false,
+                assets = new[]
                 {
-                    name = $"applanch-2.0.0-{rid}.zip",
-                    browser_download_url = $"https://github.com/ChanyaVRC/applanch/releases/download/v2.0.0/applanch-2.0.0-{rid}.zip",
+                    new
+                    {
+                        name = $"applanch-2.0.0-{rid}.zip",
+                        browser_download_url = $"https://github.com/ChanyaVRC/applanch/releases/download/v2.0.0/applanch-2.0.0-{rid}.zip",
+                    },
                 },
             },
         });
@@ -283,6 +308,133 @@ public class GitHubAppUpdateServiceTests
 
         Assert.NotNull(result);
         Assert.Equal(SemanticVersion.Parse("2.0.0"), result.NewVersion);
+    }
+
+    [Fact]
+    public async Task CheckForUpdateAsync_IgnoresPrerelease_WhenPrereleaseUpdatesAreDisabled()
+    {
+        var rid = System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier;
+        var handler = new JsonHttpMessageHandler(JsonSerializer.Serialize(new[]
+        {
+            new
+            {
+                tag_name = "v2.0.0-beta.1",
+                html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v2.0.0-beta.1",
+                prerelease = true,
+                assets = new[]
+                {
+                    new
+                    {
+                        name = $"applanch-2.0.0-beta.1-{rid}.zip",
+                        browser_download_url = $"https://github.com/ChanyaVRC/applanch/releases/download/v2.0.0-beta.1/applanch-2.0.0-beta.1-{rid}.zip",
+                    },
+                },
+            },
+            new
+            {
+                tag_name = "v1.9.0",
+                html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v1.9.0",
+                prerelease = false,
+                assets = new[]
+                {
+                    new
+                    {
+                        name = $"applanch-1.9.0-{rid}.zip",
+                        browser_download_url = $"https://github.com/ChanyaVRC/applanch/releases/download/v1.9.0/applanch-1.9.0-{rid}.zip",
+                    },
+                },
+            },
+        }));
+        using var client = new HttpClient(handler);
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), allowPrereleaseUpdates: false);
+
+        var result = await service.CheckForUpdateAsync();
+
+        Assert.NotNull(result);
+        Assert.Equal(SemanticVersion.Parse("1.9.0"), result.NewVersion);
+    }
+
+    [Fact]
+    public async Task GetAvailableUpdatesAsync_ReusesFetchedReleaseMetadata_DuringProcessLifetime()
+    {
+        var rid = System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier;
+        var firstResponse = JsonSerializer.Serialize(new[]
+        {
+            new
+            {
+                tag_name = "v2.0.0",
+                html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v2.0.0",
+                prerelease = false,
+                assets = new[]
+                {
+                    new
+                    {
+                        name = $"applanch-2.0.0-{rid}.zip",
+                        browser_download_url = $"https://github.com/ChanyaVRC/applanch/releases/download/v2.0.0/applanch-2.0.0-{rid}.zip",
+                    },
+                },
+            },
+        });
+        var secondResponse = JsonSerializer.Serialize(Array.Empty<object>());
+
+        var firstHandler = new CountingJsonHttpMessageHandler(firstResponse);
+        using var firstClient = new HttpClient(firstHandler);
+        firstClient.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
+        var firstService = new GitHubAppUpdateService(firstClient, SemanticVersion.Parse("1.0.0"));
+
+        var firstResult = await firstService.GetAvailableUpdatesAsync();
+
+        var secondHandler = new CountingJsonHttpMessageHandler(secondResponse);
+        using var secondClient = new HttpClient(secondHandler);
+        secondClient.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
+        var secondService = new GitHubAppUpdateService(secondClient, SemanticVersion.Parse("1.0.0"));
+
+        var secondResult = await secondService.GetAvailableUpdatesAsync();
+
+        Assert.Single(firstResult);
+        Assert.Single(secondResult);
+        Assert.True(firstHandler.CallCount > 0);
+        Assert.Equal(0, secondHandler.CallCount);
+    }
+
+    [Fact]
+    public async Task GetAvailableUpdatesAsync_DoesNotRefetchAfterFailedMetadataFetch()
+    {
+        var firstHandler = new CountingFailingHttpMessageHandler();
+        using var firstClient = new HttpClient(firstHandler);
+        firstClient.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
+        var firstService = new GitHubAppUpdateService(firstClient, SemanticVersion.Parse("1.0.0"));
+
+        await Assert.ThrowsAsync<HttpRequestException>(() => firstService.GetAvailableUpdatesAsync());
+
+        var rid = System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier;
+        var secondResponse = JsonSerializer.Serialize(new[]
+        {
+            new
+            {
+                tag_name = "v2.0.0",
+                html_url = "https://github.com/ChanyaVRC/applanch/releases/tag/v2.0.0",
+                prerelease = false,
+                assets = new[]
+                {
+                    new
+                    {
+                        name = $"applanch-2.0.0-{rid}.zip",
+                        browser_download_url = $"https://github.com/ChanyaVRC/applanch/releases/download/v2.0.0/applanch-2.0.0-{rid}.zip",
+                    },
+                },
+            },
+        });
+        var secondHandler = new CountingJsonHttpMessageHandler(secondResponse);
+        using var secondClient = new HttpClient(secondHandler);
+        secondClient.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
+        var secondService = new GitHubAppUpdateService(secondClient, SemanticVersion.Parse("1.0.0"));
+
+        await Assert.ThrowsAsync<HttpRequestException>(() => secondService.GetAvailableUpdatesAsync());
+
+        Assert.True(firstHandler.CallCount > 0);
+        Assert.Equal(0, secondHandler.CallCount);
     }
 
     [Fact]
@@ -372,6 +524,33 @@ public class GitHubAppUpdateServiceTests
             };
 
             return Task.FromResult(response);
+        }
+    }
+
+    private sealed class CountingJsonHttpMessageHandler(string responseJson) : HttpMessageHandler
+    {
+        public int CallCount { get; private set; }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            CallCount++;
+            var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseJson, System.Text.Encoding.UTF8, "application/json"),
+            };
+
+            return Task.FromResult(response);
+        }
+    }
+
+    private sealed class CountingFailingHttpMessageHandler : HttpMessageHandler
+    {
+        public int CallCount { get; private set; }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            CallCount++;
+            throw new HttpRequestException("forced failure");
         }
     }
 

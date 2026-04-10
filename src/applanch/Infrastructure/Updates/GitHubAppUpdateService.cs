@@ -21,6 +21,8 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
     };
+    private static readonly Lock ReleasesCacheLock = new();
+    private static Task<IReadOnlyList<GitHubRelease>>? CachedReleasesTask;
 
     private readonly HttpClient _httpClient;
     private readonly SemanticVersion _currentVersion;
@@ -73,60 +75,25 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
 
     public async Task<AppUpdateInfo?> CheckForUpdateAsync(CancellationToken cancellationToken = default)
     {
-        if (_allowPrereleaseUpdates)
+        var releases = await FetchReleasesAsync(cancellationToken).ConfigureAwait(false);
+        foreach (var listedRelease in releases)
         {
-            var releases = await FetchReleasesAsync(cancellationToken).ConfigureAwait(false);
-            foreach (var listedRelease in releases)
+            if (!ShouldIncludeRelease(listedRelease) || !TryCreateUpdateInfo(listedRelease, out var listedUpdate))
             {
-                if (!ShouldIncludeRelease(listedRelease) || !TryCreateUpdateInfo(listedRelease, out var listedUpdate))
-                {
-                    continue;
-                }
-
-                if (!_debugUpdate && listedUpdate.NewVersion.CompareTo(_currentVersion) <= 0)
-                {
-                    continue;
-                }
-
-                AppLogger.Instance.Info($"Update available: {listedUpdate.NewVersion}, download URL: {listedUpdate.AssetDownloadUrl}");
-                return listedUpdate;
+                continue;
             }
 
-            AppLogger.Instance.Info("No eligible update found in releases list");
-            return null;
+            if (!_debugUpdate && listedUpdate.NewVersion.CompareTo(_currentVersion) <= 0)
+            {
+                continue;
+            }
+
+            AppLogger.Instance.Info($"Update available: {listedUpdate.NewVersion}, download URL: {listedUpdate.AssetDownloadUrl}");
+            return listedUpdate;
         }
 
-        var log = AppLogger.Instance;
-        var releaseUri = new Uri($"https://api.github.com/repos/{Owner}/{Repo}/releases/latest", UriKind.Absolute);
-        log.Info($"Fetching latest release from {releaseUri}");
-        using var response = await SendWithRetryAsync(static (client, requestUrl, ct) =>
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-            request.Headers.Accept.ParseAdd("application/vnd.github+json");
-            return client.SendAsync(request, ct);
-        }, releaseUri, RetryOperation.UpdateMetadata, cancellationToken).ConfigureAwait(false);
-        log.Info($"API response: {(int)response.StatusCode} {response.StatusCode}");
-        response.EnsureSuccessStatusCode();
-        var release = await response.Content.ReadFromJsonAsync<GitHubRelease>(JsonOptions, cancellationToken).ConfigureAwait(false);
-        if (release is null)
-        {
-            log.Info("Release deserialized as null");
-            return null;
-        }
-
-        if (!TryCreateUpdateInfo(release, out var update))
-        {
-            return null;
-        }
-
-        if (!_debugUpdate && update.NewVersion.CompareTo(_currentVersion) <= 0)
-        {
-            log.Info($"No update needed: {update.NewVersion} is not newer than {_currentVersion}");
-            return null;
-        }
-
-        log.Info($"Update available: {update.NewVersion}, download URL: {update.AssetDownloadUrl}");
-        return update;
+        AppLogger.Instance.Info("No eligible update found in releases list");
+        return null;
     }
 
     public async Task ApplyUpdateAsync(AppUpdateInfo update, CancellationToken cancellationToken = default)
@@ -202,6 +169,35 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService, IDisposable
         _allowPrereleaseUpdates || !release.Prerelease;
 
     private async Task<IReadOnlyList<GitHubRelease>> FetchReleasesAsync(CancellationToken cancellationToken)
+    {
+        if (CachedReleasesTask is null)
+        {
+            lock (ReleasesCacheLock)
+            {
+                CachedReleasesTask ??= FetchReleasesFromGitHubAsync(CancellationToken.None);
+            }
+        }
+
+        Task<IReadOnlyList<GitHubRelease>> fetchTask = CachedReleasesTask;
+        try
+        {
+            return await fetchTask.WaitAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+    }
+
+    internal static void ClearReleasesCache()
+    {
+        lock (ReleasesCacheLock)
+        {
+            CachedReleasesTask = null;
+        }
+    }
+
+    private async Task<IReadOnlyList<GitHubRelease>> FetchReleasesFromGitHubAsync(CancellationToken cancellationToken)
     {
         var releasesUri = new Uri($"https://api.github.com/repos/{Owner}/{Repo}/releases", UriKind.Absolute);
         AppLogger.Instance.Info($"Fetching releases from {releasesUri}");
