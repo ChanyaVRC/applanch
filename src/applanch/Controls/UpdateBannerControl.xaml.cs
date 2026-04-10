@@ -36,6 +36,19 @@ public sealed partial class UpdateBannerControl : UserControl
         set => SetValue(UpdateActionButtonVisibilityProperty, value);
     }
 
+    public static readonly DependencyProperty IsUpdateActionButtonEnabledProperty =
+        DependencyProperty.Register(
+            nameof(IsUpdateActionButtonEnabled),
+            typeof(bool),
+            typeof(UpdateBannerControl),
+            new PropertyMetadata(true));
+
+    public bool IsUpdateActionButtonEnabled
+    {
+        get => (bool)GetValue(IsUpdateActionButtonEnabledProperty);
+        set => SetValue(IsUpdateActionButtonEnabledProperty, value);
+    }
+
     public event RoutedEventHandler? UpdateRequested;
 
     public event RoutedEventHandler? DismissRequested;

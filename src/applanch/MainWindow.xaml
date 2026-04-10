@@ -714,6 +714,7 @@
 
         <controls:HeaderBarControl Grid.Row="0"
                                    UpdateButtonVisibility="{Binding UpdateBanner.HeaderButtonVisibility}"
+                                   IsUpdateButtonEnabled="{Binding UpdateBanner.AreUpdateActionsEnabled}"
                                    UpdateRequested="UpdateButton_Click"
                                    SettingsRequested="SettingsButton_Click"/>
 
@@ -722,6 +723,7 @@
                                       Message="{Binding UpdateBanner.Message}"
                                       Visibility="{Binding UpdateBanner.BannerVisibility}"
                                       UpdateActionButtonVisibility="{Binding UpdateBanner.ActionButtonVisibility}"
+                                      IsUpdateActionButtonEnabled="{Binding UpdateBanner.AreUpdateActionsEnabled}"
                                       UpdateRequested="UpdateButton_Click"
                                       DismissRequested="DismissUpdateButton_Click"/>
 

@@ -115,4 +115,32 @@ public class AppEventTests
 
         Assert.Equal(0, callCount);
     }
+
+    [Fact]
+    public void InvokeApplyUpdateRequested_NotifiesRegisteredHandlers()
+    {
+        var appEvent = AppEventFactory.Create();
+        AppUpdateInfo? notified = null;
+        appEvent.Register(AppEvents.ApplyUpdateRequested, update => notified = update);
+        var updateInfo = new AppUpdateInfo(SemanticVersion.Parse("2.0.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/download"), new Uri("https://example.com/release"));
+
+        appEvent.Invoke(AppEvents.ApplyUpdateRequested, updateInfo);
+
+        Assert.Same(updateInfo, notified);
+    }
+
+    [Fact]
+    public void UnregisterApplyUpdateRequested_StopsNotifications()
+    {
+        var appEvent = AppEventFactory.Create();
+        var callCount = 0;
+        void Handler(AppUpdateInfo _) => callCount++;
+        appEvent.Register(AppEvents.ApplyUpdateRequested, Handler);
+        appEvent.Unregister(AppEvents.ApplyUpdateRequested, Handler);
+        var updateInfo = new AppUpdateInfo(SemanticVersion.Parse("2.0.0"), SemanticVersion.Parse("1.0.0"), new Uri("https://example.com/download"), new Uri("https://example.com/release"));
+
+        appEvent.Invoke(AppEvents.ApplyUpdateRequested, updateInfo);
+
+        Assert.Equal(0, callCount);
+    }
 }

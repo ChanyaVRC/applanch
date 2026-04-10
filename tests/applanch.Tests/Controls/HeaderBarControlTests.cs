@@ -24,6 +24,19 @@ public class HeaderBarControlTests
     }
 
     [Fact]
+    public void IsUpdateButtonEnabledProperty_CanSetAndGet()
+    {
+        WpfTestHost.RunInSta(() =>
+        {
+            var control = new HeaderBarControl();
+
+            control.IsUpdateButtonEnabled = false;
+
+            Assert.False(control.IsUpdateButtonEnabled);
+        });
+    }
+
+    [Fact]
     public void UpdateButtonClick_RaisesUpdateRequestedEvent()
     {
         WpfTestHost.RunInSta(() =>
@@ -67,6 +80,23 @@ public class HeaderBarControlTests
             WpfTestHost.DoEvents();
 
             Assert.Equal(Visibility.Visible, updateButton.Visibility);
+        });
+    }
+
+    [Fact]
+    public void IsUpdateButtonEnabledProperty_UpdatesUpdateButtonEnabledState()
+    {
+        WpfTestHost.RunInSta(() =>
+        {
+            var control = new HeaderBarControl();
+            var updateButton = Assert.IsType<Button>(control.FindName("UpdateButton"));
+
+            Assert.True(updateButton.IsEnabled);
+
+            control.IsUpdateButtonEnabled = false;
+            WpfTestHost.DoEvents();
+
+            Assert.False(updateButton.IsEnabled);
         });
     }
 

@@ -40,13 +40,23 @@
                                               RecognizesAccessKey="True"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver"
-                                     Value="True">
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver"
+                                               Value="True"/>
+                                    <Condition Property="IsEnabled"
+                                               Value="True"/>
+                                </MultiTrigger.Conditions>
                                 <Setter Property="Foreground"
                                         Value="{DynamicResource Brush.TextPrimary}"/>
                                 <Setter TargetName="Bd"
                                         Property="Background"
                                         Value="Transparent"/>
+                            </MultiTrigger>
+                            <Trigger Property="IsEnabled"
+                                     Value="False">
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource Brush.TextTertiary}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -115,6 +125,7 @@
                         Click="UpdateButton_Click"
                         Style="{StaticResource HeaderFlatHoverTextButtonStyle}"
                         Margin="0,0,8,0"
+                        IsEnabled="{Binding IsUpdateButtonEnabled, ElementName=Root}"
                         FontSize="14"
                         FontWeight="SemiBold"
                         ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Update]}"

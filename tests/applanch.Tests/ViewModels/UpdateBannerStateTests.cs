@@ -16,6 +16,31 @@ public class UpdateBannerStateTests
         Assert.Equal(string.Empty, state.Message);
         Assert.Equal(Visibility.Collapsed, state.BannerVisibility);
         Assert.Equal(Visibility.Collapsed, state.HeaderButtonVisibility);
+        Assert.True(state.AreUpdateActionsEnabled);
+    }
+
+    [Fact]
+    public void TryBeginUpdateApply_FirstCallDisablesActions_SecondCallReturnsFalse()
+    {
+        var state = new UpdateBannerState();
+
+        var first = state.TryBeginUpdateApply();
+        var second = state.TryBeginUpdateApply();
+
+        Assert.True(first);
+        Assert.False(second);
+        Assert.False(state.AreUpdateActionsEnabled);
+    }
+
+    [Fact]
+    public void EndUpdateApply_ReEnablesActions()
+    {
+        var state = new UpdateBannerState();
+        state.TryBeginUpdateApply();
+
+        state.EndUpdateApply();
+
+        Assert.True(state.AreUpdateActionsEnabled);
     }
 
     [Fact]
@@ -79,71 +104,17 @@ public class UpdateBannerStateTests
     }
 
     [Fact]
-    public void ApplyAvailability_AutoMode_FirstObservation_MarksAutoApplyPending()
-    {
-        var state = new UpdateBannerState();
-
-        state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.AutomaticallyApply);
-
-        Assert.True(state.ShouldAutoApplyPendingUpdate);
-    }
-
-    [Fact]
-    public void ApplyAvailability_SameVersionAfterAttempt_ClearsAutoApplyPending()
-    {
-        var state = new UpdateBannerState();
-        state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.AutomaticallyApply);
-
-        state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.AutomaticallyApply);
-
-        Assert.False(state.ShouldAutoApplyPendingUpdate);
-    }
-
-    [Fact]
-    public void ApplyAvailability_WhileAutomaticApplyRunning_ClearsAutoApplyPending()
-    {
-        var state = new UpdateBannerState();
-        state.BeginAutomaticApply();
-
-        state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.AutomaticallyApply);
-
-        Assert.False(state.ShouldAutoApplyPendingUpdate);
-    }
-
-    [Fact]
-    public void ApplyAvailability_ModeSwitchFromAutomaticToManual_ClearsAutoApplyPending()
-    {
-        var state = new UpdateBannerState();
-        state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.AutomaticallyApply);
-
-        state.ApplyAvailability(CreateUpdate("1.3.0"), UpdateInstallBehavior.Manual);
-
-        Assert.False(state.ShouldAutoApplyPendingUpdate);
-    }
-
-    [Fact]
-    public void ApplyAvailability_NewVersionAfterPreviousAttempt_MarksAutoApplyPending()
-    {
-        var state = new UpdateBannerState();
-        state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.AutomaticallyApply);
-        state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.AutomaticallyApply);
-
-        state.ApplyAvailability(CreateUpdate("1.3.0"), UpdateInstallBehavior.AutomaticallyApply);
-
-        Assert.True(state.ShouldAutoApplyPendingUpdate);
-    }
-
-    [Fact]
-    public void ApplyAvailability_WithNullUpdate_ResetsPendingUpdateBannerAndAutoApplyFlag()
+    public void ApplyAvailability_WithNullUpdate_ResetsPendingUpdateAndBanner()
     {
         var state = new UpdateBannerState();
         state.ApplyAvailability(CreateUpdate("1.2.0"), UpdateInstallBehavior.Manual);
+        state.TryBeginUpdateApply();
 
         state.ApplyAvailability(null, UpdateInstallBehavior.Manual);
 
         Assert.Null(state.PendingUpdate);
         Assert.Equal(Visibility.Collapsed, state.BannerVisibility);
-        Assert.False(state.ShouldAutoApplyPendingUpdate);
+        Assert.True(state.AreUpdateActionsEnabled);
     }
 
     private static AppUpdateInfo CreateUpdate(string version)

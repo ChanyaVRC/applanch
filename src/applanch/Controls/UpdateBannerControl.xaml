@@ -36,10 +36,20 @@
                                               RecognizesAccessKey="True"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver"
-                                     Value="True">
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver"
+                                               Value="True"/>
+                                    <Condition Property="IsEnabled"
+                                               Value="True"/>
+                                </MultiTrigger.Conditions>
                                 <Setter Property="Foreground"
                                         Value="{DynamicResource Brush.TextPrimary}"/>
+                            </MultiTrigger>
+                            <Trigger Property="IsEnabled"
+                                     Value="False">
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource Brush.TextTertiary}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -69,6 +79,7 @@
                     Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Banner_UpdateButton]}"
                     Style="{StaticResource BannerFlatActionButtonStyle}"
                     Click="UpdateButton_Click"
+                    IsEnabled="{Binding IsUpdateActionButtonEnabled, ElementName=Root}"
                     Height="28"
                     Visibility="{Binding UpdateActionButtonVisibility, ElementName=Root}"/>
             <Button Grid.Column="3"

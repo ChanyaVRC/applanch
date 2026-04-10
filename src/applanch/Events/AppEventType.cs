@@ -6,4 +6,5 @@ internal enum AppEventType
     Refresh,
     UpdateCheckRequested,
     UpdateAvailabilityChanged,
+    ApplyUpdateRequested,
 }

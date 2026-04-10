@@ -24,6 +24,19 @@ public class UpdateBannerControlTests
     }
 
     [Fact]
+    public void IsUpdateActionButtonEnabledProperty_CanSetAndGet()
+    {
+        WpfTestHost.RunInSta(() =>
+        {
+            var control = new UpdateBannerControl();
+
+            control.IsUpdateActionButtonEnabled = false;
+
+            Assert.False(control.IsUpdateActionButtonEnabled);
+        });
+    }
+
+    [Fact]
     public void UpdateButtonClick_RaisesUpdateRequestedEvent()
     {
         WpfTestHost.RunInSta(() =>
@@ -67,6 +80,23 @@ public class UpdateBannerControlTests
             WpfTestHost.DoEvents();
 
             Assert.Equal(Visibility.Collapsed, updateActionButton.Visibility);
+        });
+    }
+
+    [Fact]
+    public void IsUpdateActionButtonEnabledProperty_UpdatesUpdateActionButtonEnabledState()
+    {
+        WpfTestHost.RunInSta(() =>
+        {
+            var control = new UpdateBannerControl();
+            var updateActionButton = Assert.IsType<Button>(control.FindName("UpdateActionButton"));
+
+            Assert.True(updateActionButton.IsEnabled);
+
+            control.IsUpdateActionButtonEnabled = false;
+            WpfTestHost.DoEvents();
+
+            Assert.False(updateActionButton.IsEnabled);
         });
     }
 

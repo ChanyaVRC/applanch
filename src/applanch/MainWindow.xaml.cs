@@ -35,7 +35,7 @@ public sealed partial class MainWindow : Window
     private readonly LaunchItemContextMenuHandler _contextMenuHandler;
     private readonly InlineRenameHandler _inlineRenameHandler;
     private readonly LaunchListDragDropResolver _dragDropResolver;
-    private readonly UpdateWorkflow _updateWorkflow;
+    private readonly UpdateCoordinator _updateCoordinator;
     private ListBoxItem? _highlightedCategoryDropTarget;
     private bool _isLaunchItemCategoryDragSessionActive;
     private AppSettings _settings;
@@ -105,14 +105,23 @@ public sealed partial class MainWindow : Window
         _inlineRenameHandler = new InlineRenameHandler();
         _dragDropResolver = new LaunchListDragDropResolver();
         _updateServiceFactory = updateServiceFactory;
-        _updateWorkflow = new UpdateWorkflow(_updateServiceFactory(settings));
+        _appEvent = AppEvent.Instance;
+        _updateCoordinator = new UpdateCoordinator(new UpdateCoordinatorDependencies
+        {
+            AppEvent = _appEvent,
+            UpdateWorkflow = new UpdateWorkflow(_updateServiceFactory(settings)),
+            InstallBehaviorProvider = () => _settings.UpdateInstallBehavior,
+            TryBeginApply = TryBeginUpdateApplyFromUi,
+            EndApply = EndUpdateApplyFromUi,
+            OnAvailabilityChanged = OnUpdateAvailabilityForUi,
+            OnAutomaticApplyFailed = OnAutomaticApplyFailedForUi,
+            OnApplyFailed = OnUpdateApplyFailedForUi,
+            OnApplySucceeded = OnUpdateApplySucceededForUi,
+        });
         RegisterCategorySidebarPartNames();
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
-        _appEvent = AppEvent.Instance;
         _appEvent.Register(AppEvents.Refresh, OnAppRefreshRequested);
-        _appEvent.Register(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
-        _appEvent.Register(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
         BundledConfigLoadNotificationCenter.Reported += OnBundledConfigLoadIssueReported;
         ViewModel.ApplySettings(_settings);
         ApplyCategorySidebarPinnedSetting(_settings.CategorySidebarPinned, animate: false);
@@ -130,8 +139,7 @@ public sealed partial class MainWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         _appEvent.Unregister(AppEvents.Refresh, OnAppRefreshRequested);
-        _appEvent.Unregister(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
-        _appEvent.Unregister(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
+        _updateCoordinator.Dispose();
         BundledConfigLoadNotificationCenter.Reported -= OnBundledConfigLoadIssueReported;
 
         if (_settingsWindow is { IsLoaded: true })
@@ -166,35 +174,51 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    private async Task RunUpdateCheckAsync()
-    {
-        var update = await _updateWorkflow.CheckForUpdateSafeAsync().ConfigureAwait(false);
-        _appEvent.Invoke(AppEvents.UpdateAvailabilityChanged, update);
-    }
-
-    private void OnUpdateCheckRequested()
-    {
-        _ = RunUpdateCheckAsync();
-    }
-
-    private void OnUpdateAvailabilityChanged(AppUpdateInfo? update)
-    {
-        Dispatcher.InvokeIfRequired(() => ApplyUpdateAvailability(update));
-    }
-
     private void OnBundledConfigLoadIssueReported(BundledConfigLoadIssue issue)
     {
         Dispatcher.InvokeIfRequired(() => ShowBundledConfigLoadIssues([issue]));
     }
 
-    private void ApplyUpdateAvailability(AppUpdateInfo? update)
+    private void OnUpdateAvailabilityForUi(AppUpdateInfo? update, UpdateInstallBehavior behavior)
     {
-        ViewModel.UpdateBanner.ApplyAvailability(update, _settings.UpdateInstallBehavior);
+        Dispatcher.InvokeIfRequired(() => ViewModel.UpdateBanner.ApplyAvailability(update, behavior));
+    }
 
-        if (ViewModel.UpdateBanner.ShouldAutoApplyPendingUpdate && ViewModel.UpdateBanner.PendingUpdate is { } pendingUpdate)
+    private bool TryBeginUpdateApplyFromUi(AppUpdateInfo update)
+    {
+        var started = false;
+        Dispatcher.InvokeIfRequired(() =>
         {
-            _ = ApplyUpdateAsync(pendingUpdate, isAutomatic: true);
-        }
+            started = ViewModel.UpdateBanner.TryBeginUpdateApply();
+            if (started)
+            {
+                ShowFloatingNotification(
+                    string.Format(Strings.Notification_InstallingVersion, update.NewVersion),
+                    MessageBoxImage.Information);
+            }
+        });
+        return started;
+    }
+
+    private void EndUpdateApplyFromUi()
+    {
+        Dispatcher.InvokeIfRequired(ViewModel.UpdateBanner.EndUpdateApply);
+    }
+
+    private void OnAutomaticApplyFailedForUi()
+    {
+        Dispatcher.InvokeIfRequired(ViewModel.UpdateBanner.RevealManualActions);
+    }
+
+    private void OnUpdateApplyFailedForUi(UpdateApplyResult result)
+    {
+        Dispatcher.InvokeIfRequired(() =>
+            ShowFloatingNotification(string.Format(Strings.UpdateFailed, result.ErrorMessage), MessageBoxImage.Error));
+    }
+
+    private void OnUpdateApplySucceededForUi()
+    {
+        Dispatcher.InvokeIfRequired(Application.Current.Shutdown);
     }
 
     internal void ApplySettingsFromAppRefresh(AppSettings settings)
@@ -203,11 +227,11 @@ public sealed partial class MainWindow : Window
 
         if (!settings.DebugUpdate)
         {
-            ApplyUpdateAvailability(null);
+            _appEvent.Invoke(AppEvents.UpdateAvailabilityChanged, null);
         }
         else
         {
-            ApplyUpdateAvailability(ViewModel.UpdateBanner.PendingUpdate);
+            _appEvent.Invoke(AppEvents.UpdateAvailabilityChanged, ViewModel.UpdateBanner.PendingUpdate);
         }
 
         ViewModel.ApplySettings(settings);
@@ -339,8 +363,8 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        _updateWorkflow.SetUpdateService(_updateServiceFactory(_settings));
-        _appEvent?.Invoke(AppEvents.UpdateCheckRequested);
+        _updateCoordinator.Reconfigure(_updateServiceFactory(_settings));
+        _appEvent.Invoke(AppEvents.UpdateCheckRequested);
     }
 
     // -- Button click handlers ---------------------------------------
@@ -466,49 +490,14 @@ public sealed partial class MainWindow : Window
     private void QuickAddButton_Click(object sender, RoutedEventArgs e)
         => ViewModel.TryAddQuickItem();
 
-    private async void UpdateButton_Click(object sender, RoutedEventArgs e)
+    private void UpdateButton_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.UpdateBanner.PendingUpdate is not { } update)
         {
             return;
         }
 
-        await ApplyUpdateAsync(update, isAutomatic: false).ConfigureAwait(false);
-    }
-
-    private async Task ApplyUpdateAsync(AppUpdateInfo update, bool isAutomatic)
-    {
-        if (isAutomatic)
-        {
-            ViewModel.UpdateBanner.BeginAutomaticApply();
-        }
-
-        try
-        {
-            var result = await _updateWorkflow.ApplyUpdateSafeAsync(update).ConfigureAwait(false);
-            if (result.IsSuccess)
-            {
-                Dispatcher.Invoke(Application.Current.Shutdown);
-                return;
-            }
-
-            Dispatcher.Invoke(() =>
-            {
-                if (isAutomatic)
-                {
-                    ViewModel.UpdateBanner.RevealManualActions();
-                }
-
-                ShowFloatingNotification(string.Format(Strings.UpdateFailed, result.ErrorMessage), MessageBoxImage.Error);
-            });
-        }
-        finally
-        {
-            if (isAutomatic)
-            {
-                ViewModel.UpdateBanner.EndAutomaticApply();
-            }
-        }
+        _appEvent.Invoke(AppEvents.ApplyUpdateRequested, update);
     }
 
     private void DismissUpdateButton_Click(object sender, RoutedEventArgs e)

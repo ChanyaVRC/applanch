@@ -105,24 +105,15 @@ public sealed partial class SettingsWindow : Window
         }
     }
 
-    private async void ApplySelectedVersion_Click(object sender, RoutedEventArgs e)
+    private void ApplySelectedVersion_Click(object sender, RoutedEventArgs e)
     {
-        var result = await ViewModel.ApplySelectedUpdateAsync();
-        if (result is { IsSuccess: true })
-        {
-            Application.Current.Shutdown();
-            return;
-        }
-
-        if (result is not { } applyResult)
+        if (ViewModel.SelectedAvailableUpdate is not { } selectedUpdate)
         {
             return;
         }
 
-        _interactionService.Show(
-            string.Format(AppResources.UpdateFailed, applyResult.ErrorMessage),
-            LocalizedStrings.Instance[nameof(AppResources.Window_Settings)],
-            MessageBoxImage.Error);
+        _appEvent.Invoke(AppEvents.ApplyUpdateRequested, selectedUpdate);
+        Close();
     }
 
     private void TryStartProcess(ProcessStartInfo startInfo, string target, string errorMessage)

@@ -27,6 +27,19 @@ public sealed partial class HeaderBarControl : UserControl
         set => SetValue(UpdateButtonVisibilityProperty, value);
     }
 
+    public static readonly DependencyProperty IsUpdateButtonEnabledProperty =
+        DependencyProperty.Register(
+            nameof(IsUpdateButtonEnabled),
+            typeof(bool),
+            typeof(HeaderBarControl),
+            new PropertyMetadata(true));
+
+    public bool IsUpdateButtonEnabled
+    {
+        get => (bool)GetValue(IsUpdateButtonEnabledProperty);
+        set => SetValue(IsUpdateButtonEnabledProperty, value);
+    }
+
     public static readonly DependencyProperty AppVersionTextProperty =
         DependencyProperty.Register(
             nameof(AppVersionText),

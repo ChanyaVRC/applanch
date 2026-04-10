@@ -12,4 +12,6 @@ internal static class AppEvents
     internal static AppSignalEventKey UpdateCheckRequested { get; } = new(AppEventType.UpdateCheckRequested);
 
     internal static AppEventKey<AppUpdateInfo?> UpdateAvailabilityChanged { get; } = new(AppEventType.UpdateAvailabilityChanged);
+
+    internal static AppEventKey<AppUpdateInfo> ApplyUpdateRequested { get; } = new(AppEventType.ApplyUpdateRequested);
 }
