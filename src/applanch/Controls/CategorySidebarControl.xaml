@@ -11,7 +11,7 @@
             <Setter Property="Visibility"
                     Value="Visible"/>
             <Style.Triggers>
-            <DataTrigger Binding="{Binding IsPinned, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                <DataTrigger Binding="{Binding IsPinned, RelativeSource={RelativeSource AncestorType=UserControl}}"
                              Value="True">
                     <Setter Property="Visibility"
                             Value="Collapsed"/>
@@ -24,7 +24,7 @@
             <Setter Property="Padding"
                     Value="0"/>
             <Style.Triggers>
-            <DataTrigger Binding="{Binding IsSidebarExpanded, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                <DataTrigger Binding="{Binding IsSidebarExpanded, RelativeSource={RelativeSource AncestorType=UserControl}}"
                              Value="True">
                     <Setter Property="Padding"
                             Value="12"/>
@@ -39,7 +39,7 @@
             <Setter Property="IsHitTestVisible"
                     Value="False"/>
             <Style.Triggers>
-            <DataTrigger Binding="{Binding IsSidebarExpanded, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                <DataTrigger Binding="{Binding IsSidebarExpanded, RelativeSource={RelativeSource AncestorType=UserControl}}"
                              Value="True">
                     <Setter Property="Visibility"
                             Value="Visible"/>
@@ -143,7 +143,7 @@
                                                         <Setter Property="ToolTip"
                                                                 Value="{Binding Source={x:Static app:LocalizedStrings.Instance}, Path=[ToolTip_PinCategorySidebar]}"/>
                                                         <Setter Property="AutomationProperties.Name"
-                                                            Value="{Binding Source={x:Static app:LocalizedStrings.Instance}, Path=[ToolTip_PinCategorySidebar]}"/>
+                                                                Value="{Binding Source={x:Static app:LocalizedStrings.Instance}, Path=[ToolTip_PinCategorySidebar]}"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>

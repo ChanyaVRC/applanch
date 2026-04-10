@@ -4,54 +4,54 @@
              xmlns:res="clr-namespace:applanch.Properties"
              xmlns:local="clr-namespace:applanch"
              x:Name="Root">
-            <UserControl.Resources>
-            <Style x:Key="HeaderFlatHoverTextButtonStyle"
-                   TargetType="Button">
-                <Setter Property="Width"
+    <UserControl.Resources>
+        <Style x:Key="HeaderFlatHoverTextButtonStyle"
+               TargetType="Button">
+            <Setter Property="Width"
                     Value="32"/>
-                <Setter Property="Height"
+            <Setter Property="Height"
                     Value="32"/>
-                <Setter Property="Padding"
+            <Setter Property="Padding"
                     Value="0"/>
-                <Setter Property="VerticalAlignment"
+            <Setter Property="VerticalAlignment"
                     Value="Top"/>
-                <Setter Property="Background"
+            <Setter Property="Background"
                     Value="Transparent"/>
-                <Setter Property="BorderBrush"
+            <Setter Property="BorderBrush"
                     Value="Transparent"/>
-                <Setter Property="BorderThickness"
+            <Setter Property="BorderThickness"
                     Value="0"/>
-                <Setter Property="Cursor"
+            <Setter Property="Cursor"
                     Value="Hand"/>
-                <Setter Property="Foreground"
+            <Setter Property="Foreground"
                     Value="{DynamicResource Brush.TextSecondary}"/>
-                <Setter Property="Template">
+            <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        BorderThickness="0"
-                        CornerRadius="6">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"
-                                  RecognizesAccessKey="True"/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver"
-                             Value="True">
-                        <Setter Property="Foreground"
-                            Value="{DynamicResource Brush.TextPrimary}"/>
-                        <Setter TargetName="Bd"
-                            Property="Background"
-                            Value="Transparent"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
+                        <Border x:Name="Bd"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                BorderThickness="0"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource Brush.TextPrimary}"/>
+                                <Setter TargetName="Bd"
+                                        Property="Background"
+                                        Value="Transparent"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
-                </Setter>
-            </Style>
-            </UserControl.Resources>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
     <Border Background="{DynamicResource Brush.ItemBackground}"
             BorderBrush="{DynamicResource Brush.ItemBorder}"
             BorderThickness="1"
@@ -93,9 +93,9 @@
                         Orientation="Horizontal"
                         VerticalAlignment="Top">
                 <Button x:Name="UpdateButton"
-                    Content="⭳"
+                        Content="⭳"
                         Click="UpdateButton_Click"
-                    Style="{StaticResource HeaderFlatHoverTextButtonStyle}"
+                        Style="{StaticResource HeaderFlatHoverTextButtonStyle}"
                         Margin="0,0,8,0"
                         FontSize="14"
                         FontWeight="SemiBold"
@@ -103,7 +103,7 @@
                         Visibility="{Binding UpdateButtonVisibility, ElementName=Root}"/>
                 <Button Content="⚙"
                         Click="SettingsButton_Click"
-                    Style="{StaticResource HeaderFlatHoverTextButtonStyle}"
+                        Style="{StaticResource HeaderFlatHoverTextButtonStyle}"
                         FontSize="16"
                         ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Settings]}"/>
             </StackPanel>

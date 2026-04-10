@@ -13,5 +13,5 @@
               Text="{Binding Text, ElementName=Root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
               SelectionChanged="ComboBox_SelectionChanged"
               PreviewMouseLeftButtonUp="ComboBox_PreviewMouseLeftButtonUp"
-              ToolTip="{Binding ToolTip, ElementName=Root}" />
+              ToolTip="{Binding ToolTip, ElementName=Root}"/>
 </UserControl>

@@ -15,13 +15,20 @@
     <Window.Resources>
 
         <!-- Item inside the dropdown list -->
-        <Style x:Key="DialogComboBoxItemStyle" TargetType="ComboBoxItem">
-            <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Padding" Value="8,6" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="Cursor" Value="Hand" />
+        <Style x:Key="DialogComboBoxItemStyle"
+               TargetType="ComboBoxItem">
+            <Setter Property="Foreground"
+                    Value="{DynamicResource Brush.TextPrimary}"/>
+            <Setter Property="Background"
+                    Value="Transparent"/>
+            <Setter Property="Padding"
+                    Value="8,6"/>
+            <Setter Property="HorizontalContentAlignment"
+                    Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment"
+                    Value="Center"/>
+            <Setter Property="Cursor"
+                    Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBoxItem">
@@ -30,14 +37,20 @@
                                 CornerRadius="4"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Stretch"
-                                              VerticalAlignment="Center" />
+                                              VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.ItemBackground}" />
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter TargetName="Bd"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.ItemBackground}"/>
                             </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.ItemBackground}" />
+                            <Trigger Property="IsSelected"
+                                     Value="True">
+                                <Setter TargetName="Bd"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.ItemBackground}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -45,11 +58,16 @@
             </Setter>
         </Style>
 
-        <Style x:Key="DialogComboBoxToggleButtonStyle" TargetType="ToggleButton">
-            <Setter Property="Focusable" Value="False" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
+        <Style x:Key="DialogComboBoxToggleButtonStyle"
+               TargetType="ToggleButton">
+            <Setter Property="Focusable"
+                    Value="False"/>
+            <Setter Property="Background"
+                    Value="Transparent"/>
+            <Setter Property="BorderBrush"
+                    Value="Transparent"/>
+            <Setter Property="BorderThickness"
+                    Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
@@ -57,7 +75,7 @@
                                 BorderBrush="Transparent"
                                 BorderThickness="0">
                             <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center" />
+                                              VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -69,18 +87,30 @@
                BasedOn="{StaticResource DialogComboBoxItemStyle}"/>
 
         <!-- ComboBox styled to match the TextBox -->
-        <Style x:Key="DialogComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
-            <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Brush.ItemBorder}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="Height" Value="34" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
-            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
-            <Setter Property="ItemContainerStyle" Value="{StaticResource DialogComboBoxItemStyle}" />
+        <Style x:Key="DialogComboBoxStyle"
+               TargetType="ComboBox">
+            <Setter Property="Foreground"
+                    Value="{DynamicResource Brush.TextPrimary}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource Brush.Surface}"/>
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource Brush.ItemBorder}"/>
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+            <Setter Property="FontSize"
+                    Value="14"/>
+            <Setter Property="Height"
+                    Value="34"/>
+            <Setter Property="HorizontalContentAlignment"
+                    Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment"
+                    Value="Center"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility"
+                    Value="Disabled"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility"
+                    Value="Auto"/>
+            <Setter Property="ItemContainerStyle"
+                    Value="{StaticResource DialogComboBoxItemStyle}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
@@ -103,7 +133,7 @@
                                              MinHeight="0"
                                              FontSize="{TemplateBinding FontSize}"
                                              Foreground="{TemplateBinding Foreground}"
-                                             CaretBrush="{DynamicResource Brush.TextPrimary}" />
+                                             CaretBrush="{DynamicResource Brush.TextPrimary}"/>
                                     <!-- Real toggle button so the control behaves as a true ComboBox -->
                                     <ToggleButton x:Name="DropDownToggle"
                                                   Width="28"
@@ -121,7 +151,7 @@
                                               Stroke="{DynamicResource Brush.TextTertiary}"
                                               StrokeThickness="1.4"
                                               StrokeStartLineCap="Round"
-                                              StrokeEndLineCap="Round" />
+                                              StrokeEndLineCap="Round"/>
                                     </ToggleButton>
                                 </Grid>
                             </Border>
@@ -144,22 +174,35 @@
                                                   Focusable="False"
                                                   SnapsToDevicePixels="True">
                                         <StackPanel IsItemsHost="True"
-                                                    KeyboardNavigation.DirectionalNavigation="Contained" />
+                                                    KeyboardNavigation.DirectionalNavigation="Contained"/>
                                     </ScrollViewer>
                                 </Border>
                             </Popup>
                         </Grid>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource Brush.SurfaceBorder}" />
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter TargetName="OuterBorder"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource Brush.SurfaceBorder}"/>
                             </Trigger>
-                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource Brush.SurfaceBorder}" />
-                                <Setter TargetName="OuterBorder" Property="Background" Value="{DynamicResource Brush.ItemBackground}" />
+                            <Trigger Property="IsKeyboardFocusWithin"
+                                     Value="True">
+                                <Setter TargetName="OuterBorder"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource Brush.SurfaceBorder}"/>
+                                <Setter TargetName="OuterBorder"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.ItemBackground}"/>
                             </Trigger>
-                            <Trigger Property="IsDropDownOpen" Value="True">
-                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource Brush.SurfaceBorder}" />
-                                <Setter TargetName="OuterBorder" Property="Background" Value="{DynamicResource Brush.ItemBackground}" />
+                            <Trigger Property="IsDropDownOpen"
+                                     Value="True">
+                                <Setter TargetName="OuterBorder"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource Brush.SurfaceBorder}"/>
+                                <Setter TargetName="OuterBorder"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.ItemBackground}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -168,20 +211,26 @@
         </Style>
 
         <!-- Plain text input -->
-        <Style x:Key="DialogTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource RoundedTextBoxStyle}">
-            <Setter Property="FontSize" Value="14" />
+        <Style x:Key="DialogTextBoxStyle"
+               TargetType="TextBox"
+               BasedOn="{StaticResource RoundedTextBoxStyle}">
+            <Setter Property="FontSize"
+                    Value="14"/>
         </Style>
 
-        <Style TargetType="Button" BasedOn="{StaticResource RoundedButtonStyle}">
-            <Setter Property="Height" Value="32" />
-            <Setter Property="FontSize" Value="13" />
+        <Style TargetType="Button"
+               BasedOn="{StaticResource RoundedButtonStyle}">
+            <Setter Property="Height"
+                    Value="32"/>
+            <Setter Property="FontSize"
+                    Value="13"/>
         </Style>
     </Window.Resources>
 
     <StackPanel Margin="20">
         <!-- Text-only mode -->
         <TextBox x:Name="InputTextBox"
-             Text="{Binding InitialValue, Mode=OneWay}">
+                 Text="{Binding InitialValue, Mode=OneWay}">
             <TextBox.Style>
                 <Style TargetType="TextBox"
                        BasedOn="{StaticResource DialogTextBoxStyle}">
@@ -220,15 +269,15 @@
                     HorizontalAlignment="Right"
                     Margin="0,14,0,0">
             <Button x:Name="CancelButton"
-                        Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_Cancel]}"
+                    Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_Cancel]}"
                     Width="100"
-                    IsCancel="True" />
+                    IsCancel="True"/>
             <Button x:Name="OkButton"
                     Content="OK"
                     Width="80"
                     Margin="8,0,0,0"
                     IsDefault="True"
-                    Click="OkButton_Click" />
+                    Click="OkButton_Click"/>
         </StackPanel>
     </StackPanel>
 </Window>

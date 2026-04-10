@@ -10,10 +10,14 @@
         Loaded="Window_Loaded"
         Background="{DynamicResource Brush.AppBackground}">
     <Window.Resources>
-        <Style TargetType="Button" BasedOn="{StaticResource RoundedButtonStyle}">
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="MinWidth" Value="92"/>
-            <Setter Property="FontSize" Value="13"/>
+        <Style TargetType="Button"
+               BasedOn="{StaticResource RoundedButtonStyle}">
+            <Setter Property="Height"
+                    Value="32"/>
+            <Setter Property="MinWidth"
+                    Value="92"/>
+            <Setter Property="FontSize"
+                    Value="13"/>
         </Style>
     </Window.Resources>
 
@@ -63,12 +67,12 @@
                     Orientation="Horizontal"
                     HorizontalAlignment="Right">
             <Button x:Name="NoButton"
-                Content="{Binding NoButtonLabel}"
+                    Content="{Binding NoButtonLabel}"
                     IsCancel="True"
                     Margin="0,0,8,0"
                     Click="NoButton_Click"/>
             <Button x:Name="YesButton"
-                Content="{Binding YesButtonLabel}"
+                    Content="{Binding YesButtonLabel}"
                     IsDefault="True"
                     Click="YesButton_Click"/>
         </StackPanel>
