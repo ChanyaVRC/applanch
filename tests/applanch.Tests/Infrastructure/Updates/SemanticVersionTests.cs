@@ -36,21 +36,15 @@ public class SemanticVersionTests
     }
 
     [Fact]
-    public void Parse_ExtraNumericSegments_PreservesCurrentBehavior()
+    public void Parse_ExtraNumericSegments_ThrowsFormatException()
     {
-        var version = SemanticVersion.Parse("1.2.3.4");
-
-        Assert.Equal(1, version.Major);
-        Assert.Equal(2, version.Minor);
-        Assert.Equal(3, version.Patch);
+        Assert.Throws<FormatException>(() => SemanticVersion.Parse("1.2.3.4"));
     }
 
     [Fact]
-    public void Parse_TrailingDash_ParsesAsStable()
+    public void Parse_TrailingDash_ThrowsFormatException()
     {
-        var version = SemanticVersion.Parse("1.2.3-");
-
-        Assert.Equal(string.Empty, version.Prerelease);
+        Assert.Throws<FormatException>(() => SemanticVersion.Parse("1.2.3-"));
     }
 
     [Fact]

@@ -44,21 +44,42 @@ internal readonly record struct SemanticVersion(int Major, int Minor, int Patch,
 
         Span<Range> prereleaseParts = stackalloc Range[2];
         var prereleasePartCount = span.Split(prereleaseParts, '-');
-        var numericSpan = span[prereleaseParts[0]];
-
-        Span<Range> segments = stackalloc Range[4];
-        var segmentCount = numericSpan.Split(segments, '.');
-
-        if (segmentCount < 3 ||
-            !int.TryParse(numericSpan[segments[0]], out var major) ||
-            !int.TryParse(numericSpan[segments[1]], out var minor) ||
-            !int.TryParse(numericSpan[segments[2]], out var patch))
+        if (prereleasePartCount > 2)
         {
             result = default;
             return false;
         }
 
-        var prerelease = prereleasePartCount > 1 ? span[prereleaseParts[1]].ToString() : string.Empty;
+        var numericSpan = span[prereleaseParts[0]];
+
+        Span<Range> segments = stackalloc Range[4];
+        var segmentCount = numericSpan.Split(segments, '.');
+
+        if (segmentCount != 3 ||
+            !int.TryParse(numericSpan[segments[0]], out var major) ||
+            !int.TryParse(numericSpan[segments[1]], out var minor) ||
+            !int.TryParse(numericSpan[segments[2]], out var patch) ||
+            major < 0 ||
+            minor < 0 ||
+            patch < 0)
+        {
+            result = default;
+            return false;
+        }
+
+        var prerelease = string.Empty;
+        if (prereleasePartCount == 2)
+        {
+            var prereleaseSpan = span[prereleaseParts[1]];
+            if (prereleaseSpan.IsEmpty)
+            {
+                result = default;
+                return false;
+            }
+
+            prerelease = prereleaseSpan.ToString();
+        }
+
         result = new SemanticVersion(major, minor, patch, prerelease);
         return true;
     }
