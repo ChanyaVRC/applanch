@@ -4,6 +4,19 @@ Notable user-facing changes per version. For full commit history and downloadabl
 
 ---
 
+## v0.6.1 — April 11, 2026
+
+Patch release focused on category sidebar drag-and-drop stability and interaction polish.
+
+### Fixed
+
+- **Sidebar DnD collapse consistency** — Moved collapse decision handling into `CategorySidebarControl` so hover-zone, sidebar container, and drag-session-end paths now follow one consistent close behavior.
+- **Drag transition collapse edge case** — Prevented unintended sidebar collapse when the pointer transitions between the hover zone and sidebar container during launch-item drag operations.
+
+### Improved
+
+- **DnD responsibility separation** — Consolidated sidebar-local drag enter/leave handling in the sidebar control, while keeping category move/apply logic in `MainWindow`.
+
 ## v0.6.0 — April 11, 2026
 
 Stable release of the v0.6 update line.
