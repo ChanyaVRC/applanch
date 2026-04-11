@@ -4,6 +4,26 @@ Notable user-facing changes per version. For full commit history and downloadabl
 
 ---
 
+## v0.6.0 — April 11, 2026
+
+Stable release of the v0.6 update line.
+
+### Improved
+
+- **Update apply flow consistency** — Unified update apply triggers across Header, Banner, and Settings so all entry points follow the same workflow.
+- **Safer update execution state** — Prevented duplicate apply requests while apply is already in progress and improved in-progress UI state handling.
+- **Update metadata resilience** — Release metadata cache now recovers correctly after transient fetch failures.
+- **Semantic version handling** — Refined prerelease comparison precedence and tightened invalid semantic version parsing behavior.
+
+### Fixed
+
+- **Icon-mode drag reorder threshold** — Corrected icon-mode insert threshold axis handling during drag-and-drop reorder.
+- **Icon-mode reorder animation** — Added proper horizontal and diagonal transition animation when icon tiles are reordered.
+
+### Notes
+
+- Includes all changes validated in `v0.6.0-rc.1` plus final stabilization fixes for update reliability and icon-mode interaction quality.
+
 ## v0.6.0-rc.1 — April 11, 2026
 
 Release Candidate for the next applanch version.
