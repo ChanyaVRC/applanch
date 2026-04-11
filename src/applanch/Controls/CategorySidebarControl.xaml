@@ -75,7 +75,6 @@
                 CornerRadius="8"
                 ClipToBounds="True"
                 Panel.ZIndex="10"
-                AllowDrop="True"
                 DragEnter="CategorySidebarContainer_DragEnter"
                 DragOver="CategorySidebarContainer_DragOver"
                 DragLeave="CategorySidebarContainer_DragLeave"
@@ -193,7 +192,9 @@
                              ItemsSource="{Binding FilterCategoryNames}"
                              SelectedItem="{Binding SelectedCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource CategorySelectionConverter}}"
                              BorderThickness="0"
-                             Background="Transparent">
+                             Background="Transparent"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="AllowDrop"
@@ -255,7 +256,8 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Converter={StaticResource CategoryDisplayConverter}}"
-                                           FontSize="13"/>
+                                           FontSize="13"
+                                           TextWrapping="Wrap"/>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
