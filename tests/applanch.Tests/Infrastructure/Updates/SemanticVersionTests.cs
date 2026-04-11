@@ -113,12 +113,32 @@ public class SemanticVersionTests
     }
 
     [Fact]
-    public void CompareTo_TwoPrereleasesWithSameNumbers_ReturnsZero()
+    public void CompareTo_PreroleaseIdentifiersAreComparedLexically_WhenBothAreAlphanumeric()
     {
         var a = SemanticVersion.Parse("1.0.0-alpha");
         var b = SemanticVersion.Parse("1.0.0-beta");
 
-        // Only numeric parts + prerelease flag are compared; prerelease tag text is not
-        Assert.Equal(0, a.CompareTo(b));
+        Assert.True(a.CompareTo(b) < 0);
+        Assert.True(b.CompareTo(a) > 0);
+    }
+
+    [Fact]
+    public void CompareTo_PrereleaseNumericIdentifierIsLowerThanStringIdentifier()
+    {
+        var numeric = SemanticVersion.Parse("1.0.0-1");
+        var alpha = SemanticVersion.Parse("1.0.0-alpha");
+
+        Assert.True(numeric.CompareTo(alpha) < 0);
+        Assert.True(alpha.CompareTo(numeric) > 0);
+    }
+
+    [Fact]
+    public void CompareTo_PrereleaseWithMoreIdentifiersIsGreater_WhenCommonPrefixMatches()
+    {
+        var shorter = SemanticVersion.Parse("1.0.0-alpha");
+        var longer = SemanticVersion.Parse("1.0.0-alpha.1");
+
+        Assert.True(shorter.CompareTo(longer) < 0);
+        Assert.True(longer.CompareTo(shorter) > 0);
     }
 }

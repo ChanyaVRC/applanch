@@ -84,7 +84,60 @@ internal readonly record struct SemanticVersion(int Major, int Minor, int Patch,
         return true;
     }
 
-    public int CompareTo(SemanticVersion other) =>
-        (Major, Minor, Patch, other.IsPrerelease).CompareTo((other.Major, other.Minor, other.Patch, IsPrerelease));
+    public int CompareTo(SemanticVersion other)
+    {
+        var numericComparison = (Major, Minor, Patch, other.IsPrerelease).CompareTo((other.Major, other.Minor, other.Patch, IsPrerelease));
+        if (numericComparison != 0)
+        {
+            return numericComparison;
+        }
+        return ComparePrerelease(Prerelease.AsSpan(), other.Prerelease.AsSpan());
+    }
+
+    // Per semver spec, prerelease identifiers consisting of only digits are compared numerically,
+    // and those with letters or hyphens are compared lexically in ASCII sort order.
+    // Numeric identifiers always have lower precedence than non-numeric identifiers.
+    private static int ComparePrerelease(ReadOnlySpan<char> left, ReadOnlySpan<char> right)
+    {
+        Span<Range> leftParts = stackalloc Range[16];
+        Span<Range> rightParts = stackalloc Range[16];
+        var leftCount = left.Split(leftParts, '.');
+        var rightCount = right.Split(rightParts, '.');
+        var count = Math.Min(leftCount, rightCount);
+
+        for (var i = 0; i < count; i++)
+        {
+            var leftPart = left[leftParts[i]];
+            var rightPart = right[rightParts[i]];
+
+            var isLeftNumeric = int.TryParse(leftPart, out var leftNumeric);
+            var isRightNumeric = int.TryParse(rightPart, out var rightNumeric);
+
+            if (isLeftNumeric && isRightNumeric)
+            {
+                var numericComparison = leftNumeric.CompareTo(rightNumeric);
+                if (numericComparison != 0)
+                {
+                    return numericComparison;
+                }
+
+                continue;
+            }
+
+            var isNumberComparison = isRightNumeric.CompareTo(isLeftNumeric);
+            if (isNumberComparison != 0)
+            {
+                return isNumberComparison;
+            }
+
+            var lexicalComparison = leftPart.CompareTo(rightPart, StringComparison.Ordinal);
+            if (lexicalComparison != 0)
+            {
+                return lexicalComparison;
+            }
+        }
+
+        return leftCount.CompareTo(rightCount);
+    }
 }
 
