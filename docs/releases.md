@@ -36,7 +36,7 @@ Release Candidate for the next applanch version.
 ### Improved
 
 - **Prerelease visibility in UI** — Added clearer prerelease labeling in the main window and refined prerelease badge styling, including better theme awareness.
-- **Update metadata fetch workflow** — Simplified release metadata fetch flow and cache behavior to reduce unnecessary refetching after failures.
+- **Update metadata fetch workflow** — Simplified release metadata fetch flow and cache behavior to avoid stale failure state after transient errors.
 - **Update HTTP client lifecycle** — Refined shared `HttpClient` usage and initialization behavior for update operations.
 
 ### Notes
