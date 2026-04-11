@@ -75,6 +75,8 @@
                 CornerRadius="8"
                 ClipToBounds="True"
                 Panel.ZIndex="10"
+                AllowDrop="True"
+                DragEnter="CategorySidebarContainer_DragEnter"
                 DragOver="CategorySidebarContainer_DragOver"
                 DragLeave="CategorySidebarContainer_DragLeave"
                 Drop="CategorySidebarContainer_Drop"

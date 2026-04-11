@@ -14,6 +14,7 @@ namespace applanch.Controls;
 public sealed partial class CategorySidebarControl : UserControl
 {
     private readonly CategorySidebarStateController _stateController = new();
+    private bool _isLaunchItemDragSessionActive;
     private bool _suppressPinnedAnimation;
 
     public CategorySidebarControl()
@@ -119,15 +120,28 @@ public sealed partial class CategorySidebarControl : UserControl
         IsCreateDropTargetActive = isActive;
     }
 
+    public void SetLaunchItemDragSession(bool isActive)
+    {
+        _isLaunchItemDragSessionActive = isActive;
+    }
+
+    public void HandleSidebarContainerDragLeave()
+    {
+        if (_isLaunchItemDragSessionActive)
+        {
+            SetCreateDropTargetVisible(true);
+            return;
+        }
+
+        HandleSidebarExited();
+        TryCollapseSidebar();
+    }
+
     public event DragEventHandler? SidebarDragOver;
 
     public event DragEventHandler? SidebarDragLeave;
 
     public event DragEventHandler? SidebarDrop;
-
-    public event DragEventHandler? HoverZoneDragOver;
-
-    public event DragEventHandler? HoverZoneDragLeave;
 
     public event DragEventHandler? CreateDropTargetDragOver;
 
@@ -171,11 +185,19 @@ public sealed partial class CategorySidebarControl : UserControl
         TryCollapseSidebar();
     }
 
+    private void CategorySidebarContainer_DragEnter(object sender, DragEventArgs e)
+        => HandleSidebarEntered();
+
     private void CategorySidebarContainer_DragOver(object sender, DragEventArgs e)
-        => SidebarDragOver?.Invoke(sender, e);
+    {
+        SidebarDragOver?.Invoke(sender, e);
+    }
 
     private void CategorySidebarContainer_DragLeave(object sender, DragEventArgs e)
-        => SidebarDragLeave?.Invoke(sender, e);
+    {
+        HandleSidebarContainerDragLeave();
+        SidebarDragLeave?.Invoke(sender, e);
+    }
 
     private void CategorySidebarContainer_Drop(object sender, DragEventArgs e)
         => SidebarDrop?.Invoke(sender, e);
@@ -190,10 +212,23 @@ public sealed partial class CategorySidebarControl : UserControl
     }
 
     private void CategorySidebarHoverZone_DragOver(object sender, DragEventArgs e)
-        => HoverZoneDragOver?.Invoke(sender, e);
+    {
+        HandleTriggerEntered();
+        e.Effects = DragDropEffects.None;
+        e.Handled = true;
+    }
 
     private void CategorySidebarHoverZone_DragLeave(object sender, DragEventArgs e)
-        => HoverZoneDragLeave?.Invoke(sender, e);
+    {
+        HandleTriggerExited();
+
+        if (!_isLaunchItemDragSessionActive)
+        {
+            TryCollapseSidebar();
+        }
+
+        e.Handled = true;
+    }
 
     private void CategorySidebarCreateDropTarget_DragOver(object sender, DragEventArgs e)
         => CreateDropTargetDragOver?.Invoke(sender, e);

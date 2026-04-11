@@ -11,27 +11,6 @@ namespace applanch;
 
 public sealed partial class MainWindow
 {
-    private void CategorySidebarHoverZone_DragOver(object sender, DragEventArgs e)
-    {
-        e.Effects = DragDropEffects.None;
-        e.Handled = true;
-    }
-
-    private void CategorySidebarHoverZone_DragLeave(object sender, DragEventArgs e)
-    {
-        CategorySidebar.HandleTriggerExited();
-
-        // When dragging a LaunchItem, the cursor may be transitioning into CategorySidebarContainer.
-        // DragOver(Container) fires after this DragLeave and calls HandleSidebarEntered(), so skip
-        // collapsing here. For non-LaunchItem drags (e.g. external files), collapse normally.
-        if (GetDraggedItem(e.Data) is null)
-        {
-            CategorySidebar.TryCollapseSidebar();
-        }
-
-        e.Handled = true;
-    }
-
     private void CategorySidebarContainer_DragOver(object sender, DragEventArgs e)
     {
         e.Effects = DragDropEffects.None;
@@ -172,15 +151,8 @@ public sealed partial class MainWindow
 
     internal void HandleCategorySidebarContainerDragLeave()
     {
-        if (_isLaunchItemCategoryDragSessionActive)
-        {
-            CategorySidebar.SetCreateDropTargetVisible(true);
-            return;
-        }
-
         ClearCategoryDragTargets();
-        CategorySidebar.HandleSidebarExited();
-        CategorySidebar.TryCollapseSidebar();
+        CategorySidebar.HandleSidebarContainerDragLeave();
     }
 
     internal DragDropEffects GetCategoryCreateDropEffect(IDataObject data)
@@ -378,17 +350,16 @@ public sealed partial class MainWindow
 
     internal void SetLaunchItemCategoryDragSession(bool isActive)
     {
+        CategorySidebar.SetLaunchItemDragSession(isActive);
+
         if (isActive)
         {
-            _isLaunchItemCategoryDragSessionActive = true;
             CategorySidebar.SetCreateDropTargetVisible(true);
             return;
         }
 
-        _isLaunchItemCategoryDragSessionActive = false;
         ClearCategoryDragTargets();
-        CategorySidebar.HandleSidebarExited();
-        CategorySidebar.TryCollapseSidebar();
+        CategorySidebar.HandleSidebarContainerDragLeave();
     }
 
     private void ActivateCategoryDragUi(bool isCreateDropTargetActive, bool clearCategoryHighlight)

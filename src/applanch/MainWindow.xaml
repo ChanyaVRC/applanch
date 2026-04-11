@@ -729,10 +729,9 @@
 
         <Grid Grid.Row="3">
             <controls:CategorySidebarControl x:Name="CategorySidebar"
+                                             Panel.ZIndex="1"
                                              HorizontalAlignment="Left"
                                              VerticalAlignment="Stretch"
-                                             HoverZoneDragOver="CategorySidebarHoverZone_DragOver"
-                                             HoverZoneDragLeave="CategorySidebarHoverZone_DragLeave"
                                              SidebarDragOver="CategorySidebarContainer_DragOver"
                                              SidebarDragLeave="CategorySidebarContainer_DragLeave"
                                              SidebarDrop="CategorySidebarContainer_Drop"

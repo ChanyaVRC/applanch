@@ -39,7 +39,6 @@ public sealed partial class MainWindow : Window
     private readonly LaunchListDragDropResolver _dragDropResolver;
     private readonly UpdateCoordinator _updateCoordinator;
     private ListBoxItem? _highlightedCategoryDropTarget;
-    private bool _isLaunchItemCategoryDragSessionActive;
     private AppSettings _settings;
     private SettingsWindow? _settingsWindow;
     private readonly AppEvent _appEvent;
