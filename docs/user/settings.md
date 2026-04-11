@@ -61,6 +61,21 @@ When enabled, a confirmation dialog appears before removing an item from the lis
 
 When enabled (default), applanch checks GitHub Releases for a new version each time it starts.
 
+### Allow Prerelease Updates
+
+When enabled, prerelease versions (for example `-rc` and `-beta`) are included in update checks.
+Disabled by default.
+
+### Available Update Versions
+
+When updates are available, Settings shows a selectable list of installable versions.
+This list follows your prerelease setting:
+
+- **Allow Prerelease Updates off**: stable versions only
+- **Allow Prerelease Updates on**: stable and prerelease versions
+
+Selecting a version updates the target used by the update apply actions.
+
 ### Update Install Behavior
 
 Controls what happens when an update is detected.
@@ -70,6 +85,9 @@ Controls what happens when an update is detected.
 | Notify Only | Shows a banner only |
 | Manual (default) | User manually triggers the update from the banner |
 | Automatically Apply | Update is applied automatically |
+
+When apply starts, update apply buttons are temporarily disabled to prevent duplicate execution.
+The app also shows an installing notification that includes the target version.
 
 ### Debug Update Mode
 
