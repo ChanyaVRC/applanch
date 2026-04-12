@@ -1,11 +1,58 @@
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
+using System.Text.Json;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Storage;
 
 public class AppSettingsTests
 {
+    [Fact]
+    public void JsonDeserialize_WhenLanguageIsCodeString_MapsToLanguageOption()
+    {
+        var settings = JsonSerializer.Deserialize<AppSettings>("""
+            {
+              "Language": "ja"
+            }
+            """);
+
+        Assert.NotNull(settings);
+        Assert.Equal(LanguageOption.Japanese, settings!.Language);
+    }
+
+    [Fact]
+    public void JsonDeserialize_WhenLanguageIsLegacyNameString_ThrowsJsonException()
+    {
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<AppSettings>("""
+                        {
+                            "Language": "English"
+                        }
+                        """));
+    }
+
+    [Fact]
+    public void JsonDeserialize_WhenLanguageIsLegacyNumber_MapsToLanguageOption()
+    {
+        var settings = JsonSerializer.Deserialize<AppSettings>("""
+                        {
+                            "Language": 1
+                        }
+                        """);
+
+        Assert.NotNull(settings);
+        Assert.Equal(LanguageOption.English, settings!.Language);
+    }
+
+    [Fact]
+    public void JsonSerialize_WritesLanguageAsCodeString()
+    {
+        var settings = new AppSettings { Language = LanguageOption.Japanese };
+
+        var json = JsonSerializer.Serialize(settings);
+
+        Assert.Contains("\"Language\":\"ja\"", json);
+    }
+
     [Fact]
     public void Normalize_WhenThemeIdIsNull_ReturnsSystemThemeId()
     {

@@ -31,7 +31,7 @@ internal sealed record LocalizedText
     internal string ResolveCurrentCulture()
     {
         var cultureCode = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-        if (LanguageOptionMap.TryMapFromCultureCode(cultureCode, out var mappedLanguage))
+        if (LanguageOption.TryMapFromCultureCode(cultureCode, out var mappedLanguage))
         {
             return Resolve(mappedLanguage);
         }
@@ -41,7 +41,7 @@ internal sealed record LocalizedText
 
     private string ResolveFallback()
     {
-        return _translations[LanguageOptionMap.PrimaryFallbackLanguage];
+        return _translations[LanguageOption.PrimaryFallbackLanguage];
     }
 
     private static Dictionary<LanguageOption, string> NormalizeTranslations(
@@ -67,9 +67,9 @@ internal sealed record LocalizedText
             }
         }
 
-        if (!normalized.ContainsKey(LanguageOptionMap.PrimaryFallbackLanguage))
+        if (!normalized.ContainsKey(LanguageOption.PrimaryFallbackLanguage))
         {
-            normalized[LanguageOptionMap.PrimaryFallbackLanguage] = @default;
+            normalized[LanguageOption.PrimaryFallbackLanguage] = @default;
         }
 
         return normalized;

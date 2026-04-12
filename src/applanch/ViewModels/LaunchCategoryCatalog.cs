@@ -54,7 +54,7 @@ internal static class LaunchCategoryCatalog
         var resourceManager = new ResourceManager(typeof(AppResources).FullName!, typeof(AppResources).Assembly);
         var labels = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var culture in LanguageOptionMap.EnumerateSupportedCultures(includeInvariantCulture: true))
+        foreach (var culture in LanguageOption.EnumerateSupportedCultures(includeInvariantCulture: true))
         {
             var value = resourceManager.GetString(nameof(AppResources.AllCategories), culture);
             if (!string.IsNullOrWhiteSpace(value))

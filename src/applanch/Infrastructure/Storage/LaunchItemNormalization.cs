@@ -14,7 +14,7 @@ internal static class LaunchItemNormalization
         var resourceManager = new ResourceManager(typeof(AppResources).FullName!, typeof(AppResources).Assembly);
         var labels = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var culture in LanguageOptionMap.EnumerateSupportedCultures(includeInvariantCulture: true))
+        foreach (var culture in LanguageOption.EnumerateSupportedCultures(includeInvariantCulture: true))
         {
             var value = resourceManager.GetString(resourceName, culture);
             if (!string.IsNullOrWhiteSpace(value))

@@ -206,11 +206,7 @@ public sealed partial class App : Application
 
     private static void ApplyLanguage(LanguageOption language)
     {
-        var cultureName = LanguageOptionMap.TryGetCultureCode(language, out var mappedCultureName)
-            ? mappedCultureName
-            : CultureInfo.InstalledUICulture.Name;
-
-        var culture = new CultureInfo(cultureName);
+        var culture = language.GetCultureInfo();
         CultureInfo.CurrentUICulture = culture;
         CultureInfo.CurrentCulture = culture;
         CultureInfo.DefaultThreadCurrentUICulture = culture;

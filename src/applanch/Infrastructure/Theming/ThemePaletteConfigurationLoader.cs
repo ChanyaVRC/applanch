@@ -252,7 +252,7 @@ internal static class ThemePaletteConfigurationLoader
             foreach (var (cultureCode, displayName) in displayNamesMap)
             {
                 if (!string.IsNullOrWhiteSpace(displayName) &&
-                    LanguageOptionMap.TryMapFromCultureCode(cultureCode, out var language))
+                    LanguageOption.TryMapFromCultureCode(cultureCode, out var language))
                 {
                     langs[language] = displayName;
                 }

@@ -91,9 +91,13 @@ internal sealed record AppSettings
         return settings with
         {
             ThemeId = themeId,
+            Language = NormalizeLanguage(settings.Language),
             QuickAddSuggestionLimit = quickAddSuggestionLimit,
         };
     }
+
+    private static LanguageOption NormalizeLanguage(LanguageOption? language) =>
+        language ?? LanguageOption.System;
 
     private static string NormalizeThemeId(string? themeId)
     {
