@@ -66,117 +66,12 @@
         <!--  Implicit style overrides the WPF theme style that has FindAncestor bindings.  -->
         <Style BasedOn="{StaticResource DialogComboBoxItemStyle}" TargetType="ComboBoxItem" />
 
-        <!--  ComboBox styled to match the TextBox  -->
-        <Style x:Key="DialogComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
-            <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Brush.ItemBorder}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="Height" Value="34" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
-            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
-            <Setter Property="ItemContainerStyle" Value="{StaticResource DialogComboBoxItemStyle}" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBox">
-                        <Grid>
-                            <!--  Visible border, identical to DialogTextBoxStyle  -->
-                            <Border
-                                x:Name="OuterBorder"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6">
-                                <Grid>
-                                    <!--  Editable text area  -->
-                                    <TextBox
-                                        x:Name="PART_EditableTextBox"
-                                        MinHeight="0"
-                                        Margin="10,0,30,0"
-                                        Padding="0"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Center"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        CaretBrush="{DynamicResource Brush.TextPrimary}"
-                                        FontSize="{TemplateBinding FontSize}"
-                                        Foreground="{TemplateBinding Foreground}" />
-                                    <!--  Real toggle button so the control behaves as a true ComboBox  -->
-                                    <ToggleButton
-                                        x:Name="DropDownToggle"
-                                        Width="28"
-                                        Margin="0"
-                                        HorizontalAlignment="Right"
-                                        ClickMode="Press"
-                                        Focusable="False"
-                                        IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                                        Style="{StaticResource DialogComboBoxToggleButtonStyle}">
-                                        <Path
-                                            Width="12"
-                                            Height="8"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Data="M 1 1 L 6 7 L 11 1"
-                                            Stroke="{DynamicResource Brush.TextTertiary}"
-                                            StrokeEndLineCap="Round"
-                                            StrokeStartLineCap="Round"
-                                            StrokeThickness="1.4" />
-                                    </ToggleButton>
-                                </Grid>
-                            </Border>
-
-                            <!--  Dropdown popup — WPF manages placement automatically  -->
-                            <Popup
-                                x:Name="PART_Popup"
-                                AllowsTransparency="True"
-                                Focusable="False"
-                                IsOpen="{TemplateBinding IsDropDownOpen}"
-                                Placement="Bottom"
-                                PopupAnimation="Fade"
-                                VerticalOffset="4">
-                                <Border
-                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
-                                    MaxHeight="200"
-                                    Background="{DynamicResource Brush.Surface}"
-                                    BorderBrush="{DynamicResource Brush.ItemBorder}"
-                                    BorderThickness="1"
-                                    CornerRadius="6">
-                                    <ScrollViewer
-                                        Margin="4"
-                                        Focusable="False"
-                                        SnapsToDevicePixels="True">
-                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
-                                    </ScrollViewer>
-                                </Border>
-                            </Popup>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource Brush.SurfaceBorder}" />
-                            </Trigger>
-                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource Brush.SurfaceBorder}" />
-                                <Setter TargetName="OuterBorder" Property="Background" Value="{DynamicResource Brush.ItemBackground}" />
-                            </Trigger>
-                            <Trigger Property="IsDropDownOpen" Value="True">
-                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource Brush.SurfaceBorder}" />
-                                <Setter TargetName="OuterBorder" Property="Background" Value="{DynamicResource Brush.ItemBackground}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <!--  Plain text input  -->
         <Style
             x:Key="DialogTextBoxStyle"
             BasedOn="{StaticResource RoundedTextBoxStyle}"
             TargetType="TextBox">
-            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontSize" Value="13" />
         </Style>
 
         <Style BasedOn="{StaticResource RoundedButtonStyle}" TargetType="Button">
@@ -202,7 +97,7 @@
         <!--  Suggestion mode: SuggestionInputControl wraps ComboBox logic  -->
         <controls:SuggestionInputControl
             x:Name="InputSuggestion"
-            InputComboBoxStyle="{StaticResource DialogComboBoxStyle}"
+            InputComboBoxStyle="{StaticResource RoundedEditableComboBoxStyle}"
             Suggestions="{Binding SuggestionTexts, Mode=OneWay}"
             Text="{Binding InitialValue, Mode=OneWay}">
             <controls:SuggestionInputControl.Style>

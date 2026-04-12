@@ -339,132 +339,6 @@
             </Setter>
         </Style>
 
-        <Style x:Key="ModernComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
-            <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Brush.ItemBorder}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Padding" Value="10,6" />
-            <Setter Property="MinHeight" Value="34" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
-            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
-            <Setter Property="ItemContainerStyle" Value="{StaticResource ModernComboBoxItemStyle}" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBox">
-                        <Grid>
-                            <Border
-                                x:Name="OuterBorder"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="32" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <ContentPresenter
-                                        x:Name="ContentSite"
-                                        Margin="{TemplateBinding Padding}"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center"
-                                        Content="{TemplateBinding SelectionBoxItem}"
-                                        ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                        ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                        IsHitTestVisible="False" />
-
-                                    <TextBox
-                                        x:Name="PART_EditableTextBox"
-                                        Grid.Column="0"
-                                        Margin="{TemplateBinding Padding}"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Center"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        CaretBrush="{DynamicResource Brush.TextPrimary}"
-                                        Foreground="{TemplateBinding Foreground}"
-                                        Visibility="Hidden" />
-
-                                    <ToggleButton
-                                        Grid.Column="1"
-                                        ClickMode="Press"
-                                        Focusable="False"
-                                        IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                                        Style="{StaticResource ModernComboBoxToggleButtonStyle}" />
-                                </Grid>
-                            </Border>
-
-                            <Popup
-                                x:Name="PART_Popup"
-                                AllowsTransparency="True"
-                                Focusable="False"
-                                IsOpen="{TemplateBinding IsDropDownOpen}"
-                                Placement="Bottom"
-                                PopupAnimation="Fade">
-                                <Border
-                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
-                                    MaxHeight="240"
-                                    Margin="0,6,0,0"
-                                    Background="{DynamicResource Brush.Surface}"
-                                    BorderBrush="{DynamicResource Brush.ItemBorder}"
-                                    BorderThickness="1"
-                                    CornerRadius="6">
-                                    <ScrollViewer Margin="4" SnapsToDevicePixels="True">
-                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
-                                    </ScrollViewer>
-                                </Border>
-                            </Popup>
-                        </Grid>
-
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource Brush.SurfaceBorder}" />
-                            </Trigger>
-                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource Brush.SurfaceBorder}" />
-                                <Setter TargetName="OuterBorder" Property="Background" Value="{DynamicResource Brush.ItemBackground}" />
-                            </Trigger>
-                            <Trigger Property="IsDropDownOpen" Value="True">
-                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource Brush.SurfaceBorder}" />
-                                <Setter TargetName="OuterBorder" Property="Background" Value="{DynamicResource Brush.ItemBackground}" />
-                            </Trigger>
-                            <Trigger Property="IsEditable" Value="True">
-                                <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible" />
-                                <Setter TargetName="ContentSite" Property="Visibility" Value="Hidden" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="OuterBorder" Property="Opacity" Value="0.6" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style
-            x:Key="QuickAddCompactComboBoxStyle"
-            BasedOn="{StaticResource ModernComboBoxStyle}"
-            TargetType="ComboBox">
-            <Setter Property="MinHeight" Value="28" />
-            <Setter Property="Padding" Value="10,3" />
-        </Style>
-
-        <Style
-            x:Key="ModernTextBoxStyle"
-            BasedOn="{StaticResource RoundedTextBoxStyle}"
-            TargetType="TextBox" />
-
-        <Style
-            x:Key="QuickAddCompactTextBoxStyle"
-            BasedOn="{StaticResource ModernTextBoxStyle}"
-            TargetType="TextBox">
-            <Setter Property="MinHeight" Value="28" />
-            <Setter Property="Padding" Value="6,4" />
-        </Style>
-
         <Style x:Key="ModernScrollBarThumbStyle" TargetType="Thumb">
             <Setter Property="SnapsToDevicePixels" Value="True" />
             <Setter Property="OverridesDefaultStyle" Value="True" />
@@ -638,7 +512,7 @@
                             CornerRadius="8">
                             <StackPanel>
                                 <controls:SuggestionInputControl
-                                    InputComboBoxStyle="{StaticResource ModernComboBoxStyle}"
+                                    InputComboBoxStyle="{StaticResource RoundedEditableComboBoxStyle}"
                                     Placeholder="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_NameOrPath]}"
                                     Suggestions="{Binding QuickAddSuggestions}"
                                     Text="{Binding QuickAddNameOrPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -653,7 +527,7 @@
                                     </Grid.ColumnDefinitions>
                                     <controls:SuggestionInputControl
                                         Grid.Column="0"
-                                        InputComboBoxStyle="{StaticResource QuickAddCompactComboBoxStyle}"
+                                        InputComboBoxStyle="{StaticResource RoundedEditableComboBoxStyle}"
                                         Placeholder="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Category]}"
                                         Suggestions="{Binding CategoryNames, Converter={StaticResource CategoryDisplayConverter}}"
                                         Text="{Binding QuickAddCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource CategoryDisplayConverter}}"
@@ -661,7 +535,7 @@
                                     <Grid Grid.Column="2">
                                         <TextBox
                                             x:Name="QuickAddArgumentsTextBox"
-                                            Style="{StaticResource QuickAddCompactTextBoxStyle}"
+                                            Style="{StaticResource RoundedTextBoxStyle}"
                                             Text="{Binding QuickAddArguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Arguments]}" />
                                         <TextBlock
