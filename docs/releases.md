@@ -4,6 +4,26 @@ Notable user-facing changes per version. For full commit history and downloadabl
 
 ---
 
+## v0.6.2 — April 13, 2026
+
+Patch release with Quick Add UX improvements and a localization bug fix.
+
+### New
+
+- **Quick Add placeholder text** — The Quick Add app and category input fields now show placeholder hints when empty, making it clearer what each field expects.
+
+### Improved
+
+- **Category sidebar label wrapping** — Long category names in the sidebar now wrap instead of being clipped.
+- **Control styling consistency** — Refined shared styles for inputs, dialogs, and other controls to improve visual consistency across the app.
+- **Theming granularity** — Added finer-grained theme brushes for message dialogs, scrollbars, notification hover states, the prerelease badge, the missing-path badge, and the sidebar pin indicator, allowing themes to target these elements individually.
+
+### Fixed
+
+- **Quick Add category localization** — Category options in the Quick Add dropdown were not refreshing when the app language was changed. They now update immediately.
+
+---
+
 ## v0.6.1 — April 11, 2026
 
 Patch release focused on category sidebar drag-and-drop stability and interaction polish.
