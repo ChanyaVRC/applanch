@@ -80,10 +80,23 @@
     </Style>
 
     <!--  Shared rounded ComboBox  -->
+    <!--
+        Implicit style to silence WPF DataBinding Error 4 (FindAncestor on HCA/VCA).
+        The theme style's FindAncestor bindings fire during ComboBoxItem construction,
+        before ItemContainerStyle is applied. Setting fixed values here prevents that.
+        RoundedComboBoxItemStyle then overrides everything else via ItemContainerStyle.
+    -->
+    <Style TargetType="ComboBoxItem">
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
     <Style x:Key="RoundedComboBoxItemStyle" TargetType="ComboBoxItem">
         <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Padding" Value="10,7" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBoxItem">
