@@ -2,28 +2,22 @@ namespace applanch.Infrastructure.Theming;
 
 internal sealed class ThemePaletteConfiguration
 {
-    internal ThemePaletteConfiguration(
-        IReadOnlyList<ThemeDefinition> themes,
-        bool LoadedFromConfig)
+    internal ThemePaletteConfiguration(IReadOnlyList<ThemeDefinition> themes)
     {
         Themes = themes.ToArray();
         Entries = BuildEntries(Themes);
-        this.LoadedFromConfig = LoadedFromConfig;
     }
 
     internal ThemePaletteConfiguration(
         IReadOnlyList<ThemeDefinition> themes,
-        IReadOnlyList<ThemePaletteEntry> entries,
-        bool LoadedFromConfig)
-        : this(ApplyEntries(themes, entries), LoadedFromConfig)
+        IReadOnlyList<ThemePaletteEntry> entries)
+        : this(ApplyEntries(themes, entries))
     {
     }
 
     internal IReadOnlyList<ThemeDefinition> Themes { get; }
 
     internal IReadOnlyList<ThemePaletteEntry> Entries { get; }
-
-    internal bool LoadedFromConfig { get; }
 
     private static ThemeDefinition[] ApplyEntries(
         IReadOnlyList<ThemeDefinition> themes,

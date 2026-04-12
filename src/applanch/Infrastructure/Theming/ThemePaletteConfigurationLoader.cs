@@ -15,150 +15,18 @@ internal static class ThemePaletteConfigurationLoader
 
     private const string UserDefinedThemePaletteDirectoryName = "theme-palette";
 
-    private static ThemeDefinition[] CreateFallbackThemes()
+    private static readonly ThemePaletteConfiguration EmptyConfiguration = new([]);
+
+    internal static ThemePaletteConfiguration Load()
     {
-        // Creates the three built-in themes that are always guaranteed to exist:
-        // light (fixed), dark (fixed), and system (system-dependent).
-        // These mirror what's defined in theme-palette.json but provide fallback
-        // when configuration file is unavailable.
-        return new ThemeDefinition[]
+        if (!TryLoadFromDirectory(AppContext.BaseDirectory, out var bundled))
         {
-            new FixedThemeDefinition(
-                LightThemeId,
-                ResolveDisplayName(LightThemeId),
-                inheritedThemeId: null,
-                BuildLightFallbackColors()),
-            new FixedThemeDefinition(
-                DarkThemeId,
-                ResolveDisplayName(DarkThemeId),
-                inheritedThemeId: null,
-                BuildDarkFallbackColors()),
-            new SystemDependentThemeDefinition(
-                SystemThemeId,
-                ResolveDisplayName(SystemThemeId),
-                new Dictionary<SystemThemeMode, string>
-                {
-                    [SystemThemeMode.Light] = LightThemeId,
-                    [SystemThemeMode.Dark] = DarkThemeId,
-                }),
-        };
-    }
-
-    private static Dictionary<string, string> BuildLightFallbackColors() =>
-        new()
-        {
-            { "Brush.AppBackground", "#F1F5F9" },
-            { "Brush.Surface", "#FFFFFF" },
-            { "Brush.SurfaceBorder", "#D0D7E2" },
-            { "Brush.TextPrimary", "#0F172A" },
-            { "Brush.SidebarPinSlash", "#0F172A" },
-            { "Brush.TextSecondary", "#475569" },
-            { "Brush.TextTertiary", "#64748B" },
-            { "Brush.ScrollbarThumb", "#64748B" },
-            { "Brush.PrereleaseBadgeBackground", "#FFFFFF" },
-            { "Brush.PrereleaseBadgeBorder", "#D0D7E2" },
-            { "Brush.PrereleaseBadgeText", "#475569" },
-            { "Brush.ItemBackground", "#F8FAFC" },
-            { "Brush.ItemBorder", "#D7DEE8" },
-            { "Brush.IconBackground", "#E2E8F0" },
-            { "Brush.NotificationInfoBackground", "#FFFFFF" },
-            { "Brush.NotificationInfoBorder", "#D7DEE8" },
-            { "Brush.NotificationActionHover", "#D7DEE8" },
-            { "Brush.NotificationWarningBackground", "#FFF7ED" },
-            { "Brush.NotificationWarningBorder", "#FDBA74" },
-            { "Brush.MissingPathWarningBadge", "#FDBA74" },
-            { "Brush.NotificationErrorBackground", "#FEF2F2" },
-            { "Brush.NotificationErrorBorder", "#FCA5A5" },
-            { "Brush.NotificationProgressTrack", "#E2E8F0" },
-            { "Brush.NotificationProgressValue", "#94A3B8" },
-            { "Brush.QuickAddInfoText", "#B45309" },
-            { "Brush.QuickAddWarningText", "#92400E" },
-            { "Brush.DialogInfo", "#475569" },
-            { "Brush.DialogQuestion", "#475569" },
-            { "Brush.DialogWarning", "#FDBA74" },
-            { "Brush.DialogError", "#FCA5A5" },
-        };
-
-    private static Dictionary<string, string> BuildDarkFallbackColors() =>
-        new()
-        {
-            { "Brush.AppBackground", "#0B1220" },
-            { "Brush.Surface", "#131D31" },
-            { "Brush.SurfaceBorder", "#223149" },
-            { "Brush.TextPrimary", "#E2E8F0" },
-            { "Brush.SidebarPinSlash", "#E2E8F0" },
-            { "Brush.TextSecondary", "#9FB2C9" },
-            { "Brush.TextTertiary", "#7C93AF" },
-            { "Brush.ScrollbarThumb", "#7C93AF" },
-            { "Brush.PrereleaseBadgeBackground", "#131D31" },
-            { "Brush.PrereleaseBadgeBorder", "#223149" },
-            { "Brush.PrereleaseBadgeText", "#9FB2C9" },
-            { "Brush.ItemBackground", "#111C30" },
-            { "Brush.ItemBorder", "#2A3B57" },
-            { "Brush.IconBackground", "#20304B" },
-            { "Brush.NotificationInfoBackground", "#131D31" },
-            { "Brush.NotificationInfoBorder", "#2A3B57" },
-            { "Brush.NotificationActionHover", "#2A3B57" },
-            { "Brush.NotificationWarningBackground", "#2B2111" },
-            { "Brush.NotificationWarningBorder", "#B45309" },
-            { "Brush.MissingPathWarningBadge", "#B45309" },
-            { "Brush.NotificationErrorBackground", "#2A1618" },
-            { "Brush.NotificationErrorBorder", "#B45353" },
-            { "Brush.NotificationProgressTrack", "#2A3B57" },
-            { "Brush.NotificationProgressValue", "#7C93AF" },
-            { "Brush.QuickAddInfoText", "#FBBF24" },
-            { "Brush.QuickAddWarningText", "#F59E0B" },
-            { "Brush.DialogInfo", "#9FB2C9" },
-            { "Brush.DialogQuestion", "#9FB2C9" },
-            { "Brush.DialogWarning", "#B45309" },
-            { "Brush.DialogError", "#B45353" },
-        };
-
-    private static readonly ThemePaletteConfiguration FallbackConfiguration = new(
-        CreateFallbackThemes(),
-        LoadedFromConfig: false);
-
-    internal static ThemePaletteConfiguration LoadForRuntime()
-    {
-        var builtIn = TryLoadFromDirectory(AppContext.BaseDirectory, out var configuration)
-            ? configuration
-            : FallbackConfiguration;
-
-        var merged = MergeWithUserDefinedIfAvailable(AppContext.BaseDirectory, builtIn);
-        return EnsureBuiltInThemesExist(merged);
-    }
-
-    internal static bool TryLoadForSettings(out ThemePaletteConfiguration configuration)
-    {
-        if (!TryLoadFromDirectory(AppContext.BaseDirectory, out var builtIn))
-        {
-            configuration = FallbackConfiguration;
-            return false;
+            throw new InvalidOperationException("Bundled theme palette config could not be loaded.");
         }
 
-        configuration = MergeWithUserDefinedIfAvailable(AppContext.BaseDirectory, builtIn);
-        configuration = EnsureBuiltInThemesExist(configuration);
-        return true;
-    }
-
-    /// <summary>
-    /// Gets the set of built-in theme IDs that are always guaranteed to exist.
-    /// </summary>
-    private static IReadOnlyList<string> BuiltInThemeIds => FallbackConfiguration.Themes.Select(t => t.Id).ToList();
-
-    /// <summary>
-    /// Determines whether the given theme ID is a built-in theme (system, light, or dark).
-    /// </summary>
-    internal static bool IsBuiltInTheme(string? themeId) =>
-        !string.IsNullOrWhiteSpace(themeId) && BuiltInThemeIds.Contains(themeId);
-
-    private static ThemePaletteConfiguration MergeWithUserDefinedIfAvailable(
-        string appBaseDirectory,
-        ThemePaletteConfiguration builtIn)
-    {
-        return TryLoadUserDefined(appBaseDirectory, out var userDefined)
-            ? Merge(builtIn, userDefined)
-            : builtIn;
+        return TryLoadUserDefined(AppContext.BaseDirectory, out var userDefined)
+            ? Merge(bundled, userDefined)
+            : bundled;
     }
 
     internal static bool TryLoadUserDefined(string appBaseDirectory, out ThemePaletteConfiguration configuration)
@@ -169,7 +37,7 @@ internal static class ThemePaletteConfigurationLoader
 
         if (!Directory.Exists(userDefinedDirectory))
         {
-            configuration = FallbackConfiguration;
+            configuration = EmptyConfiguration;
             return false;
         }
 
@@ -190,7 +58,7 @@ internal static class ThemePaletteConfigurationLoader
 
         if (merged is null)
         {
-            configuration = FallbackConfiguration;
+            configuration = EmptyConfiguration;
             return false;
         }
 
@@ -213,9 +81,7 @@ internal static class ThemePaletteConfigurationLoader
             }
         }
 
-        return new ThemePaletteConfiguration(
-            mergedThemes.Values.ToArray(),
-            LoadedFromConfig: true);
+        return new ThemePaletteConfiguration(mergedThemes.Values.ToArray());
     }
 
     private static ThemeDefinition MergeTheme(ThemeDefinition @base, ThemeDefinition overlay)
@@ -259,7 +125,7 @@ internal static class ThemePaletteConfigurationLoader
         {
         }
 
-        configuration = FallbackConfiguration;
+        configuration = EmptyConfiguration;
         return false;
     }
 
@@ -279,25 +145,7 @@ internal static class ThemePaletteConfigurationLoader
             throw new InvalidDataException("Theme palette config has no valid entries.");
         }
 
-        return new ThemePaletteConfiguration(themes, LoadedFromConfig: true);
-    }
-
-    private static ThemePaletteConfiguration EnsureBuiltInThemesExist(ThemePaletteConfiguration configuration)
-    {
-        var themesById = configuration.Themes.ToDictionary(static t => t.Id);
-        var builtInThemes = FallbackConfiguration.Themes;
-        var missingBuiltIn = builtInThemes.Where(t => !themesById.ContainsKey(t.Id)).ToList();
-
-        if (missingBuiltIn.Count == 0)
-        {
-            return configuration;
-        }
-
-        // Rebuild configuration with added built-in themes
-        var allThemes = new List<ThemeDefinition>(configuration.Themes);
-        allThemes.AddRange(missingBuiltIn);
-
-        return new ThemePaletteConfiguration(allThemes, configuration.Entries, LoadedFromConfig: true);
+        return new ThemePaletteConfiguration(themes);
     }
 
     private static ThemeDefinition[] BuildThemesFromDto(ThemePaletteConfigurationDto dto)

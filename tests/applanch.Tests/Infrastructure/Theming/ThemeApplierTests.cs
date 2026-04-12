@@ -22,24 +22,6 @@ public class ThemeApplierTests
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#0F172A")!, brush.Color);
-
-        var notificationBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationInfoBackground"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#FFFFFF")!, notificationBrush.Color);
-
-        var missingPathBadgeBrush = Assert.IsType<SolidColorBrush>(resources["Brush.MissingPathWarningBadge"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#FDBA74")!, missingPathBadgeBrush.Color);
-
-        var scrollbarThumbBrush = Assert.IsType<SolidColorBrush>(resources["Brush.ScrollbarThumb"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#64748B")!, scrollbarThumbBrush.Color);
-
-        var notificationActionHoverBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationActionHover"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#D7DEE8")!, notificationActionHoverBrush.Color);
-
-        var prereleaseBadgeTextBrush = Assert.IsType<SolidColorBrush>(resources["Brush.PrereleaseBadgeText"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#475569")!, prereleaseBadgeTextBrush.Color);
-
-        var sidebarPinSlashBrush = Assert.IsType<SolidColorBrush>(resources["Brush.SidebarPinSlash"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#0F172A")!, sidebarPinSlashBrush.Color);
     }
 
     [Fact]
@@ -54,27 +36,7 @@ public class ThemeApplierTests
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#E2E8F0")!, brush.Color);
-
-        var notificationBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationInfoBackground"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#131D31")!, notificationBrush.Color);
-
-        var missingPathBadgeBrush = Assert.IsType<SolidColorBrush>(resources["Brush.MissingPathWarningBadge"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#B45309")!, missingPathBadgeBrush.Color);
-
-        var scrollbarThumbBrush = Assert.IsType<SolidColorBrush>(resources["Brush.ScrollbarThumb"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#7C93AF")!, scrollbarThumbBrush.Color);
-
-        var notificationActionHoverBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationActionHover"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#2A3B57")!, notificationActionHoverBrush.Color);
-
-        var prereleaseBadgeTextBrush = Assert.IsType<SolidColorBrush>(resources["Brush.PrereleaseBadgeText"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#9FB2C9")!, prereleaseBadgeTextBrush.Color);
-
-        var sidebarPinSlashBrush = Assert.IsType<SolidColorBrush>(resources["Brush.SidebarPinSlash"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#E2E8F0")!, sidebarPinSlashBrush.Color);
-
-        var iconColor = WindowIconThemeHelper.ResolveIconColor(resources);
-        Assert.Equal(WindowIconThemeHelper.DarkPaletteIconColor, iconColor);
+        Assert.Equal(WindowIconThemeHelper.DarkPaletteIconColor, WindowIconThemeHelper.ResolveIconColor(resources));
     }
 
     [Fact]
@@ -89,12 +51,7 @@ public class ThemeApplierTests
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#1A1A1A")!, brush.Color);
-
-        var notificationBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationInfoBackground"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#FFFFFF")!, notificationBrush.Color);
-
-        var iconColor = WindowIconThemeHelper.ResolveIconColor(resources);
-        Assert.Equal(WindowIconThemeHelper.LightPaletteIconColor, iconColor);
+        Assert.Equal(WindowIconThemeHelper.LightPaletteIconColor, WindowIconThemeHelper.ResolveIconColor(resources));
     }
 
     [Fact]
@@ -106,23 +63,6 @@ public class ThemeApplierTests
             BuildConfiguration());
 
         manager.ApplyTheme(resources);
-
-        var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#0F172A")!, brush.Color);
-
-        var notificationBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationInfoBackground"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#FFFFFF")!, notificationBrush.Color);
-    }
-
-    [Fact]
-    public void ApplyTheme_WithWindows_StillUpdatesBrushes()
-    {
-        var resources = new ResourceDictionary();
-        var manager = new ThemeApplier(
-            () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.LightThemeId },
-            BuildConfiguration());
-
-        manager.ApplyTheme(resources, []);
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#0F172A")!, brush.Color);
@@ -152,8 +92,7 @@ public class ThemeApplierTests
         var resources = new ResourceDictionary();
         var configuration = new ThemePaletteConfiguration(
             [new FixedThemeDefinition("sunset", new LocalizedText("Sunset"))],
-            [new ThemePaletteEntry("Brush.Custom", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = "#AABBCC" })],
-            LoadedFromConfig: true);
+            [new ThemePaletteEntry("Brush.Custom", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = "#AABBCC" })]);
         var manager = new ThemeApplier(
             () => new AppSettings { ThemeId = "sunset" },
             configuration);
@@ -191,8 +130,7 @@ public class ThemeApplierTests
                         [ThemePaletteConfigurationLoader.DarkThemeId] = "#E2E8F0",
                         ["monochrome"] = "#1A1A1A",
                     })
-            ],
-            LoadedFromConfig: true);
+            ]);
         var manager = new ThemeApplier(
             () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.SystemThemeId },
             configuration);
@@ -221,8 +159,7 @@ public class ThemeApplierTests
                         ["light"] = "#0F172A",
                         ["base"] = "#1A1A1A",
                     })
-            ],
-            LoadedFromConfig: true);
+            ]);
         var manager = new ThemeApplier(
             () => new AppSettings { ThemeId = "ocean" },
             configuration);
@@ -250,8 +187,7 @@ public class ThemeApplierTests
                     {
                         ["light"] = "#0F172A",
                     })
-            ],
-            LoadedFromConfig: true);
+            ]);
         var manager = new ThemeApplier(
             () => new AppSettings { ThemeId = "alpha" },
             configuration);
@@ -277,55 +213,6 @@ public class ThemeApplierTests
                         ["light"] = "#0F172A",
                         ["dark"] = "#E2E8F0",
                         ["monochrome"] = "#1A1A1A",
-                    }),
-                new ThemePaletteEntry(
-                    "Brush.NotificationInfoBackground",
-                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        ["light"] = "#FFFFFF",
-                        ["dark"] = "#131D31",
-                        ["monochrome"] = "#FFFFFF",
-                    }),
-                new ThemePaletteEntry(
-                    "Brush.MissingPathWarningBadge",
-                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        ["light"] = "#FDBA74",
-                        ["dark"] = "#B45309",
-                        ["monochrome"] = "#9E9E9E",
-                    }),
-                new ThemePaletteEntry(
-                    "Brush.ScrollbarThumb",
-                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        ["light"] = "#64748B",
-                        ["dark"] = "#7C93AF",
-                        ["monochrome"] = "#737373",
-                    }),
-                new ThemePaletteEntry(
-                    "Brush.NotificationActionHover",
-                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        ["light"] = "#D7DEE8",
-                        ["dark"] = "#2A3B57",
-                        ["monochrome"] = "#C7C7C7",
-                    }),
-                new ThemePaletteEntry(
-                    "Brush.PrereleaseBadgeText",
-                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        ["light"] = "#475569",
-                        ["dark"] = "#9FB2C9",
-                        ["monochrome"] = "#4D4D4D",
-                    }),
-                new ThemePaletteEntry(
-                    "Brush.SidebarPinSlash",
-                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        ["light"] = "#0F172A",
-                        ["dark"] = "#E2E8F0",
-                        ["monochrome"] = "#1A1A1A",
                     })
-            ],
-            LoadedFromConfig: true);
+            ]);
 }

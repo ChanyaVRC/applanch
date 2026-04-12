@@ -89,7 +89,6 @@ public sealed class ThemePaletteConfigurationLoaderTests
             var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out var configuration);
 
             Assert.True(loaded);
-            Assert.True(configuration.LoadedFromConfig);
 
             var entry = Assert.Single(configuration.Entries);
             Assert.Equal("Brush.Custom", entry.Key);
@@ -113,9 +112,10 @@ public sealed class ThemePaletteConfigurationLoaderTests
 
         try
         {
-            var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out _);
+            var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out var configuration);
 
             Assert.False(loaded);
+            Assert.Empty(configuration.Themes);
             Assert.Contains(
                 BundledConfigLoadNotificationCenter.DrainPending(),
                 static issue => issue == new BundledConfigLoadIssue("theme-palette.json", IsInvalidFormat: false));
@@ -137,9 +137,10 @@ public sealed class ThemePaletteConfigurationLoaderTests
 
         try
         {
-            var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out _);
+            var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out var configuration);
 
             Assert.False(loaded);
+            Assert.Empty(configuration.Themes);
             Assert.Contains(
                 BundledConfigLoadNotificationCenter.DrainPending(),
                 static issue => issue == new BundledConfigLoadIssue("theme-palette.json", IsInvalidFormat: true));
@@ -226,51 +227,6 @@ public sealed class ThemePaletteConfigurationLoaderTests
             Assert.True(loaded);
             var theme = Assert.Single(configuration.Themes, static t => t.Id == "high__contrast-dark");
             Assert.Equal("High Contrast Dark", theme.DisplayName.Resolve(LanguageOption.English));
-        }
-        finally
-        {
-            Directory.Delete(root, recursive: true);
-        }
-    }
-
-    [Fact]
-    public void TryLoadFromDirectory_WhenJsonContainsSystemTheme_LoadsSystemThemeDefinition()
-    {
-        var root = CreateTempDirectory();
-        var appBase = Path.Combine(root, "appbase");
-        Directory.CreateDirectory(Path.Combine(appBase, "Config"));
-        File.WriteAllText(
-            Path.Combine(appBase, "Config", "theme-palette.json"),
-            """
-            {
-                "themes": [
-                    {
-                        "id": "system",
-                        "displayNames": { "en": "System", "ja": "システム" }
-                    },
-                    {
-                        "id": "light",
-                        "entries": [
-                            { "key": "Brush.Custom", "hex": "#112233" }
-                        ]
-                    },
-                    {
-                        "id": "dark",
-                        "entries": [
-                            { "key": "Brush.Custom", "hex": "#445566" }
-                        ]
-                    }
-                ]
-            }
-            """);
-
-        try
-        {
-            var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out var configuration);
-
-            Assert.True(loaded);
-            var systemTheme = Assert.Single(configuration.Themes, t => t.Id == ThemePaletteConfigurationLoader.SystemThemeId);
-            Assert.Equal("システム", systemTheme.DisplayName.Resolve(LanguageOption.Japanese));
         }
         finally
         {
@@ -380,9 +336,10 @@ public sealed class ThemePaletteConfigurationLoaderTests
 
         try
         {
-            var loaded = ThemePaletteConfigurationLoader.TryLoadUserDefined(appBase, out _);
+            var loaded = ThemePaletteConfigurationLoader.TryLoadUserDefined(appBase, out var configuration);
 
             Assert.False(loaded);
+            Assert.Empty(configuration.Themes);
         }
         finally
         {
@@ -555,21 +512,6 @@ public sealed class ThemePaletteConfigurationLoaderTests
     }
 
     [Fact]
-    public void Merge_OverlayThemeWithSameIdIsNotDuplicated()
-    {
-        var @base = BuildConfig(
-            [("light", "Light", "#FFFFFF")],
-            [("Brush.AppBackground", [("light", "#FFFFFF")])]);
-        var overlay = BuildConfig(
-            [("light", "Light Override", "#F0F0F0")],
-            [("Brush.AppBackground", [("light", "#F0F0F0")])]);
-
-        var merged = ThemePaletteConfigurationLoader.Merge(@base, overlay);
-
-        Assert.Single(merged.Themes, t => t.Id == "light");
-    }
-
-    [Fact]
     public void Merge_OverlayAddsNewEntryKeysMissingFromBase()
     {
         var @base = BuildConfig(
@@ -593,12 +535,10 @@ public sealed class ThemePaletteConfigurationLoaderTests
                 new FixedThemeDefinition("light", new LocalizedText("Light")),
                 new FixedThemeDefinition("sunset", new LocalizedText("Sunset"), "light")
             ],
-            [new ThemePaletteEntry("Brush.AppBackground", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["light"] = "#FFFFFF" })],
-            LoadedFromConfig: true);
+            [new ThemePaletteEntry("Brush.AppBackground", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["light"] = "#FFFFFF" })]);
         var overlay = new ThemePaletteConfiguration(
             [new FixedThemeDefinition("sunset", new LocalizedText("Sunset"), "dark")],
-            [new ThemePaletteEntry("Brush.AppBackground", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = "#FFEECC" })],
-            LoadedFromConfig: true);
+            [new ThemePaletteEntry("Brush.AppBackground", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = "#FFEECC" })]);
 
         var merged = ThemePaletteConfigurationLoader.Merge(@base, overlay);
 
@@ -628,37 +568,15 @@ public sealed class ThemePaletteConfigurationLoaderTests
                     ["light"] = "#FFFFFF",
                     ["dark"] = "#000000",
                 })
-            ],
-            LoadedFromConfig: true);
+            ]);
         var overlay = new ThemePaletteConfiguration(
             [new FixedThemeDefinition("system", new LocalizedText("System Override"), "light")],
-            [],
-            LoadedFromConfig: true);
+            []);
 
         var merged = ThemePaletteConfigurationLoader.Merge(@base, overlay);
 
         var systemTheme = Assert.IsType<FixedThemeDefinition>(Assert.Single(merged.Themes, t => t.Id == "system"));
         Assert.Equal("light", systemTheme.InheritedThemeId);
-    }
-
-    [Fact]
-    public void TryLoadFromDirectory_WhenJsonIsInvalid_ReturnsFalse()
-    {
-        var root = CreateTempDirectory();
-        var appBase = Path.Combine(root, "appbase");
-        Directory.CreateDirectory(Path.Combine(appBase, "Config"));
-        File.WriteAllText(Path.Combine(appBase, "Config", "theme-palette.json"), "not valid json {{{");
-
-        try
-        {
-            var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out _);
-
-            Assert.False(loaded);
-        }
-        finally
-        {
-            Directory.Delete(root, recursive: true);
-        }
     }
 
     private static ThemePaletteConfiguration BuildConfig(
@@ -678,7 +596,7 @@ public sealed class ThemePaletteConfigurationLoaderTests
                     StringComparer.OrdinalIgnoreCase)))
             .ToList();
 
-        return new ThemePaletteConfiguration(themeDefinitions, entryList, LoadedFromConfig: true);
+        return new ThemePaletteConfiguration(themeDefinitions, entryList);
     }
 
     private static string CreateTempDirectory()

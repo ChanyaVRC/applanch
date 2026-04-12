@@ -16,8 +16,7 @@ public sealed class ThemeOptionsProviderTests
                 new FixedThemeDefinition(ThemePaletteConfigurationLoader.LightThemeId, new LocalizedText("Light")),
                 new FixedThemeDefinition("monochrome", new LocalizedText("Monochrome"))
             ],
-            [],
-            LoadedFromConfig: true);
+            []);
 
         var options = ThemeOptionsProvider.BuildOptions(configuration);
 
@@ -35,8 +34,7 @@ public sealed class ThemeOptionsProviderTests
                 new FixedThemeDefinition(ThemePaletteConfigurationLoader.LightThemeId, new LocalizedText("Light")),
                 new FixedThemeDefinition("monochrome", new LocalizedText("Monochrome"))
             ],
-            [],
-            LoadedFromConfig: true);
+            []);
 
         var options = ThemeOptionsProvider.BuildOptions(configuration);
 
@@ -60,8 +58,7 @@ public sealed class ThemeOptionsProviderTests
                             [LanguageOption.Japanese] = "システム設定"
                         }))
             ],
-            [],
-            LoadedFromConfig: true);
+            []);
 
         using var cultureScope = new CultureScope("ja-JP");
 
@@ -80,8 +77,7 @@ public sealed class ThemeOptionsProviderTests
                 new FixedThemeDefinition(ThemePaletteConfigurationLoader.LightThemeId, new LocalizedText("Light")),
                 new FixedThemeDefinition("hidden-theme", new LocalizedText("Hidden"), isVisibleInThemeList: false)
             ],
-            [],
-            LoadedFromConfig: true);
+            []);
 
         var options = ThemeOptionsProvider.BuildOptions(configuration);
 
