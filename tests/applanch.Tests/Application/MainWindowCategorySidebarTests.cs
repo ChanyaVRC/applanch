@@ -1,13 +1,10 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using applanch.Infrastructure.Dialogs;
-using applanch.Infrastructure.Launch;
-using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Updates;
 using applanch.Infrastructure.Utilities;
 using applanch.Tests.TestSupport;
+using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;
 using Xunit;
 using Strings = applanch.Properties.Resources;
@@ -467,128 +464,6 @@ public sealed class MainWindowCategorySidebarTests
             window.UpdateLayout();
             WpfTestHost.DoEvents();
             Thread.Sleep(10);
-        }
-    }
-
-    private sealed class FakeStore : ILauncherStore
-    {
-        private readonly IReadOnlyList<LauncherEntry> _entries;
-
-        public FakeStore(IReadOnlyList<LauncherEntry>? entries = null)
-        {
-            _entries = entries ??
-            [
-                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), Category.Default, string.Empty, "App")
-            ];
-        }
-
-        public int SaveCallCount { get; private set; }
-
-        public IReadOnlyList<LauncherEntry> LoadAll()
-        {
-            return _entries;
-        }
-
-        public void SaveAll(IEnumerable<LauncherEntry> entries)
-        {
-            SaveCallCount++;
-        }
-    }
-
-    private sealed class FakeResolver : IAppResolver
-    {
-        public bool TryResolve(string input, out ResolvedApp resolved)
-        {
-            resolved = default!;
-            return false;
-        }
-
-        public IReadOnlyList<string> GetSuggestions(string input, int maxResults = 8)
-        {
-            return [];
-        }
-    }
-
-    private sealed class FakeLaunchService : IItemLaunchService
-    {
-        public LaunchExecutionResult TryLaunch(LaunchPath launchPath, string arguments, bool runAsAdministrator = false)
-        {
-            return LaunchExecutionResult.Success();
-        }
-    }
-
-    private sealed class FakeInteractionService : IUserInteractionService
-    {
-        public string? PromptResult { get; init; } = string.Empty;
-        public string? PromptWithSuggestionsResult { get; init; } = string.Empty;
-        public string LastPromptWithSuggestionsTitle { get; private set; } = string.Empty;
-        public string[] LastSuggestions { get; private set; } = [];
-
-        public void Show(string message, string caption, MessageBoxImage icon)
-        {
-        }
-
-        public bool Confirm(string message, string caption, Window owner)
-        {
-            return true;
-        }
-
-        public string? Prompt(string title, string initialValue, Window owner)
-        {
-            return PromptResult;
-        }
-
-        public PromptResult<string>? PromptWithSuggestions(string title, string initialValue, IEnumerable<string> suggestions, Window owner)
-        {
-            LastPromptWithSuggestionsTitle = title;
-            LastSuggestions = suggestions
-                .Where(static value => !string.IsNullOrWhiteSpace(value))
-                .Distinct(StringComparer.Ordinal)
-                .ToArray();
-            if (PromptWithSuggestionsResult is null)
-            {
-                return null;
-            }
-
-            var selectedSuggestion = LastSuggestions.FirstOrDefault(value => string.Equals(value, PromptWithSuggestionsResult, StringComparison.Ordinal));
-            return new PromptResult<string>(PromptWithSuggestionsResult, selectedSuggestion);
-        }
-
-        public PromptResult<T?>? PromptWithSuggestions<T>(string title, T initialValue, IEnumerable<T> suggestions, Window owner)
-        {
-            LastPromptWithSuggestionsTitle = title;
-            LastSuggestions = suggestions
-            .Select(static value => value?.ToString() ?? string.Empty)
-                .Where(static value => !string.IsNullOrWhiteSpace(value))
-                .Distinct(StringComparer.Ordinal)
-                .ToArray();
-
-            if (PromptWithSuggestionsResult is null)
-            {
-                return null;
-            }
-
-            var selectedSuggestion = LastSuggestions.FirstOrDefault(value => string.Equals(value, PromptWithSuggestionsResult, StringComparison.Ordinal));
-            var selectedItem = suggestions.FirstOrDefault(value => string.Equals(value?.ToString(), selectedSuggestion, StringComparison.Ordinal));
-            return new PromptResult<T?>(PromptWithSuggestionsResult, selectedItem);
-        }
-    }
-
-    private sealed class FakeUpdateService : IAppUpdateService
-    {
-        public Task<IReadOnlyList<AppUpdateInfo>> GetAvailableUpdatesAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult<IReadOnlyList<AppUpdateInfo>>([]);
-        }
-
-        public Task<AppUpdateInfo?> CheckForUpdateAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult<AppUpdateInfo?>(null);
-        }
-
-        public Task ApplyUpdateAsync(AppUpdateInfo update, CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
         }
     }
 }

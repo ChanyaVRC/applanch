@@ -1,10 +1,22 @@
 using applanch.Infrastructure.Storage;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch.Tests.ViewModels.TestDoubles;
 
-internal sealed class FakeStore(IReadOnlyList<LauncherEntry> entries) : ILauncherStore
+internal sealed class FakeStore : ILauncherStore
 {
-    private readonly List<LauncherEntry> _entries = entries.ToList();
+    private readonly List<LauncherEntry> _entries;
+
+    public FakeStore() : this(null)
+    {
+    }
+
+    public FakeStore(IReadOnlyList<LauncherEntry>? entries)
+    {
+        _entries = (entries ?? [
+            new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), Category.Default, string.Empty, "App")
+        ]).ToList();
+    }
 
     public int SaveCallCount { get; private set; }
 

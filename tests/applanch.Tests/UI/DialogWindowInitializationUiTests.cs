@@ -63,14 +63,4 @@ public sealed class DialogWindowInitializationUiTests
         });
     }
 
-    private sealed class TestWindow : Window, IDisposable
-    {
-        public void Dispose()
-        {
-            if (IsVisible)
-            {
-                Close();
-            }
-        }
-    }
 }

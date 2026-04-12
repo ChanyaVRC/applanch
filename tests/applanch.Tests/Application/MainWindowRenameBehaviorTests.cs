@@ -1,13 +1,9 @@
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using applanch.Infrastructure.Dialogs;
-using applanch.Infrastructure.Launch;
-using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Updates;
-using applanch.Infrastructure.Utilities;
 using applanch.Tests.TestSupport;
+using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;
 using Xunit;
 
@@ -91,90 +87,5 @@ public sealed class MainWindowRenameBehaviorTests
             BindingFlags.Instance | BindingFlags.NonPublic);
 
         clickHandler!.Invoke(window, [menuItem, new RoutedEventArgs(MenuItem.ClickEvent)]);
-    }
-
-    private sealed class FakeStore : ILauncherStore
-    {
-        public IReadOnlyList<LauncherEntry> LoadAll()
-        {
-            return
-            [
-                new LauncherEntry(new LaunchPath(@"C:\Tools\App.exe"), Category.Default, string.Empty, "App")
-            ];
-        }
-
-        public void SaveAll(IEnumerable<LauncherEntry> entries)
-        {
-        }
-    }
-
-    private sealed class FakeResolver : IAppResolver
-    {
-        public bool TryResolve(string input, out ResolvedApp resolved)
-        {
-            resolved = default!;
-            return false;
-        }
-
-        public IReadOnlyList<string> GetSuggestions(string input, int maxResults = 8)
-        {
-            return [];
-        }
-    }
-
-    private sealed class FakeLaunchService : IItemLaunchService
-    {
-        public LaunchExecutionResult TryLaunch(LaunchPath launchPath, string arguments, bool runAsAdministrator = false)
-        {
-            return LaunchExecutionResult.Success();
-        }
-    }
-
-    private sealed class FakeInteractionService(string promptValue) : IUserInteractionService
-    {
-        public int PromptCallCount { get; private set; }
-
-        public void Show(string message, string caption, MessageBoxImage icon)
-        {
-        }
-
-        public bool Confirm(string message, string caption, Window owner)
-        {
-            return true;
-        }
-
-        public string? Prompt(string title, string initialValue, Window owner)
-        {
-            PromptCallCount++;
-            return promptValue;
-        }
-
-        public PromptResult<string>? PromptWithSuggestions(string title, string initialValue, IEnumerable<string> suggestions, Window owner)
-        {
-            return new PromptResult<string>(initialValue, initialValue);
-        }
-
-        public PromptResult<T?>? PromptWithSuggestions<T>(string title, T initialValue, IEnumerable<T> suggestions, Window owner)
-        {
-            return new PromptResult<T?>(initialValue?.ToString() ?? string.Empty, initialValue);
-        }
-    }
-
-    private sealed class FakeUpdateService : IAppUpdateService
-    {
-        public Task<IReadOnlyList<AppUpdateInfo>> GetAvailableUpdatesAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult<IReadOnlyList<AppUpdateInfo>>([]);
-        }
-
-        public Task<AppUpdateInfo?> CheckForUpdateAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult<AppUpdateInfo?>(null);
-        }
-
-        public Task ApplyUpdateAsync(AppUpdateInfo update, CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
     }
 }

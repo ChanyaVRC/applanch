@@ -57,15 +57,4 @@ public sealed class PromptDialogUiTests
             dialog.Close();
         });
     }
-
-    private sealed class TestWindow : Window, IDisposable
-    {
-        public void Dispose()
-        {
-            if (IsVisible)
-            {
-                Close();
-            }
-        }
-    }
 }
