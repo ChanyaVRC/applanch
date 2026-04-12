@@ -23,6 +23,7 @@
         { "key": "Brush.Surface",                      "hex": "#181825" },
         { "key": "Brush.SurfaceBorder",                "hex": "#313244" },
         { "key": "Brush.TextPrimary",                  "hex": "#CDD6F4" },
+        { "key": "Brush.SidebarPinSlash",              "hex": "#CDD6F4" },
         { "key": "Brush.TextSecondary",                "hex": "#BAC2DE" },
         { "key": "Brush.TextTertiary",                 "hex": "#A6ADC8" },
         { "key": "Brush.ScrollbarThumb",               "hex": "#A6ADC8" },

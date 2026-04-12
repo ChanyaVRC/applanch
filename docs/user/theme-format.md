@@ -135,6 +135,7 @@ If `entries` and `entriesFrom` are both present, `entries` provides this theme's
 | `Brush.PrereleaseBadgeBackground` | Prerelease badge background |
 | `Brush.PrereleaseBadgeBorder` | Prerelease badge border |
 | `Brush.PrereleaseBadgeText` | Prerelease badge text |
+| `Brush.SidebarPinSlash` | Category sidebar pin-toggle slash color |
 | `Brush.ItemBackground` | Individual item row background |
 | `Brush.ItemBorder` | Individual item row border |
 | `Brush.IconBackground` | Icon placeholder background |

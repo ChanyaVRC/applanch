@@ -37,6 +37,9 @@ public class ThemeApplierTests
 
         var prereleaseBadgeTextBrush = Assert.IsType<SolidColorBrush>(resources["Brush.PrereleaseBadgeText"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#475569")!, prereleaseBadgeTextBrush.Color);
+
+        var sidebarPinSlashBrush = Assert.IsType<SolidColorBrush>(resources["Brush.SidebarPinSlash"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#0F172A")!, sidebarPinSlashBrush.Color);
     }
 
     [Fact]
@@ -66,6 +69,9 @@ public class ThemeApplierTests
 
         var prereleaseBadgeTextBrush = Assert.IsType<SolidColorBrush>(resources["Brush.PrereleaseBadgeText"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#9FB2C9")!, prereleaseBadgeTextBrush.Color);
+
+        var sidebarPinSlashBrush = Assert.IsType<SolidColorBrush>(resources["Brush.SidebarPinSlash"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#E2E8F0")!, sidebarPinSlashBrush.Color);
 
         var iconColor = WindowIconThemeHelper.ResolveIconColor(resources);
         Assert.Equal(WindowIconThemeHelper.DarkPaletteIconColor, iconColor);
@@ -311,6 +317,14 @@ public class ThemeApplierTests
                         ["light"] = "#475569",
                         ["dark"] = "#9FB2C9",
                         ["monochrome"] = "#4D4D4D",
+                    }),
+                new ThemePaletteEntry(
+                    "Brush.SidebarPinSlash",
+                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["light"] = "#0F172A",
+                        ["dark"] = "#E2E8F0",
+                        ["monochrome"] = "#1A1A1A",
                     })
             ],
             LoadedFromConfig: true);

@@ -161,7 +161,7 @@
                                            VerticalAlignment="Center"/>
                                 <Border Width="14"
                                         Height="1.4"
-                                        Background="{DynamicResource Brush.TextPrimary}"
+                                    Background="{DynamicResource Brush.SidebarPinSlash}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         Opacity="0.9"

@@ -135,6 +135,7 @@ Windows のカラーモードに応じて継承元を切り替える例:
 | `Brush.PrereleaseBadgeBackground` | プレリリースバッジの背景 |
 | `Brush.PrereleaseBadgeBorder` | プレリリースバッジの境界線 |
 | `Brush.PrereleaseBadgeText` | プレリリースバッジの文字色 |
+| `Brush.SidebarPinSlash` | カテゴリサイドバーのピン切替スラッシュ色 |
 | `Brush.ItemBackground` | アイテム行の背景 |
 | `Brush.ItemBorder` | アイテム行の境界線 |
 | `Brush.IconBackground` | アイコンプレースホルダーの背景 |
