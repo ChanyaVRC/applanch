@@ -144,3 +144,7 @@ If `entries` and `entriesFrom` are both present, `entries` provides this theme's
 | `Brush.NotificationProgressValue` | Progress bar fill |
 | `Brush.QuickAddInfoText` | Quick-add informational message text |
 | `Brush.QuickAddWarningText` | Quick-add warning message text |
+| `Brush.DialogInfo` | Information dialog icon color |
+| `Brush.DialogQuestion` | Question dialog icon color |
+| `Brush.DialogWarning` | Warning dialog icon color |
+| `Brush.DialogError` | Error dialog icon color |

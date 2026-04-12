@@ -12,7 +12,7 @@ public class MessageDialogVisualsTests
         var visual = MessageDialogVisuals.Resolve(MessageBoxImage.Error);
 
         Assert.Equal("\uEA39", visual.Symbol);
-        Assert.Equal("Brush.SurfaceBorder", visual.BrushResourceKey);
+        Assert.Equal("Brush.DialogError", visual.BrushResourceKey);
         Assert.True(visual.ShowIcon);
     }
 
@@ -22,7 +22,7 @@ public class MessageDialogVisualsTests
         var visual = MessageDialogVisuals.Resolve(MessageBoxImage.Warning);
 
         Assert.Equal("\uE7BA", visual.Symbol);
-        Assert.Equal("Brush.SurfaceBorder", visual.BrushResourceKey);
+        Assert.Equal("Brush.DialogWarning", visual.BrushResourceKey);
         Assert.True(visual.ShowIcon);
     }
 
@@ -32,7 +32,7 @@ public class MessageDialogVisualsTests
         var visual = MessageDialogVisuals.Resolve(MessageBoxImage.Information);
 
         Assert.Equal("\uE946", visual.Symbol);
-        Assert.Equal("Brush.TextSecondary", visual.BrushResourceKey);
+        Assert.Equal("Brush.DialogInfo", visual.BrushResourceKey);
         Assert.True(visual.ShowIcon);
     }
 
@@ -42,7 +42,7 @@ public class MessageDialogVisualsTests
         var visual = MessageDialogVisuals.Resolve(MessageBoxImage.Question);
 
         Assert.Equal("\uE897", visual.Symbol);
-        Assert.Equal("Brush.TextSecondary", visual.BrushResourceKey);
+        Assert.Equal("Brush.DialogQuestion", visual.BrushResourceKey);
         Assert.True(visual.ShowIcon);
     }
 

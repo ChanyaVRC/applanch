@@ -37,7 +37,11 @@
         { "key": "Brush.NotificationProgressTrack",    "hex": "#313244" },
         { "key": "Brush.NotificationProgressValue",    "hex": "#CBA6F7" },
         { "key": "Brush.QuickAddInfoText",             "hex": "#FAB387" },
-        { "key": "Brush.QuickAddWarningText",          "hex": "#F38BA8" }
+        { "key": "Brush.QuickAddWarningText",          "hex": "#F38BA8" },
+        { "key": "Brush.DialogInfo",                   "hex": "#BAC2DE" },
+        { "key": "Brush.DialogQuestion",               "hex": "#BAC2DE" },
+        { "key": "Brush.DialogWarning",                "hex": "#FAB387" },
+        { "key": "Brush.DialogError",                  "hex": "#F38BA8" }
       ]
     }
   ]

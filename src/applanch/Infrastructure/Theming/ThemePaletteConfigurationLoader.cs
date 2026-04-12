@@ -66,6 +66,10 @@ internal static class ThemePaletteConfigurationLoader
             { "Brush.NotificationProgressValue", "#94A3B8" },
             { "Brush.QuickAddInfoText", "#B45309" },
             { "Brush.QuickAddWarningText", "#92400E" },
+            { "Brush.DialogInfo", "#475569" },
+            { "Brush.DialogQuestion", "#475569" },
+            { "Brush.DialogWarning", "#FDBA74" },
+            { "Brush.DialogError", "#FCA5A5" },
         };
 
     private static Dictionary<string, string> BuildDarkFallbackColors() =>
@@ -90,6 +94,10 @@ internal static class ThemePaletteConfigurationLoader
             { "Brush.NotificationProgressValue", "#7C93AF" },
             { "Brush.QuickAddInfoText", "#FBBF24" },
             { "Brush.QuickAddWarningText", "#F59E0B" },
+            { "Brush.DialogInfo", "#9FB2C9" },
+            { "Brush.DialogQuestion", "#9FB2C9" },
+            { "Brush.DialogWarning", "#B45309" },
+            { "Brush.DialogError", "#B45353" },
         };
 
     private static readonly ThemePaletteConfiguration FallbackConfiguration = new(

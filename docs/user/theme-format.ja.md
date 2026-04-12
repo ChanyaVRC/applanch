@@ -144,3 +144,7 @@ Windows のカラーモードに応じて継承元を切り替える例:
 | `Brush.NotificationProgressValue` | プログレスバーの進捗部分 |
 | `Brush.QuickAddInfoText` | クイック追加の情報メッセージテキスト |
 | `Brush.QuickAddWarningText` | クイック追加の警告メッセージテキスト |
+| `Brush.DialogInfo` | 情報ダイアログのアイコン色 |
+| `Brush.DialogQuestion` | 質問ダイアログのアイコン色 |
+| `Brush.DialogWarning` | 警告ダイアログのアイコン色 |
+| `Brush.DialogError` | エラーダイアログのアイコン色 |
