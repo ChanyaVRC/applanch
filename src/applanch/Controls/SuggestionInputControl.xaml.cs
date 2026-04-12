@@ -48,6 +48,13 @@ public sealed partial class SuggestionInputControl : UserControl
             typeof(SuggestionInputControl),
             new PropertyMetadata(null));
 
+    public static readonly DependencyProperty PlaceholderProperty =
+        DependencyProperty.Register(
+            nameof(Placeholder),
+            typeof(string),
+            typeof(SuggestionInputControl),
+            new PropertyMetadata(string.Empty));
+
     private static readonly DependencyPropertyKey FilteredSuggestionsPropertyKey =
         DependencyProperty.RegisterReadOnly(
             nameof(FilteredSuggestions),
@@ -73,6 +80,12 @@ public sealed partial class SuggestionInputControl : UserControl
     {
         get => (Style?)GetValue(InputComboBoxStyleProperty);
         set => SetValue(InputComboBoxStyleProperty, value);
+    }
+
+    public string Placeholder
+    {
+        get => (string)GetValue(PlaceholderProperty);
+        set => SetValue(PlaceholderProperty, value);
     }
 
     public IEnumerable FilteredSuggestions => (IEnumerable)GetValue(FilteredSuggestionsProperty);

@@ -5,15 +5,41 @@
     x:Name="Root"
     Loaded="SuggestionInputControl_Loaded"
     Unloaded="SuggestionInputControl_Unloaded">
-    <ComboBox
-        x:Name="InputComboBox"
-        IsEditable="True"
-        IsTextSearchEnabled="False"
-        ItemsSource="{Binding FilteredSuggestions, ElementName=Root}"
-        PreviewMouseLeftButtonUp="ComboBox_PreviewMouseLeftButtonUp"
-        SelectionChanged="ComboBox_SelectionChanged"
-        StaysOpenOnEdit="True"
-        Style="{Binding InputComboBoxStyle, ElementName=Root}"
-        Text="{Binding Text, ElementName=Root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-        ToolTip="{Binding ToolTip, ElementName=Root}" />
+    <Grid>
+        <ComboBox
+            x:Name="InputComboBox"
+            IsEditable="True"
+            IsTextSearchEnabled="False"
+            ItemsSource="{Binding FilteredSuggestions, ElementName=Root}"
+            PreviewMouseLeftButtonUp="ComboBox_PreviewMouseLeftButtonUp"
+            SelectionChanged="ComboBox_SelectionChanged"
+            StaysOpenOnEdit="True"
+            Style="{Binding InputComboBoxStyle, ElementName=Root}"
+            Text="{Binding Text, ElementName=Root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            ToolTip="{Binding ToolTip, ElementName=Root}" />
+
+        <TextBlock
+            Margin="12,0,34,0"
+            VerticalAlignment="Center"
+            Foreground="#7F8A95"
+            IsHitTestVisible="False"
+            Text="{Binding Placeholder, ElementName=Root}"
+            TextTrimming="CharacterEllipsis">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Text, ElementName=Root}" Value="" />
+                                <Condition Binding="{Binding IsKeyboardFocusWithin, ElementName=InputComboBox}" Value="False" />
+                                <Condition Binding="{Binding IsDropDownOpen, ElementName=InputComboBox}" Value="False" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Visibility" Value="Visible" />
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+    </Grid>
 </UserControl>

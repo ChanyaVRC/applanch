@@ -462,7 +462,7 @@
             BasedOn="{StaticResource ModernTextBoxStyle}"
             TargetType="TextBox">
             <Setter Property="MinHeight" Value="28" />
-            <Setter Property="Padding" Value="10,4" />
+            <Setter Property="Padding" Value="6,4" />
         </Style>
 
         <Style x:Key="ModernScrollBarThumbStyle" TargetType="Thumb">
@@ -639,6 +639,7 @@
                             <StackPanel>
                                 <controls:SuggestionInputControl
                                     InputComboBoxStyle="{StaticResource ModernComboBoxStyle}"
+                                    Placeholder="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_NameOrPath]}"
                                     Suggestions="{Binding QuickAddSuggestions}"
                                     Text="{Binding QuickAddNameOrPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_NameOrPath]}" />
@@ -653,14 +654,39 @@
                                     <controls:SuggestionInputControl
                                         Grid.Column="0"
                                         InputComboBoxStyle="{StaticResource QuickAddCompactComboBoxStyle}"
+                                        Placeholder="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Category]}"
                                         Suggestions="{Binding CategoryNames, Converter={StaticResource CategoryDisplayConverter}}"
                                         Text="{Binding QuickAddCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource CategoryDisplayConverter}}"
                                         ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Category]}" />
-                                    <TextBox
-                                        Grid.Column="2"
-                                        Style="{StaticResource QuickAddCompactTextBoxStyle}"
-                                        Text="{Binding QuickAddArguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                        ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Arguments]}" />
+                                    <Grid Grid.Column="2">
+                                        <TextBox
+                                            x:Name="QuickAddArgumentsTextBox"
+                                            Style="{StaticResource QuickAddCompactTextBoxStyle}"
+                                            Text="{Binding QuickAddArguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Arguments]}" />
+                                        <TextBlock
+                                            Margin="12,0,10,0"
+                                            VerticalAlignment="Center"
+                                            Foreground="#7F8A95"
+                                            IsHitTestVisible="False"
+                                            Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Arguments]}"
+                                            TextTrimming="CharacterEllipsis">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding QuickAddArguments}" Value="" />
+                                                                <Condition Binding="{Binding IsKeyboardFocusWithin, ElementName=QuickAddArgumentsTextBox}" Value="False" />
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </MultiDataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
                                     <Button
                                         Grid.Column="4"
                                         Height="28"
