@@ -131,11 +131,13 @@ If `entries` and `entriesFrom` are both present, `entries` provides this theme's
 | `Brush.TextPrimary` | Primary text color |
 | `Brush.TextSecondary` | Secondary / muted text |
 | `Brush.TextTertiary` | Disabled text, scrollbar thumbs |
+| `Brush.ScrollbarThumb` | Scrollbar thumb color |
 | `Brush.ItemBackground` | Individual item row background |
 | `Brush.ItemBorder` | Individual item row border |
 | `Brush.IconBackground` | Icon placeholder background |
 | `Brush.NotificationInfoBackground` | Info notification background |
 | `Brush.NotificationInfoBorder` | Info notification border |
+| `Brush.NotificationActionHover` | Notification action hover color |
 | `Brush.NotificationWarningBackground` | Warning notification background |
 | `Brush.NotificationWarningBorder` | Warning notification border |
 | `Brush.MissingPathWarningBadge` | Missing-path warning badge on launch item icons |

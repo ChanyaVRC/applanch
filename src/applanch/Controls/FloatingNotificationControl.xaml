@@ -169,7 +169,7 @@
                                                 <Trigger Property="IsMouseOver"
                                                          Value="True">
                                                     <Setter Property="Foreground"
-                                                            Value="{DynamicResource Brush.NotificationInfoBorder}"/>
+                                                            Value="{DynamicResource Brush.NotificationActionHover}"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>

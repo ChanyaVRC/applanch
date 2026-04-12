@@ -28,6 +28,12 @@ public class ThemeApplierTests
 
         var missingPathBadgeBrush = Assert.IsType<SolidColorBrush>(resources["Brush.MissingPathWarningBadge"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#FDBA74")!, missingPathBadgeBrush.Color);
+
+        var scrollbarThumbBrush = Assert.IsType<SolidColorBrush>(resources["Brush.ScrollbarThumb"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#64748B")!, scrollbarThumbBrush.Color);
+
+        var notificationActionHoverBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationActionHover"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#D7DEE8")!, notificationActionHoverBrush.Color);
     }
 
     [Fact]
@@ -48,6 +54,12 @@ public class ThemeApplierTests
 
         var missingPathBadgeBrush = Assert.IsType<SolidColorBrush>(resources["Brush.MissingPathWarningBadge"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#B45309")!, missingPathBadgeBrush.Color);
+
+        var scrollbarThumbBrush = Assert.IsType<SolidColorBrush>(resources["Brush.ScrollbarThumb"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#7C93AF")!, scrollbarThumbBrush.Color);
+
+        var notificationActionHoverBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationActionHover"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#2A3B57")!, notificationActionHoverBrush.Color);
 
         var iconColor = WindowIconThemeHelper.ResolveIconColor(resources);
         Assert.Equal(WindowIconThemeHelper.DarkPaletteIconColor, iconColor);
@@ -269,6 +281,22 @@ public class ThemeApplierTests
                         ["light"] = "#FDBA74",
                         ["dark"] = "#B45309",
                         ["monochrome"] = "#9E9E9E",
+                    }),
+                new ThemePaletteEntry(
+                    "Brush.ScrollbarThumb",
+                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["light"] = "#64748B",
+                        ["dark"] = "#7C93AF",
+                        ["monochrome"] = "#737373",
+                    }),
+                new ThemePaletteEntry(
+                    "Brush.NotificationActionHover",
+                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["light"] = "#D7DEE8",
+                        ["dark"] = "#2A3B57",
+                        ["monochrome"] = "#C7C7C7",
                     })
             ],
             LoadedFromConfig: true);

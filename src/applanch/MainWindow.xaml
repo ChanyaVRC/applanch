@@ -583,7 +583,7 @@
                     <ControlTemplate TargetType="Thumb">
                         <Border x:Name="ThumbBorder"
                                 CornerRadius="3"
-                                Background="{DynamicResource Brush.TextTertiary}"
+                                Background="{DynamicResource Brush.ScrollbarThumb}"
                                 Opacity="0.45"/>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver"

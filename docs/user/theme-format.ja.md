@@ -131,11 +131,13 @@ Windows のカラーモードに応じて継承元を切り替える例:
 | `Brush.TextPrimary` | 主要テキストの色 |
 | `Brush.TextSecondary` | 補助・弱調テキスト |
 | `Brush.TextTertiary` | 無効テキスト・スクロールバーのつまみ |
+| `Brush.ScrollbarThumb` | スクロールバーつまみの色 |
 | `Brush.ItemBackground` | アイテム行の背景 |
 | `Brush.ItemBorder` | アイテム行の境界線 |
 | `Brush.IconBackground` | アイコンプレースホルダーの背景 |
 | `Brush.NotificationInfoBackground` | 情報通知の背景 |
 | `Brush.NotificationInfoBorder` | 情報通知の境界線 |
+| `Brush.NotificationActionHover` | 通知アクションのホバー色 |
 | `Brush.NotificationWarningBackground` | 警告通知の背景 |
 | `Brush.NotificationWarningBorder` | 警告通知の境界線 |
 | `Brush.MissingPathWarningBadge` | 起動項目アイコン上の欠落パス警告バッジ |
