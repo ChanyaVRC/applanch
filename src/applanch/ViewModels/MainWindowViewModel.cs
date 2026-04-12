@@ -260,6 +260,7 @@ public sealed class MainWindowViewModel : ObservableObject
         if (languageChanged)
         {
             NormalizeLocalizedDefaultCategories();
+            NotifyLocalizedCategoryBindingChanges();
         }
 
         if (iconSettingsChanged)
@@ -396,13 +397,18 @@ public sealed class MainWindowViewModel : ObservableObject
             _suspendPersistence = false;
         }
 
-        // Force UI refresh for localized category labels displayed via converter.
-        OnPropertyChanged(nameof(QuickAddCategory));
-
         if (categoryUpdated)
         {
             PersistCurrentOrder();
         }
+    }
+
+    private void NotifyLocalizedCategoryBindingChanges()
+    {
+        OnPropertyChanged(nameof(CategoryNames));
+        OnPropertyChanged(nameof(FilterCategoryNames));
+        OnPropertyChanged(nameof(SelectedCategory));
+        OnPropertyChanged(nameof(QuickAddCategory));
     }
 
     private void RebuildCategoryLists()
