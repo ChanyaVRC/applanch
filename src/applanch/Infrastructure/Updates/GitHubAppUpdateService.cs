@@ -3,6 +3,7 @@ using System.IO.Compression;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using applanch.Infrastructure.Storage;
@@ -232,9 +233,11 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService
         return await response.Content.ReadFromJsonAsync<List<GitHubRelease>>(JsonOptions, cancellationToken).ConfigureAwait(false) ?? [];
     }
 
-    private bool TryCreateUpdateInfo(GitHubRelease release, out AppUpdateInfo update)
+    private bool TryCreateUpdateInfo(
+        GitHubRelease release,
+        [NotNullWhen(true)] out AppUpdateInfo? update)
     {
-        update = default!;
+        update = null;
         var releaseVersionText = release.TagName.TrimStart('v');
         if (!SemanticVersion.TryParse(releaseVersionText, out var releaseVersion))
         {

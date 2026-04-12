@@ -16,6 +16,7 @@ public class MainWindowOpenLocationTests
         var canOpen = MainWindow.TryCreateOpenLocationStartInfo(new LaunchPath(filePath), out var startInfo);
 
         Assert.True(canOpen);
+        Assert.NotNull(startInfo);
         Assert.Equal("explorer.exe", startInfo.FileName);
         Assert.Equal($"/select,\"{filePath}\"", startInfo.Arguments);
         Assert.True(startInfo.UseShellExecute);
@@ -29,6 +30,7 @@ public class MainWindowOpenLocationTests
         var canOpen = MainWindow.TryCreateOpenLocationStartInfo(new LaunchPath(tempDirectory.Path), out var startInfo);
 
         Assert.True(canOpen);
+        Assert.NotNull(startInfo);
         Assert.Equal("explorer.exe", startInfo.FileName);
         Assert.Equal($"\"{tempDirectory.Path}\"", startInfo.Arguments);
         Assert.True(startInfo.UseShellExecute);

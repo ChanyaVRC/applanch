@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using System.Diagnostics.CodeAnalysis;
 using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Storage;
@@ -155,9 +156,11 @@ internal static class LauncherStore
         return result;
     }
 
-    private static bool TryNormalizeEntry(LauncherEntry entry, out LauncherEntry normalizedEntry)
+    private static bool TryNormalizeEntry(
+        LauncherEntry entry,
+        [NotNullWhen(true)] out LauncherEntry? normalizedEntry)
     {
-        normalizedEntry = default!;
+        normalizedEntry = null;
 
         if (string.IsNullOrWhiteSpace(entry.Path.Value))
         {

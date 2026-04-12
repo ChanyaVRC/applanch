@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -891,9 +892,11 @@ public sealed partial class MainWindow : Window
         return created;
     }
 
-    internal static bool TryCreateOpenLocationStartInfo(LaunchPath launchPath, out ProcessStartInfo startInfo)
+    internal static bool TryCreateOpenLocationStartInfo(
+        LaunchPath launchPath,
+        [NotNullWhen(true)] out ProcessStartInfo? startInfo)
     {
-        startInfo = default!;
+        startInfo = null;
         var path = launchPath.Value;
 
         if (launchPath.IsUrl || !Path.Exists(path))

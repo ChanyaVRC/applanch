@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Microsoft.Win32;
 
@@ -66,7 +67,7 @@ internal static class PathNormalization
         return GetPathType(path) is PathType.HttpUrl;
     }
 
-    internal static bool TryParseHttpUrl(string path, out Uri uri)
+    internal static bool TryParseHttpUrl(string path, [NotNullWhen(true)] out Uri? uri)
     {
         if (GetPathType(path, out var parsedUri) is PathType.HttpUrl && parsedUri is not null)
         {
@@ -74,13 +75,13 @@ internal static class PathNormalization
             return true;
         }
 
-        uri = default!;
+        uri = null;
         return false;
     }
 
-    internal static bool TryParseRegisteredUrl(string path, out Uri uri)
+    internal static bool TryParseRegisteredUrl(string path, [NotNullWhen(true)] out Uri? uri)
     {
-        uri = default!;
+        uri = null;
 
         if (!Uri.TryCreate(path, UriKind.Absolute, out var parsedUri) || parsedUri.Scheme == Uri.UriSchemeFile)
         {
