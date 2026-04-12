@@ -26,10 +26,12 @@ dotnet test
 
 ## フォーマット確認
 
-コミット前に、すべてのコードがフォーマッターを通過する必要があります。
+コミット前に、`dotnet xstyler` による XAML チェックを含むフォーマット確認を通過する必要があります。
 
 ```powershell
+dotnet tool restore --tool-manifest .config/dotnet-tools.json
 dotnet format applanch.slnx --verify-no-changes --no-restore --verbosity minimal
+dotnet xstyler -d .\src\ -r -p -l Minimal
 ```
 
 確認が失敗した場合は自動フォーマットを適用します。
@@ -96,7 +98,7 @@ src/applanch.ResourceGenerator/   # 型付きリソースアクセス用ソー�
 ## プルリクエスト
 
 1. `dotnet build` と `dotnet test` の両方が通ることを確認します。
-2. `dotnet format --verify-no-changes` が通ることを確認します。
+2. `dotnet format --verify-no-changes` と `dotnet xstyler -p` の両方が通ることを確認します。
 3. `master` ブランチに対してプルリクエストを作成します。
 4. PR の説明には何を変更したか・その理由を記載します。
 

@@ -26,10 +26,12 @@ Focus on tests relevant to changed areas first, then run the full suite before s
 
 ## Format Check
 
-All code must pass the formatter before committing:
+All code must pass format checks before committing, including the `dotnet xstyler` XAML check:
 
 ```powershell
+dotnet tool restore --tool-manifest .config/dotnet-tools.json
 dotnet format applanch.slnx --verify-no-changes --no-restore --verbosity minimal
+dotnet xstyler -d .\src\ -r -p -l Minimal
 ```
 
 If verification fails, apply formatting automatically:
@@ -96,7 +98,7 @@ Loose conventions:
 ## Pull Requests
 
 1. Ensure `dotnet build` and `dotnet test` both pass.
-2. Ensure `dotnet format --verify-no-changes` passes.
+2. Ensure `dotnet format --verify-no-changes` and `dotnet xstyler -p` both pass.
 3. Open a pull request against the `master` branch.
 4. Describe what changed and why in the PR description.
 

@@ -70,8 +70,14 @@ jobs:
           name: prepared-workspace
           path: .
 
-      - name: Check formatting
+      - name: Restore local tools
+        run: dotnet tool restore --tool-manifest .config/dotnet-tools.json
+
+      - name: Check dotnet formatting
         run: dotnet format applanch.slnx --verify-no-changes --no-restore --verbosity minimal
+
+      - name: Check XAML formatting
+        run: dotnet xstyler -d .\src\ -r -p -l Minimal
 
   vulnerable-packages:
     needs: prepare
