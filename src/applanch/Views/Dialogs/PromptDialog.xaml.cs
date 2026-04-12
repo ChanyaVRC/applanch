@@ -1,10 +1,9 @@
 ﻿using System.Windows;
 using applanch.Infrastructure.Dialogs;
-using applanch.Infrastructure.Theming;
 
 namespace applanch.Views.Dialogs;
 
-public sealed partial class PromptDialog : Window
+public sealed partial class PromptDialog : DialogWindowBase
 {
     public bool UseSuggestions => SuggestionTexts.Count > 0;
 
@@ -46,25 +45,21 @@ public sealed partial class PromptDialog : Window
         InitialValue = GetPromptText(initialValue);
 
         InitializeComponent();
-        Title = title;
-        Owner = owner;
+        InitializeDialogWindow(title, owner);
         DataContext = this;
     }
-
-
-    private void Window_SourceInitialized(object? sender, EventArgs e) =>
-        WindowCaptionThemeHelper.Apply(this);
 
     private void OkButton_Click(object sender, RoutedEventArgs e) =>
         DialogResult = true;
 
-    private void Window_Loaded(object sender, RoutedEventArgs e)
+    protected override void FocusInitialElement()
     {
         if (UseSuggestions)
         {
             InputSuggestion.FocusInputWithoutAutoOpen(selectAll: true);
             return;
         }
+
         InputTextBox.Focus();
         InputTextBox.SelectAll();
     }

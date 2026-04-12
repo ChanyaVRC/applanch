@@ -1,18 +1,16 @@
-<Window x:Class="applanch.Views.Dialogs.PromptDialog"
+<dialogs:DialogWindowBase x:Class="applanch.Views.Dialogs.PromptDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:applanch.Controls"
         xmlns:res="clr-namespace:applanch.Properties"
-        xmlns:local="clr-namespace:applanch"
+        xmlns:dialogs="clr-namespace:applanch.Views.Dialogs"
+        xmlns:app="clr-namespace:applanch"
         SizeToContent="Height"
         Width="420"
         ResizeMode="NoResize"
-        WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
-        SourceInitialized="Window_SourceInitialized"
-        Loaded="Window_Loaded"
         Background="{DynamicResource Brush.AppBackground}">
-    <Window.Resources>
+        <dialogs:DialogWindowBase.Resources>
 
         <!-- Item inside the dropdown list -->
         <Style x:Key="DialogComboBoxItemStyle"
@@ -225,7 +223,7 @@
             <Setter Property="FontSize"
                     Value="13"/>
         </Style>
-    </Window.Resources>
+        </dialogs:DialogWindowBase.Resources>
 
     <StackPanel Margin="20">
         <!-- Text-only mode -->
@@ -269,7 +267,7 @@
                     HorizontalAlignment="Right"
                     Margin="0,14,0,0">
             <Button x:Name="CancelButton"
-                    Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_Cancel]}"
+                    Content="{Binding Source={x:Static app:LocalizedStrings.Instance}, Path=[Button_Cancel]}"
                     Width="100"
                     IsCancel="True"/>
             <Button x:Name="OkButton"
@@ -280,4 +278,4 @@
                     Click="OkButton_Click"/>
         </StackPanel>
     </StackPanel>
-</Window>
+</dialogs:DialogWindowBase>

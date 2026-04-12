@@ -1,11 +1,10 @@
 using System.Windows;
 using System.Windows.Media;
 using applanch.Infrastructure.Dialogs;
-using applanch.Infrastructure.Theming;
 
 namespace applanch.Views.Dialogs;
 
-public sealed partial class MessageDialogWindow : Window
+public sealed partial class MessageDialogWindow : DialogWindowBase
 {
     public string DialogMessage { get; }
 
@@ -19,11 +18,7 @@ public sealed partial class MessageDialogWindow : Window
     {
         InitializeComponent();
 
-        Title = caption;
-        Owner = owner;
-        WindowStartupLocation = owner is null
-            ? WindowStartupLocation.CenterScreen
-            : WindowStartupLocation.CenterOwner;
+        InitializeDialogWindow(caption, owner);
 
         DialogMessage = message;
 
@@ -32,16 +27,12 @@ public sealed partial class MessageDialogWindow : Window
         DialogIconVisibility = visual.ShowIcon ? Visibility.Visible : Visibility.Collapsed;
         IconSpacerColumn.Width = visual.ShowIcon ? new GridLength(12) : new GridLength(0);
         DialogIconBrush = TryFindResource(visual.BrushResourceKey) as Brush
-            ?? (Brush)FindResource("Brush.TextSecondary");
+            ?? Brushes.DimGray;
 
         DataContext = this;
-
     }
 
-    private void Window_SourceInitialized(object? sender, EventArgs e) =>
-        WindowCaptionThemeHelper.Apply(this);
-
-    private void Window_Loaded(object sender, RoutedEventArgs e) =>
+    protected override void FocusInitialElement() =>
         OkButton.Focus();
 
     private void OkButton_Click(object sender, RoutedEventArgs e) =>
