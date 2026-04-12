@@ -1,84 +1,68 @@
-<Window x:Class="applanch.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:controls="clr-namespace:applanch.Controls"
-        xmlns:local="clr-namespace:applanch"
-        xmlns:vm="clr-namespace:applanch.ViewModels"
-        xmlns:wpf="clr-namespace:applanch.Infrastructure.Wpf"
-        mc:Ignorable="d"
-        xmlns:res="clr-namespace:applanch.Properties"
-        Title="Applanch"
-        Height="560"
-        Width="840"
-        MinHeight="480"
-        MinWidth="700"
-        SourceInitialized="Window_SourceInitialized"
-        Loaded="MainWindow_Loaded"
-        Background="{DynamicResource Brush.AppBackground}">
+﻿<Window
+    x:Class="applanch.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:applanch.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:applanch"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:res="clr-namespace:applanch.Properties"
+    xmlns:vm="clr-namespace:applanch.ViewModels"
+    xmlns:wpf="clr-namespace:applanch.Infrastructure.Wpf"
+    Title="Applanch"
+    Width="840"
+    Height="560"
+    MinWidth="700"
+    MinHeight="480"
+    Background="{DynamicResource Brush.AppBackground}"
+    Loaded="MainWindow_Loaded"
+    SourceInitialized="Window_SourceInitialized"
+    mc:Ignorable="d">
     <Window.Resources>
-        <wpf:CategoryDisplayConverter x:Key="CategoryDisplayConverter"/>
-        <Style x:Key="CategorySidebarHoverZoneStyle"
-               TargetType="Border">
-            <Setter Property="Visibility"
-                    Value="Visible"/>
+        <wpf:CategoryDisplayConverter x:Key="CategoryDisplayConverter" />
+        <Style x:Key="CategorySidebarHoverZoneStyle" TargetType="Border">
+            <Setter Property="Visibility" Value="Visible" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding IsChecked, ElementName=CategorySidebarPinToggleButton}"
-                             Value="True">
-                    <Setter Property="Visibility"
-                            Value="Collapsed"/>
+                <DataTrigger Binding="{Binding IsChecked, ElementName=CategorySidebarPinToggleButton}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="CategorySidebarContainerStyle"
-               TargetType="Border">
-            <Setter Property="Padding"
-                    Value="0"/>
+        <Style x:Key="CategorySidebarContainerStyle" TargetType="Border">
+            <Setter Property="Padding" Value="0" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding IsCategorySidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}}"
-                             Value="True">
-                    <Setter Property="Padding"
-                            Value="12"/>
+                <DataTrigger Binding="{Binding IsCategorySidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                    <Setter Property="Padding" Value="12" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="CategorySidebarExpandedContentStyle"
-               TargetType="Grid">
-            <Setter Property="Visibility"
-                    Value="Collapsed"/>
-            <Setter Property="IsHitTestVisible"
-                    Value="False"/>
+        <Style x:Key="CategorySidebarExpandedContentStyle" TargetType="Grid">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Setter Property="IsHitTestVisible" Value="False" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding IsCategorySidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}}"
-                             Value="True">
-                    <Setter Property="Visibility"
-                            Value="Visible"/>
-                    <Setter Property="IsHitTestVisible"
-                            Value="True"/>
+                <DataTrigger Binding="{Binding IsCategorySidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                    <Setter Property="Visibility" Value="Visible" />
+                    <Setter Property="IsHitTestVisible" Value="True" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="MainContentContainerStyle"
-               TargetType="Grid">
-            <Setter Property="Margin"
-                    Value="{x:Static local:MainWindow.CategorySidebarPinnedContentMargin}"/>
+        <Style x:Key="MainContentContainerStyle" TargetType="Grid">
+            <Setter Property="Margin" Value="{x:Static local:MainWindow.CategorySidebarPinnedContentMargin}" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding IsPinned, ElementName=CategorySidebar}"
-                             Value="False">
-                    <Setter Property="Margin"
-                            Value="0"/>
+                <DataTrigger Binding="{Binding IsPinned, ElementName=CategorySidebar}" Value="False">
+                    <Setter Property="Margin" Value="0" />
                     <DataTrigger.EnterActions>
                         <BeginStoryboard>
                             <Storyboard>
-                                <ThicknessAnimation Storyboard.TargetProperty="Margin"
-                                                    To="0"
-                                                    Duration="{x:Static local:MainWindow.CategorySidebarAnimationDuration}">
+                                <ThicknessAnimation
+                                    Storyboard.TargetProperty="Margin"
+                                    To="0"
+                                    Duration="{x:Static local:MainWindow.CategorySidebarAnimationDuration}">
                                     <ThicknessAnimation.EasingFunction>
-                                        <CubicEase EasingMode="EaseInOut"/>
+                                        <CubicEase EasingMode="EaseInOut" />
                                     </ThicknessAnimation.EasingFunction>
                                 </ThicknessAnimation>
                             </Storyboard>
@@ -87,11 +71,12 @@
                     <DataTrigger.ExitActions>
                         <BeginStoryboard>
                             <Storyboard>
-                                <ThicknessAnimation Storyboard.TargetProperty="Margin"
-                                                    To="{x:Static local:MainWindow.CategorySidebarPinnedContentMargin}"
-                                                    Duration="{x:Static local:MainWindow.CategorySidebarAnimationDuration}">
+                                <ThicknessAnimation
+                                    Storyboard.TargetProperty="Margin"
+                                    To="{x:Static local:MainWindow.CategorySidebarPinnedContentMargin}"
+                                    Duration="{x:Static local:MainWindow.CategorySidebarAnimationDuration}">
                                     <ThicknessAnimation.EasingFunction>
-                                        <CubicEase EasingMode="EaseInOut"/>
+                                        <CubicEase EasingMode="EaseInOut" />
                                     </ThicknessAnimation.EasingFunction>
                                 </ThicknessAnimation>
                             </Storyboard>
@@ -102,29 +87,27 @@
         </Style>
 
         <Style TargetType="ContextMenu">
-            <Setter Property="Background"
-                    Value="{DynamicResource Brush.Surface}"/>
-            <Setter Property="BorderBrush"
-                    Value="{DynamicResource Brush.ItemBorder}"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Setter Property="Padding"
-                    Value="4"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.ItemBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="4" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ContextMenu">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8"
-                                Padding="{TemplateBinding Padding}">
+                        <Border
+                            Padding="{TemplateBinding Padding}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
                             <Border.Effect>
-                                <DropShadowEffect BlurRadius="16"
-                                                  ShadowDepth="4"
-                                                  Opacity="0.18"
-                                                  Color="#000000"/>
+                                <DropShadowEffect
+                                    BlurRadius="16"
+                                    Opacity="0.18"
+                                    ShadowDepth="4"
+                                    Color="#000000" />
                             </Border.Effect>
-                            <ItemsPresenter/>
+                            <ItemsPresenter />
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -132,39 +115,31 @@
         </Style>
 
         <Style TargetType="MenuItem">
-            <Setter Property="Foreground"
-                    Value="{DynamicResource Brush.TextPrimary}"/>
-            <Setter Property="Background"
-                    Value="Transparent"/>
-            <Setter Property="Padding"
-                    Value="14,8"/>
-            <Setter Property="FontSize"
-                    Value="13"/>
-            <Setter Property="Cursor"
-                    Value="Hand"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="MenuItem">
-                        <Border x:Name="MenuItemBorder"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="5"
-                                Margin="2,1">
-                            <ContentPresenter Content="{TemplateBinding Header}"
-                                              Margin="{TemplateBinding Padding}"
-                                              RecognizesAccessKey="True"
-                                              VerticalAlignment="Center"/>
+                        <Border
+                            x:Name="MenuItemBorder"
+                            Margin="2,1"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="5">
+                            <ContentPresenter
+                                Margin="{TemplateBinding Padding}"
+                                VerticalAlignment="Center"
+                                Content="{TemplateBinding Header}"
+                                RecognizesAccessKey="True" />
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsHighlighted"
-                                     Value="True">
-                                <Setter TargetName="MenuItemBorder"
-                                        Property="Background"
-                                        Value="{DynamicResource Brush.ItemBackground}"/>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="MenuItemBorder" Property="Background" Value="{DynamicResource Brush.ItemBackground}" />
                             </Trigger>
-                            <Trigger Property="IsEnabled"
-                                     Value="False">
-                                <Setter Property="Opacity"
-                                        Value="0.5"/>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -172,61 +147,46 @@
             </Setter>
         </Style>
 
-        <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}"
-               TargetType="Separator">
-            <Setter Property="Margin"
-                    Value="4,3"/>
+        <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="Separator">
+            <Setter Property="Margin" Value="4,3" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Separator">
-                        <Border Height="1"
-                                Background="{DynamicResource Brush.ItemBorder}"/>
+                        <Border Height="1" Background="{DynamicResource Brush.ItemBorder}" />
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <Style TargetType="Separator"
-               BasedOn="{StaticResource {x:Static MenuItem.SeparatorStyleKey}}"/>
+        <Style BasedOn="{StaticResource {x:Static MenuItem.SeparatorStyleKey}}" TargetType="Separator" />
 
-        <Style x:Key="RoundedSecondaryButtonStyle"
-               TargetType="Button"
-               BasedOn="{StaticResource RoundedButtonStyle}"/>
+        <Style
+            x:Key="RoundedSecondaryButtonStyle"
+            BasedOn="{StaticResource RoundedButtonStyle}"
+            TargetType="Button" />
 
-        <Style x:Key="HeaderIconButtonStyle"
-               TargetType="Button">
-            <Setter Property="Width"
-                    Value="32"/>
-            <Setter Property="Height"
-                    Value="32"/>
-            <Setter Property="Padding"
-                    Value="0"/>
-            <Setter Property="VerticalAlignment"
-                    Value="Top"/>
-            <Setter Property="Background"
-                    Value="Transparent"/>
-            <Setter Property="BorderBrush"
-                    Value="Transparent"/>
-            <Setter Property="BorderThickness"
-                    Value="0"/>
-            <Setter Property="Cursor"
-                    Value="Hand"/>
-            <Setter Property="Foreground"
-                    Value="{DynamicResource Brush.TextSecondary}"/>
+        <Style x:Key="HeaderIconButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="32" />
+            <Setter Property="Height" Value="32" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextSecondary}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd"
-                                Background="Transparent"
-                                CornerRadius="6">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
+                        <Border
+                            x:Name="Bd"
+                            Background="Transparent"
+                            CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver"
-                                     Value="True">
-                                <Setter Property="Foreground"
-                                        Value="{DynamicResource Brush.TextPrimary}"/>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -234,70 +194,54 @@
             </Setter>
         </Style>
 
-        <Style x:Key="HeaderToggleCheckBoxStyle"
-               TargetType="CheckBox">
-            <Setter Property="Foreground"
-                    Value="{DynamicResource Brush.TextPrimary}"/>
-            <Setter Property="FontSize"
-                    Value="12"/>
-            <Setter Property="Cursor"
-                    Value="Hand"/>
-            <Setter Property="VerticalContentAlignment"
-                    Value="Center"/>
+        <Style x:Key="HeaderToggleCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <Border x:Name="Track"
-                                    Grid.Column="2"
-                                    Width="38"
-                                    Height="22"
-                                    Background="{DynamicResource Brush.Surface}"
-                                    BorderBrush="{DynamicResource Brush.ItemBorder}"
-                                    BorderThickness="1"
-                                    CornerRadius="11">
-                                <Ellipse x:Name="Thumb"
-                                         Width="16"
-                                         Height="16"
-                                         Margin="2"
-                                         HorizontalAlignment="Left"
-                                         Fill="{DynamicResource Brush.TextTertiary}"/>
+                            <Border
+                                x:Name="Track"
+                                Grid.Column="2"
+                                Width="38"
+                                Height="22"
+                                Background="{DynamicResource Brush.Surface}"
+                                BorderBrush="{DynamicResource Brush.ItemBorder}"
+                                BorderThickness="1"
+                                CornerRadius="11">
+                                <Ellipse
+                                    x:Name="Thumb"
+                                    Width="16"
+                                    Height="16"
+                                    Margin="2"
+                                    HorizontalAlignment="Left"
+                                    Fill="{DynamicResource Brush.TextTertiary}" />
                             </Border>
-                            <ContentPresenter Grid.Column="0"
-                                              VerticalAlignment="Center"
-                                              RecognizesAccessKey="True"/>
+                            <ContentPresenter
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                RecognizesAccessKey="True" />
                         </Grid>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked"
-                                     Value="True">
-                                <Setter TargetName="Track"
-                                        Property="Background"
-                                        Value="#1A6DB3F8"/>
-                                <Setter TargetName="Track"
-                                        Property="BorderBrush"
-                                        Value="#6DB3F8"/>
-                                <Setter TargetName="Thumb"
-                                        Property="HorizontalAlignment"
-                                        Value="Right"/>
-                                <Setter TargetName="Thumb"
-                                        Property="Fill"
-                                        Value="#6DB3F8"/>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Track" Property="Background" Value="#1A6DB3F8" />
+                                <Setter TargetName="Track" Property="BorderBrush" Value="#6DB3F8" />
+                                <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right" />
+                                <Setter TargetName="Thumb" Property="Fill" Value="#6DB3F8" />
                             </Trigger>
-                            <Trigger Property="IsMouseOver"
-                                     Value="True">
-                                <Setter TargetName="Track"
-                                        Property="BorderBrush"
-                                        Value="#8DBFFB"/>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Track" Property="BorderBrush" Value="#8DBFFB" />
                             </Trigger>
-                            <Trigger Property="IsEnabled"
-                                     Value="False">
-                                <Setter Property="Opacity"
-                                        Value="0.5"/>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -305,40 +249,30 @@
             </Setter>
         </Style>
 
-        <Style x:Key="LaunchTileButtonStyle"
-               TargetType="Button">
-            <Setter Property="BorderThickness"
-                    Value="0"/>
-            <Setter Property="Background"
-                    Value="Transparent"/>
-            <Setter Property="Padding"
-                    Value="8"/>
-            <Setter Property="Cursor"
-                    Value="Hand"/>
-            <Setter Property="HorizontalContentAlignment"
-                    Value="Stretch"/>
+        <Style x:Key="LaunchTileButtonStyle" TargetType="Button">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="TileBorder"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="8">
-                            <ContentPresenter Margin="{TemplateBinding Padding}"
-                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="Center"/>
+                        <Border
+                            x:Name="TileBorder"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="8">
+                            <ContentPresenter
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver"
-                                     Value="True">
-                                <Setter TargetName="TileBorder"
-                                        Property="Background"
-                                        Value="{DynamicResource Brush.Surface}"/>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TileBorder" Property="Background" Value="{DynamicResource Brush.Surface}" />
                             </Trigger>
-                            <Trigger Property="IsPressed"
-                                     Value="True">
-                                <Setter TargetName="TileBorder"
-                                        Property="Opacity"
-                                        Value="0.85"/>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="TileBorder" Property="Opacity" Value="0.85" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -346,40 +280,30 @@
             </Setter>
         </Style>
 
-        <Style x:Key="ModernComboBoxItemStyle"
-               TargetType="ComboBoxItem">
-            <Setter Property="Foreground"
-                    Value="{DynamicResource Brush.TextPrimary}"/>
-            <Setter Property="Background"
-                    Value="Transparent"/>
-            <Setter Property="Padding"
-                    Value="10,7"/>
-            <Setter Property="HorizontalContentAlignment"
-                    Value="Stretch"/>
-            <Setter Property="VerticalContentAlignment"
-                    Value="Center"/>
+        <Style x:Key="ModernComboBoxItemStyle" TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBoxItem">
-                        <Border x:Name="ItemBorder"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="4">
-                            <ContentPresenter Margin="{TemplateBinding Padding}"
-                                              HorizontalAlignment="Stretch"
-                                              VerticalAlignment="Center"/>
+                        <Border
+                            x:Name="ItemBorder"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="4">
+                            <ContentPresenter
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsHighlighted"
-                                     Value="True">
-                                <Setter TargetName="ItemBorder"
-                                        Property="Background"
-                                        Value="{DynamicResource Brush.ItemBackground}"/>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource Brush.ItemBackground}" />
                             </Trigger>
-                            <Trigger Property="IsSelected"
-                                     Value="True">
-                                <Setter TargetName="ItemBorder"
-                                        Property="Background"
-                                        Value="{DynamicResource Brush.ItemBackground}"/>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource Brush.ItemBackground}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -387,216 +311,177 @@
             </Setter>
         </Style>
 
-        <!-- Implicit style makes this the default for ALL ComboBoxItems,
-                     overriding the WPF theme style that has FindAncestor bindings. -->
-        <Style TargetType="ComboBoxItem"
-               BasedOn="{StaticResource ModernComboBoxItemStyle}"/>
+        <!--
+            Implicit style makes this the default for ALL ComboBoxItems,
+            overriding the WPF theme style that has FindAncestor bindings.
+        -->
+        <Style BasedOn="{StaticResource ModernComboBoxItemStyle}" TargetType="ComboBoxItem" />
 
-        <Style x:Key="ModernComboBoxToggleButtonStyle"
-               TargetType="ToggleButton">
-            <Setter Property="Focusable"
-                    Value="False"/>
+        <Style x:Key="ModernComboBoxToggleButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Focusable" Value="False" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
-                        <Border Background="Transparent"
-                                BorderThickness="0">
-                            <Path Width="10"
-                                  Height="6"
-                                  HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"
-                                  Data="M 0 0 L 5 6 L 10 0"
-                                  Stroke="{DynamicResource Brush.TextTertiary}"
-                                  StrokeThickness="1.6"
-                                  StrokeStartLineCap="Round"
-                                  StrokeEndLineCap="Round"/>
+                        <Border Background="Transparent" BorderThickness="0">
+                            <Path
+                                Width="10"
+                                Height="6"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Data="M 0 0 L 5 6 L 10 0"
+                                Stroke="{DynamicResource Brush.TextTertiary}"
+                                StrokeEndLineCap="Round"
+                                StrokeStartLineCap="Round"
+                                StrokeThickness="1.6" />
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <Style x:Key="ModernComboBoxStyle"
-               TargetType="ComboBox">
-            <Setter Property="Foreground"
-                    Value="{DynamicResource Brush.TextPrimary}"/>
-            <Setter Property="Background"
-                    Value="{DynamicResource Brush.Surface}"/>
-            <Setter Property="BorderBrush"
-                    Value="{DynamicResource Brush.ItemBorder}"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Setter Property="Padding"
-                    Value="10,6"/>
-            <Setter Property="MinHeight"
-                    Value="34"/>
-            <Setter Property="HorizontalContentAlignment"
-                    Value="Stretch"/>
-            <Setter Property="VerticalContentAlignment"
-                    Value="Center"/>
-            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility"
-                    Value="Disabled"/>
-            <Setter Property="ScrollViewer.VerticalScrollBarVisibility"
-                    Value="Auto"/>
-            <Setter Property="ItemContainerStyle"
-                    Value="{StaticResource ModernComboBoxItemStyle}"/>
+        <Style x:Key="ModernComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+            <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.ItemBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="MinHeight" Value="34" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+            <Setter Property="ItemContainerStyle" Value="{StaticResource ModernComboBoxItemStyle}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
-                            <Border x:Name="OuterBorder"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="6">
+                            <Border
+                                x:Name="OuterBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="32"/>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="32" />
                                     </Grid.ColumnDefinitions>
 
-                                    <ContentPresenter x:Name="ContentSite"
-                                                      Margin="{TemplateBinding Padding}"
-                                                      VerticalAlignment="Center"
-                                                      HorizontalAlignment="Left"
-                                                      Content="{TemplateBinding SelectionBoxItem}"
-                                                      ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                                      ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                                      IsHitTestVisible="False"/>
+                                    <ContentPresenter
+                                        x:Name="ContentSite"
+                                        Margin="{TemplateBinding Padding}"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        Content="{TemplateBinding SelectionBoxItem}"
+                                        ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                        ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                        IsHitTestVisible="False" />
 
-                                    <TextBox x:Name="PART_EditableTextBox"
-                                             Grid.Column="0"
-                                             Margin="{TemplateBinding Padding}"
-                                             VerticalAlignment="Center"
-                                             HorizontalAlignment="Stretch"
-                                             Background="Transparent"
-                                             BorderThickness="0"
-                                             Foreground="{TemplateBinding Foreground}"
-                                             CaretBrush="{DynamicResource Brush.TextPrimary}"
-                                             Visibility="Hidden"/>
+                                    <TextBox
+                                        x:Name="PART_EditableTextBox"
+                                        Grid.Column="0"
+                                        Margin="{TemplateBinding Padding}"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        CaretBrush="{DynamicResource Brush.TextPrimary}"
+                                        Foreground="{TemplateBinding Foreground}"
+                                        Visibility="Hidden" />
 
-                                    <ToggleButton Grid.Column="1"
-                                                  ClickMode="Press"
-                                                  Focusable="False"
-                                                  IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                                                  Style="{StaticResource ModernComboBoxToggleButtonStyle}"/>
+                                    <ToggleButton
+                                        Grid.Column="1"
+                                        ClickMode="Press"
+                                        Focusable="False"
+                                        IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                        Style="{StaticResource ModernComboBoxToggleButtonStyle}" />
                                 </Grid>
                             </Border>
 
-                            <Popup x:Name="PART_Popup"
-                                   Placement="Bottom"
-                                   AllowsTransparency="True"
-                                   Focusable="False"
-                                   IsOpen="{TemplateBinding IsDropDownOpen}"
-                                   PopupAnimation="Fade">
-                                <Border Margin="0,6,0,0"
-                                        MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
-                                        MaxHeight="240"
-                                        Background="{DynamicResource Brush.Surface}"
-                                        BorderBrush="{DynamicResource Brush.ItemBorder}"
-                                        BorderThickness="1"
-                                        CornerRadius="6">
-                                    <ScrollViewer Margin="4"
-                                                  SnapsToDevicePixels="True">
-                                        <StackPanel IsItemsHost="True"
-                                                    KeyboardNavigation.DirectionalNavigation="Contained"/>
+                            <Popup
+                                x:Name="PART_Popup"
+                                AllowsTransparency="True"
+                                Focusable="False"
+                                IsOpen="{TemplateBinding IsDropDownOpen}"
+                                Placement="Bottom"
+                                PopupAnimation="Fade">
+                                <Border
+                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                    MaxHeight="240"
+                                    Margin="0,6,0,0"
+                                    Background="{DynamicResource Brush.Surface}"
+                                    BorderBrush="{DynamicResource Brush.ItemBorder}"
+                                    BorderThickness="1"
+                                    CornerRadius="6">
+                                    <ScrollViewer Margin="4" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
                                     </ScrollViewer>
                                 </Border>
                             </Popup>
                         </Grid>
 
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver"
-                                     Value="True">
-                                <Setter TargetName="OuterBorder"
-                                        Property="BorderBrush"
-                                        Value="{DynamicResource Brush.SurfaceBorder}"/>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource Brush.SurfaceBorder}" />
                             </Trigger>
-                            <Trigger Property="IsKeyboardFocusWithin"
-                                     Value="True">
-                                <Setter TargetName="OuterBorder"
-                                        Property="BorderBrush"
-                                        Value="{DynamicResource Brush.SurfaceBorder}"/>
-                                <Setter TargetName="OuterBorder"
-                                        Property="Background"
-                                        Value="{DynamicResource Brush.ItemBackground}"/>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource Brush.SurfaceBorder}" />
+                                <Setter TargetName="OuterBorder" Property="Background" Value="{DynamicResource Brush.ItemBackground}" />
                             </Trigger>
-                            <Trigger Property="IsDropDownOpen"
-                                     Value="True">
-                                <Setter TargetName="OuterBorder"
-                                        Property="BorderBrush"
-                                        Value="{DynamicResource Brush.SurfaceBorder}"/>
-                                <Setter TargetName="OuterBorder"
-                                        Property="Background"
-                                        Value="{DynamicResource Brush.ItemBackground}"/>
+                            <Trigger Property="IsDropDownOpen" Value="True">
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource Brush.SurfaceBorder}" />
+                                <Setter TargetName="OuterBorder" Property="Background" Value="{DynamicResource Brush.ItemBackground}" />
                             </Trigger>
-                            <Trigger Property="IsEditable"
-                                     Value="True">
-                                <Setter TargetName="PART_EditableTextBox"
-                                        Property="Visibility"
-                                        Value="Visible"/>
-                                <Setter TargetName="ContentSite"
-                                        Property="Visibility"
-                                        Value="Hidden"/>
+                            <Trigger Property="IsEditable" Value="True">
+                                <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible" />
+                                <Setter TargetName="ContentSite" Property="Visibility" Value="Hidden" />
                             </Trigger>
-                            <Trigger Property="IsEnabled"
-                                     Value="False">
-                                <Setter TargetName="OuterBorder"
-                                        Property="Opacity"
-                                        Value="0.6"/>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="OuterBorder" Property="Opacity" Value="0.6" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="QuickAddCompactComboBoxStyle"
-               TargetType="ComboBox"
-               BasedOn="{StaticResource ModernComboBoxStyle}">
-            <Setter Property="MinHeight"
-                    Value="28"/>
-            <Setter Property="Padding"
-                    Value="10,3"/>
+        <Style
+            x:Key="QuickAddCompactComboBoxStyle"
+            BasedOn="{StaticResource ModernComboBoxStyle}"
+            TargetType="ComboBox">
+            <Setter Property="MinHeight" Value="28" />
+            <Setter Property="Padding" Value="10,3" />
         </Style>
 
-        <Style x:Key="ModernTextBoxStyle"
-               TargetType="TextBox"
-               BasedOn="{StaticResource RoundedTextBoxStyle}"/>
+        <Style
+            x:Key="ModernTextBoxStyle"
+            BasedOn="{StaticResource RoundedTextBoxStyle}"
+            TargetType="TextBox" />
 
-        <Style x:Key="QuickAddCompactTextBoxStyle"
-               TargetType="TextBox"
-               BasedOn="{StaticResource ModernTextBoxStyle}">
-            <Setter Property="MinHeight"
-                    Value="28"/>
-            <Setter Property="Padding"
-                    Value="10,4"/>
+        <Style
+            x:Key="QuickAddCompactTextBoxStyle"
+            BasedOn="{StaticResource ModernTextBoxStyle}"
+            TargetType="TextBox">
+            <Setter Property="MinHeight" Value="28" />
+            <Setter Property="Padding" Value="10,4" />
         </Style>
 
-        <Style x:Key="ModernScrollBarThumbStyle"
-               TargetType="Thumb">
-            <Setter Property="SnapsToDevicePixels"
-                    Value="True"/>
-            <Setter Property="OverridesDefaultStyle"
-                    Value="True"/>
+        <Style x:Key="ModernScrollBarThumbStyle" TargetType="Thumb">
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="OverridesDefaultStyle" Value="True" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Thumb">
-                        <Border x:Name="ThumbBorder"
-                                CornerRadius="3"
-                                Background="{DynamicResource Brush.ScrollbarThumb}"
-                                Opacity="0.45"/>
+                        <Border
+                            x:Name="ThumbBorder"
+                            Background="{DynamicResource Brush.ScrollbarThumb}"
+                            CornerRadius="3"
+                            Opacity="0.45" />
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver"
-                                     Value="True">
-                                <Setter TargetName="ThumbBorder"
-                                        Property="Opacity"
-                                        Value="0.75"/>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ThumbBorder" Property="Opacity" Value="0.75" />
                             </Trigger>
-                            <Trigger Property="IsDragging"
-                                     Value="True">
-                                <Setter TargetName="ThumbBorder"
-                                        Property="Opacity"
-                                        Value="1"/>
+                            <Trigger Property="IsDragging" Value="True">
+                                <Setter TargetName="ThumbBorder" Property="Opacity" Value="1" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -604,89 +489,64 @@
             </Setter>
         </Style>
 
-        <Style x:Key="ModernScrollBarPageButtonStyle"
-               TargetType="RepeatButton">
-            <Setter Property="SnapsToDevicePixels"
-                    Value="True"/>
-            <Setter Property="OverridesDefaultStyle"
-                    Value="True"/>
-            <Setter Property="Focusable"
-                    Value="False"/>
+        <Style x:Key="ModernScrollBarPageButtonStyle" TargetType="RepeatButton">
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Focusable" Value="False" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RepeatButton">
-                        <Border Background="Transparent"/>
+                        <Border Background="Transparent" />
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <ControlTemplate x:Key="VerticalScrollBarTemplate"
-                         TargetType="ScrollBar">
-            <Grid Width="6"
-                  Margin="0,2">
-                <Track x:Name="PART_Track"
-                       IsDirectionReversed="True">
+        <ControlTemplate x:Key="VerticalScrollBarTemplate" TargetType="ScrollBar">
+            <Grid Width="6" Margin="0,2">
+                <Track x:Name="PART_Track" IsDirectionReversed="True">
                     <Track.DecreaseRepeatButton>
-                        <RepeatButton Style="{StaticResource ModernScrollBarPageButtonStyle}"
-                                      Command="ScrollBar.PageUpCommand"/>
+                        <RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource ModernScrollBarPageButtonStyle}" />
                     </Track.DecreaseRepeatButton>
                     <Track.IncreaseRepeatButton>
-                        <RepeatButton Style="{StaticResource ModernScrollBarPageButtonStyle}"
-                                      Command="ScrollBar.PageDownCommand"/>
+                        <RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource ModernScrollBarPageButtonStyle}" />
                     </Track.IncreaseRepeatButton>
                     <Track.Thumb>
-                        <Thumb Style="{StaticResource ModernScrollBarThumbStyle}"
-                               Margin="1,0"/>
+                        <Thumb Margin="1,0" Style="{StaticResource ModernScrollBarThumbStyle}" />
                     </Track.Thumb>
                 </Track>
             </Grid>
         </ControlTemplate>
 
-        <ControlTemplate x:Key="HorizontalScrollBarTemplate"
-                         TargetType="ScrollBar">
-            <Grid Height="6"
-                  Margin="2,0">
+        <ControlTemplate x:Key="HorizontalScrollBarTemplate" TargetType="ScrollBar">
+            <Grid Height="6" Margin="2,0">
                 <Track x:Name="PART_Track">
                     <Track.DecreaseRepeatButton>
-                        <RepeatButton Style="{StaticResource ModernScrollBarPageButtonStyle}"
-                                      Command="ScrollBar.PageLeftCommand"/>
+                        <RepeatButton Command="ScrollBar.PageLeftCommand" Style="{StaticResource ModernScrollBarPageButtonStyle}" />
                     </Track.DecreaseRepeatButton>
                     <Track.IncreaseRepeatButton>
-                        <RepeatButton Style="{StaticResource ModernScrollBarPageButtonStyle}"
-                                      Command="ScrollBar.PageRightCommand"/>
+                        <RepeatButton Command="ScrollBar.PageRightCommand" Style="{StaticResource ModernScrollBarPageButtonStyle}" />
                     </Track.IncreaseRepeatButton>
                     <Track.Thumb>
-                        <Thumb Style="{StaticResource ModernScrollBarThumbStyle}"
-                               Margin="0,1"/>
+                        <Thumb Margin="0,1" Style="{StaticResource ModernScrollBarThumbStyle}" />
                     </Track.Thumb>
                 </Track>
             </Grid>
         </ControlTemplate>
 
         <Style TargetType="ScrollBar">
-            <Setter Property="SnapsToDevicePixels"
-                    Value="True"/>
-            <Setter Property="OverridesDefaultStyle"
-                    Value="True"/>
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="OverridesDefaultStyle" Value="True" />
             <Style.Triggers>
-                <Trigger Property="Orientation"
-                         Value="Vertical">
-                    <Setter Property="Width"
-                            Value="6"/>
-                    <Setter Property="MinWidth"
-                            Value="6"/>
-                    <Setter Property="Template"
-                            Value="{StaticResource VerticalScrollBarTemplate}"/>
+                <Trigger Property="Orientation" Value="Vertical">
+                    <Setter Property="Width" Value="6" />
+                    <Setter Property="MinWidth" Value="6" />
+                    <Setter Property="Template" Value="{StaticResource VerticalScrollBarTemplate}" />
                 </Trigger>
-                <Trigger Property="Orientation"
-                         Value="Horizontal">
-                    <Setter Property="Height"
-                            Value="6"/>
-                    <Setter Property="MinHeight"
-                            Value="6"/>
-                    <Setter Property="Template"
-                            Value="{StaticResource HorizontalScrollBarTemplate}"/>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Height" Value="6" />
+                    <Setter Property="MinHeight" Value="6" />
+                    <Setter Property="Template" Value="{StaticResource HorizontalScrollBarTemplate}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -695,129 +555,137 @@
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="12"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="12" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <controls:FloatingNotificationControl x:Name="FloatingNotification"
-                                              Grid.Row="0"
-                                              Grid.RowSpan="4"
-                                              Panel.ZIndex="20"
-                                              Message="{Binding FloatingNotification.Message}"
-                                              IconType="{Binding FloatingNotification.IconType}"
-                                              ActionText="{Binding FloatingNotification.ActionText}"
-                                              ActionVisibility="{Binding FloatingNotification.ActionVisibility}"
-                                              ActionRequested="FloatingNotification_ActionRequested"
-                                              Hidden="FloatingNotification_Hidden"/>
+        <controls:FloatingNotificationControl
+            x:Name="FloatingNotification"
+            Grid.Row="0"
+            Grid.RowSpan="4"
+            Panel.ZIndex="20"
+            ActionRequested="FloatingNotification_ActionRequested"
+            ActionText="{Binding FloatingNotification.ActionText}"
+            ActionVisibility="{Binding FloatingNotification.ActionVisibility}"
+            Hidden="FloatingNotification_Hidden"
+            IconType="{Binding FloatingNotification.IconType}"
+            Message="{Binding FloatingNotification.Message}" />
 
-        <controls:HeaderBarControl Grid.Row="0"
-                                   UpdateButtonVisibility="{Binding UpdateBanner.HeaderButtonVisibility}"
-                                   IsUpdateButtonEnabled="{Binding UpdateBanner.AreUpdateActionsEnabled}"
-                                   UpdateRequested="UpdateButton_Click"
-                                   SettingsRequested="SettingsButton_Click"/>
+        <controls:HeaderBarControl
+            Grid.Row="0"
+            IsUpdateButtonEnabled="{Binding UpdateBanner.AreUpdateActionsEnabled}"
+            SettingsRequested="SettingsButton_Click"
+            UpdateButtonVisibility="{Binding UpdateBanner.HeaderButtonVisibility}"
+            UpdateRequested="UpdateButton_Click" />
 
-        <controls:UpdateBannerControl Grid.Row="1"
-                                      Margin="0,8,0,0"
-                                      Message="{Binding UpdateBanner.Message}"
-                                      Visibility="{Binding UpdateBanner.BannerVisibility}"
-                                      UpdateActionButtonVisibility="{Binding UpdateBanner.ActionButtonVisibility}"
-                                      IsUpdateActionButtonEnabled="{Binding UpdateBanner.AreUpdateActionsEnabled}"
-                                      UpdateRequested="UpdateButton_Click"
-                                      DismissRequested="DismissUpdateButton_Click"/>
+        <controls:UpdateBannerControl
+            Grid.Row="1"
+            Margin="0,8,0,0"
+            DismissRequested="DismissUpdateButton_Click"
+            IsUpdateActionButtonEnabled="{Binding UpdateBanner.AreUpdateActionsEnabled}"
+            Message="{Binding UpdateBanner.Message}"
+            UpdateActionButtonVisibility="{Binding UpdateBanner.ActionButtonVisibility}"
+            UpdateRequested="UpdateButton_Click"
+            Visibility="{Binding UpdateBanner.BannerVisibility}" />
 
         <Grid Grid.Row="3">
-            <controls:CategorySidebarControl x:Name="CategorySidebar"
-                                             Panel.ZIndex="1"
-                                             HorizontalAlignment="Left"
-                                             VerticalAlignment="Stretch"
-                                             SidebarDragOver="CategorySidebarContainer_DragOver"
-                                             SidebarDragLeave="CategorySidebarContainer_DragLeave"
-                                             SidebarDrop="CategorySidebarContainer_Drop"
-                                             CreateDropTargetDragOver="CategorySidebarCreateDropTarget_DragOver"
-                                             CreateDropTargetDragLeave="CategorySidebarCreateDropTarget_DragLeave"
-                                             CreateDropTargetDrop="CategorySidebarCreateDropTarget_Drop"
-                                             PinToggleClick="CategorySidebarPinToggleButton_Click"/>
+            <controls:CategorySidebarControl
+                x:Name="CategorySidebar"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Stretch"
+                Panel.ZIndex="1"
+                CreateDropTargetDragLeave="CategorySidebarCreateDropTarget_DragLeave"
+                CreateDropTargetDragOver="CategorySidebarCreateDropTarget_DragOver"
+                CreateDropTargetDrop="CategorySidebarCreateDropTarget_Drop"
+                PinToggleClick="CategorySidebarPinToggleButton_Click"
+                SidebarDragLeave="CategorySidebarContainer_DragLeave"
+                SidebarDragOver="CategorySidebarContainer_DragOver"
+                SidebarDrop="CategorySidebarContainer_Drop" />
 
-            <Grid x:Name="MainContentContainer"
-                  Style="{StaticResource MainContentContainerStyle}">
+            <Grid x:Name="MainContentContainer" Style="{StaticResource MainContentContainerStyle}">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="8"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="8" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <Expander Grid.Column="0"
-                              Grid.ColumnSpan="2"
-                              Foreground="{DynamicResource Brush.TextPrimary}"
-                              HorizontalContentAlignment="Stretch">
+                    <Expander
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        HorizontalContentAlignment="Stretch"
+                        Foreground="{DynamicResource Brush.TextPrimary}">
                         <Expander.Header>
-                            <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Expander_AddApp]}"
-                                       VerticalAlignment="Center"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource Brush.TextPrimary}"/>
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="SemiBold"
+                                Foreground="{DynamicResource Brush.TextPrimary}"
+                                Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Expander_AddApp]}" />
                         </Expander.Header>
-                        <Border Margin="0,8,0,0"
-                                Padding="12"
-                                BorderThickness="1"
-                                BorderBrush="{DynamicResource Brush.ItemBorder}"
-                                Background="{DynamicResource Brush.Surface}"
-                                CornerRadius="8">
+                        <Border
+                            Margin="0,8,0,0"
+                            Padding="12"
+                            Background="{DynamicResource Brush.Surface}"
+                            BorderBrush="{DynamicResource Brush.ItemBorder}"
+                            BorderThickness="1"
+                            CornerRadius="8">
                             <StackPanel>
                                 <controls:SuggestionInputControl
                                     InputComboBoxStyle="{StaticResource ModernComboBoxStyle}"
                                     Suggestions="{Binding QuickAddSuggestions}"
                                     Text="{Binding QuickAddNameOrPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_NameOrPath]}"/>
+                                    ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_NameOrPath]}" />
                                 <Grid Margin="0,8,0,0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="130"/>
-                                        <ColumnDefinition Width="8"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="8"/>
-                                        <ColumnDefinition Width="86"/>
+                                        <ColumnDefinition Width="130" />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="86" />
                                     </Grid.ColumnDefinitions>
-                                    <controls:SuggestionInputControl Grid.Column="0"
-                                                                     InputComboBoxStyle="{StaticResource QuickAddCompactComboBoxStyle}"
-                                                                     Suggestions="{Binding CategoryNames, Converter={StaticResource CategoryDisplayConverter}}"
-                                                                     Text="{Binding QuickAddCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource CategoryDisplayConverter}}"
-                                                                     ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Category]}"/>
-                                    <TextBox Grid.Column="2"
-                                             Text="{Binding QuickAddArguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource QuickAddCompactTextBoxStyle}"
-                                             ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Arguments]}"/>
-                                    <Button Grid.Column="4"
-                                            Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_Add]}"
-                                            Click="QuickAddButton_Click"
-                                            Height="28"
-                                            Style="{StaticResource RoundedSecondaryButtonStyle}"/>
+                                    <controls:SuggestionInputControl
+                                        Grid.Column="0"
+                                        InputComboBoxStyle="{StaticResource QuickAddCompactComboBoxStyle}"
+                                        Suggestions="{Binding CategoryNames, Converter={StaticResource CategoryDisplayConverter}}"
+                                        Text="{Binding QuickAddCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource CategoryDisplayConverter}}"
+                                        ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Category]}" />
+                                    <TextBox
+                                        Grid.Column="2"
+                                        Style="{StaticResource QuickAddCompactTextBoxStyle}"
+                                        Text="{Binding QuickAddArguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Arguments]}" />
+                                    <Button
+                                        Grid.Column="4"
+                                        Height="28"
+                                        Click="QuickAddButton_Click"
+                                        Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_Add]}"
+                                        Style="{StaticResource RoundedSecondaryButtonStyle}" />
                                 </Grid>
-                                <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Hint_AddApp]}"
-                                           Margin="0,8,0,0"
-                                           FontSize="11"
-                                           Foreground="{DynamicResource Brush.TextTertiary}"/>
-                                <TextBlock Margin="0,6,0,0"
-                                           FontSize="11"
-                                           FontWeight="SemiBold"
-                                           TextWrapping="Wrap"
-                                           Text="{Binding QuickAddFeedback.Message}"
-                                           Visibility="{Binding QuickAddFeedback.MessageVisibility}">
+                                <TextBlock
+                                    Margin="0,8,0,0"
+                                    FontSize="11"
+                                    Foreground="{DynamicResource Brush.TextTertiary}"
+                                    Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Hint_AddApp]}" />
+                                <TextBlock
+                                    Margin="0,6,0,0"
+                                    FontSize="11"
+                                    FontWeight="SemiBold"
+                                    Text="{Binding QuickAddFeedback.Message}"
+                                    TextWrapping="Wrap"
+                                    Visibility="{Binding QuickAddFeedback.MessageVisibility}">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground"
-                                                    Value="{DynamicResource Brush.QuickAddInfoText}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource Brush.QuickAddInfoText}" />
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding QuickAddFeedback.Severity}"
-                                                             Value="{x:Static vm:QuickAddMessageSeverity.Warning}">
-                                                    <Setter Property="Foreground"
-                                                            Value="{DynamicResource Brush.QuickAddWarningText}"/>
+                                                <DataTrigger Binding="{Binding QuickAddFeedback.Severity}" Value="{x:Static vm:QuickAddMessageSeverity.Warning}">
+                                                    <Setter Property="Foreground" Value="{DynamicResource Brush.QuickAddWarningText}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -826,44 +694,44 @@
                             </StackPanel>
                         </Border>
                     </Expander>
-                    <CheckBox Grid.Column="1"
-                              Margin="12,0,0,0"
-                              VerticalAlignment="Top"
-                              Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_IconMode]}"
-                              Style="{StaticResource HeaderToggleCheckBoxStyle}"
-                              IsChecked="{Binding IsLaunchItemIconOnlyMode, Mode=OneWay}"
-                              Click="IconModeToggleButton_Click"
-                              ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_ToggleLaunchItemIconOnlyMode]}"/>
+                    <CheckBox
+                        Grid.Column="1"
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Top"
+                        Click="IconModeToggleButton_Click"
+                        Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Button_IconMode]}"
+                        IsChecked="{Binding IsLaunchItemIconOnlyMode, Mode=OneWay}"
+                        Style="{StaticResource HeaderToggleCheckBoxStyle}"
+                        ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_ToggleLaunchItemIconOnlyMode]}" />
                 </Grid>
 
                 <Grid Grid.Row="3">
-                    <ListBox x:Name="LaunchListBox"
-                             ItemsSource="{Binding FilteredLaunchItems}"
-                             SelectedItem="{Binding SelectedLaunchItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             HorizontalContentAlignment="Stretch"
-                             ScrollViewer.CanContentScroll="True"
-                             VirtualizingPanel.IsVirtualizing="True"
-                             VirtualizingPanel.VirtualizationMode="Recycling"
-                             AllowDrop="True"
-                             PreviewMouseLeftButtonDown="LaunchListBox_PreviewMouseLeftButtonDown"
-                             PreviewMouseMove="LaunchListBox_PreviewMouseMove"
-                             PreviewMouseWheel="LaunchListBox_PreviewMouseWheel"
-                             DragOver="LaunchListBox_DragOver"
-                             Drop="LaunchListBox_Drop"
-                             BorderThickness="0"
-                             Background="Transparent"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox
+                        x:Name="LaunchListBox"
+                        HorizontalContentAlignment="Stretch"
+                        AllowDrop="True"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        DragOver="LaunchListBox_DragOver"
+                        Drop="LaunchListBox_Drop"
+                        ItemsSource="{Binding FilteredLaunchItems}"
+                        PreviewMouseLeftButtonDown="LaunchListBox_PreviewMouseLeftButtonDown"
+                        PreviewMouseMove="LaunchListBox_PreviewMouseMove"
+                        PreviewMouseWheel="LaunchListBox_PreviewMouseWheel"
+                        ScrollViewer.CanContentScroll="True"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                        SelectedItem="{Binding SelectedLaunchItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        VirtualizingPanel.IsVirtualizing="True"
+                        VirtualizingPanel.VirtualizationMode="Recycling">
                         <ListBox.Style>
                             <Style TargetType="ListBox">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsLaunchItemIconOnlyMode}"
-                                                 Value="True">
-                                        <Setter Property="HorizontalContentAlignment"
-                                                Value="Left"/>
+                                    <DataTrigger Binding="{Binding IsLaunchItemIconOnlyMode}" Value="True">
+                                        <Setter Property="HorizontalContentAlignment" Value="Left" />
                                         <Setter Property="ItemsPanel">
                                             <Setter.Value>
                                                 <ItemsPanelTemplate>
-                                                    <controls:VirtualizingWrapPanel ItemWidth="82"/>
+                                                    <controls:VirtualizingWrapPanel ItemWidth="82" />
                                                 </ItemsPanelTemplate>
                                             </Setter.Value>
                                         </Setter>
@@ -873,184 +741,170 @@
                         </ListBox.Style>
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
-                                <Setter Property="Padding"
-                                        Value="0"/>
-                                <Setter Property="Margin"
-                                        Value="0,0,0,6"/>
-                                <Setter Property="BorderThickness"
-                                        Value="0"/>
-                                <Setter Property="Background"
-                                        Value="Transparent"/>
-                                <Setter Property="FocusVisualStyle"
-                                        Value="{x:Null}"/>
+                                <Setter Property="Padding" Value="0" />
+                                <Setter Property="Margin" Value="0,0,0,6" />
+                                <Setter Property="BorderThickness" Value="0" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ListBoxItem">
-                                            <Border x:Name="ItemContainerBorder"
-                                                    Margin="1"
-                                                    Padding="0"
-                                                    CornerRadius="8"
-                                                    Background="Transparent"
-                                                    BorderBrush="Transparent"
-                                                    BorderThickness="1">
-                                                <ContentPresenter HorizontalAlignment="Stretch"
-                                                                  VerticalAlignment="Stretch"/>
+                                            <Border
+                                                x:Name="ItemContainerBorder"
+                                                Margin="1"
+                                                Padding="0"
+                                                Background="Transparent"
+                                                BorderBrush="Transparent"
+                                                BorderThickness="1"
+                                                CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                                             </Border>
                                             <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver"
-                                                         Value="True">
-                                                    <Setter TargetName="ItemContainerBorder"
-                                                            Property="BorderBrush"
-                                                            Value="{DynamicResource Brush.ItemBorder}"/>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="ItemContainerBorder" Property="BorderBrush" Value="{DynamicResource Brush.ItemBorder}" />
                                                 </Trigger>
-                                                <Trigger Property="IsSelected"
-                                                         Value="True">
-                                                    <Setter TargetName="ItemContainerBorder"
-                                                            Property="BorderBrush"
-                                                            Value="{DynamicResource Brush.SurfaceBorder}"/>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="ItemContainerBorder" Property="BorderBrush" Value="{DynamicResource Brush.SurfaceBorder}" />
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
                                     </Setter.Value>
                                 </Setter>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                 Value="True">
-                                        <Setter Property="Margin"
-                                                Value="0,0,8,8"/>
+                                    <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                        <Setter Property="Margin" Value="0,0,8,8" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="{DynamicResource Brush.ItemBorder}"
-                                        BorderThickness="1"
-                                        Background="{DynamicResource Brush.ItemBackground}"
-                                        CornerRadius="8"
-                                        Padding="8,6"
-                                        SnapsToDevicePixels="True">
+                                <Border
+                                    Padding="8,6"
+                                    Background="{DynamicResource Brush.ItemBackground}"
+                                    BorderBrush="{DynamicResource Brush.ItemBorder}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    SnapsToDevicePixels="True">
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                             Value="True">
-                                                    <Setter Property="Width"
-                                                            Value="72"/>
-                                                    <Setter Property="Padding"
-                                                            Value="10"/>
+                                                <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                                    <Setter Property="Width" Value="72" />
+                                                    <Setter Property="Padding" Value="10" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
                                     <Border.ContextMenu>
                                         <ContextMenu>
-                                            <MenuItem Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_Rename]}"
-                                                      Tag="{x:Static local:LaunchItemContextMenuAction.Rename}"
-                                                      Click="ContextMenu_Item_Click"/>
-                                            <MenuItem Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_ChangeCategory]}"
-                                                      Tag="{x:Static local:LaunchItemContextMenuAction.EditCategory}"
-                                                      Click="ContextMenu_Item_Click"/>
-                                            <MenuItem Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_ChangeArguments]}"
-                                                      Tag="{x:Static local:LaunchItemContextMenuAction.EditArguments}"
-                                                      Click="ContextMenu_Item_Click"/>
-                                            <MenuItem Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_OpenFileLocation]}"
-                                                      Tag="{x:Static local:LaunchItemContextMenuAction.OpenLocation}"
-                                                      Click="ContextMenu_Item_Click"/>
-                                            <Separator/>
-                                            <MenuItem Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_Delete]}"
-                                                      Tag="{x:Static local:LaunchItemContextMenuAction.Delete}"
-                                                      Click="ContextMenu_Item_Click"/>
+                                            <MenuItem
+                                                Click="ContextMenu_Item_Click"
+                                                Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_Rename]}"
+                                                Tag="{x:Static local:LaunchItemContextMenuAction.Rename}" />
+                                            <MenuItem
+                                                Click="ContextMenu_Item_Click"
+                                                Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_ChangeCategory]}"
+                                                Tag="{x:Static local:LaunchItemContextMenuAction.EditCategory}" />
+                                            <MenuItem
+                                                Click="ContextMenu_Item_Click"
+                                                Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_ChangeArguments]}"
+                                                Tag="{x:Static local:LaunchItemContextMenuAction.EditArguments}" />
+                                            <MenuItem
+                                                Click="ContextMenu_Item_Click"
+                                                Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_OpenFileLocation]}"
+                                                Tag="{x:Static local:LaunchItemContextMenuAction.OpenLocation}" />
+                                            <Separator />
+                                            <MenuItem
+                                                Click="ContextMenu_Item_Click"
+                                                Header="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Menu_Delete]}"
+                                                Tag="{x:Static local:LaunchItemContextMenuAction.Delete}" />
                                         </ContextMenu>
                                     </Border.ContextMenu>
                                     <Grid>
                                         <Grid>
                                             <Grid.Style>
                                                 <Style TargetType="Grid">
-                                                    <Setter Property="Visibility"
-                                                            Value="Visible"/>
+                                                    <Setter Property="Visibility" Value="Visible" />
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                     Value="True">
-                                                            <Setter Property="Visibility"
-                                                                    Value="Collapsed"/>
+                                                        <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </Grid.Style>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="20"/>
-                                                <ColumnDefinition Width="8"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="26"/>
+                                                <ColumnDefinition Width="20" />
+                                                <ColumnDefinition Width="8" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="26" />
                                             </Grid.ColumnDefinitions>
 
-                                            <TextBlock Grid.Column="0"
-                                                       Text="::"
-                                                       VerticalAlignment="Center"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="11"
-                                                       FontWeight="Bold"
-                                                       Foreground="{DynamicResource Brush.TextTertiary}"
-                                                       ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_DragToReorder]}"/>
+                                            <TextBlock
+                                                Grid.Column="0"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                FontSize="11"
+                                                FontWeight="Bold"
+                                                Foreground="{DynamicResource Brush.TextTertiary}"
+                                                Text="::"
+                                                ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_DragToReorder]}" />
 
-                                            <Button Grid.Column="2"
-                                                    Click="LaunchItemButton_Click"
-                                                    Tag="{Binding}"
-                                                    ToolTip="{Binding DisplayName}">
+                                            <Button
+                                                Grid.Column="2"
+                                                Click="LaunchItemButton_Click"
+                                                Tag="{Binding}"
+                                                ToolTip="{Binding DisplayName}">
                                                 <Button.Style>
-                                                    <Style TargetType="Button"
-                                                           BasedOn="{StaticResource LaunchTileButtonStyle}">
+                                                    <Style BasedOn="{StaticResource LaunchTileButtonStyle}" TargetType="Button">
                                                         <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsRenaming}"
-                                                                         Value="True">
-                                                                <Setter Property="Visibility"
-                                                                        Value="Collapsed"/>
+                                                            <DataTrigger Binding="{Binding IsRenaming}" Value="True">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Button.Style>
                                                 <Grid>
                                                     <Grid.RowDefinitions>
-                                                        <RowDefinition Height="Auto"/>
-                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
                                                     </Grid.RowDefinitions>
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="30"/>
-                                                        <ColumnDefinition Width="10"/>
-                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="30" />
+                                                        <ColumnDefinition Width="10" />
+                                                        <ColumnDefinition Width="*" />
                                                     </Grid.ColumnDefinitions>
 
-                                                    <Border Grid.RowSpan="2"
-                                                            Grid.Column="0"
-                                                            Width="28"
-                                                            Height="28"
-                                                            CornerRadius="5"
-                                                            Background="{DynamicResource Brush.IconBackground}"
-                                                            VerticalAlignment="Center">
+                                                    <Border
+                                                        Grid.RowSpan="2"
+                                                        Grid.Column="0"
+                                                        Width="28"
+                                                        Height="28"
+                                                        VerticalAlignment="Center"
+                                                        Background="{DynamicResource Brush.IconBackground}"
+                                                        CornerRadius="5">
                                                         <Grid>
-                                                            <Image Source="{Binding IconSource}"
-                                                                   Width="16"
-                                                                   Height="16"
-                                                                   HorizontalAlignment="Center"
-                                                                   VerticalAlignment="Center"/>
-                                                            <TextBlock Text="&#xE7BA;"
-                                                                       FontFamily="Segoe MDL2 Assets"
-                                                                       FontSize="10"
-                                                                       HorizontalAlignment="Right"
-                                                                       VerticalAlignment="Bottom"
-                                                                       Margin="0,0,-1,-1"
-                                                                       Foreground="{DynamicResource Brush.MissingPathWarningBadge}"
-                                                                       ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
+                                                            <Image
+                                                                Width="16"
+                                                                Height="16"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Source="{Binding IconSource}" />
+                                                            <TextBlock
+                                                                Margin="0,0,-1,-1"
+                                                                HorizontalAlignment="Right"
+                                                                VerticalAlignment="Bottom"
+                                                                FontFamily="Segoe MDL2 Assets"
+                                                                FontSize="10"
+                                                                Foreground="{DynamicResource Brush.MissingPathWarningBadge}"
+                                                                Text="&#xE7BA;"
+                                                                ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
                                                                 <TextBlock.Style>
                                                                     <Style TargetType="TextBlock">
-                                                                        <Setter Property="Visibility"
-                                                                                Value="Collapsed"/>
+                                                                        <Setter Property="Visibility" Value="Collapsed" />
                                                                         <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding IsPathMissing}"
-                                                                                         Value="True">
-                                                                                <Setter Property="Visibility"
-                                                                                        Value="Visible"/>
+                                                                            <DataTrigger Binding="{Binding IsPathMissing}" Value="True">
+                                                                                <Setter Property="Visibility" Value="Visible" />
                                                                             </DataTrigger>
                                                                         </Style.Triggers>
                                                                     </Style>
@@ -1059,77 +913,75 @@
                                                         </Grid>
                                                     </Border>
 
-                                                    <TextBlock Grid.Column="2"
-                                                               Text="{Binding DisplayName}"
-                                                               FontSize="13"
-                                                               FontWeight="SemiBold"
-                                                               Foreground="{DynamicResource Brush.TextPrimary}"/>
+                                                    <TextBlock
+                                                        Grid.Column="2"
+                                                        FontSize="13"
+                                                        FontWeight="SemiBold"
+                                                        Foreground="{DynamicResource Brush.TextPrimary}"
+                                                        Text="{Binding DisplayName}" />
 
-                                                    <TextBlock Grid.Row="1"
-                                                               Grid.Column="2"
-                                                               Margin="0,2,0,0"
-                                                               Text="{Binding FullPath}"
-                                                               FontSize="11"
-                                                               Foreground="{DynamicResource Brush.TextTertiary}"
-                                                               TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock
+                                                        Grid.Row="1"
+                                                        Grid.Column="2"
+                                                        Margin="0,2,0,0"
+                                                        FontSize="11"
+                                                        Foreground="{DynamicResource Brush.TextTertiary}"
+                                                        Text="{Binding FullPath}"
+                                                        TextTrimming="CharacterEllipsis" />
                                                 </Grid>
                                             </Button>
 
-                                            <Grid Grid.Column="2"
-                                                  Margin="8">
+                                            <Grid Grid.Column="2" Margin="8">
                                                 <Grid.Style>
                                                     <Style TargetType="Grid">
-                                                        <Setter Property="Visibility"
-                                                                Value="Collapsed"/>
+                                                        <Setter Property="Visibility" Value="Collapsed" />
                                                         <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsRenaming}"
-                                                                         Value="True">
-                                                                <Setter Property="Visibility"
-                                                                        Value="Visible"/>
+                                                            <DataTrigger Binding="{Binding IsRenaming}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible" />
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Grid.Style>
                                                 <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="30"/>
-                                                    <ColumnDefinition Width="10"/>
-                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="30" />
+                                                    <ColumnDefinition Width="10" />
+                                                    <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
 
-                                                <Border Grid.RowSpan="2"
-                                                        Grid.Column="0"
-                                                        Width="28"
-                                                        Height="28"
-                                                        CornerRadius="5"
-                                                        Background="{DynamicResource Brush.IconBackground}"
-                                                        VerticalAlignment="Center">
+                                                <Border
+                                                    Grid.RowSpan="2"
+                                                    Grid.Column="0"
+                                                    Width="28"
+                                                    Height="28"
+                                                    VerticalAlignment="Center"
+                                                    Background="{DynamicResource Brush.IconBackground}"
+                                                    CornerRadius="5">
                                                     <Grid>
-                                                        <Image Source="{Binding IconSource}"
-                                                               Width="16"
-                                                               Height="16"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Center"/>
-                                                        <TextBlock Text="&#xE7BA;"
-                                                                   FontFamily="Segoe MDL2 Assets"
-                                                                   FontSize="10"
-                                                                   HorizontalAlignment="Right"
-                                                                   VerticalAlignment="Bottom"
-                                                                   Margin="0,0,-1,-1"
-                                                                   Foreground="{DynamicResource Brush.MissingPathWarningBadge}"
-                                                                   ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
+                                                        <Image
+                                                            Width="16"
+                                                            Height="16"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            Source="{Binding IconSource}" />
+                                                        <TextBlock
+                                                            Margin="0,0,-1,-1"
+                                                            HorizontalAlignment="Right"
+                                                            VerticalAlignment="Bottom"
+                                                            FontFamily="Segoe MDL2 Assets"
+                                                            FontSize="10"
+                                                            Foreground="{DynamicResource Brush.MissingPathWarningBadge}"
+                                                            Text="&#xE7BA;"
+                                                            ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
-                                                                    <Setter Property="Visibility"
-                                                                            Value="Collapsed"/>
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
                                                                     <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding IsPathMissing}"
-                                                                                     Value="True">
-                                                                            <Setter Property="Visibility"
-                                                                                    Value="Visible"/>
+                                                                        <DataTrigger Binding="{Binding IsPathMissing}" Value="True">
+                                                                            <Setter Property="Visibility" Value="Visible" />
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
@@ -1138,105 +990,97 @@
                                                     </Grid>
                                                 </Border>
 
-                                                <TextBox Grid.Column="2"
-                                                         Text="{Binding EditingName, UpdateSourceTrigger=PropertyChanged}"
-                                                         FontSize="13"
-                                                         FontWeight="SemiBold"
-                                                         Foreground="{DynamicResource Brush.TextPrimary}"
-                                                         Background="Transparent"
-                                                         BorderThickness="0"
-                                                         Padding="0"
-                                                         VerticalAlignment="Center"
-                                                         IsVisibleChanged="RenameTextBox_IsVisibleChanged"
-                                                         KeyDown="RenameTextBox_KeyDown"
-                                                         LostFocus="RenameTextBox_LostFocus"/>
+                                                <TextBox
+                                                    Grid.Column="2"
+                                                    Padding="0"
+                                                    VerticalAlignment="Center"
+                                                    Background="Transparent"
+                                                    BorderThickness="0"
+                                                    FontSize="13"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="{DynamicResource Brush.TextPrimary}"
+                                                    IsVisibleChanged="RenameTextBox_IsVisibleChanged"
+                                                    KeyDown="RenameTextBox_KeyDown"
+                                                    LostFocus="RenameTextBox_LostFocus"
+                                                    Text="{Binding EditingName, UpdateSourceTrigger=PropertyChanged}" />
 
-                                                <TextBlock Grid.Row="1"
-                                                           Grid.Column="2"
-                                                           Margin="0,2,0,0"
-                                                           Text="{Binding FullPath}"
-                                                           FontSize="11"
-                                                           Foreground="{DynamicResource Brush.TextTertiary}"
-                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock
+                                                    Grid.Row="1"
+                                                    Grid.Column="2"
+                                                    Margin="0,2,0,0"
+                                                    FontSize="11"
+                                                    Foreground="{DynamicResource Brush.TextTertiary}"
+                                                    Text="{Binding FullPath}"
+                                                    TextTrimming="CharacterEllipsis" />
                                             </Grid>
 
-                                            <Button Grid.Column="3"
-                                                    Content="×"
-                                                    Click="DeleteButton_Click"
-                                                    Tag="{Binding}">
+                                            <Button
+                                                Grid.Column="3"
+                                                Click="DeleteButton_Click"
+                                                Content="×"
+                                                Tag="{Binding}">
                                                 <Button.Style>
-                                                    <Style TargetType="Button"
-                                                           BasedOn="{StaticResource HeaderIconButtonStyle}">
-                                                        <Setter Property="Width"
-                                                                Value="26"/>
-                                                        <Setter Property="Height"
-                                                                Value="26"/>
-                                                        <Setter Property="FontSize"
-                                                                Value="13"/>
-                                                        <Setter Property="FontWeight"
-                                                                Value="SemiBold"/>
-                                                        <Setter Property="VerticalAlignment"
-                                                                Value="Center"/>
-                                                        <Setter Property="ToolTip"
-                                                                Value="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Delete]}"/>
+                                                    <Style BasedOn="{StaticResource HeaderIconButtonStyle}" TargetType="Button">
+                                                        <Setter Property="Width" Value="26" />
+                                                        <Setter Property="Height" Value="26" />
+                                                        <Setter Property="FontSize" Value="13" />
+                                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                                        <Setter Property="ToolTip" Value="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_Delete]}" />
                                                     </Style>
                                                 </Button.Style>
                                             </Button>
                                         </Grid>
 
-                                        <Button Click="LaunchItemButton_Click"
-                                                Tag="{Binding}"
-                                                Width="60"
-                                                Height="60"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                ToolTip="{Binding DisplayName}">
+                                        <Button
+                                            Width="60"
+                                            Height="60"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Click="LaunchItemButton_Click"
+                                            Tag="{Binding}"
+                                            ToolTip="{Binding DisplayName}">
                                             <Button.Style>
-                                                <Style TargetType="Button"
-                                                       BasedOn="{StaticResource LaunchTileButtonStyle}">
-                                                    <Setter Property="Visibility"
-                                                            Value="Collapsed"/>
-                                                    <Setter Property="Padding"
-                                                            Value="6"/>
+                                                <Style BasedOn="{StaticResource LaunchTileButtonStyle}" TargetType="Button">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Setter Property="Padding" Value="6" />
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                     Value="True">
-                                                            <Setter Property="Visibility"
-                                                                    Value="Visible"/>
+                                                        <DataTrigger Binding="{Binding DataContext.IsLaunchItemIconOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible" />
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </Button.Style>
                                             <Grid>
-                                                <Border Width="44"
-                                                        Height="44"
-                                                        CornerRadius="9"
-                                                        Background="{DynamicResource Brush.IconBackground}"
-                                                        HorizontalAlignment="Center"
-                                                        VerticalAlignment="Center">
+                                                <Border
+                                                    Width="44"
+                                                    Height="44"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Background="{DynamicResource Brush.IconBackground}"
+                                                    CornerRadius="9">
                                                     <Grid>
-                                                        <Image Source="{Binding IconSource}"
-                                                               Width="28"
-                                                               Height="28"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Center"/>
-                                                        <TextBlock Text="&#xE7BA;"
-                                                                   FontFamily="Segoe MDL2 Assets"
-                                                                   FontSize="12"
-                                                                   HorizontalAlignment="Right"
-                                                                   VerticalAlignment="Bottom"
-                                                                   Margin="0,0,0,0"
-                                                                   Foreground="{DynamicResource Brush.MissingPathWarningBadge}"
-                                                                   ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
+                                                        <Image
+                                                            Width="28"
+                                                            Height="28"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            Source="{Binding IconSource}" />
+                                                        <TextBlock
+                                                            Margin="0,0,0,0"
+                                                            HorizontalAlignment="Right"
+                                                            VerticalAlignment="Bottom"
+                                                            FontFamily="Segoe MDL2 Assets"
+                                                            FontSize="12"
+                                                            Foreground="{DynamicResource Brush.MissingPathWarningBadge}"
+                                                            Text="&#xE7BA;"
+                                                            ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
-                                                                    <Setter Property="Visibility"
-                                                                            Value="Collapsed"/>
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
                                                                     <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding IsPathMissing}"
-                                                                                     Value="True">
-                                                                            <Setter Property="Visibility"
-                                                                                    Value="Visible"/>
+                                                                        <DataTrigger Binding="{Binding IsPathMissing}" Value="True">
+                                                                            <Setter Property="Visibility" Value="Visible" />
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
@@ -1252,18 +1096,20 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
 
-                    <Border Padding="18"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            CornerRadius="8"
-                            Background="{DynamicResource Brush.Surface}"
-                            BorderBrush="{DynamicResource Brush.ItemBorder}"
-                            BorderThickness="1"
-                            Visibility="{Binding EmptyMessageVisibility}">
-                        <TextBlock Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[EmptyMessage]}"
-                                   FontSize="13"
-                                   Foreground="{DynamicResource Brush.TextTertiary}"
-                                   TextAlignment="Center"/>
+                    <Border
+                        Padding="18"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Background="{DynamicResource Brush.Surface}"
+                        BorderBrush="{DynamicResource Brush.ItemBorder}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Visibility="{Binding EmptyMessageVisibility}">
+                        <TextBlock
+                            FontSize="13"
+                            Foreground="{DynamicResource Brush.TextTertiary}"
+                            Text="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[EmptyMessage]}"
+                            TextAlignment="Center" />
                     </Border>
                 </Grid>
             </Grid>
