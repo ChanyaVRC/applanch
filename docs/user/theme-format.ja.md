@@ -132,6 +132,9 @@ Windows のカラーモードに応じて継承元を切り替える例:
 | `Brush.TextSecondary` | 補助・弱調テキスト |
 | `Brush.TextTertiary` | 無効テキスト・スクロールバーのつまみ |
 | `Brush.ScrollbarThumb` | スクロールバーつまみの色 |
+| `Brush.PrereleaseBadgeBackground` | プレリリースバッジの背景 |
+| `Brush.PrereleaseBadgeBorder` | プレリリースバッジの境界線 |
+| `Brush.PrereleaseBadgeText` | プレリリースバッジの文字色 |
 | `Brush.ItemBackground` | アイテム行の背景 |
 | `Brush.ItemBorder` | アイテム行の境界線 |
 | `Brush.IconBackground` | アイコンプレースホルダーの背景 |

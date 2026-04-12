@@ -132,6 +132,9 @@ If `entries` and `entriesFrom` are both present, `entries` provides this theme's
 | `Brush.TextSecondary` | Secondary / muted text |
 | `Brush.TextTertiary` | Disabled text, scrollbar thumbs |
 | `Brush.ScrollbarThumb` | Scrollbar thumb color |
+| `Brush.PrereleaseBadgeBackground` | Prerelease badge background |
+| `Brush.PrereleaseBadgeBorder` | Prerelease badge border |
+| `Brush.PrereleaseBadgeText` | Prerelease badge text |
 | `Brush.ItemBackground` | Individual item row background |
 | `Brush.ItemBorder` | Individual item row border |
 | `Brush.IconBackground` | Icon placeholder background |

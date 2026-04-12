@@ -34,6 +34,9 @@ public class ThemeApplierTests
 
         var notificationActionHoverBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationActionHover"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#D7DEE8")!, notificationActionHoverBrush.Color);
+
+        var prereleaseBadgeTextBrush = Assert.IsType<SolidColorBrush>(resources["Brush.PrereleaseBadgeText"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#475569")!, prereleaseBadgeTextBrush.Color);
     }
 
     [Fact]
@@ -60,6 +63,9 @@ public class ThemeApplierTests
 
         var notificationActionHoverBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationActionHover"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#2A3B57")!, notificationActionHoverBrush.Color);
+
+        var prereleaseBadgeTextBrush = Assert.IsType<SolidColorBrush>(resources["Brush.PrereleaseBadgeText"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#9FB2C9")!, prereleaseBadgeTextBrush.Color);
 
         var iconColor = WindowIconThemeHelper.ResolveIconColor(resources);
         Assert.Equal(WindowIconThemeHelper.DarkPaletteIconColor, iconColor);
@@ -297,6 +303,14 @@ public class ThemeApplierTests
                         ["light"] = "#D7DEE8",
                         ["dark"] = "#2A3B57",
                         ["monochrome"] = "#C7C7C7",
+                    }),
+                new ThemePaletteEntry(
+                    "Brush.PrereleaseBadgeText",
+                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["light"] = "#475569",
+                        ["dark"] = "#9FB2C9",
+                        ["monochrome"] = "#4D4D4D",
                     })
             ],
             LoadedFromConfig: true);
