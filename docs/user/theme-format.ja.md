@@ -138,6 +138,7 @@ Windows のカラーモードに応じて継承元を切り替える例:
 | `Brush.NotificationInfoBorder` | 情報通知の境界線 |
 | `Brush.NotificationWarningBackground` | 警告通知の背景 |
 | `Brush.NotificationWarningBorder` | 警告通知の境界線 |
+| `Brush.MissingPathWarningBadge` | 起動項目アイコン上の欠落パス警告バッジ |
 | `Brush.NotificationErrorBackground` | エラー通知の背景 |
 | `Brush.NotificationErrorBorder` | エラー通知の境界線 |
 | `Brush.NotificationProgressTrack` | プログレスバーのトラック |

@@ -32,6 +32,7 @@
         { "key": "Brush.NotificationInfoBorder",       "hex": "#313244" },
         { "key": "Brush.NotificationWarningBackground","hex": "#2B2111" },
         { "key": "Brush.NotificationWarningBorder",    "hex": "#FAB387" },
+        { "key": "Brush.MissingPathWarningBadge",      "hex": "#FAB387" },
         { "key": "Brush.NotificationErrorBackground",  "hex": "#2A1618" },
         { "key": "Brush.NotificationErrorBorder",      "hex": "#F38BA8" },
         { "key": "Brush.NotificationProgressTrack",    "hex": "#313244" },

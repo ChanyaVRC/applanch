@@ -138,6 +138,7 @@ If `entries` and `entriesFrom` are both present, `entries` provides this theme's
 | `Brush.NotificationInfoBorder` | Info notification border |
 | `Brush.NotificationWarningBackground` | Warning notification background |
 | `Brush.NotificationWarningBorder` | Warning notification border |
+| `Brush.MissingPathWarningBadge` | Missing-path warning badge on launch item icons |
 | `Brush.NotificationErrorBackground` | Error notification background |
 | `Brush.NotificationErrorBorder` | Error notification border |
 | `Brush.NotificationProgressTrack` | Progress bar track |

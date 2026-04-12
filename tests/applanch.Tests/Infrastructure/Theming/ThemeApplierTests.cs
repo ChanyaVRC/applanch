@@ -25,6 +25,9 @@ public class ThemeApplierTests
 
         var notificationBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationInfoBackground"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#FFFFFF")!, notificationBrush.Color);
+
+        var missingPathBadgeBrush = Assert.IsType<SolidColorBrush>(resources["Brush.MissingPathWarningBadge"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#FDBA74")!, missingPathBadgeBrush.Color);
     }
 
     [Fact]
@@ -42,6 +45,9 @@ public class ThemeApplierTests
 
         var notificationBrush = Assert.IsType<SolidColorBrush>(resources["Brush.NotificationInfoBackground"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#131D31")!, notificationBrush.Color);
+
+        var missingPathBadgeBrush = Assert.IsType<SolidColorBrush>(resources["Brush.MissingPathWarningBadge"]);
+        Assert.Equal((Color)ColorConverter.ConvertFromString("#B45309")!, missingPathBadgeBrush.Color);
 
         var iconColor = WindowIconThemeHelper.ResolveIconColor(resources);
         Assert.Equal(WindowIconThemeHelper.DarkPaletteIconColor, iconColor);
@@ -255,6 +261,14 @@ public class ThemeApplierTests
                         ["light"] = "#FFFFFF",
                         ["dark"] = "#131D31",
                         ["monochrome"] = "#FFFFFF",
+                    }),
+                new ThemePaletteEntry(
+                    "Brush.MissingPathWarningBadge",
+                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["light"] = "#FDBA74",
+                        ["dark"] = "#B45309",
+                        ["monochrome"] = "#9E9E9E",
                     })
             ],
             LoadedFromConfig: true);

@@ -1040,7 +1040,7 @@
                                                                        HorizontalAlignment="Right"
                                                                        VerticalAlignment="Bottom"
                                                                        Margin="0,0,-1,-1"
-                                                                       Foreground="{DynamicResource Brush.NotificationWarningBorder}"
+                                                                       Foreground="{DynamicResource Brush.MissingPathWarningBadge}"
                                                                        ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
                                                                 <TextBlock.Style>
                                                                     <Style TargetType="TextBlock">
@@ -1119,7 +1119,7 @@
                                                                    HorizontalAlignment="Right"
                                                                    VerticalAlignment="Bottom"
                                                                    Margin="0,0,-1,-1"
-                                                                   Foreground="{DynamicResource Brush.NotificationWarningBorder}"
+                                                                   Foreground="{DynamicResource Brush.MissingPathWarningBadge}"
                                                                    ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
@@ -1226,7 +1226,7 @@
                                                                    HorizontalAlignment="Right"
                                                                    VerticalAlignment="Bottom"
                                                                    Margin="0,0,0,0"
-                                                                   Foreground="{DynamicResource Brush.NotificationWarningBorder}"
+                                                                   Foreground="{DynamicResource Brush.MissingPathWarningBadge}"
                                                                    ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
