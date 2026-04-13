@@ -16,6 +16,7 @@ internal sealed class RegistryAppIdResolver : IAppIdResolver
 
     internal RegistryAppIdResolver(string source)
     {
+        ArgumentNullException.ThrowIfNull(source);
         _source = source;
     }
 
@@ -26,32 +27,20 @@ internal sealed class RegistryAppIdResolver : IAppIdResolver
 
     public string Resolve(LaunchPath launchPath)
     {
-        var parsedCandidate = ParseSource();
-        if (parsedCandidate is null)
-        {
-            throw new AppIdResolutionException($"Invalid registry app-id source '{_source}'.");
-        }
-
-        var parsed = parsedCandidate.Value;
+        var parsed = ParseSource() ?? throw new AppIdResolutionException($"Invalid registry app-id source '{_source}'.");
 
         try
         {
-            using (var key = RegistryKey.OpenBaseKey(parsed.Hive, RegistryView.Registry64))
-            using (var subKey = key.OpenSubKey(parsed.KeyPath, writable: false))
+            using var key = RegistryKey.OpenBaseKey(parsed.Hive, RegistryView.Default);
+            using var subKey = key.OpenSubKey(parsed.KeyPath, writable: false) ?? throw new AppIdResolutionException($"Registry key '{parsed.KeyPath}' was not found in hive '{parsed.HiveName}'.");
+
+            var value = subKey.GetValue(parsed.ValueName);
+            if (value is string stringValue && !string.IsNullOrWhiteSpace(stringValue))
             {
-                if (subKey is null)
-                {
-                    throw new AppIdResolutionException($"Registry key '{parsed.KeyPath}' was not found in hive '{parsed.HiveName}'.");
-                }
-
-                var value = subKey.GetValue(parsed.ValueName);
-                if (value is string stringValue && !string.IsNullOrWhiteSpace(stringValue))
-                {
-                    return stringValue;
-                }
-
-                throw new AppIdResolutionException($"Registry value '{parsed.ValueName}' in key '{parsed.KeyPath}' is missing or empty.");
+                return stringValue;
             }
+
+            throw new AppIdResolutionException($"Registry value '{parsed.ValueName}' in key '{parsed.KeyPath}' is missing or empty.");
         }
         catch (AppIdResolutionException)
         {
@@ -71,7 +60,13 @@ internal sealed class RegistryAppIdResolver : IAppIdResolver
         }
 
         var parts = _source.Split(':', 4, StringSplitOptions.TrimEntries);
-        if (parts.Length != 4 || !string.Equals(parts[0], "registry", StringComparison.OrdinalIgnoreCase))
+        if (parts.Length != 4)
+        {
+            return null;
+        }
+
+        var prefix = parts[0];
+        if (prefix != "registry")
         {
             return null;
         }
@@ -95,16 +90,15 @@ internal sealed class RegistryAppIdResolver : IAppIdResolver
 
     private static bool TryParseRegistryHive(string hive, out RegistryHive registryHive)
     {
-        registryHive = hive.ToUpperInvariant() switch
+        registryHive = hive switch
         {
             "HKEY_LOCAL_MACHINE" => RegistryHive.LocalMachine,
             "HKEY_CURRENT_USER" => RegistryHive.CurrentUser,
             "HKEY_CLASSES_ROOT" => RegistryHive.ClassesRoot,
             "HKEY_USERS" => RegistryHive.Users,
             "HKEY_CURRENT_CONFIG" => RegistryHive.CurrentConfig,
-            _ => (RegistryHive)(-1),
+            _ => default,
         };
-
-        return (int)registryHive >= 0;
+        return registryHive != default;
     }
 }
