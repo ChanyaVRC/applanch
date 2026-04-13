@@ -20,7 +20,7 @@ internal abstract class ThemeDefinition
 
     internal bool IsVisibleInThemeList { get; }
 
-    internal abstract IReadOnlyDictionary<string, string> ColorsByKey { get; }
+    internal abstract IReadOnlyDictionary<string, ThemeColor> ColorsByKey { get; }
 
     internal Dictionary<string, SolidColorBrush> CreateBrushMap(
         IReadOnlyDictionary<string, ThemeDefinition> themesById,
@@ -39,8 +39,8 @@ internal abstract class ThemeDefinition
 
         foreach (var key in allKeys)
         {
-            var hex = ResolveHex(key, themesById, preferredSystemMode);
-            var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex)!);
+            var color = ResolveColor(key, themesById, preferredSystemMode);
+            var brush = new SolidColorBrush(color.ToMediaColor());
             brush.Freeze();
             brushMap[key] = brush;
         }
@@ -50,53 +50,52 @@ internal abstract class ThemeDefinition
 
     protected abstract IEnumerable<string> GetRelatedThemeIds(SystemThemeMode preferredSystemMode);
 
-    private string ResolveHex(
+    private ThemeColor ResolveColor(
         string key,
         IReadOnlyDictionary<string, ThemeDefinition> themesById,
         SystemThemeMode preferredSystemMode)
     {
         var visited = new HashSet<string>();
 
-        if (TryResolveHexInGraph(key, themesById, preferredSystemMode, visited, out var hex))
+        if (TryResolveColorInGraph(key, themesById, preferredSystemMode, visited, out var color))
         {
-            return hex;
+            return color;
         }
 
         if (Id != ThemePaletteConfigurationLoader.LightThemeId &&
             themesById.TryGetValue(ThemePaletteConfigurationLoader.LightThemeId, out var lightTheme) &&
-            lightTheme.TryResolveHexInGraph(key, themesById, preferredSystemMode, visited, out var lightHex))
+            lightTheme.TryResolveColorInGraph(key, themesById, preferredSystemMode, visited, out var lightColor))
         {
-            return lightHex;
+            return lightColor;
         }
 
         foreach (var (_, theme) in themesById)
         {
-            if (theme.ColorsByKey.TryGetValue(key, out var candidateHex) &&
-                !string.IsNullOrWhiteSpace(candidateHex))
+            if (theme.ColorsByKey.TryGetValue(key, out var candidateColor))
             {
-                return candidateHex;
+                return candidateColor;
             }
         }
 
         throw new InvalidOperationException($"No color value found for key '{key}'.");
     }
 
-    private bool TryResolveHexInGraph(
+    private bool TryResolveColorInGraph(
         string key,
         IReadOnlyDictionary<string, ThemeDefinition> themesById,
         SystemThemeMode preferredSystemMode,
         HashSet<string> visited,
-        out string hex)
+        out ThemeColor color)
     {
         if (!visited.Add(Id))
         {
-            hex = string.Empty;
+            color = default;
             return false;
         }
 
         try
         {
-            if (ColorsByKey.TryGetValue(key, out hex!))
+            if (ColorsByKey.TryGetValue(key, out color))
             {
                 return true;
             }
@@ -104,13 +103,13 @@ internal abstract class ThemeDefinition
             foreach (var relatedId in GetRelatedThemeIds(preferredSystemMode))
             {
                 if (themesById.TryGetValue(relatedId, out var relatedTheme) &&
-                    relatedTheme.TryResolveHexInGraph(key, themesById, preferredSystemMode, visited, out hex!))
+                    relatedTheme.TryResolveColorInGraph(key, themesById, preferredSystemMode, visited, out color))
                 {
                     return true;
                 }
             }
 
-            hex = string.Empty;
+            color = default;
             return false;
         }
         finally

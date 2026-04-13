@@ -92,9 +92,9 @@ public sealed class ThemePaletteConfigurationLoaderTests
 
             var entry = Assert.Single(configuration.Entries);
             Assert.Equal("Brush.Custom", entry.Key);
-            Assert.Equal("#102030", entry.ColorsByThemeId["light"]);
-            Assert.Equal("#405060", entry.ColorsByThemeId["dark"]);
-            Assert.Equal("#708090", entry.ColorsByThemeId["monochrome"]);
+            Assert.Equal(ThemeColor.Parse("#102030"), entry.ColorsByThemeId["light"]);
+            Assert.Equal(ThemeColor.Parse("#405060"), entry.ColorsByThemeId["dark"]);
+            Assert.Equal(ThemeColor.Parse("#708090"), entry.ColorsByThemeId["monochrome"]);
         }
         finally
         {
@@ -378,7 +378,7 @@ public sealed class ThemePaletteConfigurationLoaderTests
             Assert.Equal("ocean", theme.Id);
             Assert.Equal("Ocean", theme.DisplayName.Resolve(LanguageOption.English));
             var entry = Assert.Single(configuration.Entries);
-            Assert.Equal("#001E3C", entry.ColorsByThemeId["ocean"]);
+            Assert.Equal(ThemeColor.Parse("#001E3C"), entry.ColorsByThemeId["ocean"]);
         }
         finally
         {
@@ -442,11 +442,11 @@ public sealed class ThemePaletteConfigurationLoaderTests
             Assert.Contains(configuration.Themes, t => t.Id == "forest");
 
             var background = Assert.Single(configuration.Entries, e => e.Key == "Brush.AppBackground");
-            Assert.Equal("#112244", background.ColorsByThemeId["ocean"]);
-            Assert.Equal("#102A1A", background.ColorsByThemeId["forest"]);
+            Assert.Equal(ThemeColor.Parse("#112244"), background.ColorsByThemeId["ocean"]);
+            Assert.Equal(ThemeColor.Parse("#102A1A"), background.ColorsByThemeId["forest"]);
 
             var surface = Assert.Single(configuration.Entries, e => e.Key == "Brush.Surface");
-            Assert.Equal("#0A1628", surface.ColorsByThemeId["ocean"]);
+            Assert.Equal(ThemeColor.Parse("#0A1628"), surface.ColorsByThemeId["ocean"]);
         }
         finally
         {
@@ -484,7 +484,7 @@ public sealed class ThemePaletteConfigurationLoaderTests
         var merged = ThemePaletteConfigurationLoader.Merge(@base, overlay);
 
         var entry = Assert.Single(merged.Entries, e => e.Key == "Brush.AppBackground");
-        Assert.Equal("#F0F0F0", entry.ColorsByThemeId["light"]);
+        Assert.Equal(ThemeColor.Parse("#F0F0F0"), entry.ColorsByThemeId["light"]);
     }
 
     [Fact]
@@ -503,12 +503,12 @@ public sealed class ThemePaletteConfigurationLoaderTests
         var merged = ThemePaletteConfigurationLoader.Merge(@base, overlay);
 
         var surface = Assert.Single(merged.Entries, e => e.Key == "Brush.Surface");
-        Assert.Equal("#F8F8F8", surface.ColorsByThemeId["light"]);
-        Assert.Equal("#111111", surface.ColorsByThemeId["dark"]);
+        Assert.Equal(ThemeColor.Parse("#F8F8F8"), surface.ColorsByThemeId["light"]);
+        Assert.Equal(ThemeColor.Parse("#111111"), surface.ColorsByThemeId["dark"]);
 
         var background = Assert.Single(merged.Entries, e => e.Key == "Brush.AppBackground");
-        Assert.Equal("#F0F0F0", background.ColorsByThemeId["light"]);
-        Assert.Equal("#000000", background.ColorsByThemeId["dark"]);
+        Assert.Equal(ThemeColor.Parse("#F0F0F0"), background.ColorsByThemeId["light"]);
+        Assert.Equal(ThemeColor.Parse("#000000"), background.ColorsByThemeId["dark"]);
     }
 
     [Fact]
@@ -535,10 +535,10 @@ public sealed class ThemePaletteConfigurationLoaderTests
                 new FixedThemeDefinition("light", new LocalizedText("Light")),
                 new FixedThemeDefinition("sunset", new LocalizedText("Sunset"), "light")
             ],
-            [new ThemePaletteEntry("Brush.AppBackground", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["light"] = "#FFFFFF" })]);
+            [new ThemePaletteEntry("Brush.AppBackground", new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase) { ["light"] = ThemeColor.Parse("#FFFFFF") })]);
         var overlay = new ThemePaletteConfiguration(
             [new FixedThemeDefinition("sunset", new LocalizedText("Sunset"), "dark")],
-            [new ThemePaletteEntry("Brush.AppBackground", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = "#FFEECC" })]);
+            [new ThemePaletteEntry("Brush.AppBackground", new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = ThemeColor.Parse("#FFEECC") })]);
 
         var merged = ThemePaletteConfigurationLoader.Merge(@base, overlay);
 
@@ -563,10 +563,10 @@ public sealed class ThemePaletteConfigurationLoaderTests
                 new FixedThemeDefinition("dark", new LocalizedText("Dark"))
             ],
             [
-                new ThemePaletteEntry("Brush.Custom", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                new ThemePaletteEntry("Brush.Custom", new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ["light"] = "#FFFFFF",
-                    ["dark"] = "#000000",
+                    ["light"] = ThemeColor.Parse("#FFFFFF"),
+                    ["dark"] = ThemeColor.Parse("#000000"),
                 })
             ]);
         var overlay = new ThemePaletteConfiguration(
@@ -592,7 +592,7 @@ public sealed class ThemePaletteConfigurationLoaderTests
                 e.Key,
                 e.Colors.ToDictionary(
                     static c => c.ThemeId,
-                    static c => c.Hex,
+                    static c => ThemeColor.Parse(c.Hex),
                     StringComparer.OrdinalIgnoreCase)))
             .ToList();
 

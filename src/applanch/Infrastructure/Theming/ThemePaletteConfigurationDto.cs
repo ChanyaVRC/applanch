@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace applanch.Infrastructure.Theming;
 
 /// <summary>
@@ -16,5 +18,5 @@ internal sealed record ThemeDto(
 
 internal sealed record ThemeEntryDto(
     string Key,
-    string Hex);
+    [property: JsonConverter(typeof(ThemeColorJsonConverter))] ThemeColor Hex);
 

@@ -23,7 +23,7 @@ internal sealed class ThemePaletteConfiguration
         IEnumerable<ThemeDefinition> themes,
         IEnumerable<ThemePaletteEntry> entries)
     {
-        var colorsByThemeId = new Dictionary<string, Dictionary<string, string>>();
+        var colorsByThemeId = new Dictionary<string, Dictionary<string, ThemeColor>>();
 
         foreach (var entry in entries)
         {
@@ -31,7 +31,7 @@ internal sealed class ThemePaletteConfiguration
             {
                 if (!colorsByThemeId.TryGetValue(themeId, out var colorsByKey))
                 {
-                    colorsByKey = new Dictionary<string, string>();
+                    colorsByKey = new Dictionary<string, ThemeColor>();
                     colorsByThemeId[themeId] = colorsByKey;
                 }
 
@@ -47,7 +47,7 @@ internal sealed class ThemePaletteConfiguration
 
     private static ThemeDefinition ApplyColors(
         ThemeDefinition theme,
-        IReadOnlyDictionary<string, string> colorsByKey)
+        IReadOnlyDictionary<string, ThemeColor> colorsByKey)
     {
         return theme switch
         {
@@ -55,7 +55,7 @@ internal sealed class ThemePaletteConfiguration
                 fixedTheme.Id,
                 fixedTheme.DisplayName,
                 fixedTheme.InheritedThemeId,
-                new Dictionary<string, string>(colorsByKey),
+                new Dictionary<string, ThemeColor>(colorsByKey),
                 fixedTheme.IsVisibleInThemeList),
             _ => theme,
         };
@@ -63,7 +63,7 @@ internal sealed class ThemePaletteConfiguration
 
     private static List<ThemePaletteEntry> BuildEntries(IEnumerable<ThemeDefinition> themes)
     {
-        var colorsByEntryKey = new Dictionary<string, Dictionary<string, string>>();
+        var colorsByEntryKey = new Dictionary<string, Dictionary<string, ThemeColor>>();
 
         foreach (var theme in themes)
         {
@@ -71,7 +71,7 @@ internal sealed class ThemePaletteConfiguration
             {
                 if (!colorsByEntryKey.TryGetValue(key, out var colorsByThemeId))
                 {
-                    colorsByThemeId = new Dictionary<string, string>();
+                    colorsByThemeId = new Dictionary<string, ThemeColor>();
                     colorsByEntryKey[key] = colorsByThemeId;
                 }
 

@@ -92,7 +92,7 @@ public class ThemeApplierTests
         var resources = new ResourceDictionary();
         var configuration = new ThemePaletteConfiguration(
             [new FixedThemeDefinition("sunset", new LocalizedText("Sunset"))],
-            [new ThemePaletteEntry("Brush.Custom", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = "#AABBCC" })]);
+            [new ThemePaletteEntry("Brush.Custom", new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = ThemeColor.Parse("#AABBCC") })]);
         var manager = new ThemeApplier(
             () => new AppSettings { ThemeId = "sunset" },
             configuration);
@@ -124,11 +124,11 @@ public class ThemeApplierTests
             [
                 new ThemePaletteEntry(
                     "Brush.TextPrimary",
-                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase)
                     {
-                        [ThemePaletteConfigurationLoader.LightThemeId] = "#0F172A",
-                        [ThemePaletteConfigurationLoader.DarkThemeId] = "#E2E8F0",
-                        ["monochrome"] = "#1A1A1A",
+                        [ThemePaletteConfigurationLoader.LightThemeId] = ThemeColor.Parse("#0F172A"),
+                        [ThemePaletteConfigurationLoader.DarkThemeId] = ThemeColor.Parse("#E2E8F0"),
+                        ["monochrome"] = ThemeColor.Parse("#1A1A1A"),
                     })
             ]);
         var manager = new ThemeApplier(
@@ -154,10 +154,10 @@ public class ThemeApplierTests
             [
                 new ThemePaletteEntry(
                     "Brush.TextPrimary",
-                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["light"] = "#0F172A",
-                        ["base"] = "#1A1A1A",
+                        ["light"] = ThemeColor.Parse("#0F172A"),
+                        ["base"] = ThemeColor.Parse("#1A1A1A"),
                     })
             ]);
         var manager = new ThemeApplier(
@@ -183,9 +183,9 @@ public class ThemeApplierTests
             [
                 new ThemePaletteEntry(
                     "Brush.TextPrimary",
-                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["light"] = "#0F172A",
+                        ["light"] = ThemeColor.Parse("#0F172A"),
                     })
             ]);
         var manager = new ThemeApplier(
@@ -208,11 +208,11 @@ public class ThemeApplierTests
             [
                 new ThemePaletteEntry(
                     "Brush.TextPrimary",
-                    new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["light"] = "#0F172A",
-                        ["dark"] = "#E2E8F0",
-                        ["monochrome"] = "#1A1A1A",
+                        ["light"] = ThemeColor.Parse("#0F172A"),
+                        ["dark"] = ThemeColor.Parse("#E2E8F0"),
+                        ["monochrome"] = ThemeColor.Parse("#1A1A1A"),
                     })
             ]);
 }

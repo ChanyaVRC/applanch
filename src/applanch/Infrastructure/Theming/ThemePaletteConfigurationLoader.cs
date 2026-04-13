@@ -89,10 +89,10 @@ internal static class ThemePaletteConfigurationLoader
         if (@base is FixedThemeDefinition baseFixedTheme &&
             overlay is FixedThemeDefinition overlayFixedTheme)
         {
-            var mergedColors = new Dictionary<string, string>(baseFixedTheme.ColorsByKey);
-            foreach (var (key, hex) in overlayFixedTheme.ColorsByKey)
+            var mergedColors = new Dictionary<string, ThemeColor>(baseFixedTheme.ColorsByKey);
+            foreach (var (key, color) in overlayFixedTheme.ColorsByKey)
             {
-                mergedColors[key] = hex;
+                mergedColors[key] = color;
             }
 
             return new FixedThemeDefinition(
@@ -170,10 +170,10 @@ internal static class ThemePaletteConfigurationLoader
             // Apply entries from theme DTO if present
             if (themeDto.Entries is not null && themeDef is FixedThemeDefinition fixedTheme)
             {
-                var colorsByKey = new Dictionary<string, string>();
+                var colorsByKey = new Dictionary<string, ThemeColor>();
                 foreach (var entry in themeDto.Entries)
                 {
-                    if (!string.IsNullOrWhiteSpace(entry.Key) && !string.IsNullOrWhiteSpace(entry.Hex))
+                    if (!string.IsNullOrWhiteSpace(entry.Key))
                     {
                         colorsByKey[entry.Key] = entry.Hex;
                     }
@@ -231,11 +231,8 @@ internal static class ThemePaletteConfigurationLoader
         SystemDependentEntriesFromSpec entriesFrom,
         bool isVisibleInThemeList)
     {
-        var normalizedSources = new Dictionary<SystemThemeMode, string>(entriesFrom.SourcesByMode.Count);
-        foreach (var (mode, sourceThemeId) in entriesFrom.SourcesByMode)
-        {
-            normalizedSources[mode] = NormalizeThemeId(sourceThemeId);
-        }
+        var normalizedSources = entriesFrom.SourcesByMode
+            .ToDictionary(static entry => entry.Key, entry => NormalizeThemeId(entry.Value));
 
         return normalizedSources.Count == 0
             ? new SystemDependentThemeDefinition(themeId, displayName, new Dictionary<SystemThemeMode, string>(), isVisibleInThemeList)
