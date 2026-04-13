@@ -2,15 +2,15 @@ namespace applanch.Infrastructure.Theming;
 
 internal sealed class ThemePaletteConfiguration
 {
-    internal ThemePaletteConfiguration(IReadOnlyList<ThemeDefinition> themes)
+    internal ThemePaletteConfiguration(IEnumerable<ThemeDefinition> themes)
     {
         Themes = themes.ToArray();
         Entries = BuildEntries(Themes);
     }
 
     internal ThemePaletteConfiguration(
-        IReadOnlyList<ThemeDefinition> themes,
-        IReadOnlyList<ThemePaletteEntry> entries)
+        IEnumerable<ThemeDefinition> themes,
+        IEnumerable<ThemePaletteEntry> entries)
         : this(ApplyEntries(themes, entries))
     {
     }
@@ -19,9 +19,9 @@ internal sealed class ThemePaletteConfiguration
 
     internal IReadOnlyList<ThemePaletteEntry> Entries { get; }
 
-    private static ThemeDefinition[] ApplyEntries(
-        IReadOnlyList<ThemeDefinition> themes,
-        IReadOnlyList<ThemePaletteEntry> entries)
+    private static IEnumerable<ThemeDefinition> ApplyEntries(
+        IEnumerable<ThemeDefinition> themes,
+        IEnumerable<ThemePaletteEntry> entries)
     {
         var colorsByThemeId = new Dictionary<string, Dictionary<string, string>>();
 
@@ -42,8 +42,7 @@ internal sealed class ThemePaletteConfiguration
         return themes
             .Select(theme => colorsByThemeId.TryGetValue(theme.Id, out var colorsByKey)
                 ? ApplyColors(theme, colorsByKey)
-                : theme)
-            .ToArray();
+                : theme);
     }
 
     private static ThemeDefinition ApplyColors(
@@ -62,7 +61,7 @@ internal sealed class ThemePaletteConfiguration
         };
     }
 
-    private static ThemePaletteEntry[] BuildEntries(IReadOnlyList<ThemeDefinition> themes)
+    private static ThemePaletteEntry[] BuildEntries(IEnumerable<ThemeDefinition> themes)
     {
         var colorsByEntryKey = new Dictionary<string, Dictionary<string, string>>();
 

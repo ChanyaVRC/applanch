@@ -81,7 +81,7 @@ internal static class ThemePaletteConfigurationLoader
             }
         }
 
-        return new ThemePaletteConfiguration(mergedThemes.Values.ToArray());
+        return new ThemePaletteConfiguration(mergedThemes.Values);
     }
 
     private static ThemeDefinition MergeTheme(ThemeDefinition @base, ThemeDefinition overlay)
@@ -140,7 +140,7 @@ internal static class ThemePaletteConfigurationLoader
             ?? throw new InvalidDataException("Theme palette config is null or invalid.");
 
         var themes = BuildThemesFromDto(dto);
-        if (themes.Length == 0)
+        if (themes.Count == 0)
         {
             throw new InvalidDataException("Theme palette config has no valid entries.");
         }
@@ -148,7 +148,7 @@ internal static class ThemePaletteConfigurationLoader
         return new ThemePaletteConfiguration(themes);
     }
 
-    private static ThemeDefinition[] BuildThemesFromDto(ThemePaletteConfigurationDto dto)
+    private static List<ThemeDefinition> BuildThemesFromDto(ThemePaletteConfigurationDto dto)
     {
         var themes = new List<ThemeDefinition>();
 
@@ -193,7 +193,7 @@ internal static class ThemePaletteConfigurationLoader
             themes.Add(themeDef);
         }
 
-        return themes.ToArray();
+        return themes;
     }
 
     private static ThemeDefinition BuildThemeDefinition(
