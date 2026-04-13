@@ -26,11 +26,16 @@ internal abstract class ThemeDefinition
         IReadOnlyDictionary<string, ThemeDefinition> themesById,
         SystemThemeMode preferredSystemMode)
     {
-        var allKeys = themesById.Values
-            .SelectMany(static theme => theme.ColorsByKey.Keys)
-            .Distinct()
-            .ToArray();
-        var brushMap = new Dictionary<string, SolidColorBrush>(allKeys.Length);
+        var allKeys = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var (_, theme) in themesById)
+        {
+            foreach (var (key, _) in theme.ColorsByKey)
+            {
+                allKeys.Add(key);
+            }
+        }
+
+        var brushMap = new Dictionary<string, SolidColorBrush>(allKeys.Count);
 
         foreach (var key in allKeys)
         {
@@ -64,9 +69,16 @@ internal abstract class ThemeDefinition
             return lightHex;
         }
 
-        return themesById.Values
-            .Select(theme => theme.ColorsByKey.TryGetValue(key, out var candidateHex) ? candidateHex : null)
-            .First(static candidateHex => !string.IsNullOrWhiteSpace(candidateHex))!;
+        foreach (var (_, theme) in themesById)
+        {
+            if (theme.ColorsByKey.TryGetValue(key, out var candidateHex) &&
+                !string.IsNullOrWhiteSpace(candidateHex))
+            {
+                return candidateHex;
+            }
+        }
+
+        throw new InvalidOperationException($"No color value found for key '{key}'.");
     }
 
     private bool TryResolveHexInGraph(

@@ -231,8 +231,11 @@ internal static class ThemePaletteConfigurationLoader
         SystemDependentEntriesFromSpec entriesFrom,
         bool isVisibleInThemeList)
     {
-        var normalizedSources = entriesFrom.SourcesByMode
-            .ToDictionary(static entry => entry.Key, entry => NormalizeThemeId(entry.Value));
+        var normalizedSources = new Dictionary<SystemThemeMode, string>(entriesFrom.SourcesByMode.Count);
+        foreach (var (mode, sourceThemeId) in entriesFrom.SourcesByMode)
+        {
+            normalizedSources[mode] = NormalizeThemeId(sourceThemeId);
+        }
 
         return normalizedSources.Count == 0
             ? new SystemDependentThemeDefinition(themeId, displayName, new Dictionary<SystemThemeMode, string>(), isVisibleInThemeList)

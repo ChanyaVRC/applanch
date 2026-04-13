@@ -61,7 +61,7 @@ internal sealed class ThemePaletteConfiguration
         };
     }
 
-    private static ThemePaletteEntry[] BuildEntries(IEnumerable<ThemeDefinition> themes)
+    private static List<ThemePaletteEntry> BuildEntries(IEnumerable<ThemeDefinition> themes)
     {
         var colorsByEntryKey = new Dictionary<string, Dictionary<string, string>>();
 
@@ -79,8 +79,12 @@ internal sealed class ThemePaletteConfiguration
             }
         }
 
-        return colorsByEntryKey
-            .Select(static entry => new ThemePaletteEntry(entry.Key, entry.Value))
-            .ToArray();
+        var entries = new List<ThemePaletteEntry>(colorsByEntryKey.Count);
+        foreach (var (entryKey, colorsByThemeId) in colorsByEntryKey)
+        {
+            entries.Add(new ThemePaletteEntry(entryKey, colorsByThemeId));
+        }
+
+        return entries;
     }
 }
