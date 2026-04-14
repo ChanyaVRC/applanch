@@ -5,64 +5,34 @@ namespace applanch.Tests.Infrastructure.Updates;
 
 public class SemanticVersionTests
 {
-    [Fact]
-    public void Parse_StandardVersion_ReturnsComponents()
+    [Theory]
+    [InlineData("2.11.3", 2, 11, 3, "")]
+    [InlineData("1.0.0-beta.1", 1, 0, 0, "beta.1")]
+    [InlineData("1.0.0-alpha-2", 1, 0, 0, "alpha-2")]
+    public void Parse_ValidVersion_ReturnsExpectedComponents(
+        string input,
+        int expectedMajor,
+        int expectedMinor,
+        int expectedPatch,
+        string expectedPrerelease)
     {
-        var version = SemanticVersion.Parse("2.11.3");
+        var version = SemanticVersion.Parse(input);
 
-        Assert.Equal(2, version.Major);
-        Assert.Equal(11, version.Minor);
-        Assert.Equal(3, version.Patch);
-        Assert.Equal(string.Empty, version.Prerelease);
+        Assert.Equal(expectedMajor, version.Major);
+        Assert.Equal(expectedMinor, version.Minor);
+        Assert.Equal(expectedPatch, version.Patch);
+        Assert.Equal(expectedPrerelease, version.Prerelease);
     }
 
-    [Fact]
-    public void Parse_PrereleaseVersion_CapturesPrerelease()
+    [Theory]
+    [InlineData("1.2.3.4")]
+    [InlineData("1.2.3-")]
+    [InlineData("1.2")]
+    [InlineData("1.a.3")]
+    [InlineData("")]
+    public void Parse_InvalidFormat_ThrowsFormatException(string input)
     {
-        var version = SemanticVersion.Parse("1.0.0-beta.1");
-
-        Assert.Equal(1, version.Major);
-        Assert.Equal(0, version.Minor);
-        Assert.Equal(0, version.Patch);
-        Assert.Equal("beta.1", version.Prerelease);
-    }
-
-    [Fact]
-    public void Parse_PrereleaseContainingDash_CapturesFullString()
-    {
-        var version = SemanticVersion.Parse("1.0.0-alpha-2");
-
-        Assert.Equal("alpha-2", version.Prerelease);
-    }
-
-    [Fact]
-    public void Parse_ExtraNumericSegments_ThrowsFormatException()
-    {
-        Assert.Throws<FormatException>(() => SemanticVersion.Parse("1.2.3.4"));
-    }
-
-    [Fact]
-    public void Parse_TrailingDash_ThrowsFormatException()
-    {
-        Assert.Throws<FormatException>(() => SemanticVersion.Parse("1.2.3-"));
-    }
-
-    [Fact]
-    public void Parse_TooFewNumericSegments_ThrowsFormatException()
-    {
-        Assert.Throws<FormatException>(() => SemanticVersion.Parse("1.2"));
-    }
-
-    [Fact]
-    public void Parse_NonIntegerSegment_ThrowsFormatException()
-    {
-        Assert.Throws<FormatException>(() => SemanticVersion.Parse("1.a.3"));
-    }
-
-    [Fact]
-    public void Parse_EmptyString_ThrowsFormatException()
-    {
-        Assert.Throws<FormatException>(() => SemanticVersion.Parse(string.Empty));
+        Assert.Throws<FormatException>(() => SemanticVersion.Parse(input));
     }
 
     [Fact]
@@ -71,29 +41,29 @@ public class SemanticVersionTests
         Assert.False(SemanticVersion.TryParse("1.2", out _));
     }
 
-    [Fact]
-    public void IsPrerelease_FalseForStableVersion()
+    [Theory]
+    [InlineData("1.0.0", false)]
+    [InlineData("1.0.0-rc.1", true)]
+    public void IsPrerelease_ReturnsExpectedValue(string input, bool expected)
     {
-        Assert.False(SemanticVersion.Parse("1.0.0").IsPrerelease);
-    }
-
-    [Fact]
-    public void IsPrerelease_TrueForPrereleaseVersion()
-    {
-        Assert.True(SemanticVersion.Parse("1.0.0-rc.1").IsPrerelease);
+        Assert.Equal(expected, SemanticVersion.Parse(input).IsPrerelease);
     }
 
     [Theory]
-    [InlineData("2.0.0", "1.9.9")]
-    [InlineData("1.1.0", "1.0.9")]
-    [InlineData("1.0.1", "1.0.0")]
-    public void CompareTo_HigherVersionIsGreater(string higher, string lower)
+    [InlineData("2.0.0", "1.9.9", 1)]
+    [InlineData("1.1.0", "1.0.9", 1)]
+    [InlineData("1.0.1", "1.0.0", 1)]
+    [InlineData("1.0.0", "1.0.0-beta", 1)]
+    [InlineData("1.0.0-alpha", "1.0.0-beta", -1)]
+    [InlineData("1.0.0-1", "1.0.0-alpha", -1)]
+    [InlineData("1.0.0-alpha", "1.0.0-alpha.1", -1)]
+    public void CompareTo_ReturnsExpectedOrdering(string left, string right, int expectedSign)
     {
-        var hi = SemanticVersion.Parse(higher);
-        var lo = SemanticVersion.Parse(lower);
+        var lhs = SemanticVersion.Parse(left);
+        var rhs = SemanticVersion.Parse(right);
 
-        Assert.True(hi.CompareTo(lo) > 0);
-        Assert.True(lo.CompareTo(hi) < 0);
+        Assert.Equal(expectedSign, Math.Sign(lhs.CompareTo(rhs)));
+        Assert.Equal(-expectedSign, Math.Sign(rhs.CompareTo(lhs)));
     }
 
     [Fact]
@@ -102,43 +72,4 @@ public class SemanticVersionTests
         Assert.Equal(0, SemanticVersion.Parse("1.2.3").CompareTo(SemanticVersion.Parse("1.2.3")));
     }
 
-    [Fact]
-    public void CompareTo_StableIsGreaterThanPrerelease_ForSameNumbers()
-    {
-        var stable = SemanticVersion.Parse("1.0.0");
-        var prerelease = SemanticVersion.Parse("1.0.0-beta");
-
-        Assert.True(stable.CompareTo(prerelease) > 0);
-        Assert.True(prerelease.CompareTo(stable) < 0);
-    }
-
-    [Fact]
-    public void CompareTo_PreroleaseIdentifiersAreComparedLexically_WhenBothAreAlphanumeric()
-    {
-        var a = SemanticVersion.Parse("1.0.0-alpha");
-        var b = SemanticVersion.Parse("1.0.0-beta");
-
-        Assert.True(a.CompareTo(b) < 0);
-        Assert.True(b.CompareTo(a) > 0);
-    }
-
-    [Fact]
-    public void CompareTo_PrereleaseNumericIdentifierIsLowerThanStringIdentifier()
-    {
-        var numeric = SemanticVersion.Parse("1.0.0-1");
-        var alpha = SemanticVersion.Parse("1.0.0-alpha");
-
-        Assert.True(numeric.CompareTo(alpha) < 0);
-        Assert.True(alpha.CompareTo(numeric) > 0);
-    }
-
-    [Fact]
-    public void CompareTo_PrereleaseWithMoreIdentifiersIsGreater_WhenCommonPrefixMatches()
-    {
-        var shorter = SemanticVersion.Parse("1.0.0-alpha");
-        var longer = SemanticVersion.Parse("1.0.0-alpha.1");
-
-        Assert.True(shorter.CompareTo(longer) < 0);
-        Assert.True(longer.CompareTo(shorter) > 0);
-    }
 }
