@@ -84,7 +84,7 @@ public sealed partial class MainWindow : Window
             new MainWindowViewModel(),
             new ItemLaunchService(),
             new UserInteractionService(),
-            static settings => new GitHubAppUpdateService(settings.DebugUpdate),
+            static settings => new GitHubAppUpdateService(settings.DebugUpdate, settings.AllowPrereleaseUpdates),
             AppSettings.Load())
     {
     }

@@ -41,12 +41,12 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService
     {
     }
 
-    public GitHubAppUpdateService(bool debugUpdate, bool allowPrereleaseUpdates = false)
+    public GitHubAppUpdateService(bool debugUpdate, bool allowPrereleaseUpdates)
         : this(DefaultHttpClient.Value, AppVersionProvider.CurrentVersion, debugUpdate, allowPrereleaseUpdates)
     {
     }
 
-    internal GitHubAppUpdateService(HttpClient httpClient, SemanticVersion currentVersion, bool debugUpdate = false, bool allowPrereleaseUpdates = false)
+    internal GitHubAppUpdateService(HttpClient httpClient, SemanticVersion currentVersion, bool debugUpdate, bool allowPrereleaseUpdates)
     {
         _httpClient = httpClient;
         _currentVersion = currentVersion;

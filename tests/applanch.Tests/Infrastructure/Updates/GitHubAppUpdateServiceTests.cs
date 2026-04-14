@@ -41,7 +41,7 @@ public class GitHubAppUpdateServiceTests
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"));
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), false, false);
 
         var result = await service.CheckForUpdateAsync();
 
@@ -99,7 +99,7 @@ public class GitHubAppUpdateServiceTests
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"));
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), false, false);
 
         var result = await service.GetAvailableUpdatesAsync();
 
@@ -131,7 +131,7 @@ public class GitHubAppUpdateServiceTests
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), allowPrereleaseUpdates: true);
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), false, true);
 
         var result = await service.GetAvailableUpdatesAsync();
 
@@ -163,7 +163,7 @@ public class GitHubAppUpdateServiceTests
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"));
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), false, false);
 
         var result = await service.CheckForUpdateAsync();
 
@@ -195,7 +195,7 @@ public class GitHubAppUpdateServiceTests
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"));
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), false, false);
 
         var result = await service.CheckForUpdateAsync();
 
@@ -225,7 +225,7 @@ public class GitHubAppUpdateServiceTests
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), debugUpdate: true);
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), debugUpdate: true, allowPrereleaseUpdates: false);
 
         var result = await service.CheckForUpdateAsync();
 
@@ -270,7 +270,7 @@ public class GitHubAppUpdateServiceTests
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), allowPrereleaseUpdates: true);
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), debugUpdate: false, allowPrereleaseUpdates: true);
 
         var result = await service.CheckForUpdateAsync();
 
@@ -302,7 +302,7 @@ public class GitHubAppUpdateServiceTests
 
         using var client = new HttpClient(new FailsThenJsonHandler(1, json));
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"));
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), debugUpdate: false, allowPrereleaseUpdates: false);
 
         var result = await service.CheckForUpdateAsync();
 
@@ -347,7 +347,7 @@ public class GitHubAppUpdateServiceTests
         }));
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), allowPrereleaseUpdates: false);
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), debugUpdate: false, allowPrereleaseUpdates: false);
 
         var result = await service.CheckForUpdateAsync();
 
@@ -381,14 +381,14 @@ public class GitHubAppUpdateServiceTests
         var firstHandler = new CountingJsonHttpMessageHandler(firstResponse);
         using var firstClient = new HttpClient(firstHandler);
         firstClient.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var firstService = new GitHubAppUpdateService(firstClient, SemanticVersion.Parse("1.0.0"));
+        var firstService = new GitHubAppUpdateService(firstClient, SemanticVersion.Parse("1.0.0"), debugUpdate: false, allowPrereleaseUpdates: false);
 
         var firstResult = await firstService.GetAvailableUpdatesAsync();
 
         var secondHandler = new CountingJsonHttpMessageHandler(secondResponse);
         using var secondClient = new HttpClient(secondHandler);
         secondClient.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var secondService = new GitHubAppUpdateService(secondClient, SemanticVersion.Parse("1.0.0"));
+        var secondService = new GitHubAppUpdateService(secondClient, SemanticVersion.Parse("1.0.0"), debugUpdate: false, allowPrereleaseUpdates: false);
 
         var secondResult = await secondService.GetAvailableUpdatesAsync();
 
@@ -404,7 +404,7 @@ public class GitHubAppUpdateServiceTests
         var firstHandler = new CountingFailingHttpMessageHandler();
         using var firstClient = new HttpClient(firstHandler);
         firstClient.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var firstService = new GitHubAppUpdateService(firstClient, SemanticVersion.Parse("1.0.0"));
+        var firstService = new GitHubAppUpdateService(firstClient, SemanticVersion.Parse("1.0.0"), debugUpdate: false, allowPrereleaseUpdates: false);
 
         await Assert.ThrowsAsync<HttpRequestException>(() => firstService.GetAvailableUpdatesAsync());
 
@@ -429,7 +429,7 @@ public class GitHubAppUpdateServiceTests
         var secondHandler = new CountingJsonHttpMessageHandler(secondResponse);
         using var secondClient = new HttpClient(secondHandler);
         secondClient.DefaultRequestHeaders.UserAgent.ParseAdd("test/1.0");
-        var secondService = new GitHubAppUpdateService(secondClient, SemanticVersion.Parse("1.0.0"));
+        var secondService = new GitHubAppUpdateService(secondClient, SemanticVersion.Parse("1.0.0"), debugUpdate: false, allowPrereleaseUpdates: false);
 
         var secondResult = await secondService.GetAvailableUpdatesAsync();
 
@@ -453,7 +453,7 @@ public class GitHubAppUpdateServiceTests
 
         var handler = new ZipHttpMessageHandler(zipStream.ToArray());
         using var client = new HttpClient(handler);
-        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"));
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), false, false);
 
         using var tempDirectory = TemporaryDirectory.Create("applanch-test");
 
@@ -480,7 +480,7 @@ public class GitHubAppUpdateServiceTests
 
         zipStream.Position = 0;
         using var client = new HttpClient(new FailsThenZipHandler(1, zipStream.ToArray()));
-        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"));
+        var service = new GitHubAppUpdateService(client, SemanticVersion.Parse("1.0.0"), false, false);
 
         using var tempDirectory = TemporaryDirectory.Create("applanch-test");
         var extractDir = await service.DownloadAndExtractAsync(new Uri("https://example.com/test.zip"), tempDirectory.Path);
