@@ -58,7 +58,7 @@ public class AppSettingsTests
     {
         var settings = new AppSettings { ThemeId = null! };
 
-        var normalized = AppSettings.Normalize(settings);
+        var normalized = settings.Normalize();
 
         Assert.Equal(ThemePaletteConfigurationLoader.SystemThemeId, normalized.ThemeId);
     }
@@ -68,7 +68,7 @@ public class AppSettingsTests
     {
         var settings = new AppSettings { ThemeId = "   " };
 
-        var normalized = AppSettings.Normalize(settings);
+        var normalized = settings.Normalize();
 
         Assert.Equal(ThemePaletteConfigurationLoader.SystemThemeId, normalized.ThemeId);
     }
@@ -78,7 +78,7 @@ public class AppSettingsTests
     {
         var settings = new AppSettings { ThemeId = "  monochrome  " };
 
-        var normalized = AppSettings.Normalize(settings);
+        var normalized = settings.Normalize();
 
         Assert.Equal("monochrome", normalized.ThemeId);
     }
@@ -88,7 +88,7 @@ public class AppSettingsTests
     {
         var settings = new AppSettings { PostLaunchBehavior = PostLaunchBehavior.MinimizeWindow };
 
-        var normalized = AppSettings.Normalize(settings);
+        var normalized = settings.Normalize();
 
         Assert.Equal(PostLaunchBehavior.MinimizeWindow, normalized.PostLaunchBehavior);
     }
@@ -155,7 +155,7 @@ public class AppSettingsTests
     {
         var settings = new AppSettings { QuickAddSuggestionLimit = 0 };
 
-        var normalized = AppSettings.Normalize(settings);
+        var normalized = settings.Normalize();
 
         Assert.Equal(1, normalized.QuickAddSuggestionLimit);
     }
@@ -165,7 +165,7 @@ public class AppSettingsTests
     {
         var settings = new AppSettings { QuickAddSuggestionLimit = 999 };
 
-        var normalized = AppSettings.Normalize(settings);
+        var normalized = settings.Normalize();
 
         Assert.Equal(200, normalized.QuickAddSuggestionLimit);
     }
@@ -175,7 +175,7 @@ public class AppSettingsTests
     {
         var settings = new AppSettings { LaunchItemIconOnlyMode = true };
 
-        var normalized = AppSettings.Normalize(settings);
+        var normalized = settings.Normalize();
 
         Assert.True(normalized.LaunchItemIconOnlyMode);
     }
@@ -185,7 +185,7 @@ public class AppSettingsTests
     {
         var settings = new AppSettings { CategorySidebarPinned = false };
 
-        var normalized = AppSettings.Normalize(settings);
+        var normalized = settings.Normalize();
 
         Assert.False(normalized.CategorySidebarPinned);
     }
@@ -195,7 +195,7 @@ public class AppSettingsTests
     {
         var settings = new AppSettings { AllowPrereleaseUpdates = true };
 
-        var normalized = AppSettings.Normalize(settings);
+        var normalized = settings.Normalize();
 
         Assert.True(normalized.AllowPrereleaseUpdates);
     }

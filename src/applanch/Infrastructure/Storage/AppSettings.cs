@@ -34,10 +34,8 @@ internal sealed record AppSettings
 
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
-    private static readonly string FilePath = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "applanch",
-        "settings.json");
+    private static readonly string FilePath = AppDataPaths.GetUnderLocalApplicationData("settings.json");
+    private static readonly string DirectoryPath = AppDataPaths.LocalApplicationDataDirectory;
 
     public static AppSettings Load()
     {
@@ -50,13 +48,13 @@ internal sealed record AppSettings
         {
             var json = File.ReadAllText(FilePath);
             var loaded = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
-            var normalized = Normalize(loaded);
+            var normalized = loaded.Normalize();
 
             if (loaded != normalized)
             {
                 try
                 {
-                    normalized.Save();
+                    normalized.SaveCore();
                 }
                 catch (Exception ex)
                 {
@@ -75,23 +73,28 @@ internal sealed record AppSettings
 
     public void Save()
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
-        var json = JsonSerializer.Serialize(Normalize(this), JsonOptions);
+        Normalize().SaveCore();
+    }
+
+    private void SaveCore()
+    {
+        Directory.CreateDirectory(DirectoryPath);
+        var json = JsonSerializer.Serialize(this, JsonOptions);
         File.WriteAllText(FilePath, json);
     }
 
-    internal static AppSettings Normalize(AppSettings settings)
+    internal AppSettings Normalize()
     {
-        var themeId = NormalizeThemeId(settings.ThemeId);
+        var themeId = NormalizeThemeId(ThemeId);
         var quickAddSuggestionLimit = Math.Clamp(
-            settings.QuickAddSuggestionLimit,
+            QuickAddSuggestionLimit,
             MinQuickAddSuggestionLimit,
             MaxQuickAddSuggestionLimit);
 
-        return settings with
+        return this with
         {
             ThemeId = themeId,
-            Language = NormalizeLanguage(settings.Language),
+            Language = NormalizeLanguage(Language),
             QuickAddSuggestionLimit = quickAddSuggestionLimit,
         };
     }
@@ -108,6 +111,5 @@ internal sealed record AppSettings
 
         return ThemePaletteConfigurationLoader.SystemThemeId;
     }
-
 }
 

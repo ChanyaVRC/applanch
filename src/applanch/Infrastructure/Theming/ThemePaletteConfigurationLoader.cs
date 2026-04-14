@@ -16,8 +16,12 @@ internal static class ThemePaletteConfigurationLoader
     private const string UserDefinedThemePaletteDirectoryName = "theme-palette";
 
     private static readonly ThemePaletteConfiguration EmptyConfiguration = new([]);
+    private static readonly Lazy<ThemePaletteConfiguration> CachedConfiguration = new(LoadCore);
 
     internal static ThemePaletteConfiguration Load()
+        => CachedConfiguration.Value;
+
+    private static ThemePaletteConfiguration LoadCore()
     {
         if (!TryLoadFromDirectory(AppContext.BaseDirectory, out var bundled))
         {

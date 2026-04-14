@@ -22,11 +22,16 @@ public sealed partial class App : Application
     internal const string UnregisterContextMenuArgument = "--unregister-context-menu";
     internal AppEvent Events { get; } = AppEvent.Instance;
     private AppSettings _settings = new();
-    private readonly ThemeApplier _themeApplier = new();
+    private readonly ThemeApplier _themeApplier;
     private readonly ContextMenuRegistrar _contextMenuRegistrar = new();
     private readonly SparsePackageRegistrar _sparsePackageRegistrar = new();
     private readonly StartupRegistrationService _startupRegistrationService = new();
     private readonly DataBindingTraceListener _dataBindingTraceListener = new(AppLogger.Instance);
+
+    public App()
+    {
+        _themeApplier = new ThemeApplier(() => _settings);
+    }
 
     protected override void OnStartup(StartupEventArgs e)
     {
