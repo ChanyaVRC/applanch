@@ -5,17 +5,21 @@ using System.Security.Cryptography;
 using System.Security;
 using applanch.ShellIntegration;
 using applanch.Infrastructure.Utilities;
+using RegistryCommandWriter = System.Action<string, string, string, string, bool>;
+using ExplorerCommandRegistrar = System.Action<string>;
+using RegistrySubKeyTreeDeleter = System.Action<string>;
+using ExplorerCommandAllowedChecker = System.Func<bool>;
 
 namespace applanch.Infrastructure.Integration;
 
 internal sealed class ContextMenuRegistrar(
     Func<string?> executablePathProvider,
     Func<string, string?> shellExtensionComHostPathResolver,
-    Action<string, string, string, string, bool> writeRegistryCommand,
-    Action<string> registerExplorerCommandServer,
+    RegistryCommandWriter writeRegistryCommand,
+    ExplorerCommandRegistrar registerExplorerCommandServer,
     bool enableLegacyCleanup = true,
-    Action<string>? deleteRegistrySubKeyTree = null,
-    Func<bool>? isExplorerCommandAllowed = null)
+    RegistrySubKeyTreeDeleter? deleteRegistrySubKeyTree = null,
+    ExplorerCommandAllowedChecker? isExplorerCommandAllowed = null)
 {
     private const string BasePath = @"Software\Classes";
     private const string MenuKeyName = "applanch.register";
@@ -35,7 +39,7 @@ internal sealed class ContextMenuRegistrar(
         new("Directory\\Background", "%V", false)
     ];
 
-    private static readonly Action<string> DefaultDeleteSubKeyTree =
+    private static readonly RegistrySubKeyTreeDeleter DefaultDeleteSubKeyTree =
         static keyPath => Registry.CurrentUser.DeleteSubKeyTree(keyPath, throwOnMissingSubKey: false);
 
     public ContextMenuRegistrar()
@@ -127,7 +131,7 @@ internal sealed class ContextMenuRegistrar(
         }
     }
 
-    private static void DeleteRegistrySafely(Action<string> delete, string keyPath)
+    private static void DeleteRegistrySafely(RegistrySubKeyTreeDeleter delete, string keyPath)
     {
         try
         {
