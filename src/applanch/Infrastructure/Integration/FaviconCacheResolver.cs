@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -14,11 +15,7 @@ internal sealed class FaviconCacheResolver : IFaviconCacheResolver
 
     internal FaviconCacheResolver(string? cacheDirectory = null)
     {
-        _cacheDirectory = cacheDirectory ?? Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "applanch",
-            "Cache",
-            "Favicons");
+        _cacheDirectory = cacheDirectory ?? AppDataPaths.GetUnderLocalApplicationData("Cache", "Favicons");
     }
 
     public BitmapFrame? TryLoad(Uri faviconUri, bool acceptExpired)
@@ -103,7 +100,22 @@ internal sealed class FaviconCacheResolver : IFaviconCacheResolver
 
     private string GetFilePath(Uri faviconUri)
     {
-        var hash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(faviconUri.AbsoluteUri)));
+        var byteCount = Encoding.UTF8.GetByteCount(faviconUri.AbsoluteUri);
+        var rentedBytes = ArrayPool<byte>.Shared.Rent(byteCount);
+        string hash;
+
+        try
+        {
+            var writtenByteCount = Encoding.UTF8.GetBytes(faviconUri.AbsoluteUri.AsSpan(), rentedBytes);
+            Span<byte> hashBytes = stackalloc byte[SHA256.HashSizeInBytes];
+            SHA256.HashData(rentedBytes.AsSpan(0, writtenByteCount), hashBytes);
+            hash = Convert.ToHexStringLower(hashBytes);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rentedBytes);
+        }
+
         return Path.Combine(_cacheDirectory, $"{hash}.bin");
     }
 

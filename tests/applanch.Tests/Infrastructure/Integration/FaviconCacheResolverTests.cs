@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Security.Cryptography;
 using System.Text;
 using applanch.Infrastructure.Integration;
@@ -46,7 +47,22 @@ public sealed class FaviconCacheResolverTests
 
     private static string GetCacheFilePath(string cacheDirectory, Uri faviconUri)
     {
-        var hash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(faviconUri.AbsoluteUri)));
+        var byteCount = Encoding.UTF8.GetByteCount(faviconUri.AbsoluteUri);
+        var rentedBytes = ArrayPool<byte>.Shared.Rent(byteCount);
+        string hash;
+
+        try
+        {
+            var writtenByteCount = Encoding.UTF8.GetBytes(faviconUri.AbsoluteUri.AsSpan(), rentedBytes);
+            Span<byte> hashBytes = stackalloc byte[SHA256.HashSizeInBytes];
+            SHA256.HashData(rentedBytes.AsSpan(0, writtenByteCount), hashBytes);
+            hash = Convert.ToHexStringLower(hashBytes);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rentedBytes);
+        }
+
         return Path.Combine(cacheDirectory, $"{hash}.bin");
     }
 }

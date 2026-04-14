@@ -9,9 +9,7 @@ internal static class LauncherStore
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
-    private static readonly string StoreDirectory = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "applanch");
+    private static readonly string StoreDirectory = AppDataPaths.LocalApplicationDataDirectory;
 
     private static readonly string StoreFilePath = Path.Combine(StoreDirectory, "launch-items.json");
     private static readonly string LegacyStoreFilePath = Path.Combine(StoreDirectory, "launch-items.txt");

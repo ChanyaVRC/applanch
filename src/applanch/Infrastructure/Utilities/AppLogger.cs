@@ -149,9 +149,7 @@ internal sealed class AppLogger : IDisposable
             return Path.Combine(Path.GetTempPath(), "applanch-test-logs");
         }
 
-        return Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "applanch");
+        return AppDataPaths.LocalApplicationDataDirectory;
     }
 
     internal static bool IsLikelyTestProcess(string? processName = null)

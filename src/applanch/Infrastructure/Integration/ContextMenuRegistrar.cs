@@ -1,3 +1,4 @@
+using System.Buffers;
 using Microsoft.Win32;
 using System.IO;
 using System.Security.Cryptography;
@@ -180,9 +181,7 @@ internal sealed class ContextMenuRegistrar(
             return null;
         }
 
-        var deploymentDirectory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "applanch",
+        var deploymentDirectory = AppDataPaths.GetUnderLocalApplicationData(
             ShellExtensionDeploymentDirectoryName,
             ComputeShellExtensionDeploymentKey(sourceArtifactsDirectory));
 
@@ -258,8 +257,19 @@ internal sealed class ContextMenuRegistrar(
                 .Select(static path => new FileInfo(path))
                 .Select(static info => $"{info.FullName}:{info.Length}:{info.LastWriteTimeUtc.Ticks}"));
 
-        var hashBytes = SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(fingerprintSource));
-        return Convert.ToHexString(hashBytes[..8]);
+        var byteCount = System.Text.Encoding.UTF8.GetByteCount(fingerprintSource);
+        var rentedBytes = ArrayPool<byte>.Shared.Rent(byteCount);
+        try
+        {
+            var writtenByteCount = System.Text.Encoding.UTF8.GetBytes(fingerprintSource.AsSpan(), rentedBytes);
+            Span<byte> hashBytes = stackalloc byte[SHA256.HashSizeInBytes];
+            SHA256.HashData(rentedBytes.AsSpan(0, writtenByteCount), hashBytes);
+            return Convert.ToHexString(hashBytes[..8]);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rentedBytes);
+        }
     }
 
     private static void RegisterExplorerCommandServer(string shellExtensionComHostPath)

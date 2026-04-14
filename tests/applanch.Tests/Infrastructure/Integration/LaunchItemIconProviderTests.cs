@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Windows.Media;
@@ -346,7 +347,22 @@ public class LaunchItemIconProviderTests
 
     private static string GetCacheFilePath(string cacheDirectory, string faviconUri)
     {
-        var hash = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(faviconUri)));
+        var byteCount = System.Text.Encoding.UTF8.GetByteCount(faviconUri);
+        var rentedBytes = ArrayPool<byte>.Shared.Rent(byteCount);
+        string hash;
+
+        try
+        {
+            var writtenByteCount = System.Text.Encoding.UTF8.GetBytes(faviconUri.AsSpan(), rentedBytes);
+            Span<byte> hashBytes = stackalloc byte[System.Security.Cryptography.SHA256.HashSizeInBytes];
+            System.Security.Cryptography.SHA256.HashData(rentedBytes.AsSpan(0, writtenByteCount), hashBytes);
+            hash = Convert.ToHexStringLower(hashBytes);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rentedBytes);
+        }
+
         return Path.Combine(cacheDirectory, $"{hash}.bin");
     }
 
