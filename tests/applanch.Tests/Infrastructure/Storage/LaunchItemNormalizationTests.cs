@@ -6,51 +6,41 @@ namespace applanch.Tests.Infrastructure.Storage;
 
 public class LaunchItemNormalizationTests
 {
-    [Fact]
-    public void NormalizeCategory_Whitespace_ReturnsDefaultCategory()
-    {
-        var result = LaunchItemNormalization.NormalizeCategory("   ");
+    public static TheoryData<string, string> NormalizeCategoryCases =>
+        new()
+        {
+            { "   ", LauncherEntry.DefaultCategory },
+            { "  Dev  ", "Dev" },
+        };
 
-        Assert.Equal(LauncherEntry.DefaultCategory, result);
+    [Theory]
+    [MemberData(nameof(NormalizeCategoryCases))]
+    public void NormalizeCategory_ReturnsExpectedValue(string input, string expected)
+    {
+        var result = LaunchItemNormalization.NormalizeCategory(input);
+
+        Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void NormalizeCategory_TrimsText()
+    [Theory]
+    [InlineData(null, "")]
+    [InlineData("   ", "")]
+    [InlineData("  --run  ", "--run")]
+    public void NormalizeArguments_ReturnsExpectedValue(string? input, string expected)
     {
-        var result = LaunchItemNormalization.NormalizeCategory("  Dev  ");
+        var result = LaunchItemNormalization.NormalizeArguments(input);
 
-        Assert.Equal("Dev", result);
+        Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void NormalizeArguments_NullOrWhitespace_ReturnsEmpty()
+    [Theory]
+    [InlineData(" ", @"C:\Tools\MyApp.exe", "MyApp")]
+    [InlineData("  Custom Name  ", @"C:\Tools\MyApp.exe", "Custom Name")]
+    public void NormalizeDisplayName_ReturnsExpectedValue(string inputName, string launchPath, string expected)
     {
-        Assert.Equal(string.Empty, LaunchItemNormalization.NormalizeArguments(null));
-        Assert.Equal(string.Empty, LaunchItemNormalization.NormalizeArguments("   "));
-    }
+        var result = LaunchItemNormalization.NormalizeDisplayName(inputName, launchPath);
 
-    [Fact]
-    public void NormalizeArguments_TrimsText()
-    {
-        var result = LaunchItemNormalization.NormalizeArguments("  --run  ");
-
-        Assert.Equal("--run", result);
-    }
-
-    [Fact]
-    public void NormalizeDisplayName_Whitespace_UsesPathFileNameWithoutExtension()
-    {
-        var result = LaunchItemNormalization.NormalizeDisplayName(" ", @"C:\Tools\MyApp.exe");
-
-        Assert.Equal("MyApp", result);
-    }
-
-    [Fact]
-    public void NormalizeDisplayName_TrimsExplicitName()
-    {
-        var result = LaunchItemNormalization.NormalizeDisplayName("  Custom Name  ", @"C:\Tools\MyApp.exe");
-
-        Assert.Equal("Custom Name", result);
+        Assert.Equal(expected, result);
     }
 
     [Theory]
