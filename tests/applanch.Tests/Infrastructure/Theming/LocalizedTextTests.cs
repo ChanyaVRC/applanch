@@ -8,50 +8,6 @@ namespace applanch.Tests.Infrastructure.Theming;
 
 public sealed class LocalizedTextTests
 {
-    public static IEnumerable<object[]> ResolveFallbackCases()
-    {
-        yield return
-        [
-            "Default",
-            new Dictionary<LanguageOption, string>
-            {
-                [LanguageOption.English] = "English",
-            },
-            LanguageOption.Japanese,
-            "English",
-        ];
-
-        yield return
-        [
-            "Fallback",
-            new Dictionary<LanguageOption, string>(),
-            LanguageOption.System,
-            "Fallback",
-        ];
-
-        yield return
-        [
-            "Default",
-            new Dictionary<LanguageOption, string>
-            {
-                [LanguageOption.English] = null!,
-            },
-            LanguageOption.English,
-            "Default",
-        ];
-
-        yield return
-        [
-            "Default",
-            new Dictionary<LanguageOption, string>
-            {
-                [LanguageOption.Japanese] = null!,
-            },
-            LanguageOption.English,
-            "Default",
-        ];
-    }
-
     [Fact]
     public void ResolveCurrentCulture_WhenCultureIsUnknown_FallsBackToEnglish()
     {
@@ -68,17 +24,51 @@ public sealed class LocalizedTextTests
         Assert.Equal("English", localized.ResolveCurrentCulture());
     }
 
-    [Theory]
-    [MemberData(nameof(ResolveFallbackCases))]
-    public void Resolve_WhenTranslationIsUnavailable_FallsBackAsExpected(
-        string @default,
-        IReadOnlyDictionary<LanguageOption, string>? translations,
-        LanguageOption target,
-        string expected)
+    [Fact]
+    public void Resolve_WhenTargetTranslationMissing_FallsBackToEnglish()
     {
-        var localized = new LocalizedText(@default, translations);
+        var localized = new LocalizedText(
+            "Default",
+            new Dictionary<LanguageOption, string>
+            {
+                [LanguageOption.English] = "English",
+            });
 
-        Assert.Equal(expected, localized.Resolve(target));
+        Assert.Equal("English", localized.Resolve(LanguageOption.Japanese));
+    }
+
+    [Fact]
+    public void Resolve_WhenNoTranslations_FallsBackToDefault()
+    {
+        var localized = new LocalizedText("Fallback", new Dictionary<LanguageOption, string>());
+
+        Assert.Equal("Fallback", localized.Resolve(LanguageOption.System));
+    }
+
+    [Fact]
+    public void Resolve_WhenLanguageOptionTranslationValueIsNull_IgnoresNullAndFallsBack()
+    {
+        var localized = new LocalizedText(
+            "Default",
+            new Dictionary<LanguageOption, string>
+            {
+                [LanguageOption.English] = null!,
+            });
+
+        Assert.Equal("Default", localized.Resolve(LanguageOption.English));
+    }
+
+    [Fact]
+    public void Resolve_WhenSecondaryLanguageTranslationValueIsNull_IgnoresNullAndFallsBack()
+    {
+        var localized = new LocalizedText(
+            "Default",
+            new Dictionary<LanguageOption, string>
+            {
+                [LanguageOption.Japanese] = null!,
+            });
+
+        Assert.Equal("Default", localized.Resolve(LanguageOption.English));
     }
 
     [Fact]
@@ -128,4 +118,5 @@ public sealed class LocalizedTextTests
         Assert.Equal("English", root.GetProperty("en").GetString());
         Assert.Equal("日本語", root.GetProperty("ja").GetString());
     }
+
 }

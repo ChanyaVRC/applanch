@@ -10,62 +10,33 @@ namespace applanch.Tests.Infrastructure.Theming;
 [Collection("WpfTests")]
 public class ThemeApplierTests
 {
-    [Fact]
-    public void ApplyTheme_LightTheme_SetsExpectedPrimaryBrush()
+    public static TheoryData<string, string, string> ApplyThemePrimaryBrushCases =>
+        new()
+        {
+            { ThemePaletteConfigurationLoader.LightThemeId, "#0F172A", "#0F172A" },
+            { ThemePaletteConfigurationLoader.DarkThemeId, "#E2E8F0", "#FFFFF0" },
+            { "monochrome", "#1A1A1A", "#0F172A" },
+            { "unknown-theme", "#0F172A", "#0F172A" },
+        };
+
+    [Theory]
+    [MemberData(nameof(ApplyThemePrimaryBrushCases))]
+    public void ApplyTheme_SetsExpectedPrimaryBrushAndIconColor(
+        string themeId,
+        string expectedBrushHex,
+        string expectedIconColorHex)
     {
         var resources = new ResourceDictionary();
         var manager = new ThemeApplier(
-            () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.LightThemeId },
+            () => new AppSettings { ThemeId = themeId },
             BuildConfiguration());
 
         manager.ApplyTheme(resources);
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#0F172A")!, brush.Color);
-    }
-
-    [Fact]
-    public void ApplyTheme_DarkTheme_SetsExpectedPrimaryBrush()
-    {
-        var resources = new ResourceDictionary();
-        var manager = new ThemeApplier(
-            () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.DarkThemeId },
-            BuildConfiguration());
-
-        manager.ApplyTheme(resources);
-
-        var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#E2E8F0")!, brush.Color);
-        Assert.Equal(WindowIconThemeHelper.DarkPaletteIconColor, WindowIconThemeHelper.ResolveIconColor(resources));
-    }
-
-    [Fact]
-    public void ApplyTheme_CustomThemeId_SetsExpectedPrimaryBrush()
-    {
-        var resources = new ResourceDictionary();
-        var manager = new ThemeApplier(
-            () => new AppSettings { ThemeId = "monochrome" },
-            BuildConfiguration());
-
-        manager.ApplyTheme(resources);
-
-        var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#1A1A1A")!, brush.Color);
-        Assert.Equal(WindowIconThemeHelper.LightPaletteIconColor, WindowIconThemeHelper.ResolveIconColor(resources));
-    }
-
-    [Fact]
-    public void ApplyTheme_UnknownThemeId_FallsBackToLight()
-    {
-        var resources = new ResourceDictionary();
-        var manager = new ThemeApplier(
-            () => new AppSettings { ThemeId = "unknown-theme" },
-            BuildConfiguration());
-
-        manager.ApplyTheme(resources);
-
-        var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
-        Assert.Equal((Color)ColorConverter.ConvertFromString("#0F172A")!, brush.Color);
+        var expectedIconColor = (Color)ColorConverter.ConvertFromString(expectedIconColorHex)!;
+        Assert.Equal((Color)ColorConverter.ConvertFromString(expectedBrushHex)!, brush.Color);
+        Assert.Equal(expectedIconColor, WindowIconThemeHelper.ResolveIconColor(resources));
     }
 
     [Fact]
