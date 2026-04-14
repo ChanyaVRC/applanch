@@ -112,18 +112,18 @@ public sealed partial class MainWindow : Window
         {
             AppEvent = _appEvent,
             UpdateWorkflow = new UpdateWorkflow(_updateServiceFactory(settings)),
-            InstallBehaviorProvider = () => _settings.UpdateInstallBehavior,
+            InitialInstallBehavior = settings.UpdateInstallBehavior,
             TryBeginApply = TryBeginUpdateApplyFromUi,
             EndApply = EndUpdateApplyFromUi,
-            OnAvailabilityChanged = OnUpdateAvailabilityForUi,
-            OnAutomaticApplyFailed = OnAutomaticApplyFailedForUi,
-            OnApplyFailed = OnUpdateApplyFailedForUi,
-            OnApplySucceeded = OnUpdateApplySucceededForUi,
         });
         RegisterCategorySidebarPartNames();
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         _appEvent.Register(AppEvents.Refresh, OnAppRefreshRequested);
+        _appEvent.Register(AppEvents.UpdateAvailabilityEvaluated, OnUpdateAvailabilityEvaluated);
+        _appEvent.Register(AppEvents.UpdateAutomaticApplyFailed, OnAutomaticApplyFailedForUi);
+        _appEvent.Register(AppEvents.UpdateApplyFailed, OnUpdateApplyFailedForUi);
+        _appEvent.Register(AppEvents.UpdateApplySucceeded, OnUpdateApplySucceededForUi);
         BundledConfigLoadNotificationCenter.Reported += OnBundledConfigLoadIssueReported;
         ViewModel.ApplySettings(_settings);
         ApplyCategorySidebarPinnedSetting(_settings.CategorySidebarPinned, animate: false);
@@ -141,6 +141,10 @@ public sealed partial class MainWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         _appEvent.Unregister(AppEvents.Refresh, OnAppRefreshRequested);
+        _appEvent.Unregister(AppEvents.UpdateAvailabilityEvaluated, OnUpdateAvailabilityEvaluated);
+        _appEvent.Unregister(AppEvents.UpdateAutomaticApplyFailed, OnAutomaticApplyFailedForUi);
+        _appEvent.Unregister(AppEvents.UpdateApplyFailed, OnUpdateApplyFailedForUi);
+        _appEvent.Unregister(AppEvents.UpdateApplySucceeded, OnUpdateApplySucceededForUi);
         _updateCoordinator.Dispose();
         BundledConfigLoadNotificationCenter.Reported -= OnBundledConfigLoadIssueReported;
 
@@ -181,9 +185,9 @@ public sealed partial class MainWindow : Window
         Dispatcher.InvokeIfRequired(() => ShowBundledConfigLoadIssues([issue]));
     }
 
-    private void OnUpdateAvailabilityForUi(AppUpdateInfo? update, UpdateInstallBehavior behavior)
+    private void OnUpdateAvailabilityEvaluated(UpdateAvailabilityEvaluation availability)
     {
-        Dispatcher.InvokeIfRequired(() => ViewModel.UpdateBanner.ApplyAvailability(update, behavior));
+        Dispatcher.InvokeIfRequired(() => ViewModel.UpdateBanner.ApplyAvailability(availability.Update, availability.InstallBehavior));
     }
 
     private bool TryBeginUpdateApplyFromUi(AppUpdateInfo update)

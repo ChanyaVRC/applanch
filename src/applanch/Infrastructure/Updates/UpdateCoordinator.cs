@@ -8,13 +8,9 @@ internal sealed class UpdateCoordinator : IDisposable
 {
     private readonly AppEvent _appEvent;
     private readonly UpdateWorkflow _updateWorkflow;
-    private readonly Func<UpdateInstallBehavior> _installBehaviorProvider;
     private readonly Func<AppUpdateInfo, bool> _tryBeginApply;
     private readonly Action _endApply;
-    private readonly Action<AppUpdateInfo?, UpdateInstallBehavior> _onAvailabilityChanged;
-    private readonly Action _onAutomaticApplyFailed;
-    private readonly Action<UpdateApplyResult> _onApplyFailed;
-    private readonly Action _onApplySucceeded;
+    private UpdateInstallBehavior _installBehavior;
     private SemanticVersion? _lastAutoApplyAttemptedVersion;
     private bool _isAutoApplyingUpdate;
 
@@ -24,24 +20,16 @@ internal sealed class UpdateCoordinator : IDisposable
 
         Debug.Assert(dependencies.AppEvent is not null);
         Debug.Assert(dependencies.UpdateWorkflow is not null);
-        Debug.Assert(dependencies.InstallBehaviorProvider is not null);
         Debug.Assert(dependencies.TryBeginApply is not null);
         Debug.Assert(dependencies.EndApply is not null);
-        Debug.Assert(dependencies.OnAvailabilityChanged is not null);
-        Debug.Assert(dependencies.OnAutomaticApplyFailed is not null);
-        Debug.Assert(dependencies.OnApplyFailed is not null);
-        Debug.Assert(dependencies.OnApplySucceeded is not null);
 
         _appEvent = dependencies.AppEvent;
         _updateWorkflow = dependencies.UpdateWorkflow;
-        _installBehaviorProvider = dependencies.InstallBehaviorProvider;
+        _installBehavior = dependencies.InitialInstallBehavior;
         _tryBeginApply = dependencies.TryBeginApply;
         _endApply = dependencies.EndApply;
-        _onAvailabilityChanged = dependencies.OnAvailabilityChanged;
-        _onAutomaticApplyFailed = dependencies.OnAutomaticApplyFailed;
-        _onApplyFailed = dependencies.OnApplyFailed;
-        _onApplySucceeded = dependencies.OnApplySucceeded;
 
+        _appEvent.Register(AppEvents.Commit, OnSettingsCommitted);
         _appEvent.Register(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
         _appEvent.Register(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
         _appEvent.Register(AppEvents.ApplyUpdateRequested, OnApplyUpdateRequested);
@@ -49,9 +37,15 @@ internal sealed class UpdateCoordinator : IDisposable
 
     public void Dispose()
     {
+        _appEvent.Unregister(AppEvents.Commit, OnSettingsCommitted);
         _appEvent.Unregister(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
         _appEvent.Unregister(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
         _appEvent.Unregister(AppEvents.ApplyUpdateRequested, OnApplyUpdateRequested);
+    }
+
+    private void OnSettingsCommitted(AppSettings settings)
+    {
+        _installBehavior = settings.UpdateInstallBehavior;
     }
 
     internal void Reconfigure(IAppUpdateService updateService)
@@ -72,8 +66,8 @@ internal sealed class UpdateCoordinator : IDisposable
 
     private void OnUpdateAvailabilityChanged(AppUpdateInfo? update)
     {
-        var behavior = _installBehaviorProvider();
-        _onAvailabilityChanged(update, behavior);
+        var behavior = _installBehavior;
+        _appEvent.Invoke(AppEvents.UpdateAvailabilityEvaluated, new UpdateAvailabilityEvaluation(update, behavior));
 
         if (update is null)
         {
@@ -127,16 +121,16 @@ internal sealed class UpdateCoordinator : IDisposable
             var result = await _updateWorkflow.ApplyUpdateSafeAsync(update).ConfigureAwait(false);
             if (result.IsSuccess)
             {
-                _onApplySucceeded();
+                _appEvent.Invoke(AppEvents.UpdateApplySucceeded);
                 return;
             }
 
             if (isAutomatic)
             {
-                _onAutomaticApplyFailed();
+                _appEvent.Invoke(AppEvents.UpdateAutomaticApplyFailed);
             }
 
-            _onApplyFailed(result);
+            _appEvent.Invoke(AppEvents.UpdateApplyFailed, result);
         }
         finally
         {

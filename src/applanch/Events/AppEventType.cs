@@ -7,4 +7,8 @@ internal enum AppEventType
     UpdateCheckRequested,
     UpdateAvailabilityChanged,
     ApplyUpdateRequested,
+    UpdateAvailabilityEvaluated,
+    UpdateAutomaticApplyFailed,
+    UpdateApplyFailed,
+    UpdateApplySucceeded,
 }

@@ -18,6 +18,10 @@ internal sealed class AppEvent
         [AppEventType.UpdateCheckRequested] = new EventChannel(),
         [AppEventType.UpdateAvailabilityChanged] = new EventChannel<AppUpdateInfo?>(),
         [AppEventType.ApplyUpdateRequested] = new EventChannel<AppUpdateInfo>(),
+        [AppEventType.UpdateAvailabilityEvaluated] = new EventChannel<UpdateAvailabilityEvaluation>(),
+        [AppEventType.UpdateAutomaticApplyFailed] = new EventChannel(),
+        [AppEventType.UpdateApplyFailed] = new EventChannel<UpdateApplyResult>(),
+        [AppEventType.UpdateApplySucceeded] = new EventChannel(),
     };
 
     internal void Register<TPayload>(AppEventKey<TPayload> eventKey, Action<TPayload> handler)

@@ -14,4 +14,12 @@ internal static class AppEvents
     internal static AppEventKey<AppUpdateInfo?> UpdateAvailabilityChanged { get; } = new(AppEventType.UpdateAvailabilityChanged);
 
     internal static AppEventKey<AppUpdateInfo> ApplyUpdateRequested { get; } = new(AppEventType.ApplyUpdateRequested);
+
+    internal static AppEventKey<UpdateAvailabilityEvaluation> UpdateAvailabilityEvaluated { get; } = new(AppEventType.UpdateAvailabilityEvaluated);
+
+    internal static AppSignalEventKey UpdateAutomaticApplyFailed { get; } = new(AppEventType.UpdateAutomaticApplyFailed);
+
+    internal static AppEventKey<UpdateApplyResult> UpdateApplyFailed { get; } = new(AppEventType.UpdateApplyFailed);
+
+    internal static AppSignalEventKey UpdateApplySucceeded { get; } = new(AppEventType.UpdateApplySucceeded);
 }

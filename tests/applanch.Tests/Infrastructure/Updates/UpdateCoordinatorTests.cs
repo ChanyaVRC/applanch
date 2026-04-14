@@ -15,10 +15,8 @@ public class UpdateCoordinatorTests
         var update = CreateUpdate("1.2.0");
         var service = new FakeAppUpdateService { CheckResult = update };
         var callback = new TaskCompletionSource<AppUpdateInfo?>(TaskCreationOptions.RunContinuationsAsynchronously);
-        using var coordinator = CreateCoordinator(
-            appEvent,
-            service,
-            onAvailabilityChanged: (availableUpdate, _) => callback.TrySetResult(availableUpdate));
+        using var coordinator = CreateCoordinator(appEvent, service);
+        appEvent.Register(AppEvents.UpdateAvailabilityEvaluated, availability => callback.TrySetResult(availability.Update));
 
         appEvent.Invoke(AppEvents.UpdateCheckRequested);
 
@@ -47,9 +45,24 @@ public class UpdateCoordinatorTests
         var appEvent = AppEventFactory.Create();
         var service = new FakeAppUpdateService();
         var update = CreateUpdate("1.2.0");
-        using var coordinator = CreateCoordinator(appEvent, service, static () => UpdateInstallBehavior.AutomaticallyApply);
+        using var coordinator = CreateCoordinator(appEvent, service, UpdateInstallBehavior.AutomaticallyApply);
 
         appEvent.Invoke(AppEvents.UpdateAvailabilityChanged, update);
+        appEvent.Invoke(AppEvents.UpdateAvailabilityChanged, update);
+        await Task.Delay(100);
+
+        Assert.Equal(1, service.ApplyCallCount);
+    }
+
+    [Fact]
+    public async Task Commit_UpdatesInstallBehaviorUsedForAutomaticApply()
+    {
+        var appEvent = AppEventFactory.Create();
+        var service = new FakeAppUpdateService();
+        var update = CreateUpdate("1.2.0");
+        using var coordinator = CreateCoordinator(appEvent, service, UpdateInstallBehavior.Manual);
+
+        appEvent.Invoke(AppEvents.Commit, new AppSettings { UpdateInstallBehavior = UpdateInstallBehavior.AutomaticallyApply });
         appEvent.Invoke(AppEvents.UpdateAvailabilityChanged, update);
         await Task.Delay(100);
 
@@ -59,21 +72,16 @@ public class UpdateCoordinatorTests
     private static UpdateCoordinator CreateCoordinator(
         AppEvent appEvent,
         FakeAppUpdateService service,
-        Func<UpdateInstallBehavior>? installBehaviorProvider = null,
-        Func<AppUpdateInfo, bool>? tryBeginApply = null,
-        Action<AppUpdateInfo?, UpdateInstallBehavior>? onAvailabilityChanged = null)
+        UpdateInstallBehavior installBehavior = UpdateInstallBehavior.Manual,
+        Func<AppUpdateInfo, bool>? tryBeginApply = null)
     {
         return new UpdateCoordinator(new UpdateCoordinatorDependencies
         {
             AppEvent = appEvent,
             UpdateWorkflow = new UpdateWorkflow(service),
-            InstallBehaviorProvider = installBehaviorProvider ?? (static () => UpdateInstallBehavior.Manual),
+            InitialInstallBehavior = installBehavior,
             TryBeginApply = tryBeginApply ?? (static _ => true),
             EndApply = static () => { },
-            OnAvailabilityChanged = onAvailabilityChanged ?? (static (_, _) => { }),
-            OnAutomaticApplyFailed = static () => { },
-            OnApplyFailed = static _ => { },
-            OnApplySucceeded = static () => { },
         });
     }
 
