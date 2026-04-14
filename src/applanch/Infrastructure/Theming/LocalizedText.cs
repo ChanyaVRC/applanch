@@ -7,6 +7,8 @@ internal sealed record LocalizedText
 {
     private readonly Dictionary<LanguageOption, string> _translations;
 
+    internal IReadOnlyDictionary<LanguageOption, string> Translations => _translations;
+
     internal LocalizedText(string @default, IReadOnlyDictionary<LanguageOption, string>? translations = null)
     {
         ArgumentNullException.ThrowIfNull(@default);

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using applanch.Infrastructure.Storage;
@@ -34,6 +35,8 @@ internal sealed class LocalizedTextJsonConverter : JsonConverter<LocalizedText>
             }
 
             var cultureCode = reader.GetString();
+            Debug.Assert(cultureCode is not null, "Property names must be strings, and GetString() should not return null here.");
+
             if (!reader.Read())
             {
                 throw new JsonException("LocalizedText contains an incomplete property.");
@@ -45,12 +48,9 @@ internal sealed class LocalizedTextJsonConverter : JsonConverter<LocalizedText>
             }
 
             var text = reader.GetString();
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                continue;
-            }
+            Debug.Assert(text is not null, "LocalizedText values must be strings, and GetString() should not return null here.");
 
-            if (LanguageOption.TryMapFromCultureCode(cultureCode ?? string.Empty, out var language))
+            if (LanguageOption.TryMapFromCultureCode(cultureCode, out var language))
             {
                 translations[language] = text;
                 if (language == LanguageOption.PrimaryFallbackLanguage)
@@ -70,8 +70,11 @@ internal sealed class LocalizedTextJsonConverter : JsonConverter<LocalizedText>
     public override void Write(Utf8JsonWriter writer, LocalizedText value, JsonSerializerOptions options)
     {
         writer.WriteStartObject();
-        writer.WriteString(LanguageOption.English.Code, value.Resolve(LanguageOption.English));
-        writer.WriteString(LanguageOption.Japanese.Code, value.Resolve(LanguageOption.Japanese));
+        foreach (var (language, text) in value.Translations)
+        {
+            writer.WriteString(language.Code, text);
+        }
+
         writer.WriteEndObject();
     }
 }

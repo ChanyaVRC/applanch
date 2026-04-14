@@ -1,12 +1,57 @@
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Theming;
 using applanch.Tests.TestSupport;
+using System.Text.Json;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Theming;
 
 public sealed class LocalizedTextTests
 {
+    public static IEnumerable<object[]> ResolveFallbackCases()
+    {
+        yield return
+        [
+            "Default",
+            new Dictionary<LanguageOption, string>
+            {
+                [LanguageOption.English] = "English",
+            },
+            LanguageOption.Japanese,
+            "English",
+        ];
+
+        yield return
+        [
+            "Fallback",
+            new Dictionary<LanguageOption, string>(),
+            LanguageOption.System,
+            "Fallback",
+        ];
+
+        yield return
+        [
+            "Default",
+            new Dictionary<LanguageOption, string>
+            {
+                [LanguageOption.English] = null!,
+            },
+            LanguageOption.English,
+            "Default",
+        ];
+
+        yield return
+        [
+            "Default",
+            new Dictionary<LanguageOption, string>
+            {
+                [LanguageOption.Japanese] = null!,
+            },
+            LanguageOption.English,
+            "Default",
+        ];
+    }
+
     [Fact]
     public void ResolveCurrentCulture_WhenCultureIsUnknown_FallsBackToEnglish()
     {
@@ -23,25 +68,17 @@ public sealed class LocalizedTextTests
         Assert.Equal("English", localized.ResolveCurrentCulture());
     }
 
-    [Fact]
-    public void Resolve_WhenTargetTranslationMissing_FallsBackToEnglish()
+    [Theory]
+    [MemberData(nameof(ResolveFallbackCases))]
+    public void Resolve_WhenTranslationIsUnavailable_FallsBackAsExpected(
+        string @default,
+        IReadOnlyDictionary<LanguageOption, string>? translations,
+        LanguageOption target,
+        string expected)
     {
-        var localized = new LocalizedText(
-            "Default",
-            new Dictionary<LanguageOption, string>
-            {
-                [LanguageOption.English] = "English",
-            });
+        var localized = new LocalizedText(@default, translations);
 
-        Assert.Equal("English", localized.Resolve(LanguageOption.Japanese));
-    }
-
-    [Fact]
-    public void Resolve_WhenNoTranslations_FallsBackToDefault()
-    {
-        var localized = new LocalizedText("Fallback", new Dictionary<LanguageOption, string>());
-
-        Assert.Equal("Fallback", localized.Resolve(LanguageOption.System));
+        Assert.Equal(expected, localized.Resolve(target));
     }
 
     [Fact]
@@ -58,28 +95,37 @@ public sealed class LocalizedTextTests
     }
 
     [Fact]
-    public void Resolve_WhenLanguageOptionTranslationValueIsNull_IgnoresNullAndFallsBack()
+    public void Translations_WhenDefaultOnly_ContainsOnlyFallbackLanguage()
     {
-        var localized = new LocalizedText(
-            "Default",
-            new Dictionary<LanguageOption, string>
-            {
-                [LanguageOption.English] = null!,
-            });
+        var localized = new LocalizedText("Default");
 
-        Assert.Equal("Default", localized.Resolve(LanguageOption.English));
+        var translations = localized.Translations;
+        Assert.Single(translations);
+        Assert.Equal("Default", translations[LanguageOption.English]);
     }
 
     [Fact]
-    public void Resolve_WhenSecondaryLanguageTranslationValueIsNull_IgnoresNullAndFallsBack()
+    public void JsonSerialize_WritesAllAvailableTranslationsFromTranslations()
     {
         var localized = new LocalizedText(
-            "Default",
+            "English",
             new Dictionary<LanguageOption, string>
             {
-                [LanguageOption.Japanese] = null!,
+                [LanguageOption.Japanese] = "日本語",
             });
 
-        Assert.Equal("Default", localized.Resolve(LanguageOption.English));
+        var json = JsonSerializer.Serialize(
+            localized,
+            new JsonSerializerOptions
+            {
+                Converters = { new LocalizedTextJsonConverter() },
+            });
+
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+
+        Assert.Equal(JsonValueKind.Object, root.ValueKind);
+        Assert.Equal("English", root.GetProperty("en").GetString());
+        Assert.Equal("日本語", root.GetProperty("ja").GetString());
     }
 }
