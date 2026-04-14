@@ -17,7 +17,7 @@ internal sealed class InlineRenameHandler
         textBox.SelectAll();
     }
 
-    internal bool HandleKeyDown(object sender, Key key, Action<LaunchItemViewModel, string> applyDisplayName)
+    internal bool HandleKeyDown(object sender, Key key)
     {
         if (sender is not TextBox { DataContext: LaunchItemViewModel item })
         {
@@ -26,7 +26,7 @@ internal sealed class InlineRenameHandler
 
         if (key == Key.Return)
         {
-            CommitRename(item, applyDisplayName);
+            CommitRename(item);
             return true;
         }
 
@@ -39,19 +39,19 @@ internal sealed class InlineRenameHandler
         return false;
     }
 
-    internal void HandleLostFocus(object sender, Action<LaunchItemViewModel, string> applyDisplayName)
+    internal void HandleLostFocus(object sender)
     {
         if (sender is not TextBox { DataContext: LaunchItemViewModel item } || !item.IsRenaming)
         {
             return;
         }
 
-        CommitRename(item, applyDisplayName);
+        CommitRename(item);
     }
 
-    private static void CommitRename(LaunchItemViewModel item, Action<LaunchItemViewModel, string> applyDisplayName)
+    private static void CommitRename(LaunchItemViewModel item)
     {
-        applyDisplayName(item, item.EditingName);
+        item.DisplayName = item.EditingName;
         item.IsRenaming = false;
     }
 }

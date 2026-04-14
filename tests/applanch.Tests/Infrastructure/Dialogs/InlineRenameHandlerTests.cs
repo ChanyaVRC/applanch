@@ -24,21 +24,10 @@ public class InlineRenameHandlerTests
             var textBox = new TextBox { DataContext = item };
             var sut = new InlineRenameHandler();
 
-            LaunchItemViewModel? renamedItem = null;
-            string? renamedValue = null;
-
-            var handled = sut.HandleKeyDown(
-                textBox,
-                Key.Return,
-                (target, value) =>
-                {
-                    renamedItem = target;
-                    renamedValue = value;
-                });
+            var handled = sut.HandleKeyDown(textBox, Key.Return);
 
             Assert.True(handled);
-            Assert.Same(item, renamedItem);
-            Assert.Equal("New", renamedValue);
+            Assert.Equal("New", item.DisplayName);
             Assert.False(item.IsRenaming);
         });
     }
@@ -56,9 +45,10 @@ public class InlineRenameHandlerTests
             var textBox = new TextBox { DataContext = item };
             var sut = new InlineRenameHandler();
 
-            var handled = sut.HandleKeyDown(textBox, Key.Escape, (_, _) => Assert.Fail("Should not apply rename on escape."));
+            var handled = sut.HandleKeyDown(textBox, Key.Escape);
 
             Assert.True(handled);
+            Assert.Equal("Old", item.DisplayName);
             Assert.False(item.IsRenaming);
         });
     }
@@ -76,9 +66,10 @@ public class InlineRenameHandlerTests
             var textBox = new TextBox { DataContext = item };
             var sut = new InlineRenameHandler();
 
-            var handled = sut.HandleKeyDown(textBox, Key.Tab, (_, _) => Assert.Fail("Should not apply rename on non-commit key."));
+            var handled = sut.HandleKeyDown(textBox, Key.Tab);
 
             Assert.False(handled);
+            Assert.Equal("Old", item.DisplayName);
             Assert.True(item.IsRenaming);
         });
     }
@@ -96,19 +87,9 @@ public class InlineRenameHandlerTests
             var textBox = new TextBox { DataContext = item };
             var sut = new InlineRenameHandler();
 
-            LaunchItemViewModel? renamedItem = null;
-            string? renamedValue = null;
+            sut.HandleLostFocus(textBox);
 
-            sut.HandleLostFocus(
-                textBox,
-                (target, value) =>
-                {
-                    renamedItem = target;
-                    renamedValue = value;
-                });
-
-            Assert.Same(item, renamedItem);
-            Assert.Equal("New", renamedValue);
+            Assert.Equal("New", item.DisplayName);
             Assert.False(item.IsRenaming);
         });
     }
@@ -126,8 +107,9 @@ public class InlineRenameHandlerTests
             var textBox = new TextBox { DataContext = item };
             var sut = new InlineRenameHandler();
 
-            sut.HandleLostFocus(textBox, (_, _) => Assert.Fail("Should not apply rename when not renaming."));
+            sut.HandleLostFocus(textBox);
 
+            Assert.Equal("Old", item.DisplayName);
             Assert.False(item.IsRenaming);
         });
     }

@@ -626,12 +626,12 @@ public sealed partial class MainWindow : Window
 
     private void RenameTextBox_KeyDown(object sender, KeyEventArgs e)
     {
-        e.Handled = _inlineRenameHandler.HandleKeyDown(sender, e.Key, ViewModel.UpdateItemDisplayName);
+        e.Handled = _inlineRenameHandler.HandleKeyDown(sender, e.Key);
     }
 
     private void RenameTextBox_LostFocus(object sender, RoutedEventArgs e)
     {
-        _inlineRenameHandler.HandleLostFocus(sender, ViewModel.UpdateItemDisplayName);
+        _inlineRenameHandler.HandleLostFocus(sender);
     }
 
     // ── Drag & drop ─────────────────────────────────────────
