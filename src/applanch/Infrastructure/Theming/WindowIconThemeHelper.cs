@@ -21,7 +21,7 @@ internal static class WindowIconThemeHelper
 
     internal static Color ResolveIconColor(ResourceDictionary resources)
     {
-        if (resources["Brush.TextPrimary"] is SolidColorBrush textBrush && IsDarkColor(textBrush.Color))
+        if (resources["Brush.TextPrimary"] is SolidColorBrush textBrush && ThemeColorLuminance.IsDark(textBrush.Color))
         {
             return LightPaletteIconColor;
         }
@@ -34,12 +34,6 @@ internal static class WindowIconThemeHelper
         return ResolveIconColor(resources) == LightPaletteIconColor
             ? LightPaletteIcon
             : DarkPaletteIcon;
-    }
-
-    private static bool IsDarkColor(Color color)
-    {
-        var relativeLuminance = ((0.2126 * color.R) + (0.7152 * color.G) + (0.0722 * color.B)) / 255d;
-        return relativeLuminance < 0.5d;
     }
 
     private static DrawingImage CreateIconSource(Color fillColor)

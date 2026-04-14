@@ -39,8 +39,6 @@ internal static class WindowCaptionThemeHelper
             return false;
         }
 
-        var c = brush.Color;
-        var luminance = (0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B) / 255.0;
-        return luminance < 0.5;
+        return ThemeColorLuminance.IsDark(brush.Color);
     }
 }
