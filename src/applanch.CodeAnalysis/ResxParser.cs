@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Xml.Linq;
 
-namespace applanch.ResourceGenerator;
+namespace applanch.CodeAnalysis;
 
 internal static class ResxParser
 {

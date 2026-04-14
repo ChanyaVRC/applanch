@@ -8,6 +8,7 @@ namespace applanch.Infrastructure.Launch.AppIdResolvers;
 /// Configuration format: "registry:{hive}:{keyPath}:{valueName}"
 /// Example: "registry:HKEY_LOCAL_MACHINE:SOFTWARE\\Wow6432Node\\Epic Games\\EpicGamesLauncher:AppDataPath"
 /// </summary>
+[AppIdSourcePrefix("registry")]
 internal sealed class RegistryAppIdResolver : IAppIdResolver
 {
     private readonly record struct ParsedSource(RegistryHive Hive, string HiveName, string KeyPath, string ValueName);
@@ -59,21 +60,15 @@ internal sealed class RegistryAppIdResolver : IAppIdResolver
             return null;
         }
 
-        var parts = _source.Split(':', 4, StringSplitOptions.TrimEntries);
-        if (parts.Length != 4)
+        var parts = _source.Split(':', 3, StringSplitOptions.TrimEntries);
+        if (parts.Length != 3)
         {
             return null;
         }
 
-        var prefix = parts[0];
-        if (prefix != "registry")
-        {
-            return null;
-        }
-
-        var hiveName = parts[1];
-        var keyPath = parts[2];
-        var valueName = parts[3];
+        var hiveName = parts[0];
+        var keyPath = parts[1];
+        var valueName = parts[2];
 
         if (string.IsNullOrWhiteSpace(keyPath) || string.IsNullOrWhiteSpace(valueName))
         {

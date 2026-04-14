@@ -22,7 +22,7 @@ public class RegistryAppIdResolverTests
                 key.SetValue(valueName, expected, RegistryValueKind.String);
             }
 
-            var source = $"registry:HKEY_CURRENT_USER:{keyPath}:{valueName}";
+            var source = $"HKEY_CURRENT_USER:{keyPath}:{valueName}";
             var resolver = new RegistryAppIdResolver(source);
 
             var actual = resolver.Resolve(new LaunchPath(@"C:\game.exe"));
@@ -36,8 +36,8 @@ public class RegistryAppIdResolverTests
     }
 
     [Theory]
-    [InlineData(" registry : HKEY_LOCAL_MACHINE : SOFTWARE : Value ")]
-    [InlineData("registry:HKEY_LOCAL_MACHINE:SOFTWARE:Value:With:Colon")]
+    [InlineData(" HKEY_LOCAL_MACHINE : SOFTWARE : Value ")]
+    [InlineData("HKEY_LOCAL_MACHINE:SOFTWARE:Value:With:Colon")]
     public void CanResolve_ValidSource_ReturnsTrue(string source)
     {
         var resolver = new RegistryAppIdResolver(source);
@@ -48,10 +48,10 @@ public class RegistryAppIdResolverTests
     }
 
     [Theory]
-    [InlineData("registry:HKEY_LOCAL_MACHINE:SOFTWARE")]           // 3 parts — missing ValueName
-    [InlineData("registry:HKEY_LOCAL_MACHINE")]                    // 2 parts
-    [InlineData("not-registry:HKEY_LOCAL_MACHINE:SOFTWARE:Value")] // wrong prefix
-    [InlineData("REGISTRY:HKEY_CURRENT_USER:SOFTWARE:Value")]      // prefix is case-sensitive
+    [InlineData("HKEY_LOCAL_MACHINE:SOFTWARE")]           // 2 parts
+    [InlineData("HKEY_LOCAL_MACHINE")]                    // 1 part
+    [InlineData("registry:HKEY_LOCAL_MACHINE:SOFTWARE:Value")] // prefix should not be included for this resolver
+    [InlineData("hkey_current_user:SOFTWARE:Value")]      // hive is case-sensitive
     public void CanResolve_MalformedSource_ReturnsFalse(string source)
     {
         var resolver = new RegistryAppIdResolver(source);
@@ -64,7 +64,7 @@ public class RegistryAppIdResolverTests
     [Fact]
     public void CanResolve_UnknownHiveName_ReturnsFalse()
     {
-        var resolver = new RegistryAppIdResolver("registry:HKEY_BOGUS:SOFTWARE:Value");
+        var resolver = new RegistryAppIdResolver("HKEY_BOGUS:SOFTWARE:Value");
 
         var result = resolver.CanResolve(new LaunchPath(@"C:\game.exe"));
 
@@ -72,11 +72,11 @@ public class RegistryAppIdResolverTests
     }
 
     [Theory]
-    [InlineData("registry:HKEY_LOCAL_MACHINE:SOFTWARE\\applanch_test_nonexistent:Value")]
-    [InlineData("registry:HKEY_CURRENT_USER:SOFTWARE\\applanch_test_nonexistent:Value")]
-    [InlineData("registry:HKEY_CLASSES_ROOT:applanch_test_nonexistent:Value")]
-    [InlineData("registry:HKEY_USERS:applanch_test_nonexistent:Value")]
-    [InlineData("registry:HKEY_CURRENT_CONFIG:SOFTWARE\\applanch_test_nonexistent:Value")]
+    [InlineData("HKEY_LOCAL_MACHINE:SOFTWARE\\applanch_test_nonexistent:Value")]
+    [InlineData("HKEY_CURRENT_USER:SOFTWARE\\applanch_test_nonexistent:Value")]
+    [InlineData("HKEY_CLASSES_ROOT:applanch_test_nonexistent:Value")]
+    [InlineData("HKEY_USERS:applanch_test_nonexistent:Value")]
+    [InlineData("HKEY_CURRENT_CONFIG:SOFTWARE\\applanch_test_nonexistent:Value")]
     public void Resolve_ValidHiveButNonExistentKey_Throws(string source)
     {
         var resolver = new RegistryAppIdResolver(source);

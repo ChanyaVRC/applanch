@@ -1,4 +1,4 @@
-namespace applanch.ResourceGenerator;
+namespace applanch.CodeAnalysis;
 
 internal sealed class ResxFile
 {

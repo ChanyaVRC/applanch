@@ -5,6 +5,7 @@ namespace applanch.Infrastructure.Launch.AppIdResolvers;
 /// <summary>
 /// Resolves app IDs by returning a static value.
 /// </summary>
+[AppIdSourcePrefix("static")]
 internal sealed class StaticAppIdResolver : IAppIdResolver
 {
     private readonly string _appId;

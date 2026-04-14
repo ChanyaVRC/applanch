@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace applanch.Infrastructure.Launch.AppIdResolvers;
 
 /// <summary>
@@ -5,6 +7,61 @@ namespace applanch.Infrastructure.Launch.AppIdResolvers;
 /// </summary>
 internal static class AppIdResolverFactory
 {
+    private static readonly Dictionary<string, Func<IAppIdResolver>> ExactResolverFactories;
+    private static readonly Dictionary<string, Func<string, IAppIdResolver>> PrefixResolverFactories;
+
+    static AppIdResolverFactory()
+    {
+        ExactResolverFactories = [];
+        PrefixResolverFactories = [];
+
+        foreach (var type in typeof(AppIdResolverFactory).Assembly.GetTypes())
+        {
+            if (!typeof(IAppIdResolver).IsAssignableFrom(type) || type.IsAbstract || type.IsInterface)
+            {
+                continue;
+            }
+
+            foreach (var attribute in type.GetCustomAttributesData())
+            {
+                TryRegisterExactResolver(type, attribute);
+                TryRegisterPrefixResolver(type, attribute);
+            }
+        }
+    }
+
+    private static void TryRegisterExactResolver(Type type, CustomAttributeData attribute)
+    {
+        if (attribute.AttributeType != typeof(AppIdSourceAttribute)
+            || attribute.ConstructorArguments.Count != 1
+            || attribute.ConstructorArguments[0].Value is not string source)
+        {
+            return;
+        }
+
+        var constructor = type.GetConstructor(
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+            binder: null, [], modifiers: null);
+        if (constructor is not null)
+            ExactResolverFactories[source] = () => (IAppIdResolver)constructor.Invoke(null);
+    }
+
+    private static void TryRegisterPrefixResolver(Type type, CustomAttributeData attribute)
+    {
+        if (attribute.AttributeType != typeof(AppIdSourcePrefixAttribute)
+            || attribute.ConstructorArguments.Count != 1
+            || attribute.ConstructorArguments[0].Value is not string prefix)
+        {
+            return;
+        }
+
+        var constructor = type.GetConstructor(
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+            binder: null, [typeof(string)], modifiers: null);
+        if (constructor is not null)
+            PrefixResolverFactories[prefix.ToLowerInvariant()] = s => (IAppIdResolver)constructor.Invoke([s]);
+    }
+
     /// <summary>
     /// Creates a resolver for the given source.
     /// Supported formats:
@@ -21,25 +78,25 @@ internal static class AppIdResolverFactory
 
         var trimmedSource = source.Trim();
 
-        // Check for static: prefix
-        if (trimmedSource.StartsWith("static:", StringComparison.OrdinalIgnoreCase))
+        if (ExactResolverFactories.TryGetValue(trimmedSource, out var exactFactory))
         {
-            var value = trimmedSource["static:".Length..];
-            return new StaticAppIdResolver(value);
+            return exactFactory();
         }
 
-        // Steam manifest (legacy support without prefix)
-        if (string.Equals(trimmedSource, "steam-manifest", StringComparison.OrdinalIgnoreCase))
+        var separatorIndex = trimmedSource.IndexOf(':');
+        if (separatorIndex <= 0)
         {
-            return new SteamManifestAppIdResolver();
+            return null;
         }
 
-        // Check for registry: prefix
-        if (trimmedSource.StartsWith("registry:", StringComparison.OrdinalIgnoreCase))
+        var prefix = trimmedSource[..separatorIndex];
+        if (PrefixResolverFactories.TryGetValue(prefix, out var prefixFactory))
         {
-            return new RegistryAppIdResolver(trimmedSource);
+            var normalizedSource = trimmedSource[(separatorIndex + 1)..];
+            return prefixFactory(normalizedSource);
         }
 
         return null;
     }
+
 }

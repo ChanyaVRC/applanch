@@ -86,7 +86,7 @@ src/applanch/
   Properties/                     # リソースファイル（Resources.resx, Resources.ja.resx）
   Config/                         # デフォルト設定ファイル（バンドル済み）
 tests/applanch.Tests/             # xUnit テストプロジェクト（src/ 構造を反映）
-src/applanch.ResourceGenerator/   # 型付きリソースアクセス用ソースジェネレーター
+src/applanch.CodeAnalysis/        # Roslyn コード分析（リソース生成 + アナライザー）
 ```
 
 主な規約：

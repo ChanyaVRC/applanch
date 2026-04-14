@@ -86,7 +86,7 @@ src/applanch/
   Properties/                     # Resource files (Resources.resx, Resources.ja.resx)
   Config/                         # Bundled default config files
 tests/applanch.Tests/             # xUnit test project (mirrors src/ structure)
-src/applanch.ResourceGenerator/   # Source generator for typed resource access
+src/applanch.CodeAnalysis/        # Roslyn code analysis (resource generator + analyzers)
 ```
 
 Loose conventions:

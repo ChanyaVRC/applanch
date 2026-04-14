@@ -14,65 +14,27 @@ public class AppIdResolverFactoryTests
         Assert.Null(AppIdResolverFactory.CreateResolver(source));
     }
 
-    [Fact]
-    public void CreateResolver_StaticPrefix_ReturnsStaticResolver()
+    [Theory]
+    [InlineData("static:12345", typeof(StaticAppIdResolver))]
+    [InlineData("steam-manifest", typeof(SteamManifestAppIdResolver))]
+    [InlineData("registry:HKEY_LOCAL_MACHINE:SOFTWARE:Value", typeof(RegistryAppIdResolver))]
+    [InlineData("  static:abc  ", typeof(StaticAppIdResolver))]
+    public void CreateResolver_SupportedSource_ReturnsExpectedResolver(string source, Type expectedType)
     {
-        var resolver = AppIdResolverFactory.CreateResolver("static:12345");
+        var resolver = AppIdResolverFactory.CreateResolver(source);
 
-        Assert.IsType<StaticAppIdResolver>(resolver);
+        Assert.IsType(expectedType, resolver);
     }
 
-    [Fact]
-    public void CreateResolver_StaticPrefix_CaseInsensitive()
+    [Theory]
+    [InlineData("STATIC:value")]
+    [InlineData("STEAM-MANIFEST")]
+    [InlineData("REGISTRY:HKEY_LOCAL_MACHINE:SOFTWARE:Value")]
+    [InlineData("gog-manifest")]
+    public void CreateResolver_UnsupportedOrNonCanonicalSource_ReturnsNull(string source)
     {
-        var resolver = AppIdResolverFactory.CreateResolver("STATIC:value");
+        var resolver = AppIdResolverFactory.CreateResolver(source);
 
-        Assert.IsType<StaticAppIdResolver>(resolver);
-    }
-
-    [Fact]
-    public void CreateResolver_SteamManifest_ReturnsSteamResolver()
-    {
-        var resolver = AppIdResolverFactory.CreateResolver("steam-manifest");
-
-        Assert.IsType<SteamManifestAppIdResolver>(resolver);
-    }
-
-    [Fact]
-    public void CreateResolver_SteamManifest_CaseInsensitive()
-    {
-        var resolver = AppIdResolverFactory.CreateResolver("STEAM-MANIFEST");
-
-        Assert.IsType<SteamManifestAppIdResolver>(resolver);
-    }
-
-    [Fact]
-    public void CreateResolver_RegistryPrefix_ReturnsRegistryResolver()
-    {
-        var resolver = AppIdResolverFactory.CreateResolver("registry:HKEY_LOCAL_MACHINE:SOFTWARE:Value");
-
-        Assert.IsType<RegistryAppIdResolver>(resolver);
-    }
-
-    [Fact]
-    public void CreateResolver_RegistryPrefix_CaseInsensitive()
-    {
-        var resolver = AppIdResolverFactory.CreateResolver("REGISTRY:HKEY_LOCAL_MACHINE:SOFTWARE:Value");
-
-        Assert.IsType<RegistryAppIdResolver>(resolver);
-    }
-
-    [Fact]
-    public void CreateResolver_UnknownPrefix_ReturnsNull()
-    {
-        Assert.Null(AppIdResolverFactory.CreateResolver("gog-manifest"));
-    }
-
-    [Fact]
-    public void CreateResolver_LeadingWhitespace_IsIgnored()
-    {
-        var resolver = AppIdResolverFactory.CreateResolver("  static:abc  ");
-
-        Assert.IsType<StaticAppIdResolver>(resolver);
+        Assert.Null(resolver);
     }
 }

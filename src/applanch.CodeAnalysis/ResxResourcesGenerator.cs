@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
-namespace applanch.ResourceGenerator;
+namespace applanch.CodeAnalysis;
 
 [Generator]
 public sealed class ResxResourcesGenerator : IIncrementalGenerator

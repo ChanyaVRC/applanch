@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace applanch.ResourceGenerator;
+namespace applanch.CodeAnalysis;
 
 internal static class IdentifierSanitizer
 {

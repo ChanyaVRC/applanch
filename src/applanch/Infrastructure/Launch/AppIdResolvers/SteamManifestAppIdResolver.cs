@@ -6,6 +6,7 @@ namespace applanch.Infrastructure.Launch.AppIdResolvers;
 /// <summary>
 /// Resolves app IDs from Steam manifest files.
 /// </summary>
+[AppIdSource("steam-manifest")]
 internal sealed class SteamManifestAppIdResolver : IAppIdResolver
 {
     public bool CanResolve(LaunchPath launchPath)
@@ -49,7 +50,6 @@ internal sealed class SteamManifestAppIdResolver : IAppIdResolver
 
     private static string? GetSteamGameDirectory(string launchPath, string steamAppsRoot)
     {
-
         var commonRoot = Path.Combine(steamAppsRoot, "common") + Path.DirectorySeparatorChar;
         if (!launchPath.StartsWith(commonRoot, StringComparison.OrdinalIgnoreCase))
         {
@@ -69,7 +69,7 @@ internal sealed class SteamManifestAppIdResolver : IAppIdResolver
 
         foreach (var line in File.ReadLines(manifestPath))
         {
-            var trimmed = line.Trim();
+            var trimmed = line.AsSpan().Trim();
             if (trimmed.StartsWith("\"appid\"", StringComparison.OrdinalIgnoreCase))
             {
                 appId = ExtractQuotedValue(trimmed);
@@ -85,11 +85,11 @@ internal sealed class SteamManifestAppIdResolver : IAppIdResolver
             : null;
     }
 
-    private static string ExtractQuotedValue(string line)
+    private static string ExtractQuotedValue(ReadOnlySpan<char> line)
     {
         // Splitting `"key"  "value"` by '"' yields ["", "key", "  ", "value", ""].
         // The value token is always at index 3; fewer parts means the line is malformed.
-        var span = line.AsSpan();
+        var span = line;
         Span<Range> parts = stackalloc Range[5];
         return span.Split(parts, '"') >= 4 ? span[parts[3]].ToString() : string.Empty;
     }

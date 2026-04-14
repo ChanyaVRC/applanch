@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -21,7 +21,7 @@
   <ItemGroup>
     <Compile Include="..\Shared\ShellIntegration\ExplorerCommandIds.cs"
              Link="ShellIntegration\ExplorerCommandIds.cs" />
-    <ProjectReference Include="..\applanch.ResourceGenerator\applanch.ResourceGenerator.csproj"
+    <ProjectReference Include="..\applanch.CodeAnalysis\applanch.CodeAnalysis.csproj"
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\applanch.ShellExtension\applanch.ShellExtension.csproj"
