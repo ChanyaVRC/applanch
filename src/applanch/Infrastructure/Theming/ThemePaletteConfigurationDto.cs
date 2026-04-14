@@ -11,7 +11,7 @@ internal sealed record ThemePaletteConfigurationDto(
 
 internal sealed record ThemeDto(
     string Id,
-    Dictionary<string, string>? DisplayNames = null,
+    [property: JsonConverter(typeof(LocalizedTextJsonConverter))] LocalizedText? DisplayNames = null,
     EntriesFromSpec? EntriesFrom = null,
     IReadOnlyList<ThemeEntryDto>? Entries = null,
     bool Enabled = true);

@@ -1,7 +1,6 @@
 using System.Buffers;
 using System.IO;
 using System.Text.Json;
-using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Theming;
@@ -158,7 +157,7 @@ internal static class ThemePaletteConfigurationLoader
 
         foreach (var themeDto in dto.Themes)
         {
-            var themeId = NormalizeThemeId(themeDto.Id);
+            var themeId = themeDto.Id;
             if (string.IsNullOrEmpty(themeId))
             {
                 continue;
@@ -217,57 +216,30 @@ internal static class ThemePaletteConfigurationLoader
                 new FixedThemeDefinition(
                     themeId,
                     displayName,
-                    NormalizeThemeId(inherited.SourceThemeId),
+                    inherited.SourceThemeId,
                     isVisibleInThemeList: isVisibleInThemeList),
             SystemDependentEntriesFromSpec systemDependent =>
-                BuildSystemDependentThemeFromSpec(
+                new SystemDependentThemeDefinition(
                     themeId,
                     displayName,
-                    systemDependent,
+                    systemDependent.SourcesByMode,
                     isVisibleInThemeList),
             _ => new FixedThemeDefinition(themeId, displayName, isVisibleInThemeList: isVisibleInThemeList),
         };
     }
 
-    private static SystemDependentThemeDefinition BuildSystemDependentThemeFromSpec(
-        string themeId,
-        LocalizedText displayName,
-        SystemDependentEntriesFromSpec entriesFrom,
-        bool isVisibleInThemeList)
-    {
-        var normalizedSources = entriesFrom.SourcesByMode
-            .ToDictionary(static entry => entry.Key, entry => NormalizeThemeId(entry.Value));
-
-        return normalizedSources.Count == 0
-            ? new SystemDependentThemeDefinition(themeId, displayName, new Dictionary<SystemThemeMode, string>(), isVisibleInThemeList)
-            : new SystemDependentThemeDefinition(themeId, displayName, normalizedSources, isVisibleInThemeList);
-    }
-
-    private static string NormalizeThemeId(string? themeId) =>
-        string.IsNullOrWhiteSpace(themeId) ? string.Empty : themeId.Trim().ToLowerInvariant();
-
     private static LocalizedText ResolveDisplayName(
         string themeId,
-        Dictionary<string, string>? displayNamesMap = null)
+        LocalizedText? displayNames = null)
     {
-        var langs = new Dictionary<LanguageOption, string>();
-        if (displayNamesMap is not null)
+        if (displayNames is not null)
         {
-            foreach (var (cultureCode, displayName) in displayNamesMap)
-            {
-                if (!string.IsNullOrWhiteSpace(displayName) &&
-                    LanguageOption.TryMapFromCultureCode(cultureCode, out var language))
-                {
-                    langs[language] = displayName;
-                }
-            }
+            return displayNames;
         }
 
-        // All themes use title-case name as fallback if not defined in config
-        // Built-in themes (light, dark, system) have display names in theme-palette.json
-        var fallback = ToTitleCase(themeId);
-
-        return new LocalizedText(fallback, langs.Count > 0 ? langs : null);
+        // All themes use title-case name as fallback if not defined in config.
+        // Built-in themes (light, dark, system) have display names in theme-palette.json.
+        return new LocalizedText(ToTitleCase(themeId));
     }
 
     private static string ToTitleCase(string value)
