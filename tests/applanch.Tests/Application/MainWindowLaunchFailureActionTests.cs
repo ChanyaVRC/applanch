@@ -1,5 +1,5 @@
-using System.Windows;
 using applanch.Infrastructure.Launch;
+using applanch.ViewModels;
 using Xunit;
 
 namespace applanch.Tests.Application;
@@ -9,7 +9,7 @@ public class MainWindowLaunchFailureActionTests
     [Fact]
     public void ShouldOfferDeleteActionForLaunchFailure_MissingTargetFailure_ReturnsTrue()
     {
-        var execution = LaunchExecutionResult.Failed("missing", MessageBoxImage.Warning, LaunchFailureKind.MissingTarget);
+        var execution = LaunchExecutionResult.Failed("missing", NotificationIconType.Warning, LaunchFailureKind.MissingTarget);
 
         var shouldOfferDelete = MainWindow.ShouldOfferDeleteActionForLaunchFailure(execution);
 
@@ -19,7 +19,7 @@ public class MainWindowLaunchFailureActionTests
     [Fact]
     public void ShouldOfferDeleteActionForLaunchFailure_OtherFailure_ReturnsFalse()
     {
-        var execution = LaunchExecutionResult.Failed("launch failed", MessageBoxImage.Error, LaunchFailureKind.Other);
+        var execution = LaunchExecutionResult.Failed("launch failed", NotificationIconType.Error, LaunchFailureKind.Other);
 
         var shouldOfferDelete = MainWindow.ShouldOfferDeleteActionForLaunchFailure(execution);
 

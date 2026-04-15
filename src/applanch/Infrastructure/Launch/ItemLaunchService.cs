@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using System.ComponentModel;
 using System.IO;
-using System.Windows;
 using applanch.Infrastructure.Utilities;
+using applanch.ViewModels;
 
 namespace applanch.Infrastructure.Launch;
 
@@ -42,7 +42,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
         {
             return LaunchExecutionResult.Failed(
                 string.Format(AppResources.Error_FileNotFound, path),
-                MessageBoxImage.Warning,
+                NotificationIconType.Warning,
                 LaunchFailureKind.MissingTarget);
         }
 
@@ -54,7 +54,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
                 var preferredProcess = _startProcess(preferredFallback.StartInfo);
                 if (preferredProcess is null)
                 {
-                    return LaunchExecutionResult.Failed(AppResources.Error_LaunchFailed, MessageBoxImage.Error);
+                    return LaunchExecutionResult.Failed(AppResources.Error_LaunchFailed, NotificationIconType.Error);
                 }
 
                 return LaunchExecutionResult.Success();
@@ -62,7 +62,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
             catch (Exception ex)
             {
                 AppLogger.Instance.Error(ex, $"Preferred fallback launch failed for '{path}' via {preferredFallback.Name}");
-                return LaunchExecutionResult.Failed(string.Format(AppResources.Error_LaunchFailedWithMessage, ex.Message), MessageBoxImage.Error);
+                return LaunchExecutionResult.Failed(string.Format(AppResources.Error_LaunchFailedWithMessage, ex.Message), NotificationIconType.Error);
             }
         }
 
@@ -87,7 +87,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
         {
             var process = _startProcess(startInfo);
             if (process is null)
-                return LaunchExecutionResult.Failed(AppResources.Error_LaunchFailed, MessageBoxImage.Error);
+                return LaunchExecutionResult.Failed(AppResources.Error_LaunchFailed, NotificationIconType.Error);
 
             return LaunchExecutionResult.Success();
         }
@@ -114,7 +114,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
             }
 
             AppLogger.Instance.Error(ex, $"Failed to launch: {path}");
-            return LaunchExecutionResult.Failed(string.Format(AppResources.Error_LaunchFailedWithMessage, ex.Message), MessageBoxImage.Error);
+            return LaunchExecutionResult.Failed(string.Format(AppResources.Error_LaunchFailedWithMessage, ex.Message), NotificationIconType.Error);
         }
     }
 

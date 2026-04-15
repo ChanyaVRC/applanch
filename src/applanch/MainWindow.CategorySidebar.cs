@@ -243,7 +243,7 @@ public sealed partial class MainWindow
 
         ShowFloatingNotification(
             string.Format(Strings.Notification_ItemCategoryChanged, item.DisplayName, previousCategory, item.Category),
-            MessageBoxImage.Information);
+            NotificationIconType.Info);
     }
 
     internal static Category? ResolveCategoryDropTarget(object? originalSource)

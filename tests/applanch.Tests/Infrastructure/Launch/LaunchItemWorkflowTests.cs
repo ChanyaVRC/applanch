@@ -2,7 +2,6 @@ using applanch.Infrastructure.Launch;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Utilities;
 using applanch.ViewModels;
-using System.Windows;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Launch;
@@ -28,7 +27,7 @@ public class LaunchItemWorkflowTests
     {
         var launchService = new FakeItemLaunchService
         {
-            Result = LaunchExecutionResult.Failed("boom", MessageBoxImage.Error)
+            Result = LaunchExecutionResult.Failed("boom", NotificationIconType.Error)
         };
         var workflow = new LaunchItemWorkflow(launchService);
         var settings = new AppSettings();

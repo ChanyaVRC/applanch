@@ -1,12 +1,12 @@
-using System.Windows;
+using applanch.ViewModels;
 
 namespace applanch.Infrastructure.Launch;
 
-internal readonly record struct LaunchExecutionResult(bool IsSuccess, string Message, MessageBoxImage Icon, LaunchFailureKind FailureKind)
+internal readonly record struct LaunchExecutionResult(bool IsSuccess, string Message, NotificationIconType Icon, LaunchFailureKind FailureKind)
 {
-    public static LaunchExecutionResult Success() => new(true, string.Empty, MessageBoxImage.None, LaunchFailureKind.None);
+    public static LaunchExecutionResult Success() => new(true, string.Empty, NotificationIconType.None, LaunchFailureKind.None);
 
-    public static LaunchExecutionResult Failed(string message, MessageBoxImage icon, LaunchFailureKind failureKind = LaunchFailureKind.Other)
+    public static LaunchExecutionResult Failed(string message, NotificationIconType icon, LaunchFailureKind failureKind = LaunchFailureKind.Other)
         => new(false, message, icon, failureKind);
 }
 

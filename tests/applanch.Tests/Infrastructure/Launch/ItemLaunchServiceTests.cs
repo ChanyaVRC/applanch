@@ -5,6 +5,7 @@ using applanch.Infrastructure.Launch;
 using applanch.Infrastructure.Utilities;
 using applanch.Tests.Infrastructure.Launch.TestDoubles;
 using applanch.Tests.TestSupport;
+using applanch.ViewModels;
 
 namespace applanch.Tests.Infrastructure.Launch;
 
@@ -55,7 +56,7 @@ public class ItemLaunchServiceTests
         var result = service.TryLaunch(new LaunchPath(@"C:\missing\file.exe"), string.Empty);
 
         Assert.False(result.IsSuccess);
-        Assert.Equal(System.Windows.MessageBoxImage.Warning, result.Icon);
+        Assert.Equal(NotificationIconType.Warning, result.Icon);
         Assert.Equal(LaunchFailureKind.MissingTarget, result.FailureKind);
     }
 
@@ -121,7 +122,7 @@ public class ItemLaunchServiceTests
         var result = service.TryLaunch(new LaunchPath(filePath), string.Empty);
 
         Assert.False(result.IsSuccess);
-        Assert.Equal(System.Windows.MessageBoxImage.Error, result.Icon);
+        Assert.Equal(NotificationIconType.Error, result.Icon);
         Assert.Equal(LaunchFailureKind.Other, result.FailureKind);
     }
 
@@ -138,7 +139,7 @@ public class ItemLaunchServiceTests
         var result = service.TryLaunch(new LaunchPath(filePath), string.Empty);
 
         Assert.False(result.IsSuccess);
-        Assert.Equal(System.Windows.MessageBoxImage.Error, result.Icon);
+        Assert.Equal(NotificationIconType.Error, result.Icon);
     }
 
     [Fact]

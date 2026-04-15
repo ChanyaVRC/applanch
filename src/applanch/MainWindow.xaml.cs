@@ -200,7 +200,7 @@ public sealed partial class MainWindow : Window
             {
                 ShowFloatingNotification(
                     string.Format(Strings.Notification_InstallingVersion, update.NewVersion),
-                    MessageBoxImage.Information);
+                    NotificationIconType.Info);
             }
         });
         return started;
@@ -219,7 +219,7 @@ public sealed partial class MainWindow : Window
     private void OnUpdateApplyFailedForUi(UpdateApplyResult result)
     {
         Dispatcher.InvokeIfRequired(() =>
-            ShowFloatingNotification(string.Format(Strings.UpdateFailed, result.ErrorMessage), MessageBoxImage.Error));
+            ShowFloatingNotification(string.Format(Strings.UpdateFailed, result.ErrorMessage), NotificationIconType.Error));
     }
 
     private void OnUpdateApplySucceededForUi()
@@ -482,14 +482,14 @@ public sealed partial class MainWindow : Window
 
         ShowFloatingNotification(
             string.Format(Strings.Notification_ItemDeleted, item.DisplayName),
-            MessageBoxImage.Information,
+            NotificationIconType.Info,
             Strings.Button_Undo,
             () =>
             {
                 ViewModel.InsertItem(item, workflowResult.DeletedIndex);
                 ShowFloatingNotification(
                     string.Format(Strings.Notification_ItemRestored, item.DisplayName),
-                    MessageBoxImage.Information);
+                    NotificationIconType.Info);
             });
     }
 
@@ -522,9 +522,9 @@ public sealed partial class MainWindow : Window
         return !execution.IsSuccess && execution.FailureKind == LaunchFailureKind.MissingTarget;
     }
 
-    private void ShowFloatingNotification(string message, MessageBoxImage icon, string? actionText = null, Action? action = null)
+    private void ShowFloatingNotification(string message, NotificationIconType icon, string? actionText = null, Action? action = null)
     {
-        ViewModel.FloatingNotification.Show(message, MapNotificationIcon(icon), actionText, action);
+        ViewModel.FloatingNotification.Show(message, icon, actionText, action);
         FloatingNotification.ShowNotification();
     }
 
@@ -536,7 +536,7 @@ public sealed partial class MainWindow : Window
         }
 
         var message = string.Join(Environment.NewLine, issues.Select(FormatBundledConfigLoadIssue));
-        ShowFloatingNotification(message, MessageBoxImage.Warning);
+        ShowFloatingNotification(message, NotificationIconType.Warning);
     }
 
     private static string FormatBundledConfigLoadIssue(BundledConfigLoadIssue issue)
@@ -925,17 +925,6 @@ public sealed partial class MainWindow : Window
         return !launchPath.IsUrl && !Path.Exists(launchPath.Value);
     }
 
-    private static NotificationIconType MapNotificationIcon(MessageBoxImage icon)
-    {
-        return icon switch
-        {
-            MessageBoxImage.Error => NotificationIconType.Error,
-            MessageBoxImage.Warning => NotificationIconType.Warning,
-            MessageBoxImage.Information => NotificationIconType.Info,
-            _ => NotificationIconType.None,
-        };
-    }
-
     private void OpenItemLocation(LaunchItemViewModel item)
     {
         var path = item.FullPath;
@@ -944,7 +933,7 @@ public sealed partial class MainWindow : Window
         {
             ShowFloatingNotification(
                 string.Format(Strings.Error_FileNotFound, path.Value),
-                MessageBoxImage.Warning,
+                NotificationIconType.Warning,
                 actionText: ShouldOfferDeleteActionForMissingPath(path)
                     ? Strings.Button_DeleteForMissingItem
                     : null,
@@ -958,13 +947,13 @@ public sealed partial class MainWindow : Window
         {
             if (Process.Start(startInfo) is null)
             {
-                ShowFloatingNotification(string.Format(Strings.Error_FileNotFound, path.Value), MessageBoxImage.Warning);
+                ShowFloatingNotification(string.Format(Strings.Error_FileNotFound, path.Value), NotificationIconType.Warning);
             }
         }
         catch (Exception ex)
         {
             AppLogger.Instance.Error(ex, $"Open item location failed for '{path.Value}'");
-            ShowFloatingNotification(string.Format(Strings.Error_FileNotFound, path.Value), MessageBoxImage.Warning);
+            ShowFloatingNotification(string.Format(Strings.Error_FileNotFound, path.Value), NotificationIconType.Warning);
         }
     }
 }
