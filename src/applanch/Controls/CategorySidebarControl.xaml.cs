@@ -198,10 +198,10 @@ public sealed partial class CategorySidebarControl : UserControl
         HandleSidebarContainerDragLeave();
     }
 
-    public bool IsCreateDropTargetDescendant(object? source)
+    public bool IsCreateDropTargetDescendant(DependencyObject? source)
     {
-        return source is DependencyObject dependencyObject &&
-               IsDescendantOf(dependencyObject, CategorySidebarCreateDropTarget);
+        return source is not null &&
+               IsDescendantOf(source, CategorySidebarCreateDropTarget);
     }
 
     public ListBoxItem? ResolveCategoryItemContainer(Category category)
@@ -211,7 +211,7 @@ public sealed partial class CategorySidebarControl : UserControl
 
     // ── Category drag-drop behavior ─────────────────────────
 
-    internal DragDropEffects GetCategorySidebarDropEffect(IDataObject data, object? originalSource)
+    internal DragDropEffects GetCategorySidebarDropEffect(IDataObject data, DependencyObject? originalSource)
     {
         var draggedItem = GetDraggedItem(data);
         if (draggedItem is null)
@@ -288,7 +288,7 @@ public sealed partial class CategorySidebarControl : UserControl
         return true;
     }
 
-    internal bool CanDropToCategorySidebar(IDataObject data, object? originalSource)
+    internal bool CanDropToCategorySidebar(IDataObject data, DependencyObject? originalSource)
     {
         var draggedItem = GetDraggedItem(data);
         Debug.Assert(
@@ -300,7 +300,7 @@ public sealed partial class CategorySidebarControl : UserControl
                ViewModel.CanMoveItemToCategory(draggedItem, resolvedTargetCategory);
     }
 
-    internal void ApplyCategoryDrop(IDataObject data, object? originalSource)
+    internal void ApplyCategoryDrop(IDataObject data, DependencyObject? originalSource)
     {
         var targetCategory = ResolveCategoryDropTargetOrSelectedCategory(originalSource);
         Debug.Assert(
@@ -330,7 +330,7 @@ public sealed partial class CategorySidebarControl : UserControl
             NotificationIconType.Info);
     }
 
-    internal static Category? ResolveCategoryDropTarget(object? originalSource)
+    internal static Category? ResolveCategoryDropTarget(DependencyObject? originalSource)
     {
         if (ResolveCategoryDropTargetContainer(originalSource) is not { DataContext: Category category })
         {
@@ -367,15 +367,16 @@ public sealed partial class CategorySidebarControl : UserControl
     private void CategorySidebarContainer_DragOver(object sender, DragEventArgs e)
     {
         e.Effects = DragDropEffects.None;
+        var originalSource = e.OriginalSource as DependencyObject;
 
-        if (IsCreateDropTargetDescendant(e.OriginalSource))
+        if (IsCreateDropTargetDescendant(originalSource))
         {
             e.Effects = GetCategoryCreateDropEffect(e.Data);
             e.Handled = true;
             return;
         }
 
-        e.Effects = GetCategorySidebarDropEffect(e.Data, e.OriginalSource);
+        e.Effects = GetCategorySidebarDropEffect(e.Data, originalSource);
         e.Handled = true;
     }
 
@@ -394,11 +395,12 @@ public sealed partial class CategorySidebarControl : UserControl
     private void CategorySidebarContainer_Drop(object sender, DragEventArgs e)
     {
         e.Effects = DragDropEffects.None;
+        var originalSource = e.OriginalSource as DependencyObject;
         try
         {
-            if (CanDropToCategorySidebar(e.Data, e.OriginalSource))
+            if (CanDropToCategorySidebar(e.Data, originalSource))
             {
-                ApplyCategoryDrop(e.Data, e.OriginalSource);
+                ApplyCategoryDrop(e.Data, originalSource);
                 e.Effects = DragDropEffects.Move;
             }
         }
@@ -529,14 +531,14 @@ public sealed partial class CategorySidebarControl : UserControl
 
     // ── Private helpers ─────────────────────────────────────
 
-    private static ListBoxItem? ResolveCategoryDropTargetContainer(object? originalSource)
+    private static ListBoxItem? ResolveCategoryDropTargetContainer(DependencyObject? originalSource)
     {
-        return originalSource is DependencyObject source
-            ? VisualTreeUtilities.FindAncestor<ListBoxItem>(source)
+        return originalSource is not null
+            ? VisualTreeUtilities.FindAncestor<ListBoxItem>(originalSource)
             : null;
     }
 
-    private Category? ResolveCategoryDropTargetOrSelectedCategory(object? originalSource)
+    private Category? ResolveCategoryDropTargetOrSelectedCategory(DependencyObject? originalSource)
     {
         var directTarget = ResolveCategoryDropTarget(originalSource);
         if (directTarget is not null)
