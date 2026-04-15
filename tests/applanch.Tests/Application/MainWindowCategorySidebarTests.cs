@@ -134,8 +134,9 @@ public sealed class MainWindowCategorySidebarTests
                 Assert.Equal(Visibility.Collapsed, createDropTarget.Visibility);
 
                 var data = new DataObject(typeof(LaunchItemViewModel), viewModel.LaunchItems[0]);
+                var categorySidebar = window.CategorySidebarElement;
 
-                Assert.Equal(DragDropEffects.None, window.GetCategorySidebarDropEffect(data, sidebar));
+                Assert.Equal(DragDropEffects.None, categorySidebar.GetCategorySidebarDropEffect(data, sidebar));
                 WaitUntil(
                     () => window.IsCategorySidebarExpanded &&
                           sidebar.Visibility == Visibility.Visible &&
@@ -149,9 +150,9 @@ public sealed class MainWindowCategorySidebarTests
                 categoryListBox.UpdateLayout();
                 var opsItem = Assert.IsType<ListBoxItem>(categoryListBox.ItemContainerGenerator.ContainerFromItem(Category.FromInput("Ops")));
 
-                Assert.Equal(DragDropEffects.Move, window.GetCategorySidebarDropEffect(data, opsItem));
-                Assert.True(window.IsCategoryDropTargetHighlighted(opsItem));
-                window.ApplyCategoryDrop(data, opsItem);
+                Assert.Equal(DragDropEffects.Move, categorySidebar.GetCategorySidebarDropEffect(data, opsItem));
+                Assert.True(categorySidebar.IsCategoryDropTargetHighlighted(opsItem));
+                categorySidebar.ApplyCategoryDrop(data, opsItem);
                 Assert.Equal("Ops", viewModel.LaunchItems[0].Category.Value);
                 Assert.Equal(1, store.SaveCallCount);
                 Assert.Equal(
@@ -159,10 +160,10 @@ public sealed class MainWindowCategorySidebarTests
                     viewModel.FloatingNotification.Message);
                 Assert.Equal(NotificationIconType.Info, viewModel.FloatingNotification.IconType);
 
-                window.HandleCategorySidebarContainerDragLeave();
+                categorySidebar.HandleCategoryDragLeave();
 
                 WaitUntil(
-                    () => !window.IsCategoryDropTargetHighlighted(opsItem) &&
+                    () => !categorySidebar.IsCategoryDropTargetHighlighted(opsItem) &&
                           createDropTarget.Visibility == Visibility.Collapsed,
                     TimeSpan.FromSeconds(2),
                     window,
@@ -234,7 +235,8 @@ public sealed class MainWindowCategorySidebarTests
                     sidebar);
 
                 var data = new DataObject(typeof(LaunchItemViewModel), viewModel.LaunchItems[0]);
-                Assert.Equal(DragDropEffects.None, window.GetCategorySidebarDropEffect(data, sidebar));
+                var categorySidebar = window.CategorySidebarElement;
+                Assert.Equal(DragDropEffects.None, categorySidebar.GetCategorySidebarDropEffect(data, sidebar));
 
                 WaitUntil(
                     () => window.IsCategorySidebarExpanded && createDropTarget.Visibility == Visibility.Visible,
@@ -242,9 +244,9 @@ public sealed class MainWindowCategorySidebarTests
                     window,
                     sidebar);
 
-                Assert.Equal(DragDropEffects.Move, window.GetCategoryCreateDropEffect(data));
+                Assert.Equal(DragDropEffects.Move, categorySidebar.GetCategoryCreateDropEffect(data));
                 Assert.True(window.IsCategoryCreateDropTargetActive);
-                Assert.True(window.ApplyCategoryCreateDrop(data));
+                Assert.True(categorySidebar.ApplyCategoryCreateDrop(data));
 
                 Assert.Equal("Research", viewModel.LaunchItems[0].Category.Value);
                 Assert.Equal(1, store.SaveCallCount);
@@ -301,6 +303,7 @@ public sealed class MainWindowCategorySidebarTests
                 var sidebar = Assert.IsType<Border>(window.FindName("CategorySidebarContainer"));
                 var createDropTarget = Assert.IsType<Border>(window.FindName("CategorySidebarCreateDropTarget"));
                 var data = new DataObject(typeof(LaunchItemViewModel), viewModel.LaunchItems[0]);
+                var categorySidebar = window.CategorySidebarElement;
 
                 WaitUntil(
                     () => !window.IsCategorySidebarExpanded && sidebar.Visibility == Visibility.Collapsed,
@@ -309,7 +312,7 @@ public sealed class MainWindowCategorySidebarTests
                     sidebar);
                 Assert.Equal(Visibility.Collapsed, createDropTarget.Visibility);
 
-                window.SetLaunchItemCategoryDragSession(isActive: true);
+                categorySidebar.SetLaunchItemCategoryDragSession(isActive: true);
 
                 WaitUntil(
                     () => !window.IsCategorySidebarExpanded &&
@@ -318,7 +321,7 @@ public sealed class MainWindowCategorySidebarTests
                     window,
                     sidebar);
 
-                Assert.Equal(DragDropEffects.None, window.GetCategorySidebarDropEffect(data, sidebar));
+                Assert.Equal(DragDropEffects.None, categorySidebar.GetCategorySidebarDropEffect(data, sidebar));
 
                 WaitUntil(
                     () => window.IsCategorySidebarExpanded &&
@@ -328,7 +331,7 @@ public sealed class MainWindowCategorySidebarTests
                     window,
                     sidebar);
 
-                window.SetLaunchItemCategoryDragSession(isActive: false);
+                categorySidebar.SetLaunchItemCategoryDragSession(isActive: false);
 
                 WaitUntil(
                     () => !window.IsCategorySidebarExpanded &&
@@ -379,7 +382,7 @@ public sealed class MainWindowCategorySidebarTests
 
             try
             {
-                window.MoveItemToCategory(viewModel.LaunchItems[0], Category.FromInput("Ops"));
+                window.CategorySidebarElement.MoveItemToCategory(viewModel.LaunchItems[0], Category.FromInput("Ops"));
 
                 Assert.Equal("Ops", viewModel.LaunchItems[0].Category.Value);
                 Assert.Equal(1, store.SaveCallCount);
@@ -430,7 +433,7 @@ public sealed class MainWindowCategorySidebarTests
 
             try
             {
-                window.MoveItemToCategory(viewModel.LaunchItems[0], Category.FromInput(" "));
+                window.CategorySidebarElement.MoveItemToCategory(viewModel.LaunchItems[0], Category.FromInput(" "));
 
                 Assert.Equal(LauncherEntry.DefaultCategory, viewModel.LaunchItems[0].Category.Value);
                 Assert.Equal(1, store.SaveCallCount);

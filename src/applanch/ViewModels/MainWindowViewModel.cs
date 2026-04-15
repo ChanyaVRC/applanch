@@ -13,15 +13,12 @@ namespace applanch.ViewModels;
 
 public sealed class MainWindowViewModel : ObservableObject
 {
-    private static string AllCategoriesLabel => LaunchCategoryCatalog.AllCategoriesLabel;
-
     private readonly QuickAddWorkflow _quickAddWorkflow;
     private readonly ILauncherStore _launcherStore;
     private readonly ILaunchItemIconProvider _iconProvider;
     private IReadOnlyList<LauncherEntry> _lastPersistedEntries;
     private AppSettings _settings;
     private LaunchItemViewModel? _selectedLaunchItem;
-    private Category _selectedCategory = Category.All;
     private bool _refreshingSuggestions;
     private bool _suspendPersistence;
     private string _quickAddNameOrPath = string.Empty;
@@ -51,6 +48,8 @@ public sealed class MainWindowViewModel : ObservableObject
 
         CategoryNames = [];
         FilterCategoryNames = [];
+        CategorySidebar = new CategorySidebarViewModel(LaunchItems, CategoryNames, FilterCategoryNames);
+        CategorySidebar.PropertyChanged += OnCategorySidebarPropertyChanged;
         QuickAddSuggestions = [];
         QuickAddFeedback = new QuickAddFeedbackState();
         FloatingNotification = new FloatingNotificationState();
@@ -130,20 +129,11 @@ public sealed class MainWindowViewModel : ObservableObject
 
     public Category SelectedCategory
     {
-        get => _selectedCategory;
-        set
-        {
-            if (_selectedCategory == value)
-            {
-                return;
-            }
-
-            _selectedCategory = value;
-            FilteredLaunchItems.Refresh();
-            OnPropertyChanged(nameof(SelectedCategory));
-            OnPropertyChanged(nameof(EmptyMessageVisibility));
-        }
+        get => CategorySidebar.SelectedCategory;
+        set => CategorySidebar.SelectedCategory = value;
     }
+
+    internal CategorySidebarViewModel CategorySidebar { get; }
 
     public Visibility EmptyMessageVisibility => FilteredLaunchItems.IsEmpty ? Visibility.Visible : Visibility.Collapsed;
 
@@ -187,17 +177,6 @@ public sealed class MainWindowViewModel : ObservableObject
     internal void UpdateItemCategory(LaunchItemViewModel item, Category category)
     {
         item.Category = category;
-    }
-
-    internal bool TryMoveItemToCategory(LaunchItemViewModel item, Category category)
-    {
-        if (category.IsAll || item.Category == category)
-        {
-            return false;
-        }
-
-        item.Category = category;
-        return true;
     }
 
     public void UpdateItemArguments(LaunchItemViewModel item, string newArguments)
@@ -316,12 +295,12 @@ public sealed class MainWindowViewModel : ObservableObject
             return false;
         }
 
-        if (_selectedCategory.IsAll)
+        if (CategorySidebar.SelectedCategory.IsAll)
         {
             return true;
         }
 
-        return launchItem.Category == _selectedCategory;
+        return launchItem.Category == CategorySidebar.SelectedCategory;
     }
 
     private void PersistCurrentOrder()
@@ -349,6 +328,18 @@ public sealed class MainWindowViewModel : ObservableObject
             PersistCurrentOrder();
         }
 
+        OnPropertyChanged(nameof(EmptyMessageVisibility));
+    }
+
+    private void OnCategorySidebarPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(CategorySidebarViewModel.SelectedCategory))
+        {
+            return;
+        }
+
+        FilteredLaunchItems.Refresh();
+        OnPropertyChanged(nameof(SelectedCategory));
         OnPropertyChanged(nameof(EmptyMessageVisibility));
     }
 
@@ -421,27 +412,25 @@ public sealed class MainWindowViewModel : ObservableObject
 
     private void EnsureSelectedCategoryIsValid()
     {
-        if (FilterCategoryNames.Contains(_selectedCategory))
+        if (FilterCategoryNames.Contains(CategorySidebar.SelectedCategory))
         {
             return;
         }
 
-        // Reset to All categories if current selection is invalid
-        _selectedCategory = Category.All;
-        OnPropertyChanged(nameof(SelectedCategory));
+        CategorySidebar.SelectedCategory = Category.All;
     }
 
     private void ResetQuickAddFieldsAfterAdd()
     {
         QuickAddNameOrPath = string.Empty;
         QuickAddArguments = string.Empty;
-        if (_selectedCategory.IsAll)
+        if (CategorySidebar.SelectedCategory.IsAll)
         {
             QuickAddCategory = Category.Default;
             return;
         }
 
-        QuickAddCategory = _selectedCategory;
+        QuickAddCategory = CategorySidebar.SelectedCategory;
     }
 
     private static LauncherEntry ToLauncherEntry(LaunchItemViewModel item) =>

@@ -12,42 +12,14 @@
     Title="Applanch"
     Width="840"
     Height="560"
-    MinWidth="700"
-    MinHeight="480"
+    MinWidth="475"
+    MinHeight="375"
     Background="{DynamicResource Brush.AppBackground}"
     Loaded="MainWindow_Loaded"
     SourceInitialized="Window_SourceInitialized"
     mc:Ignorable="d">
     <Window.Resources>
         <wpf:CategoryDisplayConverter x:Key="CategoryDisplayConverter" />
-        <Style x:Key="CategorySidebarHoverZoneStyle" TargetType="Border">
-            <Setter Property="Visibility" Value="Visible" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsChecked, ElementName=CategorySidebarPinToggleButton}" Value="True">
-                    <Setter Property="Visibility" Value="Collapsed" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="CategorySidebarContainerStyle" TargetType="Border">
-            <Setter Property="Padding" Value="0" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsCategorySidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                    <Setter Property="Padding" Value="12" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="CategorySidebarExpandedContentStyle" TargetType="Grid">
-            <Setter Property="Visibility" Value="Collapsed" />
-            <Setter Property="IsHitTestVisible" Value="False" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsCategorySidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                    <Setter Property="Visibility" Value="Visible" />
-                    <Setter Property="IsHitTestVisible" Value="True" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
 
         <Style x:Key="MainContentContainerStyle" TargetType="Grid">
             <Setter Property="Margin" Value="{x:Static local:MainWindow.CategorySidebarPinnedContentMargin}" />
@@ -470,13 +442,7 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Stretch"
                 Panel.ZIndex="1"
-                CreateDropTargetDragLeave="CategorySidebarCreateDropTarget_DragLeave"
-                CreateDropTargetDragOver="CategorySidebarCreateDropTarget_DragOver"
-                CreateDropTargetDrop="CategorySidebarCreateDropTarget_Drop"
-                PinToggleClick="CategorySidebarPinToggleButton_Click"
-                SidebarDragLeave="CategorySidebarContainer_DragLeave"
-                SidebarDragOver="CategorySidebarContainer_DragOver"
-                SidebarDrop="CategorySidebarContainer_Drop" />
+                PinToggleClick="CategorySidebarPinToggleButton_Click" />
 
             <Grid x:Name="MainContentContainer" Style="{StaticResource MainContentContainerStyle}">
                 <Grid.RowDefinitions>

@@ -39,7 +39,6 @@ public sealed partial class MainWindow : Window
     private readonly InlineRenameHandler _inlineRenameHandler;
     private readonly LaunchListDragDropResolver _dragDropResolver;
     private readonly UpdateCoordinator _updateCoordinator;
-    private ListBoxItem? _highlightedCategoryDropTarget;
     private AppSettings _settings;
     private SettingsWindow? _settingsWindow;
     private readonly AppEvent _appEvent;
@@ -47,22 +46,7 @@ public sealed partial class MainWindow : Window
     private bool _isLaunchListRealizationScheduled;
     private MainWindowViewModel ViewModel { get; }
 
-    public static readonly DependencyProperty IsCategoryDropTargetProperty =
-        DependencyProperty.RegisterAttached(
-            "IsCategoryDropTarget",
-            typeof(bool),
-            typeof(MainWindow),
-            new PropertyMetadata(false));
-
-    public static bool GetIsCategoryDropTarget(DependencyObject dependencyObject)
-    {
-        return (bool)dependencyObject.GetValue(IsCategoryDropTargetProperty);
-    }
-
-    public static void SetIsCategoryDropTarget(DependencyObject dependencyObject, bool value)
-    {
-        dependencyObject.SetValue(IsCategoryDropTargetProperty, value);
-    }
+    internal Controls.CategorySidebarControl CategorySidebarElement => CategorySidebar;
 
     internal bool IsCategorySidebarExpanded
     {
@@ -117,6 +101,8 @@ public sealed partial class MainWindow : Window
             EndApply = EndUpdateApplyFromUi,
         });
         RegisterCategorySidebarPartNames();
+        CategorySidebar.SetDependencies(ViewModel.CategorySidebar, _interactionService, _dragDropResolver);
+        CategorySidebar.NotificationRequested += (message, icon) => ShowFloatingNotification(message, icon);
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         _appEvent.Register(AppEvents.Refresh, OnAppRefreshRequested);
@@ -592,7 +578,7 @@ public sealed partial class MainWindow : Window
                     sender,
                     ViewModel.CategoryNames,
                     Strings.Prompt_ChangeCategory,
-                    MoveItemToCategory);
+                    CategorySidebar.MoveItemToCategory);
                 break;
 
             case LaunchItemContextMenuAction.EditArguments:
@@ -670,7 +656,7 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        SetLaunchItemCategoryDragSession(isActive: true);
+        CategorySidebar.SetLaunchItemCategoryDragSession(isActive: true);
 
         try
         {
@@ -678,7 +664,7 @@ public sealed partial class MainWindow : Window
         }
         finally
         {
-            SetLaunchItemCategoryDragSession(isActive: false);
+            CategorySidebar.SetLaunchItemCategoryDragSession(isActive: false);
             _dragReorderState.Clear();
         }
     }

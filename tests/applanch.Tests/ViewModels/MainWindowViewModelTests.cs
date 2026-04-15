@@ -310,7 +310,7 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
-    public void TryMoveItemToCategory_UpdatesAndPersists()
+    public void CanMoveItemToCategory_WhenTargetMatchesCurrent_ReturnsFalse()
     {
         var store = new FakeStore(
         [
@@ -319,28 +319,9 @@ public class MainWindowViewModelTests
 
         var vm = CreateViewModel(store: store);
 
-        var moved = vm.TryMoveItemToCategory(vm.LaunchItems[0], Category.FromInput("Ops"));
+        var canMove = vm.CategorySidebar.CanMoveItemToCategory(vm.LaunchItems[0], Category.FromInput("Dev"));
 
-        Assert.True(moved);
-        Assert.Equal("Ops", vm.LaunchItems[0].Category.Value);
-        Assert.Equal(1, store.SaveCallCount);
-        Assert.Equal("Ops", store.LastSavedEntries[0].Category.Value);
-    }
-
-    [Fact]
-    public void TryMoveItemToCategory_WhenTargetMatchesCurrent_DoesNotPersist()
-    {
-        var store = new FakeStore(
-        [
-            new LauncherEntry(@"C:\Tools\A.exe", Category.FromInput("Dev"), string.Empty, "A")
-        ]);
-
-        var vm = CreateViewModel(store: store);
-
-        var moved = vm.TryMoveItemToCategory(vm.LaunchItems[0], Category.FromInput("Dev"));
-
-        Assert.False(moved);
-        Assert.Equal("Dev", vm.LaunchItems[0].Category.Value);
+        Assert.False(canMove);
         Assert.Equal(0, store.SaveCallCount);
     }
 

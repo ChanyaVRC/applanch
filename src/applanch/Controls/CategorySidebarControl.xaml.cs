@@ -5,9 +5,12 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Presentation;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Utilities;
+using applanch.ViewModels;
+using Strings = applanch.Properties.Resources;
 
 namespace applanch.Controls;
 
@@ -16,6 +19,19 @@ public sealed partial class CategorySidebarControl : UserControl
     private readonly CategorySidebarStateController _stateController = new();
     private bool _isLaunchItemDragSessionActive;
     private bool _suppressPinnedAnimation;
+    private ListBoxItem? _highlightedCategoryDropTarget;
+    private LaunchListDragDropResolver? _dragDropResolver;
+    private IUserInteractionService? _interactionService;
+    private CategorySidebarViewModel? _viewModel;
+
+    private LaunchListDragDropResolver DragDropResolver =>
+        _dragDropResolver ?? throw new InvalidOperationException("CategorySidebarControl dependencies are not initialized.");
+
+    private IUserInteractionService InteractionService =>
+        _interactionService ?? throw new InvalidOperationException("CategorySidebarControl dependencies are not initialized.");
+
+    private CategorySidebarViewModel ViewModel =>
+        _viewModel ?? throw new InvalidOperationException("CategorySidebarControl dependencies are not initialized.");
 
     public CategorySidebarControl()
     {
@@ -74,11 +90,55 @@ public sealed partial class CategorySidebarControl : UserControl
         set => SetValue(IsPinnedProperty, value);
     }
 
+    public static readonly DependencyProperty IsCategoryDropTargetProperty =
+        DependencyProperty.RegisterAttached(
+            "IsCategoryDropTarget",
+            typeof(bool),
+            typeof(CategorySidebarControl),
+            new PropertyMetadata(false));
+
+    public static bool GetIsCategoryDropTarget(DependencyObject dependencyObject)
+    {
+        return (bool)dependencyObject.GetValue(IsCategoryDropTargetProperty);
+    }
+
+    public static void SetIsCategoryDropTarget(DependencyObject dependencyObject, bool value)
+    {
+        dependencyObject.SetValue(IsCategoryDropTargetProperty, value);
+    }
+
+    public event RoutedEventHandler? PinToggleClick;
+
+    internal event Action<string, NotificationIconType>? NotificationRequested;
+
+    internal Border SidebarContainerElement => CategorySidebarContainer;
+
+    internal Border HoverZoneElement => CategorySidebarHoverZone;
+
+    internal Border CreateDropTargetElement => CategorySidebarCreateDropTarget;
+
+    internal ToggleButton PinToggleButtonElement => CategorySidebarPinToggleButton;
+
     public void SetPinned(bool isPinned, bool animate)
     {
         _suppressPinnedAnimation = !animate;
         IsPinned = isPinned;
         _suppressPinnedAnimation = false;
+    }
+
+    internal void SetDependencies(
+        CategorySidebarViewModel viewModel,
+        IUserInteractionService interactionService,
+        LaunchListDragDropResolver dragDropResolver)
+    {
+        ArgumentNullException.ThrowIfNull(viewModel);
+        ArgumentNullException.ThrowIfNull(interactionService);
+        ArgumentNullException.ThrowIfNull(dragDropResolver);
+
+        _viewModel = viewModel;
+        DataContext = viewModel;
+        _interactionService = interactionService;
+        _dragDropResolver = dragDropResolver;
     }
 
     public void HandleSidebarEntered()
@@ -106,30 +166,25 @@ public sealed partial class CategorySidebarControl : UserControl
         ApplyVisualStateIfChanged(_stateController.TryCollapse());
     }
 
-    public void SetCreateDropTargetVisible(bool isVisible)
-    {
-        IsCreateDropTargetVisible = isVisible;
-        if (!isVisible)
-        {
-            IsCreateDropTargetActive = false;
-        }
-    }
-
-    public void SetCreateDropTargetActive(bool isActive)
-    {
-        IsCreateDropTargetActive = isActive;
-    }
-
-    public void SetLaunchItemDragSession(bool isActive)
+    internal void SetLaunchItemCategoryDragSession(bool isActive)
     {
         _isLaunchItemDragSessionActive = isActive;
+
+        if (isActive)
+        {
+            IsCreateDropTargetVisible = true;
+            return;
+        }
+
+        ClearCategoryDragTargets();
+        HandleSidebarContainerDragLeave();
     }
 
     public void HandleSidebarContainerDragLeave()
     {
         if (_isLaunchItemDragSessionActive)
         {
-            SetCreateDropTargetVisible(true);
+            IsCreateDropTargetVisible = true;
             return;
         }
 
@@ -137,27 +192,11 @@ public sealed partial class CategorySidebarControl : UserControl
         TryCollapseSidebar();
     }
 
-    public event DragEventHandler? SidebarDragOver;
-
-    public event DragEventHandler? SidebarDragLeave;
-
-    public event DragEventHandler? SidebarDrop;
-
-    public event DragEventHandler? CreateDropTargetDragOver;
-
-    public event DragEventHandler? CreateDropTargetDragLeave;
-
-    public event DragEventHandler? CreateDropTargetDrop;
-
-    public event RoutedEventHandler? PinToggleClick;
-
-    internal Border SidebarContainerElement => CategorySidebarContainer;
-
-    internal Border HoverZoneElement => CategorySidebarHoverZone;
-
-    internal Border CreateDropTargetElement => CategorySidebarCreateDropTarget;
-
-    internal ToggleButton PinToggleButtonElement => CategorySidebarPinToggleButton;
+    internal void HandleCategoryDragLeave()
+    {
+        ClearCategoryDragTargets();
+        HandleSidebarContainerDragLeave();
+    }
 
     public bool IsCreateDropTargetDescendant(object? source)
     {
@@ -167,14 +206,151 @@ public sealed partial class CategorySidebarControl : UserControl
 
     public ListBoxItem? ResolveCategoryItemContainer(Category category)
     {
-        if (VisualTreeUtilities.FindVisualChild<ListBox>(CategorySidebarContainer) is not { } categoryListBox)
+        return CategorySidebarCategoryList.ItemContainerGenerator.ContainerFromItem(category) as ListBoxItem;
+    }
+
+    // ── Category drag-drop behavior ─────────────────────────
+
+    internal DragDropEffects GetCategorySidebarDropEffect(IDataObject data, object? originalSource)
+    {
+        var draggedItem = GetDraggedItem(data);
+        if (draggedItem is null)
+        {
+            ClearCategoryDragTargets();
+            return DragDropEffects.None;
+        }
+
+        ActivateCategoryDragUi(isCreateDropTargetActive: false, clearCategoryHighlight: false);
+
+        var targetCategory = ResolveCategoryDropTargetOrSelectedCategory(originalSource);
+        if (targetCategory is not { } resolvedTargetCategory)
+        {
+            ClearCategoryDropHighlight();
+            return DragDropEffects.None;
+        }
+
+        var effect = DragDropEffects.None;
+        if (ViewModel.CanMoveItemToCategory(draggedItem, resolvedTargetCategory))
+        {
+            effect = DragDropEffects.Move;
+        }
+
+        ListBoxItem? highlightTarget = null;
+        if (effect == DragDropEffects.Move)
+        {
+            highlightTarget = ResolveCategoryDropTargetContainer(originalSource)
+                ?? ResolveCategoryItemContainer(resolvedTargetCategory);
+        }
+
+        UpdateCategoryDropHighlight(highlightTarget);
+
+        return effect;
+    }
+
+    internal DragDropEffects GetCategoryCreateDropEffect(IDataObject data)
+    {
+        if (GetDraggedItem(data) is null)
+        {
+            AppLogger.Instance.Debug("Category DnD state: create target rejected drag (no dragged item data).");
+            IsCreateDropTargetVisible = false;
+            IsCreateDropTargetActive = false;
+            return DragDropEffects.None;
+        }
+
+        if (!IsCreateDropTargetActive)
+        {
+            AppLogger.Instance.Debug("Category DnD state: create target activated.");
+        }
+
+        ActivateCategoryDragUi(isCreateDropTargetActive: true, clearCategoryHighlight: true);
+        return DragDropEffects.Move;
+    }
+
+    internal bool ApplyCategoryCreateDrop(IDataObject data)
+    {
+        var draggedItem = GetDraggedItem(data);
+        Debug.Assert(
+            draggedItem is not null,
+            "Create-drop should only run after drag-over accepted a launch item.");
+
+        var targetCategory = InteractionService.PromptWithSuggestions(
+            Strings.Prompt_CreateCategory,
+            Category.Default,
+            ViewModel.CategoryNames,
+            Window.GetWindow(this));
+
+        if (targetCategory is null || string.IsNullOrWhiteSpace(targetCategory.Value.Text))
+        {
+            return false;
+        }
+
+        MoveItemToCategory(draggedItem, Category.FromInput(targetCategory.Value.Text));
+        return true;
+    }
+
+    internal bool CanDropToCategorySidebar(IDataObject data, object? originalSource)
+    {
+        var draggedItem = GetDraggedItem(data);
+        Debug.Assert(
+            draggedItem is not null,
+            "Drag-over should only run with valid dragged item data.");
+
+        var targetCategory = ResolveCategoryDropTargetOrSelectedCategory(originalSource);
+        return targetCategory is { } resolvedTargetCategory &&
+               ViewModel.CanMoveItemToCategory(draggedItem, resolvedTargetCategory);
+    }
+
+    internal void ApplyCategoryDrop(IDataObject data, object? originalSource)
+    {
+        var targetCategory = ResolveCategoryDropTargetOrSelectedCategory(originalSource);
+        Debug.Assert(
+            targetCategory is not null,
+            "Category-drop should only run after drag-over resolved a target category.");
+
+        var draggedItem = GetDraggedItem(data);
+        Debug.Assert(
+            draggedItem is not null,
+            "Category-drop should only run after drag-over accepted a launch item.");
+
+        MoveItemToCategory(draggedItem, targetCategory.Value);
+    }
+
+    internal void MoveItemToCategory(LaunchItemViewModel item, Category targetCategory)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+
+        var previousCategory = item.Category;
+        Debug.Assert(
+            ViewModel.CanMoveItemToCategory(item, targetCategory),
+            $"Category move failed for '{item.DisplayName}': '{previousCategory}' -> '{targetCategory}'.");
+        item.Category = targetCategory;
+
+        NotificationRequested?.Invoke(
+            string.Format(Strings.Notification_ItemCategoryChanged, item.DisplayName, previousCategory, item.Category),
+            NotificationIconType.Info);
+    }
+
+    internal static Category? ResolveCategoryDropTarget(object? originalSource)
+    {
+        if (ResolveCategoryDropTargetContainer(originalSource) is not { DataContext: Category category })
         {
             return null;
         }
 
-        categoryListBox.UpdateLayout();
-        return categoryListBox.ItemContainerGenerator.ContainerFromItem(category) as ListBoxItem;
+        if (category.IsAll)
+        {
+            return null;
+        }
+
+        return category;
     }
+
+    internal bool IsCategoryDropTargetHighlighted(ListBoxItem item)
+    {
+        return ReferenceEquals(_highlightedCategoryDropTarget, item) && GetIsCategoryDropTarget(item);
+    }
+
+    // ── XAML event handlers ─────────────────────────────────
 
     private void CategorySidebarContainer_MouseEnter(object sender, MouseEventArgs e)
         => HandleSidebarEntered();
@@ -190,17 +366,50 @@ public sealed partial class CategorySidebarControl : UserControl
 
     private void CategorySidebarContainer_DragOver(object sender, DragEventArgs e)
     {
-        SidebarDragOver?.Invoke(sender, e);
+        e.Effects = DragDropEffects.None;
+
+        if (IsCreateDropTargetDescendant(e.OriginalSource))
+        {
+            e.Effects = GetCategoryCreateDropEffect(e.Data);
+            e.Handled = true;
+            return;
+        }
+
+        e.Effects = GetCategorySidebarDropEffect(e.Data, e.OriginalSource);
+        e.Handled = true;
     }
 
     private void CategorySidebarContainer_DragLeave(object sender, DragEventArgs e)
     {
-        HandleSidebarContainerDragLeave();
-        SidebarDragLeave?.Invoke(sender, e);
+        if (IsPointerWithinSidebarContainer(e))
+        {
+            e.Handled = true;
+            return;
+        }
+
+        HandleCategoryDragLeave();
+        e.Handled = true;
     }
 
     private void CategorySidebarContainer_Drop(object sender, DragEventArgs e)
-        => SidebarDrop?.Invoke(sender, e);
+    {
+        e.Effects = DragDropEffects.None;
+        try
+        {
+            if (CanDropToCategorySidebar(e.Data, e.OriginalSource))
+            {
+                ApplyCategoryDrop(e.Data, e.OriginalSource);
+                e.Effects = DragDropEffects.Move;
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Instance.Warn(ex, "Category drop failed");
+        }
+
+        ClearCategoryDragTargets();
+        e.Handled = true;
+    }
 
     private void CategorySidebarHoverZone_MouseEnter(object sender, MouseEventArgs e)
         => HandleTriggerEntered();
@@ -231,13 +440,34 @@ public sealed partial class CategorySidebarControl : UserControl
     }
 
     private void CategorySidebarCreateDropTarget_DragOver(object sender, DragEventArgs e)
-        => CreateDropTargetDragOver?.Invoke(sender, e);
+    {
+        e.Effects = GetCategoryCreateDropEffect(e.Data);
+        e.Handled = true;
+    }
 
     private void CategorySidebarCreateDropTarget_DragLeave(object sender, DragEventArgs e)
-        => CreateDropTargetDragLeave?.Invoke(sender, e);
+    {
+        IsCreateDropTargetActive = false;
+        e.Handled = true;
+    }
 
     private void CategorySidebarCreateDropTarget_Drop(object sender, DragEventArgs e)
-        => CreateDropTargetDrop?.Invoke(sender, e);
+    {
+        try
+        {
+            e.Effects = ApplyCategoryCreateDrop(e.Data)
+                ? DragDropEffects.Move
+                : DragDropEffects.None;
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Instance.Warn(ex, "Category create drop failed");
+            e.Effects = DragDropEffects.None;
+        }
+
+        ClearCategoryDragTargets();
+        e.Handled = true;
+    }
 
     private void CategorySidebarPinToggleButton_Click(object sender, RoutedEventArgs e)
         => PinToggleClick?.Invoke(sender, e);
@@ -297,6 +527,88 @@ public sealed partial class CategorySidebarControl : UserControl
             : Visibility.Collapsed;
     }
 
+    // ── Private helpers ─────────────────────────────────────
+
+    private static ListBoxItem? ResolveCategoryDropTargetContainer(object? originalSource)
+    {
+        return originalSource is DependencyObject source
+            ? VisualTreeUtilities.FindAncestor<ListBoxItem>(source)
+            : null;
+    }
+
+    private Category? ResolveCategoryDropTargetOrSelectedCategory(object? originalSource)
+    {
+        var directTarget = ResolveCategoryDropTarget(originalSource);
+        if (directTarget is not null)
+        {
+            return directTarget;
+        }
+
+        var selectedCategory = ViewModel.SelectedCategory;
+        if (selectedCategory.IsAll)
+        {
+            return null;
+        }
+
+        return selectedCategory;
+    }
+
+    private void UpdateCategoryDropHighlight(ListBoxItem? target)
+    {
+        var previous = _highlightedCategoryDropTarget;
+        if (ReferenceEquals(previous, target))
+        {
+            return;
+        }
+
+        if (previous is not null)
+        {
+            SetIsCategoryDropTarget(previous, false);
+        }
+
+        _highlightedCategoryDropTarget = target;
+
+        if (target is not null)
+        {
+            SetIsCategoryDropTarget(target, true);
+        }
+    }
+
+    private void ClearCategoryDropHighlight()
+    {
+        UpdateCategoryDropHighlight(null);
+    }
+
+    private void ClearCategoryDragTargets()
+    {
+        ClearCategoryDropHighlight();
+        IsCreateDropTargetVisible = false;
+        IsCreateDropTargetActive = false;
+    }
+
+    private LaunchItemViewModel? GetDraggedItem(IDataObject data)
+    {
+        if (DragDropResolver.TryGetDraggedItemData(data, ViewModel.LaunchItems, out var resolvedItem, out _))
+        {
+            return resolvedItem;
+        }
+
+        return null;
+    }
+
+    private void ActivateCategoryDragUi(bool isCreateDropTargetActive, bool clearCategoryHighlight)
+    {
+        IsCreateDropTargetVisible = true;
+        IsCreateDropTargetActive = isCreateDropTargetActive;
+
+        if (clearCategoryHighlight)
+        {
+            ClearCategoryDropHighlight();
+        }
+
+        HandleSidebarEntered();
+    }
+
     private static bool IsDescendantOf(DependencyObject? source, DependencyObject target)
     {
         while (source is not null)
@@ -310,5 +622,14 @@ public sealed partial class CategorySidebarControl : UserControl
         }
 
         return false;
+    }
+
+    private bool IsPointerWithinSidebarContainer(DragEventArgs e)
+    {
+        var position = e.GetPosition(CategorySidebarContainer);
+        return position.X >= 0 &&
+               position.Y >= 0 &&
+               position.X <= CategorySidebarContainer.ActualWidth &&
+               position.Y <= CategorySidebarContainer.ActualHeight;
     }
 }
