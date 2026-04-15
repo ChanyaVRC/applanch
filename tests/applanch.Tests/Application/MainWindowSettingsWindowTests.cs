@@ -132,13 +132,13 @@ public sealed class MainWindowSettingsWindowTests
     {
         var method = typeof(MainWindow).GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.NotNull(method);
-        method!.Invoke(window, [window, new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent)]);
+        method.Invoke(window, [window, new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent)]);
     }
 
     private static SettingsWindow? GetSettingsWindow(MainWindow window)
     {
         var field = typeof(MainWindow).GetField("_settingsWindow", BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.NotNull(field);
-        return field!.GetValue(window) as SettingsWindow;
+        return field.GetValue(window) as SettingsWindow;
     }
 }

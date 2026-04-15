@@ -59,7 +59,7 @@ public class AppLanguageTests
     {
         var method = typeof(App).GetMethod("ApplyLanguage", BindingFlags.NonPublic | BindingFlags.Static);
         Assert.NotNull(method);
-        return method!;
+        return method;
     }
 
     [Fact]

@@ -388,7 +388,7 @@ public class ContextMenuRegistrarTests
         var method = typeof(ContextMenuRegistrar).GetMethod("ResolveShellExtensionComHostPath", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
         Assert.NotNull(method);
 
-        return Assert.IsType<string>(method!.Invoke(null, [executablePath]));
+        return Assert.IsType<string>(method.Invoke(null, [executablePath]));
     }
 
     private static void CreateShellExtensionArtifacts(string directoryPath)

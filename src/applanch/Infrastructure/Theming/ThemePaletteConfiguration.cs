@@ -31,7 +31,7 @@ internal sealed class ThemePaletteConfiguration
             {
                 if (!colorsByThemeId.TryGetValue(themeId, out var colorsByKey))
                 {
-                    colorsByKey = new Dictionary<string, ThemeColor>();
+                    colorsByKey = [];
                     colorsByThemeId[themeId] = colorsByKey;
                 }
 
@@ -71,7 +71,7 @@ internal sealed class ThemePaletteConfiguration
             {
                 if (!colorsByEntryKey.TryGetValue(key, out var colorsByThemeId))
                 {
-                    colorsByThemeId = new Dictionary<string, ThemeColor>();
+                    colorsByThemeId = [];
                     colorsByEntryKey[key] = colorsByThemeId;
                 }
 

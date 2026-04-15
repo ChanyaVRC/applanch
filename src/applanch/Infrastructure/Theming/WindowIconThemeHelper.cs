@@ -5,8 +5,8 @@ namespace applanch.Infrastructure.Theming;
 
 internal static class WindowIconThemeHelper
 {
-    internal static readonly Color LightPaletteIconColor = (Color)ColorConverter.ConvertFromString("#0F172A")!;
-    internal static readonly Color DarkPaletteIconColor = (Color)ColorConverter.ConvertFromString("#FFFFF0")!;
+    internal static readonly Color LightPaletteIconColor = (Color)ColorConverter.ConvertFromString("#0F172A");
+    internal static readonly Color DarkPaletteIconColor = (Color)ColorConverter.ConvertFromString("#FFFFF0");
 
     private static readonly Geometry BrandGeometry = Geometry.Parse(
         "M248,8 L208.6,93.4 L128.9,173.1 L123.2,248 L107.9,194.2 L75.2,180.8 L61.8,148.1 L8,132.8 L82.9,127.1 L162.6,47.4 Z");

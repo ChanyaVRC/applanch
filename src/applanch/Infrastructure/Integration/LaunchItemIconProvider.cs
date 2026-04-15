@@ -276,7 +276,7 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
 
     private static DrawingImage CreateGenericWebIcon()
     {
-        var strokeBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2F6B6D")!);
+        var strokeBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2F6B6D"));
         strokeBrush.Freeze();
 
         var outerCircle = new EllipseGeometry(new Point(16, 16), 11.5, 11.5);
