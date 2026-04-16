@@ -5,7 +5,6 @@ using applanch.Tests.TestSupport;
 using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;
 using Xunit;
-using Strings = applanch.Properties.Resources;
 
 namespace applanch.Tests.Application;
 
@@ -34,7 +33,7 @@ public sealed class MainWindowUpdateApplyNotificationTests
                 WpfTestHost.DoEvents();
 
                 var viewModel = Assert.IsType<MainWindowViewModel>(window.DataContext);
-                Assert.Equal(string.Format(Strings.Notification_InstallingVersion, update.NewVersion), viewModel.FloatingNotification.Message);
+                Assert.Equal(string.Format(AppResources.Notification_InstallingVersion, update.NewVersion), viewModel.FloatingNotification.Message);
                 Assert.Equal(NotificationIconType.Info, viewModel.FloatingNotification.IconType);
             }
             finally

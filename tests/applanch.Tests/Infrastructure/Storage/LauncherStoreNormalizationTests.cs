@@ -196,4 +196,3 @@ public class LauncherStoreNormalizationTests
         return (IReadOnlyList<LauncherEntry>)method!.Invoke(null, [value])!;
     }
 }
-

@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using applanch.ViewModels;
+using applanch.Infrastructure.Wpf;
 
 namespace applanch.Controls;
 

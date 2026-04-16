@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
+using applanch.Infrastructure.Wpf;
 
 namespace applanch.Controls;
 

@@ -9,7 +9,8 @@ using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Presentation;
 using applanch.Infrastructure.Storage;
 using applanch.ViewModels;
-using Strings = applanch.Properties.Resources;
+using applanch.Core.Utilities;
+using applanch.Infrastructure.Wpf;
 
 namespace applanch.Controls;
 
@@ -273,7 +274,7 @@ public sealed partial class CategorySidebarControl : UserControl
             "Create-drop should only run after drag-over accepted a launch item.");
 
         var targetCategory = InteractionService.PromptWithSuggestions(
-            Strings.Prompt_CreateCategory,
+            AppResources.Prompt_CreateCategory,
             Category.Default,
             ViewModel.CategoryNames,
             Window.GetWindow(this));
@@ -325,7 +326,7 @@ public sealed partial class CategorySidebarControl : UserControl
         item.Category = targetCategory;
 
         NotificationRequested?.Invoke(
-            string.Format(Strings.Notification_ItemCategoryChanged, item.DisplayName, previousCategory, item.Category),
+            string.Format(AppResources.Notification_ItemCategoryChanged, item.DisplayName, previousCategory, item.Category),
             NotificationIconType.Info);
     }
 

@@ -43,5 +43,3 @@ public class DragReorderIndexCalculatorTests
         Assert.Equal(2, index);
     }
 }
-
-

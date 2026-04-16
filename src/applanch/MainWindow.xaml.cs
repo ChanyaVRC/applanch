@@ -17,7 +17,8 @@ using applanch.Theming;
 using applanch.ViewModels;
 using applanch.Workflows.Items;
 using applanch.Workflows.Launch;
-using Strings = applanch.Properties.Resources;
+using applanch.Core.Utilities;
+using applanch.Infrastructure.Wpf;
 
 namespace applanch;
 
@@ -186,7 +187,7 @@ public sealed partial class MainWindow : Window
             if (started)
             {
                 ShowFloatingNotification(
-                    string.Format(Strings.Notification_InstallingVersion, update.NewVersion),
+                    string.Format(AppResources.Notification_InstallingVersion, update.NewVersion),
                     NotificationIconType.Info);
             }
         });
@@ -206,7 +207,7 @@ public sealed partial class MainWindow : Window
     private void OnUpdateApplyFailedForUi(UpdateApplyResult result)
     {
         Dispatcher.InvokeIfRequired(() =>
-            ShowFloatingNotification(string.Format(Strings.UpdateFailed, result.ErrorMessage), NotificationIconType.Error));
+            ShowFloatingNotification(string.Format(AppResources.UpdateFailed, result.ErrorMessage), NotificationIconType.Error));
     }
 
     private void OnUpdateApplySucceededForUi()
@@ -373,8 +374,8 @@ public sealed partial class MainWindow : Window
             item,
             _settings,
             () => _interactionService.Confirm(
-                string.Format(Strings.Confirm_LaunchItem, item.DisplayName),
-                Strings.Confirm_Title,
+                string.Format(AppResources.Confirm_LaunchItem, item.DisplayName),
+                AppResources.Confirm_Title,
                 this));
 
         if (workflowResult.IsCancelled)
@@ -388,7 +389,7 @@ public sealed partial class MainWindow : Window
                 workflowResult.Execution.Message,
                 workflowResult.Execution.Icon,
                 actionText: ShouldOfferDeleteActionForLaunchFailure(workflowResult.Execution)
-                    ? Strings.Button_DeleteForMissingItem
+                    ? AppResources.Button_DeleteForMissingItem
                     : null,
                 action: ShouldOfferDeleteActionForLaunchFailure(workflowResult.Execution)
                     ? () => DeleteItemWithUndo(item)
@@ -456,8 +457,8 @@ public sealed partial class MainWindow : Window
             item,
             _settings,
             () => _interactionService.Confirm(
-                string.Format(Strings.Confirm_DeleteItem, item.DisplayName),
-                Strings.Confirm_Title,
+                string.Format(AppResources.Confirm_DeleteItem, item.DisplayName),
+                AppResources.Confirm_Title,
                 this),
             ViewModel.LaunchItems,
             ViewModel.RemoveItem);
@@ -468,14 +469,14 @@ public sealed partial class MainWindow : Window
         }
 
         ShowFloatingNotification(
-            string.Format(Strings.Notification_ItemDeleted, item.DisplayName),
+            string.Format(AppResources.Notification_ItemDeleted, item.DisplayName),
             NotificationIconType.Info,
-            Strings.Button_Undo,
+            AppResources.Button_Undo,
             () =>
             {
                 ViewModel.InsertItem(item, workflowResult.DeletedIndex);
                 ShowFloatingNotification(
-                    string.Format(Strings.Notification_ItemRestored, item.DisplayName),
+                    string.Format(AppResources.Notification_ItemRestored, item.DisplayName),
                     NotificationIconType.Info);
             });
     }
@@ -529,8 +530,8 @@ public sealed partial class MainWindow : Window
     private static string FormatBundledConfigLoadIssue(BundledConfigLoadIssue issue)
     {
         return issue.IsInvalidFormat
-            ? string.Format(Strings.Notification_BundledConfigInvalidFormat, issue.FileName)
-            : string.Format(Strings.Notification_BundledConfigMissing, issue.FileName);
+            ? string.Format(AppResources.Notification_BundledConfigInvalidFormat, issue.FileName)
+            : string.Format(AppResources.Notification_BundledConfigMissing, issue.FileName);
     }
 
     private void HideFloatingNotification()
@@ -564,7 +565,7 @@ public sealed partial class MainWindow : Window
                 {
                     _contextMenuHandler.RenameWithPrompt(
                         sender,
-                        Strings.Prompt_ChangeDisplayName,
+                        AppResources.Prompt_ChangeDisplayName,
                         ViewModel.UpdateItemDisplayName);
                 }
                 else
@@ -578,14 +579,14 @@ public sealed partial class MainWindow : Window
                 _contextMenuHandler.EditCategory(
                     sender,
                     ViewModel.CategoryNames,
-                    Strings.Prompt_ChangeCategory,
+                    AppResources.Prompt_ChangeCategory,
                     CategorySidebar.MoveItemToCategory);
                 break;
 
             case LaunchItemContextMenuAction.EditArguments:
                 _contextMenuHandler.EditValue(
                     sender,
-                    Strings.Prompt_ChangeArguments,
+                    AppResources.Prompt_ChangeArguments,
                     static item => item.Arguments,
                     ViewModel.UpdateItemArguments);
                 break;
@@ -919,10 +920,10 @@ public sealed partial class MainWindow : Window
         if (!TryCreateOpenLocationStartInfo(path, out var startInfo))
         {
             ShowFloatingNotification(
-                string.Format(Strings.Error_FileNotFound, path.Value),
+                string.Format(AppResources.Error_FileNotFound, path.Value),
                 NotificationIconType.Warning,
                 actionText: ShouldOfferDeleteActionForMissingPath(path)
-                    ? Strings.Button_DeleteForMissingItem
+                    ? AppResources.Button_DeleteForMissingItem
                     : null,
                 action: ShouldOfferDeleteActionForMissingPath(path)
                     ? () => DeleteItemWithUndo(item)
@@ -934,13 +935,13 @@ public sealed partial class MainWindow : Window
         {
             if (Process.Start(startInfo) is null)
             {
-                ShowFloatingNotification(string.Format(Strings.Error_FileNotFound, path.Value), NotificationIconType.Warning);
+                ShowFloatingNotification(string.Format(AppResources.Error_FileNotFound, path.Value), NotificationIconType.Warning);
             }
         }
         catch (Exception ex)
         {
             AppLogger.Instance.Error(ex, $"Open item location failed for '{path.Value}'");
-            ShowFloatingNotification(string.Format(Strings.Error_FileNotFound, path.Value), NotificationIconType.Warning);
+            ShowFloatingNotification(string.Format(AppResources.Error_FileNotFound, path.Value), NotificationIconType.Warning);
         }
     }
 }

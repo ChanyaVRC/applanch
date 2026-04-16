@@ -10,6 +10,9 @@ using applanch.Infrastructure.Storage;
 using applanch.Theming;
 using applanch.Infrastructure.Updates;
 using applanch.ViewModels;
+using applanch.Core.Utilities;
+using applanch.Infrastructure.Utilities;
+using applanch.Infrastructure.Wpf;
 
 namespace applanch;
 

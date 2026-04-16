@@ -911,4 +911,3 @@ public class MainWindowViewModelTests
         }
     }
 }
-

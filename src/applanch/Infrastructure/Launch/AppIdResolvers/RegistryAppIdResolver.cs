@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using applanch.Core.Utilities;
 
 namespace applanch.Infrastructure.Launch.AppIdResolvers;
 

@@ -8,6 +8,7 @@ using RegistryCommandWriter = System.Action<string, string, string, string, bool
 using ExplorerCommandRegistrar = System.Action<string>;
 using RegistrySubKeyTreeDeleter = System.Action<string>;
 using ExplorerCommandAllowedChecker = System.Func<bool>;
+using applanch.Core.Utilities;
 
 namespace applanch.Infrastructure.Integration;
 
@@ -338,4 +339,3 @@ internal sealed class ContextMenuRegistrar(
 
     private readonly record struct RegistrationTarget(string ClassKeyPath, string ArgumentToken, bool SupportsExplorerCommand);
 }
-

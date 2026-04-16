@@ -4,7 +4,6 @@ using applanch.Tests.TestSupport;
 using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;
 using Xunit;
-using Strings = applanch.Properties.Resources;
 
 namespace applanch.Tests.Application;
 
@@ -29,7 +28,7 @@ public sealed class MainWindowBundledConfigNotificationTests
 
                 var viewModel = Assert.IsType<MainWindowViewModel>(window.DataContext);
                 Assert.Equal(
-                    string.Format(Strings.Notification_BundledConfigMissing, "launch-fallbacks.json"),
+                    string.Format(AppResources.Notification_BundledConfigMissing, "launch-fallbacks.json"),
                     viewModel.FloatingNotification.Message);
                 Assert.Equal(NotificationIconType.Warning, viewModel.FloatingNotification.IconType);
             }
@@ -59,7 +58,7 @@ public sealed class MainWindowBundledConfigNotificationTests
 
                 var viewModel = Assert.IsType<MainWindowViewModel>(window.DataContext);
                 Assert.Equal(
-                    string.Format(Strings.Notification_BundledConfigInvalidFormat, "theme-palette.json"),
+                    string.Format(AppResources.Notification_BundledConfigInvalidFormat, "theme-palette.json"),
                     viewModel.FloatingNotification.Message);
                 Assert.Equal(NotificationIconType.Warning, viewModel.FloatingNotification.IconType);
             }

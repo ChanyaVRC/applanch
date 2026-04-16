@@ -1,5 +1,4 @@
 using System.Windows;
-using Strings = applanch.Properties.Resources;
 
 namespace applanch.Views.Dialogs;
 
@@ -18,8 +17,8 @@ public sealed partial class ConfirmationDialogWindow : DialogWindowBase
         InitializeDialogWindow(caption, owner);
 
         DialogMessage = message;
-        YesButtonLabel = Strings.Confirm_Yes;
-        NoButtonLabel = Strings.Confirm_No;
+        YesButtonLabel = AppResources.Confirm_Yes;
+        NoButtonLabel = AppResources.Confirm_No;
 
         DataContext = this;
     }

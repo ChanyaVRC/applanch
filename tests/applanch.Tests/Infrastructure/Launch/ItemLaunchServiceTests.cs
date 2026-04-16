@@ -286,5 +286,3 @@ public class ItemLaunchServiceTests
         Assert.Equal("steam://rungameid/12345", attempts[0].FileName);
     }
 }
-
-

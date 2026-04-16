@@ -1,5 +1,6 @@
 using System.IO;
 using System.Net.Http;
+using applanch.Core.Utilities;
 
 namespace applanch.Infrastructure.Updates;
 

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.ComponentModel;
 using System.IO;
 using applanch.ViewModels;
+using applanch.Core.Utilities;
 
 namespace applanch.Infrastructure.Launch;
 
@@ -140,4 +141,3 @@ internal sealed class ItemLaunchService : IItemLaunchService
         return false;
     }
 }
-

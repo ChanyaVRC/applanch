@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using applanch.Infrastructure.Dialogs;
 
 namespace applanch.Views.Dialogs;

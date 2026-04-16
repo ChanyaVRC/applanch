@@ -6,7 +6,6 @@ using applanch.Tests.TestSupport;
 using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;
 using Xunit;
-using Strings = applanch.Properties.Resources;
 
 namespace applanch.Tests.Application;
 
@@ -155,7 +154,7 @@ public sealed class MainWindowCategorySidebarTests
                 Assert.Equal("Ops", viewModel.LaunchItems[0].Category.Value);
                 Assert.Equal(1, store.SaveCallCount);
                 Assert.Equal(
-                    string.Format(Strings.Notification_ItemCategoryChanged, "App", "Dev", "Ops"),
+                    string.Format(AppResources.Notification_ItemCategoryChanged, "App", "Dev", "Ops"),
                     viewModel.FloatingNotification.Message);
                 Assert.Equal(NotificationIconType.Info, viewModel.FloatingNotification.IconType);
 
@@ -249,10 +248,10 @@ public sealed class MainWindowCategorySidebarTests
 
                 Assert.Equal("Research", viewModel.LaunchItems[0].Category.Value);
                 Assert.Equal(1, store.SaveCallCount);
-                Assert.Equal(Strings.Prompt_CreateCategory, interaction.LastPromptWithSuggestionsTitle);
+                Assert.Equal(AppResources.Prompt_CreateCategory, interaction.LastPromptWithSuggestionsTitle);
                 Assert.Equal(["Dev", "Ops", AppResources.DefaultCategory], interaction.LastSuggestions);
                 Assert.Equal(
-                    string.Format(Strings.Notification_ItemCategoryChanged, "App", "Dev", "Research"),
+                    string.Format(AppResources.Notification_ItemCategoryChanged, "App", "Dev", "Research"),
                     viewModel.FloatingNotification.Message);
             }
             finally
@@ -386,7 +385,7 @@ public sealed class MainWindowCategorySidebarTests
                 Assert.Equal("Ops", viewModel.LaunchItems[0].Category.Value);
                 Assert.Equal(1, store.SaveCallCount);
                 Assert.Equal(
-                    string.Format(Strings.Notification_ItemCategoryChanged, "App", "Dev", "Ops"),
+                    string.Format(AppResources.Notification_ItemCategoryChanged, "App", "Dev", "Ops"),
                     viewModel.FloatingNotification.Message);
                 Assert.Equal(NotificationIconType.Info, viewModel.FloatingNotification.IconType);
             }

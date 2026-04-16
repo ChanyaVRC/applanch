@@ -3,6 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Media.Imaging;
+using applanch.Core.Utilities;
 
 namespace applanch.Infrastructure.Integration;
 

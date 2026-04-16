@@ -1,6 +1,8 @@
 using System.IO;
 using System.Text.Json;
 using applanch.Theming;
+using applanch.Core.Utilities;
+using applanch.Core.Localization;
 
 namespace applanch.Infrastructure.Storage;
 
@@ -111,4 +113,3 @@ internal sealed record AppSettings
         return ThemePaletteConfigurationLoader.SystemThemeId;
     }
 }
-

@@ -1,3 +1,5 @@
+using applanch.Core.Utilities;
+
 namespace applanch.Infrastructure.Launch.AppIdResolvers;
 
 /// <summary>

@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Text;
 using applanch.Infrastructure.Launch.AppIdResolvers;
+using applanch.Core.Utilities;
 
 namespace applanch.Infrastructure.Launch;
 

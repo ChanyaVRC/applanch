@@ -9,6 +9,8 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using applanch.Infrastructure.Storage;
+using applanch.Core.Utilities;
+using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Integration;
 
