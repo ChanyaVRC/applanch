@@ -2,14 +2,13 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Resources;
 using System.Windows.Data;
-using applanch.Infrastructure.Localization;
 
 namespace applanch;
 
 internal sealed class LocalizedStrings : INotifyPropertyChanged
 {
     private static readonly ResourceManager ResourceManager =
-        AppResourceManagerProvider.Instance;
+        AppResources.ResourceManager;
 
     public static LocalizedStrings Instance { get; } = new();
 

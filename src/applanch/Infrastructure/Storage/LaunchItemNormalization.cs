@@ -1,5 +1,4 @@
 using System.IO;
-using applanch.Infrastructure.Localization;
 
 namespace applanch.Infrastructure.Storage;
 
@@ -11,7 +10,7 @@ internal static class LaunchItemNormalization
 
     private static HashSet<string> BuildKnownLabels(string resourceName)
     {
-        var resourceManager = AppResourceManagerProvider.Instance;
+        var resourceManager = AppResources.ResourceManager;
         var labels = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var culture in LanguageOption.EnumerateSupportedCultures(includeInvariantCulture: true))

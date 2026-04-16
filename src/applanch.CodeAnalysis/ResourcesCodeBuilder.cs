@@ -68,6 +68,8 @@ internal static class ResourcesCodeBuilder
             .Append(rootNamespace)
             .AppendLine(".Properties.Resources\", typeof(Resources).Assembly);");
         sourceBuilder.AppendLine();
+        sourceBuilder.AppendLine("    public static ResourceManager ResourceManager => ResourceMgr;");
+        sourceBuilder.AppendLine();
         sourceBuilder.AppendLine("    private static string Get(string name) =>");
         sourceBuilder.AppendLine("        ResourceMgr.GetString(name, CultureInfo.CurrentUICulture) ?? name;");
         sourceBuilder.AppendLine();

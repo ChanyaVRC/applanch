@@ -6,6 +6,12 @@ namespace applanch.Tests.Helpers;
 public class ResourcesSourceGenerationTests
 {
     [Fact]
+    public void ResourceManager_ReturnsSharedInstance()
+    {
+        Assert.Same(AppResources.ResourceManager, AppResources.ResourceManager);
+    }
+
+    [Fact]
     public void Subtitle_InvariantCulture_ReturnsEnglishText()
     {
         var originalCulture = CultureInfo.CurrentUICulture;
