@@ -5,7 +5,7 @@
     xmlns:local="clr-namespace:applanch"
     xmlns:core="clr-namespace:applanch.Core.Localization;assembly=applanch.Core"
     xmlns:res="clr-namespace:applanch.Properties"
-    xmlns:storage="clr-namespace:applanch.Infrastructure.Storage"
+    xmlns:storage="clr-namespace:applanch.Infrastructure.Storage;assembly=applanch.Core"
     Title="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Window_Settings]}"
     Width="480"
     Height="560"

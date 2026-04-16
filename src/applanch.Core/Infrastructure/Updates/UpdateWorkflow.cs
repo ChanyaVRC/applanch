@@ -1,26 +1,24 @@
-using System.IO;
-using System.Net.Http;
 using applanch.Core.Utilities;
 
 namespace applanch.Infrastructure.Updates;
 
-internal sealed class UpdateWorkflow
+public sealed class UpdateWorkflow
 {
     private IAppUpdateService _updateService;
 
-    internal UpdateWorkflow(IAppUpdateService updateService)
+    public UpdateWorkflow(IAppUpdateService updateService)
     {
         ArgumentNullException.ThrowIfNull(updateService);
         _updateService = updateService;
     }
 
-    internal void SetUpdateService(IAppUpdateService updateService)
+    public void SetUpdateService(IAppUpdateService updateService)
     {
         ArgumentNullException.ThrowIfNull(updateService);
         _updateService = updateService;
     }
 
-    internal async Task<IReadOnlyList<AppUpdateInfo>> GetAvailableUpdatesSafeAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<AppUpdateInfo>> GetAvailableUpdatesSafeAsync(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -37,7 +35,7 @@ internal sealed class UpdateWorkflow
         }
     }
 
-    internal async Task<AppUpdateInfo?> CheckForUpdateSafeAsync(CancellationToken cancellationToken = default)
+    public async Task<AppUpdateInfo?> CheckForUpdateSafeAsync(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -54,7 +52,7 @@ internal sealed class UpdateWorkflow
         }
     }
 
-    internal async Task<UpdateApplyResult> ApplyUpdateSafeAsync(AppUpdateInfo update, CancellationToken cancellationToken = default)
+    public async Task<UpdateApplyResult> ApplyUpdateSafeAsync(AppUpdateInfo update, CancellationToken cancellationToken = default)
     {
         try
         {

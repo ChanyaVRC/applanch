@@ -1,6 +1,6 @@
 namespace applanch.Infrastructure.Updates;
 
-internal readonly record struct SemanticVersion(int Major, int Minor, int Patch, string Prerelease) : IComparable<SemanticVersion>
+public readonly record struct SemanticVersion(int Major, int Minor, int Patch, string Prerelease) : IComparable<SemanticVersion>
 {
     public bool IsPrerelease => !string.IsNullOrEmpty(Prerelease);
 
@@ -91,12 +91,10 @@ internal readonly record struct SemanticVersion(int Major, int Minor, int Patch,
         {
             return numericComparison;
         }
+
         return ComparePrerelease(Prerelease.AsSpan(), other.Prerelease.AsSpan());
     }
 
-    // Per semver spec, prerelease identifiers consisting of only digits are compared numerically,
-    // and those with letters or hyphens are compared lexically in ASCII sort order.
-    // Numeric identifiers always have lower precedence than non-numeric identifiers.
     private static int ComparePrerelease(ReadOnlySpan<char> left, ReadOnlySpan<char> right)
     {
         Span<Range> leftParts = stackalloc Range[16];
@@ -105,10 +103,10 @@ internal readonly record struct SemanticVersion(int Major, int Minor, int Patch,
         var rightCount = right.Split(rightParts, '.');
         var count = Math.Min(leftCount, rightCount);
 
-        for (var i = 0; i < count; i++)
+        for (var index = 0; index < count; index++)
         {
-            var leftPart = left[leftParts[i]];
-            var rightPart = right[rightParts[i]];
+            var leftPart = left[leftParts[index]];
+            var rightPart = right[rightParts[index]];
 
             var isLeftNumeric = int.TryParse(leftPart, out var leftNumeric);
             var isRightNumeric = int.TryParse(rightPart, out var rightNumeric);
@@ -140,4 +138,3 @@ internal readonly record struct SemanticVersion(int Major, int Minor, int Patch,
         return leftCount.CompareTo(rightCount);
     }
 }
-

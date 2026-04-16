@@ -1,19 +1,19 @@
-using System.IO;
 using System.Text.Json;
-using applanch.Theming;
-using applanch.Core.Utilities;
 using applanch.Core.Localization;
+using applanch.Core.Utilities;
 
 namespace applanch.Infrastructure.Storage;
 
-internal sealed record AppSettings
+public sealed record AppSettings
 {
-    internal const int DefaultQuickAddSuggestionLimit = 50;
-    internal const int MinQuickAddSuggestionLimit = 1;
-    internal const int MaxQuickAddSuggestionLimit = 200;
+    private const string DefaultThemeId = "system";
+
+    public const int DefaultQuickAddSuggestionLimit = 50;
+    public const int MinQuickAddSuggestionLimit = 1;
+    public const int MaxQuickAddSuggestionLimit = 200;
 
     public bool DebugUpdate { get; init; } = false;
-    public string ThemeId { get; init; } = ThemePaletteConfigurationLoader.SystemThemeId;
+    public string ThemeId { get; init; } = DefaultThemeId;
     public int QuickAddSuggestionLimit { get; init; } = DefaultQuickAddSuggestionLimit;
     public bool CheckForUpdatesOnStartup { get; init; } = true;
     public UpdateInstallBehavior UpdateInstallBehavior { get; init; } = UpdateInstallBehavior.Manual;
@@ -34,7 +34,6 @@ internal sealed record AppSettings
     public PostLaunchBehavior PostLaunchBehavior { get; init; } = PostLaunchBehavior.CloseApp;
 
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
-
     private static readonly string FilePath = AppDataPaths.GetUnderLocalApplicationData("settings.json");
     private static readonly string DirectoryPath = AppDataPaths.LocalApplicationDataDirectory;
 
@@ -77,14 +76,7 @@ internal sealed record AppSettings
         Normalize().SaveCore();
     }
 
-    private void SaveCore()
-    {
-        Directory.CreateDirectory(DirectoryPath);
-        var json = JsonSerializer.Serialize(this, JsonOptions);
-        File.WriteAllText(FilePath, json);
-    }
-
-    internal AppSettings Normalize()
+    public AppSettings Normalize()
     {
         var themeId = NormalizeThemeId(ThemeId);
         var quickAddSuggestionLimit = Math.Clamp(
@@ -100,6 +92,13 @@ internal sealed record AppSettings
         };
     }
 
+    private void SaveCore()
+    {
+        Directory.CreateDirectory(DirectoryPath);
+        var json = JsonSerializer.Serialize(this, JsonOptions);
+        File.WriteAllText(FilePath, json);
+    }
+
     private static LanguageOption NormalizeLanguage(LanguageOption? language) =>
         language ?? LanguageOption.System;
 
@@ -110,6 +109,6 @@ internal sealed record AppSettings
             return themeId.Trim();
         }
 
-        return ThemePaletteConfigurationLoader.SystemThemeId;
+        return DefaultThemeId;
     }
 }

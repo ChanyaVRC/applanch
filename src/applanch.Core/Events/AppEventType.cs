@@ -1,6 +1,6 @@
 namespace applanch.Events;
 
-internal enum AppEventType
+public enum AppEventType
 {
     BeforeCommit,
     Commit,

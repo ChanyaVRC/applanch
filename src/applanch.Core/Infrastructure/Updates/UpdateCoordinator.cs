@@ -4,7 +4,7 @@ using applanch.Infrastructure.Storage;
 
 namespace applanch.Infrastructure.Updates;
 
-internal sealed class UpdateCoordinator : IDisposable
+public sealed class UpdateCoordinator : IDisposable
 {
     private readonly AppEvent _appEvent;
     private readonly UpdateWorkflow _updateWorkflow;
@@ -14,7 +14,7 @@ internal sealed class UpdateCoordinator : IDisposable
     private SemanticVersion? _lastAutoApplyAttemptedVersion;
     private bool _isAutoApplyingUpdate;
 
-    internal UpdateCoordinator(UpdateCoordinatorDependencies dependencies)
+    public UpdateCoordinator(UpdateCoordinatorDependencies dependencies)
     {
         ArgumentNullException.ThrowIfNull(dependencies);
 
@@ -43,14 +43,14 @@ internal sealed class UpdateCoordinator : IDisposable
         _appEvent.Unregister(AppEvents.ApplyUpdateRequested, OnApplyUpdateRequested);
     }
 
+    public void Reconfigure(IAppUpdateService updateService)
+    {
+        _updateWorkflow.SetUpdateService(updateService);
+    }
+
     private void OnSettingsCommitted(AppSettings settings)
     {
         _installBehavior = settings.UpdateInstallBehavior;
-    }
-
-    internal void Reconfigure(IAppUpdateService updateService)
-    {
-        _updateWorkflow.SetUpdateService(updateService);
     }
 
     private void OnUpdateCheckRequested()

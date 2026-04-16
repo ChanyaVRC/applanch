@@ -1,6 +1,6 @@
 namespace applanch.Infrastructure.Updates;
 
-internal readonly record struct UpdateApplyResult(bool IsSuccess, UpdateApplyFailureReason FailureReason, string ErrorMessage)
+public readonly record struct UpdateApplyResult(bool IsSuccess, UpdateApplyFailureReason FailureReason, string ErrorMessage)
 {
     public static UpdateApplyResult Success() => new(true, UpdateApplyFailureReason.None, string.Empty);
 

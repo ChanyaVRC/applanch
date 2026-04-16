@@ -1,6 +1,6 @@
 namespace applanch.Infrastructure.Storage;
 
-internal enum AppListSortMode
+public enum AppListSortMode
 {
     Manual = 0,
     Name = 1,

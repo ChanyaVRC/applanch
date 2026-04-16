@@ -1,6 +1,6 @@
 namespace applanch.Infrastructure.Updates;
 
-internal enum UpdateApplyFailureReason
+public enum UpdateApplyFailureReason
 {
     None = 0,
     Unknown = 1,

@@ -3,9 +3,9 @@ using applanch.Infrastructure.Updates;
 
 namespace applanch.Events;
 
-internal sealed class AppEvent
+public sealed class AppEvent
 {
-    internal static AppEvent Instance { get; } = new();
+    public static AppEvent Instance { get; } = new();
 
     private readonly Dictionary<AppEventType, object> _channels;
 
@@ -37,22 +37,22 @@ internal sealed class AppEvent
         };
     }
 
-    internal void Register<TPayload>(AppEventKey<TPayload> eventKey, Action<TPayload> handler)
+    public void Register<TPayload>(AppEventKey<TPayload> eventKey, Action<TPayload> handler)
         => GetChannel(eventKey).Register(handler);
 
-    internal void Unregister<TPayload>(AppEventKey<TPayload> eventKey, Action<TPayload> handler)
+    public void Unregister<TPayload>(AppEventKey<TPayload> eventKey, Action<TPayload> handler)
         => GetChannel(eventKey).Unregister(handler);
 
-    internal void Invoke<TPayload>(AppEventKey<TPayload> eventKey, TPayload payload)
+    public void Invoke<TPayload>(AppEventKey<TPayload> eventKey, TPayload payload)
         => GetChannel(eventKey).Invoke(payload);
 
-    internal void Register(AppSignalEventKey eventKey, Action handler)
+    public void Register(AppSignalEventKey eventKey, Action handler)
         => GetSignalChannel(eventKey).Register(handler);
 
-    internal void Unregister(AppSignalEventKey eventKey, Action handler)
+    public void Unregister(AppSignalEventKey eventKey, Action handler)
         => GetSignalChannel(eventKey).Unregister(handler);
 
-    internal void Invoke(AppSignalEventKey eventKey)
+    public void Invoke(AppSignalEventKey eventKey)
         => GetSignalChannel(eventKey).Invoke();
 
     private EventChannel<TPayload> GetChannel<TPayload>(AppEventKey<TPayload> eventKey)
@@ -112,8 +112,6 @@ internal sealed class AppEvent
     {
         private readonly Action<TPayload, Action<TPayload>> _invokePipeline;
         private event Action<TPayload>? Handlers;
-
-        internal bool HasHandlers => Handlers is not null;
 
         internal EventChannel(Action<TPayload, Action<TPayload>>? invokePipeline = null)
         {

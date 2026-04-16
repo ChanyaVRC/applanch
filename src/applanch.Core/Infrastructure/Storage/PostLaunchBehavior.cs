@@ -1,6 +1,6 @@
 namespace applanch.Infrastructure.Storage;
 
-internal enum PostLaunchBehavior
+public enum PostLaunchBehavior
 {
     CloseApp = 0,
     MinimizeWindow = 1,

@@ -1,6 +1,6 @@
 namespace applanch.Infrastructure.Storage;
 
-internal enum CategorySortMode
+public enum CategorySortMode
 {
     Alphabetical = 0,
     AsAdded = 1,

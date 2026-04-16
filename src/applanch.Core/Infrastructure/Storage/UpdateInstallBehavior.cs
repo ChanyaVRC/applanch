@@ -1,6 +1,6 @@
 namespace applanch.Infrastructure.Storage;
 
-internal enum UpdateInstallBehavior
+public enum UpdateInstallBehavior
 {
     NotifyOnly = 0,
     Manual = 1,
