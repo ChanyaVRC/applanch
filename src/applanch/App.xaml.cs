@@ -148,7 +148,7 @@ public sealed partial class App : Application
 
     internal void Refresh(AppRefreshPayload payload)
     {
-        var currentSettings = AppSettingsProvider.Current;
+        var currentSettings = payload.CurrentSettings;
         ApplyLanguage(currentSettings.Language);
         ApplyStartupRegistration(currentSettings);
         ApplyContextMenuRegistration(currentSettings);
