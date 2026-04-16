@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("applanch.Tests")]
+[assembly: InternalsVisibleTo("applanch.Core.Tests")]
