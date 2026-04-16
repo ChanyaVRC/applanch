@@ -11,6 +11,7 @@
 - Use the standard library whenever it can replace custom implementations.
 - For every bug fix or behavior change, add or update tests that would fail before the change and pass after it.
 - Keep one type per file; avoid placing multiple top-level types in the same file.
+- Write all comments, docstrings, and XML documentation in English.
 
 ## Auto Commit Policy
 
