@@ -33,7 +33,6 @@ internal sealed record AppSettings
     public PostLaunchBehavior PostLaunchBehavior { get; init; } = PostLaunchBehavior.CloseApp;
 
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
-    internal static AppSettings Current { get; private set; } = new();
 
     private static readonly string FilePath = AppDataPaths.GetUnderLocalApplicationData("settings.json");
     private static readonly string DirectoryPath = AppDataPaths.LocalApplicationDataDirectory;
@@ -42,7 +41,7 @@ internal sealed record AppSettings
     {
         if (!File.Exists(FilePath))
         {
-            return ApplyCurrent(new AppSettings());
+            return new AppSettings();
         }
 
         try
@@ -63,26 +62,18 @@ internal sealed record AppSettings
                 }
             }
 
-            return ApplyCurrent(normalized);
+            return normalized;
         }
         catch (Exception ex)
         {
             AppLogger.Instance.Error(ex, "Failed to load settings");
-            return ApplyCurrent(new AppSettings());
+            return new AppSettings();
         }
     }
 
     public void Save()
     {
-        var normalized = Normalize();
-        normalized.SaveCore();
-        ApplyCurrent(normalized);
-    }
-
-    internal static AppSettings ApplyCurrent(AppSettings settings)
-    {
-        Current = settings.Normalize();
-        return Current;
+        Normalize().SaveCore();
     }
 
     private void SaveCore()

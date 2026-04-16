@@ -29,7 +29,7 @@ public sealed partial class App : Application
 
     public App()
     {
-        _themeApplier = new ThemeApplier(static () => AppSettings.Current);
+        _themeApplier = new ThemeApplier(static () => AppSettingsProvider.Current);
     }
 
     protected override void OnStartup(StartupEventArgs e)
@@ -41,7 +41,7 @@ public sealed partial class App : Application
         RegisterDataBindingTraceLogging();
 
         AppLogger.Instance.Info("Application starting");
-        var settings = AppSettings.Load();
+        var settings = AppSettingsProvider.Load();
         InitializeEnvironment();
         ApplyLanguage(settings.Language);
         ApplyStartupRegistration(settings);
@@ -121,9 +121,8 @@ public sealed partial class App : Application
 
     private void OnSettingsCommitted(AppSettings settings)
     {
-        var previousSettings = AppSettings.Current;
-        settings.Save();
-        var refreshedSettings = AppSettings.Current;
+        var previousSettings = AppSettingsProvider.Current;
+        var refreshedSettings = AppSettingsProvider.Save(settings);
         Events.Invoke(AppEvents.Refresh, new AppRefreshPayload(previousSettings, refreshedSettings));
     }
 
@@ -141,7 +140,7 @@ public sealed partial class App : Application
 
     internal void Refresh(AppRefreshPayload payload)
     {
-        var currentSettings = AppSettings.ApplyCurrent(payload.CurrentSettings);
+        var currentSettings = AppSettingsProvider.ApplyCurrent(payload.CurrentSettings);
         ApplyLanguage(currentSettings.Language);
         ApplyStartupRegistration(currentSettings);
         ApplyContextMenuRegistration(currentSettings);
