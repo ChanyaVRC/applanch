@@ -60,6 +60,7 @@ public sealed partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         AppLogger.Instance.Info("Application exiting");
+        AppSettingsProvider.Unregister(Events);
         Events.Unregister(AppEvents.Commit, OnSettingsCommitted);
         Events.Unregister(AppEvents.Refresh, Refresh);
         SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
@@ -89,6 +90,7 @@ public sealed partial class App : Application
 
     private void RegisterLifecycleEventHandlers()
     {
+        AppSettingsProvider.Register(Events);
         Events.Register(AppEvents.Commit, OnSettingsCommitted);
         Events.Register(AppEvents.Refresh, Refresh);
     }
@@ -122,7 +124,8 @@ public sealed partial class App : Application
     private void OnSettingsCommitted(AppSettings settings)
     {
         var previousSettings = AppSettingsProvider.Current;
-        var refreshedSettings = AppSettingsProvider.Save(settings);
+        var refreshedSettings = settings.Normalize();
+        refreshedSettings.Save();
         Events.Invoke(AppEvents.Refresh, new AppRefreshPayload(previousSettings, refreshedSettings));
     }
 
@@ -140,7 +143,7 @@ public sealed partial class App : Application
 
     internal void Refresh(AppRefreshPayload payload)
     {
-        var currentSettings = AppSettingsProvider.ApplyCurrent(payload.CurrentSettings);
+        var currentSettings = AppSettingsProvider.Current;
         ApplyLanguage(currentSettings.Language);
         ApplyStartupRegistration(currentSettings);
         ApplyContextMenuRegistration(currentSettings);
