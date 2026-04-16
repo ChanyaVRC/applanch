@@ -29,7 +29,7 @@ public sealed partial class App : Application
 
     public App()
     {
-        _themeApplier = new ThemeApplier(static () => AppSettingsProvider.Current);
+        _themeApplier = new ThemeApplier();
     }
 
     protected override void OnStartup(StartupEventArgs e)

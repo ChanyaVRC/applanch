@@ -28,7 +28,7 @@ public class ThemeApplierTests
     {
         var resources = new ResourceDictionary();
         var manager = new ThemeApplier(
-            () => new AppSettings { ThemeId = themeId },
+            new AppSettings { ThemeId = themeId },
             BuildConfiguration());
 
         manager.ApplyTheme(resources);
@@ -46,7 +46,7 @@ public class ThemeApplierTests
         {
             var resources = new ResourceDictionary();
             var manager = new ThemeApplier(
-                () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.LightThemeId },
+                new AppSettings { ThemeId = ThemePaletteConfigurationLoader.LightThemeId },
                 BuildConfiguration());
             var window = new Window();
 
@@ -65,7 +65,7 @@ public class ThemeApplierTests
             [new FixedThemeDefinition("sunset", new LocalizedText("Sunset"))],
             [new ThemePaletteEntry("Brush.Custom", new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = ThemeColor.Parse("#AABBCC") })]);
         var manager = new ThemeApplier(
-            () => new AppSettings { ThemeId = "sunset" },
+            new AppSettings { ThemeId = "sunset" },
             configuration);
 
         manager.ApplyTheme(resources);
@@ -103,7 +103,7 @@ public class ThemeApplierTests
                     })
             ]);
         var manager = new ThemeApplier(
-            () => new AppSettings { ThemeId = ThemePaletteConfigurationLoader.SystemThemeId },
+            new AppSettings { ThemeId = ThemePaletteConfigurationLoader.SystemThemeId },
             configuration);
 
         manager.ApplyTheme(resources);
@@ -132,7 +132,7 @@ public class ThemeApplierTests
                     })
             ]);
         var manager = new ThemeApplier(
-            () => new AppSettings { ThemeId = "ocean" },
+            new AppSettings { ThemeId = "ocean" },
             configuration);
 
         manager.ApplyTheme(resources);
@@ -160,7 +160,7 @@ public class ThemeApplierTests
                     })
             ]);
         var manager = new ThemeApplier(
-            () => new AppSettings { ThemeId = "alpha" },
+            new AppSettings { ThemeId = "alpha" },
             configuration);
 
         manager.ApplyTheme(resources);

@@ -11,18 +11,18 @@ internal sealed class ThemeApplier
 
     private readonly ThemePaletteConfiguration _configuration;
     private readonly Dictionary<string, ThemeDefinition> _themesById;
-    private readonly Func<AppSettings> _settingsProvider;
+    private readonly AppSettings? _settings;
 
     public ThemeApplier()
-        : this(() => AppSettingsProvider.Current, ThemePaletteConfigurationLoader.Load())
+        : this(null, ThemePaletteConfigurationLoader.Load())
     {
     }
 
     internal ThemeApplier(
-        Func<AppSettings>? settingsProvider = null,
+        AppSettings? settings = null,
         ThemePaletteConfiguration? configuration = null)
     {
-        _settingsProvider = settingsProvider ?? (() => AppSettingsProvider.Current);
+        _settings = settings;
         _configuration = configuration ?? ThemePaletteConfigurationLoader.Load();
         _themesById = _configuration.Themes.ToDictionary(static x => x.Id);
     }
@@ -30,7 +30,7 @@ internal sealed class ThemeApplier
     public void ApplyTheme(ResourceDictionary resources)
     {
         var preferredMode = ReadWindowsThemePreference();
-        var selectedTheme = ResolveTheme(_settingsProvider());
+        var selectedTheme = ResolveTheme(_settings ?? AppSettingsProvider.Current);
         var brushMap = selectedTheme.CreateBrushMap(_themesById, preferredMode);
 
         foreach (var (key, brush) in brushMap)
