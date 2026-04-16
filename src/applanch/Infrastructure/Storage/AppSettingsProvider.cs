@@ -8,18 +8,21 @@ internal static class AppSettingsProvider
     private static AppEvent? _registeredEvent;
     private static bool _isLoaded;
 
-    internal static AppSettings Current { get; private set; } = new();
-
-    internal static AppSettings Load()
+    internal static AppSettings Current
     {
-        if (_isLoaded)
+        get
         {
-            return Current;
-        }
+            if (!_isLoaded)
+            {
+                SetCurrent(AppSettings.Load());
+            }
 
-        SetCurrent(AppSettings.Load());
-        return Current;
-    }
+            return field;
+        }
+        private set => field = value;
+    } = new();
+
+    internal static AppSettings Load() => Current;
 
     internal static void Register(AppEvent appEvent)
     {
