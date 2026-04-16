@@ -100,6 +100,12 @@
         }
       },
       "applanch": {
+        "type": "Project",
+        "dependencies": {
+          "applanch.Core": "[1.0.0, )"
+        }
+      },
+      "applanch.core": {
         "type": "Project"
       },
       "applanch.shellextension": {

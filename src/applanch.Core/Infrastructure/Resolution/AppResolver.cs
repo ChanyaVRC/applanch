@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Win32;
-using System.IO;
 using System.Security;
 using applanch.Infrastructure.Utilities;
 
