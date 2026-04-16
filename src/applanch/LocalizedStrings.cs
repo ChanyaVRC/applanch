@@ -8,7 +8,9 @@ namespace applanch;
 internal sealed class LocalizedStrings : INotifyPropertyChanged
 {
     private static readonly ResourceManager ResourceManager =
-        new(typeof(AppResources).FullName!, typeof(AppResources).Assembly);
+        new(
+            typeof(AppResources).FullName ?? throw new InvalidOperationException("AppResources type name is unavailable."),
+            typeof(AppResources).Assembly);
 
     public static LocalizedStrings Instance { get; } = new();
 

@@ -51,7 +51,9 @@ internal static class LaunchCategoryCatalog
 
     private static HashSet<string> BuildKnownAllCategoriesLabels()
     {
-        var resourceManager = new ResourceManager(typeof(AppResources).FullName!, typeof(AppResources).Assembly);
+        var resourceManager = new ResourceManager(
+            typeof(AppResources).FullName ?? throw new InvalidOperationException("AppResources type name is unavailable."),
+            typeof(AppResources).Assembly);
         var labels = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var culture in LanguageOption.EnumerateSupportedCultures(includeInvariantCulture: true))
