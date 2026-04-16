@@ -1,7 +1,6 @@
 using Xunit;
-using applanch.Serialization;
 
-namespace applanch.Tests.Infrastructure.Utilities;
+namespace applanch.Serialization.Tests;
 
 public sealed class ConfigJsonPathResolverTests
 {

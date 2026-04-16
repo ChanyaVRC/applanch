@@ -4,5 +4,7 @@
   <Project Path="src/applanch.CodeAnalysis/applanch.CodeAnalysis.csproj" />
   <Project Path="src/applanch/applanch.csproj" />
   <Project Path="tests/applanch.Core.Tests/applanch.Core.Tests.csproj" />
+  <Project Path="tests/applanch.Serialization.Tests/applanch.Serialization.Tests.csproj" />
+  <Project Path="tests/applanch.ShellExtension.Tests/applanch.ShellExtension.Tests.csproj" />
   <Project Path="tests/applanch.Tests/applanch.Tests.csproj" />
 </Solution>

@@ -17,6 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\applanch\applanch.csproj" />
+    <ProjectReference Include="..\..\src\applanch.Serialization\applanch.Serialization.csproj" />
   </ItemGroup>
 </Project>

@@ -1,9 +1,8 @@
 using System.Diagnostics;
-using applanch.ShellExtension;
 using applanch.ShellExtension.Interop;
 using Xunit;
 
-namespace applanch.Tests.Infrastructure.Integration;
+namespace applanch.ShellExtension.Tests;
 
 public class ApplanchExplorerCommandTests
 {
