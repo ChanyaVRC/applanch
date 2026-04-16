@@ -41,7 +41,7 @@ public sealed partial class App : Application
         RegisterGlobalExceptionHandlers();
 
         AppLogger.Instance.Info("Application starting");
-        var settings = AppSettingsProvider.Load();
+        var settings = AppSettingsProvider.Current;
         InitializeEnvironment();
         ApplyLanguage(settings.Language);
         ApplyStartupRegistration(settings);

@@ -37,7 +37,7 @@ public class AppSettingsProviderTests
     }
 
     [Fact]
-    public void Load_WhenAlreadyLoaded_ReturnsCurrent()
+    public void Current_WhenAlreadyLoaded_ReturnsCachedValue()
     {
         var previousCurrent = AppSettingsProvider.Current;
         var appEvent = AppEventFactory.Create();
@@ -46,7 +46,7 @@ public class AppSettingsProviderTests
         {
             AppSettingsProvider.Register(appEvent);
             var loaded = UpdateCurrent(appEvent, new AppSettings { ThemeId = "cached" });
-            var result = AppSettingsProvider.Load();
+            var result = AppSettingsProvider.Current;
 
             Assert.Equal(loaded, result);
             Assert.Same(AppSettingsProvider.Current, result);

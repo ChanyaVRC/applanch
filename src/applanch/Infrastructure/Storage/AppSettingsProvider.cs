@@ -6,23 +6,12 @@ namespace applanch.Infrastructure.Storage;
 internal static class AppSettingsProvider
 {
     private static AppEvent? _registeredEvent;
-    private static bool _isLoaded;
 
     internal static AppSettings Current
     {
-        get
-        {
-            if (!_isLoaded)
-            {
-                SetCurrent(AppSettings.Load());
-            }
-
-            return field;
-        }
+        get => field ??= AppSettings.Load();
         private set => field = value;
-    } = new();
-
-    internal static AppSettings Load() => Current;
+    }
 
     internal static void Register(AppEvent appEvent)
     {
@@ -43,12 +32,6 @@ internal static class AppSettingsProvider
 
     private static void OnRefresh(AppRefreshPayload payload)
     {
-        SetCurrent(payload.CurrentSettings);
-    }
-
-    private static void SetCurrent(AppSettings settings)
-    {
-        Current = settings.Normalize();
-        _isLoaded = true;
+        Current = payload.CurrentSettings.Normalize();
     }
 }

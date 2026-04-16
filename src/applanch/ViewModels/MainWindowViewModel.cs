@@ -26,7 +26,7 @@ public sealed class MainWindowViewModel : ObservableObject
     private string _quickAddArguments = string.Empty;
 
     public MainWindowViewModel()
-        : this(new AppResolverAdapter(), new LauncherStoreAdapter(), AppSettingsProvider.Load())
+        : this(new AppResolverAdapter(), new LauncherStoreAdapter(), AppSettingsProvider.Current)
     {
     }
 

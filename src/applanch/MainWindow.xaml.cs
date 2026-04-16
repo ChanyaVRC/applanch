@@ -69,7 +69,7 @@ public sealed partial class MainWindow : Window
             new ItemLaunchService(),
             new UserInteractionService(),
             static settings => new GitHubAppUpdateService(settings.DebugUpdate, settings.AllowPrereleaseUpdates),
-            AppSettingsProvider.Load())
+            AppSettingsProvider.Current)
     {
     }
 
