@@ -1,5 +1,5 @@
 using applanch.Infrastructure.Integration;
-using applanch.Infrastructure.Utilities;
+using applanch.Core.Configuration;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Integration;

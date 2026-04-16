@@ -1,7 +1,7 @@
 using System.Buffers;
 using System.IO;
-using System.Reflection;
 using System.Text.Json;
+using applanch.Core.Configuration;
 using applanch.Core.Localization;
 
 namespace applanch.Theming;
@@ -142,22 +142,13 @@ internal static class ThemePaletteConfigurationLoader
 
     private static void ReportBundledFailure(string path, Exception exception)
     {
-        var notificationCenterType = Type.GetType(
-            "applanch.Infrastructure.Utilities.BundledConfigLoadNotificationCenter, applanch",
-            throwOnError: false);
-        if (notificationCenterType is null)
+        if (exception is FileNotFoundException)
         {
+            BundledConfigLoadNotificationCenter.ReportMissing(path);
             return;
         }
 
-        var methodName = exception is FileNotFoundException ? "ReportMissing" : "ReportInvalidFormat";
-        var method = notificationCenterType.GetMethod(
-            methodName,
-            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
-            binder: null,
-            types: [typeof(string)],
-            modifiers: null);
-        method?.Invoke(null, [path]);
+        BundledConfigLoadNotificationCenter.ReportInvalidFormat(path);
     }
 
     private static ThemePaletteConfiguration LoadThemePaletteConfiguration(string path)

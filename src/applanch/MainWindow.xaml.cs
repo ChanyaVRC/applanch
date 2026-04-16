@@ -7,14 +7,15 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using applanch.Core.Configuration;
 using applanch.Events;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Items;
 using applanch.Infrastructure.Launch;
 using applanch.Infrastructure.Storage;
-using applanch.Theming;
 using applanch.Infrastructure.Updates;
 using applanch.Infrastructure.Utilities;
+using applanch.Theming;
 using applanch.ViewModels;
 using Strings = applanch.Properties.Resources;
 

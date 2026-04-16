@@ -1,5 +1,5 @@
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Utilities;
+using applanch.Core.Configuration;
 using applanch.Tests.TestSupport;
 using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;

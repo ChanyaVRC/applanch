@@ -1,6 +1,4 @@
-using System.IO;
-
-namespace applanch.Infrastructure.Utilities;
+namespace applanch.Core.Configuration;
 
 internal static class BundledConfigLoadNotificationCenter
 {

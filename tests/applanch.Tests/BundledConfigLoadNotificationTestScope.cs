@@ -1,4 +1,4 @@
-using applanch.Infrastructure.Utilities;
+using applanch.Core.Configuration;
 
 namespace applanch.Tests;
 

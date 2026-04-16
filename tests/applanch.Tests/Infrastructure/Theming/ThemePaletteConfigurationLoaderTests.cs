@@ -1,5 +1,5 @@
 using applanch.Theming;
-using applanch.Infrastructure.Utilities;
+using applanch.Core.Configuration;
 using applanch.Tests.TestSupport;
 using Xunit;
 

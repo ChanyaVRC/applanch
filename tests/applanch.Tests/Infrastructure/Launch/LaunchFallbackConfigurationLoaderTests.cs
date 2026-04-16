@@ -1,5 +1,5 @@
 using applanch.Infrastructure.Launch;
-using applanch.Infrastructure.Utilities;
+using applanch.Core.Configuration;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Launch;
