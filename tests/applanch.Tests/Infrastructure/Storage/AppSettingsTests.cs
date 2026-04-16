@@ -200,4 +200,27 @@ public class AppSettingsTests
         Assert.True(normalized.AllowPrereleaseUpdates);
     }
 
+    [Fact]
+    public void ApplyCurrent_StoresNormalizedCurrentSettings()
+    {
+        var previousCurrent = AppSettings.Current;
+
+        try
+        {
+            var applied = AppSettings.ApplyCurrent(new AppSettings
+            {
+                ThemeId = "  monochrome  ",
+                QuickAddSuggestionLimit = 0,
+            });
+
+            Assert.Same(applied, AppSettings.Current);
+            Assert.Equal("monochrome", AppSettings.Current.ThemeId);
+            Assert.Equal(AppSettings.MinQuickAddSuggestionLimit, AppSettings.Current.QuickAddSuggestionLimit);
+        }
+        finally
+        {
+            AppSettings.ApplyCurrent(previousCurrent);
+        }
+    }
+
 }

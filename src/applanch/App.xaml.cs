@@ -21,7 +21,6 @@ public sealed partial class App : Application
     internal const string RegisterArgument = "--register";
     internal const string UnregisterContextMenuArgument = "--unregister-context-menu";
     internal AppEvent Events { get; } = AppEvent.Instance;
-    private AppSettings _settings = new();
     private readonly ThemeApplier _themeApplier;
     private readonly ContextMenuRegistrar _contextMenuRegistrar = new();
     private readonly SparsePackageRegistrar _sparsePackageRegistrar = new();
@@ -30,7 +29,7 @@ public sealed partial class App : Application
 
     public App()
     {
-        _themeApplier = new ThemeApplier(() => _settings);
+        _themeApplier = new ThemeApplier(static () => AppSettings.Current);
     }
 
     protected override void OnStartup(StartupEventArgs e)
@@ -42,10 +41,10 @@ public sealed partial class App : Application
         RegisterDataBindingTraceLogging();
 
         AppLogger.Instance.Info("Application starting");
-        _settings = AppSettings.Load();
+        var settings = AppSettings.Load();
         InitializeEnvironment();
-        ApplyLanguage(_settings.Language);
-        ApplyStartupRegistration(_settings);
+        ApplyLanguage(settings.Language);
+        ApplyStartupRegistration(settings);
 
         if (TryHandleStartupArgument(e.Args))
         {
@@ -53,9 +52,9 @@ public sealed partial class App : Application
             return;
         }
 
-        ApplyContextMenuRegistration(_settings);
+        ApplyContextMenuRegistration(settings);
 
-        ShowMainWindow();
+        ShowMainWindow(settings);
     }
 
     protected override void OnExit(ExitEventArgs e)
@@ -122,9 +121,9 @@ public sealed partial class App : Application
 
     private void OnSettingsCommitted(AppSettings settings)
     {
-        var previousSettings = _settings;
-        var refreshedSettings = settings.Normalize();
-        refreshedSettings.Save();
+        var previousSettings = AppSettings.Current;
+        settings.Save();
+        var refreshedSettings = AppSettings.Current;
         Events.Invoke(AppEvents.Refresh, new AppRefreshPayload(previousSettings, refreshedSettings));
     }
 
@@ -142,10 +141,10 @@ public sealed partial class App : Application
 
     internal void Refresh(AppRefreshPayload payload)
     {
-        _settings = payload.CurrentSettings;
-        ApplyLanguage(_settings.Language);
-        ApplyStartupRegistration(_settings);
-        ApplyContextMenuRegistration(_settings);
+        var currentSettings = AppSettings.ApplyCurrent(payload.CurrentSettings);
+        ApplyLanguage(currentSettings.Language);
+        ApplyStartupRegistration(currentSettings);
+        ApplyContextMenuRegistration(currentSettings);
         LocalizedStrings.Instance.NotifyLanguageChanged();
         _themeApplier.ApplyTheme(Resources, Windows.Cast<Window>());
     }
@@ -165,12 +164,12 @@ public sealed partial class App : Application
         }
     }
 
-    private void ShowMainWindow()
+    private void ShowMainWindow(AppSettings settings)
     {
-        MainWindow = CreateMainWindow(_settings);
+        MainWindow = CreateMainWindow(settings);
         _themeApplier.ApplyTheme(Resources, [MainWindow]);
 
-        if (_settings.StartMinimizedOnLaunch)
+        if (settings.StartMinimizedOnLaunch)
         {
             MainWindow.WindowState = WindowState.Minimized;
         }
