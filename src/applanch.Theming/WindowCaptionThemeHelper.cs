@@ -5,7 +5,7 @@ using System.Windows.Media;
 
 namespace applanch.Theming;
 
-internal static partial class WindowCaptionThemeHelper
+public static partial class WindowCaptionThemeHelper
 {
     private const int DwmaUseImmersiveDarkMode = 20;
     private const int DwmaUseImmersiveDarkModeLegacy = 19;

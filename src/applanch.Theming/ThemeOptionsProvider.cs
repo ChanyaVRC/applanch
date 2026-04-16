@@ -1,8 +1,8 @@
 namespace applanch.Theming;
 
-internal static class ThemeOptionsProvider
+public static class ThemeOptionsProvider
 {
-    internal static IReadOnlyDictionary<string, ThemeOption> Load()
+    public static IReadOnlyDictionary<string, ThemeOption> Load()
     {
         try
         {

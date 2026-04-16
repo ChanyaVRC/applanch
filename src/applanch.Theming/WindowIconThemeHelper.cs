@@ -3,7 +3,7 @@ using System.Windows.Media;
 
 namespace applanch.Theming;
 
-internal static class WindowIconThemeHelper
+public static class WindowIconThemeHelper
 {
     internal static readonly Color LightPaletteIconColor = (Color)ColorConverter.ConvertFromString("#0F172A");
     internal static readonly Color DarkPaletteIconColor = (Color)ColorConverter.ConvertFromString("#FFFFF0");
@@ -14,7 +14,7 @@ internal static class WindowIconThemeHelper
     private static readonly DrawingImage LightPaletteIcon = CreateIconSource(LightPaletteIconColor);
     private static readonly DrawingImage DarkPaletteIcon = CreateIconSource(DarkPaletteIconColor);
 
-    internal static void Apply(Window window, ResourceDictionary resources)
+    public static void Apply(Window window, ResourceDictionary resources)
     {
         window.Icon = ResolveIconVariant(resources);
     }

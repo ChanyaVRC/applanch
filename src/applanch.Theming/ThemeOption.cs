@@ -3,7 +3,7 @@ using applanch.Core.Localization;
 
 namespace applanch.Theming;
 
-internal sealed class ThemeOption : INotifyPropertyChanged
+public sealed class ThemeOption : INotifyPropertyChanged
 {
     internal ThemeOption(string themeId, LocalizedText displayNameText, bool IsSystemOption = false)
     {
@@ -25,7 +25,7 @@ internal sealed class ThemeOption : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    internal void NotifyDisplayNameChanged()
+    public void NotifyDisplayNameChanged()
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayName)));
     }

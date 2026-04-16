@@ -3,7 +3,7 @@ using System.Windows;
 
 namespace applanch.Theming;
 
-internal sealed class ThemeApplier
+public sealed class ThemeApplier
 {
     private const string PersonalizeRegistryPath = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
     private const string AppsUseLightTheme = "AppsUseLightTheme";

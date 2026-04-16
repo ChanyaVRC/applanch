@@ -6,12 +6,12 @@ using applanch.Core.Localization;
 
 namespace applanch.Theming;
 
-internal static class ThemePaletteConfigurationLoader
+public static class ThemePaletteConfigurationLoader
 {
     private const string ConfigDescription = "theme palette config";
-    internal const string SystemThemeId = "system";
-    internal const string LightThemeId = "light";
-    internal const string DarkThemeId = "dark";
+    public const string SystemThemeId = "system";
+    public const string LightThemeId = "light";
+    public const string DarkThemeId = "dark";
 
     private const string ConfigDirectoryName = "Config";
     private const string UserDefinedDirectoryName = "UserDefined";

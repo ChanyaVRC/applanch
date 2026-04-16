@@ -1,24 +1,24 @@
 namespace applanch.Core.Configuration;
 
-internal static class BundledConfigLoadNotificationCenter
+public static class BundledConfigLoadNotificationCenter
 {
     private static readonly object Gate = new();
     private static readonly List<BundledConfigLoadIssue> PendingIssues = [];
     private static readonly HashSet<BundledConfigLoadIssue> ReportedIssues = [];
 
-    internal static event Action<BundledConfigLoadIssue>? Reported;
+    public static event Action<BundledConfigLoadIssue>? Reported;
 
-    internal static void ReportMissing(string path)
+    public static void ReportMissing(string path)
     {
         Report(new BundledConfigLoadIssue(Path.GetFileName(path), IsInvalidFormat: false));
     }
 
-    internal static void ReportInvalidFormat(string path)
+    public static void ReportInvalidFormat(string path)
     {
         Report(new BundledConfigLoadIssue(Path.GetFileName(path), IsInvalidFormat: true));
     }
 
-    internal static IReadOnlyList<BundledConfigLoadIssue> DrainPending()
+    public static IReadOnlyList<BundledConfigLoadIssue> DrainPending()
     {
         lock (Gate)
         {
@@ -33,7 +33,7 @@ internal static class BundledConfigLoadNotificationCenter
         }
     }
 
-    internal static void ResetForTests()
+    public static void ResetForTests()
     {
         lock (Gate)
         {
