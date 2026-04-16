@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using applanch.Events;
-using applanch.Infrastructure.Storage;
+using applanch.Settings;
+using applanch.Updates;
 
 namespace applanch.Infrastructure.Updates;
 

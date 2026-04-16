@@ -1,4 +1,4 @@
-namespace applanch.Infrastructure.Updates;
+namespace applanch.Updates;
 
 public readonly record struct UpdateApplyResult(bool IsSuccess, UpdateApplyFailureReason FailureReason, string ErrorMessage)
 {

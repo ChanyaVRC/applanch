@@ -1,6 +1,7 @@
 using applanch.Events;
-using applanch.Infrastructure.Storage;
+using applanch.Settings;
 using applanch.Infrastructure.Updates;
+using applanch.Updates;
 using applanch.Tests.TestSupport;
 using Xunit;
 

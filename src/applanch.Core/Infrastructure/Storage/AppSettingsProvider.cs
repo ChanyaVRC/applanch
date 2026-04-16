@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using applanch.Events;
+using applanch.Settings;
 
 namespace applanch.Infrastructure.Storage;
 

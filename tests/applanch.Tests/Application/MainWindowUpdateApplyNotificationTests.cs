@@ -1,6 +1,6 @@
 using applanch.Events;
-using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Updates;
+using applanch.Settings;
+using applanch.Updates;
 using applanch.Tests.TestSupport;
 using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;

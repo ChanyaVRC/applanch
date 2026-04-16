@@ -1,5 +1,5 @@
 using System.Net;
-using applanch.Infrastructure.Storage;
+using applanch.Settings;
 using applanch.Core.Utilities;
 
 namespace applanch.Infrastructure.Integration;

@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text.Json;
 using Xunit;
 using applanch.Infrastructure.Updates;
+using applanch.Updates;
 using applanch.Tests.Infrastructure.Updates.TestDoubles;
 using applanch.Tests.TestSupport;
 

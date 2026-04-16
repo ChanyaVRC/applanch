@@ -1,6 +1,6 @@
 using System.Windows;
-using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Updates;
+using applanch.Settings;
+using applanch.Updates;
 using applanch.ViewModels;
 using Xunit;
 

@@ -2,7 +2,7 @@ using System.Text.Json;
 using applanch.Core.Localization;
 using applanch.Core.Utilities;
 
-namespace applanch.Infrastructure.Storage;
+namespace applanch.Settings;
 
 public sealed record AppSettings
 {

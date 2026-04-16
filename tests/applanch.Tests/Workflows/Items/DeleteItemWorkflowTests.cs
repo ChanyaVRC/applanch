@@ -1,4 +1,5 @@
 using applanch.Infrastructure.Storage;
+using applanch.Settings;
 using applanch.ViewModels;
 using applanch.Workflows.Items;
 using Xunit;

@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace applanch.Infrastructure.Updates;
+namespace applanch.Updates;
 
 public sealed record AppUpdateInfo(
     SemanticVersion NewVersion,

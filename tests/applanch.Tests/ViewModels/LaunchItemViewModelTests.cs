@@ -1,5 +1,6 @@
 using Xunit;
 using applanch.Infrastructure.Storage;
+using applanch.Settings;
 using applanch.Infrastructure.Integration;
 using applanch.Tests.TestSupport;
 using applanch.ViewModels;

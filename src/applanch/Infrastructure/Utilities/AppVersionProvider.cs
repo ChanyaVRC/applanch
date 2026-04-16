@@ -1,5 +1,5 @@
 using System.Reflection;
-using applanch.Infrastructure.Updates;
+using applanch.Updates;
 
 namespace applanch.Infrastructure.Utilities;
 

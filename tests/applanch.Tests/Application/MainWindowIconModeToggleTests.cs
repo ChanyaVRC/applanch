@@ -1,4 +1,4 @@
-using applanch.Infrastructure.Storage;
+using applanch.Settings;
 using Xunit;
 
 namespace applanch.Tests.Application;

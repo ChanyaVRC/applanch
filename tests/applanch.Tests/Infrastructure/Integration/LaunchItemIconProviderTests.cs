@@ -4,7 +4,7 @@ using System.Net;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using applanch.Infrastructure.Integration;
-using applanch.Infrastructure.Storage;
+using applanch.Settings;
 using applanch.Serialization;
 using applanch.Tests.TestSupport;
 using Xunit;

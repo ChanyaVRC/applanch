@@ -1,4 +1,4 @@
-namespace applanch.Infrastructure.Updates;
+namespace applanch.Updates;
 
 public enum UpdateApplyFailureReason
 {

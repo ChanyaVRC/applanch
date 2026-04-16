@@ -1,4 +1,5 @@
 using applanch.Infrastructure.Updates;
+using applanch.Updates;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Updates;

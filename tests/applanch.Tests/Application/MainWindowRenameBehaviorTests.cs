@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using applanch.Infrastructure.Storage;
+using applanch.Settings;
 using applanch.Tests.TestSupport;
 using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;

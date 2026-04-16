@@ -1,6 +1,6 @@
-using applanch.Infrastructure.Storage;
+using applanch.Settings;
 
-namespace applanch.Infrastructure.Updates;
+namespace applanch.Updates;
 
 public readonly record struct UpdateAvailabilityEvaluation(
     AppUpdateInfo? Update,

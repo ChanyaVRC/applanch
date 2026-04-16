@@ -1,5 +1,6 @@
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Updates;
+using applanch.Settings;
+using applanch.Updates;
 
 namespace applanch.Events;
 

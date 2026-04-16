@@ -1,4 +1,4 @@
-namespace applanch.Infrastructure.Storage;
+namespace applanch.Settings;
 
 public enum AppListSortMode
 {

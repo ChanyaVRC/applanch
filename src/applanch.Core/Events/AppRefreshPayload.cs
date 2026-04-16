@@ -1,4 +1,4 @@
-using applanch.Infrastructure.Storage;
+using applanch.Settings;
 
 namespace applanch.Events;
 

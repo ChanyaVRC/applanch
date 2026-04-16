@@ -1,4 +1,4 @@
-using applanch.Infrastructure.Updates;
+using applanch.Updates;
 
 namespace applanch.Tests.ViewModels.TestDoubles;
 
