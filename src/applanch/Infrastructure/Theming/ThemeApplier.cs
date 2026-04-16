@@ -11,26 +11,22 @@ internal sealed class ThemeApplier
 
     private readonly ThemePaletteConfiguration _configuration;
     private readonly Dictionary<string, ThemeDefinition> _themesById;
-    private readonly AppSettings? _settings;
 
     public ThemeApplier()
-        : this(null, ThemePaletteConfigurationLoader.Load())
+        : this(ThemePaletteConfigurationLoader.Load())
     {
     }
 
-    internal ThemeApplier(
-        AppSettings? settings = null,
-        ThemePaletteConfiguration? configuration = null)
+    internal ThemeApplier(ThemePaletteConfiguration? configuration = null)
     {
-        _settings = settings;
         _configuration = configuration ?? ThemePaletteConfigurationLoader.Load();
         _themesById = _configuration.Themes.ToDictionary(static x => x.Id);
     }
 
-    public void ApplyTheme(ResourceDictionary resources)
+    public void ApplyTheme(ResourceDictionary resources, AppSettings settings)
     {
         var preferredMode = ReadWindowsThemePreference();
-        var selectedTheme = ResolveTheme(_settings ?? AppSettingsProvider.Current);
+        var selectedTheme = ResolveTheme(settings);
         var brushMap = selectedTheme.CreateBrushMap(_themesById, preferredMode);
 
         foreach (var (key, brush) in brushMap)
@@ -39,9 +35,9 @@ internal sealed class ThemeApplier
         }
     }
 
-    public void ApplyTheme(ResourceDictionary resources, IEnumerable<Window> windows)
+    public void ApplyTheme(ResourceDictionary resources, AppSettings settings, IEnumerable<Window> windows)
     {
-        ApplyTheme(resources);
+        ApplyTheme(resources, settings);
 
         foreach (var window in windows)
         {

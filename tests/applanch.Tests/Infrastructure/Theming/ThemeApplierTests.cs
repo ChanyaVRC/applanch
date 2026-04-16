@@ -27,11 +27,9 @@ public class ThemeApplierTests
         string expectedIconColorHex)
     {
         var resources = new ResourceDictionary();
-        var manager = new ThemeApplier(
-            new AppSettings { ThemeId = themeId },
-            BuildConfiguration());
+        var manager = new ThemeApplier(BuildConfiguration());
 
-        manager.ApplyTheme(resources);
+        manager.ApplyTheme(resources, new AppSettings { ThemeId = themeId });
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
         var expectedIconColor = (Color)ColorConverter.ConvertFromString(expectedIconColorHex)!;
@@ -45,12 +43,10 @@ public class ThemeApplierTests
         WpfTestHost.RunInSta(() =>
         {
             var resources = new ResourceDictionary();
-            var manager = new ThemeApplier(
-                new AppSettings { ThemeId = ThemePaletteConfigurationLoader.LightThemeId },
-                BuildConfiguration());
+            var manager = new ThemeApplier(BuildConfiguration());
             var window = new Window();
 
-            manager.ApplyTheme(resources, [window]);
+            manager.ApplyTheme(resources, new AppSettings { ThemeId = ThemePaletteConfigurationLoader.LightThemeId }, [window]);
 
             Assert.NotNull(window.Icon);
             Assert.Equal(WindowIconThemeHelper.LightPaletteIconColor, WindowIconThemeHelper.ResolveIconColor(resources));
@@ -64,11 +60,9 @@ public class ThemeApplierTests
         var configuration = new ThemePaletteConfiguration(
             [new FixedThemeDefinition("sunset", new LocalizedText("Sunset"))],
             [new ThemePaletteEntry("Brush.Custom", new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = ThemeColor.Parse("#AABBCC") })]);
-        var manager = new ThemeApplier(
-            new AppSettings { ThemeId = "sunset" },
-            configuration);
+        var manager = new ThemeApplier(configuration);
 
-        manager.ApplyTheme(resources);
+        manager.ApplyTheme(resources, new AppSettings { ThemeId = "sunset" });
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.Custom"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#AABBCC")!, brush.Color);
@@ -102,11 +96,9 @@ public class ThemeApplierTests
                         ["monochrome"] = ThemeColor.Parse("#1A1A1A"),
                     })
             ]);
-        var manager = new ThemeApplier(
-            new AppSettings { ThemeId = ThemePaletteConfigurationLoader.SystemThemeId },
-            configuration);
+        var manager = new ThemeApplier(configuration);
 
-        manager.ApplyTheme(resources);
+        manager.ApplyTheme(resources, new AppSettings { ThemeId = ThemePaletteConfigurationLoader.SystemThemeId });
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#1A1A1A")!, brush.Color);
@@ -131,11 +123,9 @@ public class ThemeApplierTests
                         ["base"] = ThemeColor.Parse("#1A1A1A"),
                     })
             ]);
-        var manager = new ThemeApplier(
-            new AppSettings { ThemeId = "ocean" },
-            configuration);
+        var manager = new ThemeApplier(configuration);
 
-        manager.ApplyTheme(resources);
+        manager.ApplyTheme(resources, new AppSettings { ThemeId = "ocean" });
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#1A1A1A")!, brush.Color);
@@ -159,11 +149,9 @@ public class ThemeApplierTests
                         ["light"] = ThemeColor.Parse("#0F172A"),
                     })
             ]);
-        var manager = new ThemeApplier(
-            new AppSettings { ThemeId = "alpha" },
-            configuration);
+        var manager = new ThemeApplier(configuration);
 
-        manager.ApplyTheme(resources);
+        manager.ApplyTheme(resources, new AppSettings { ThemeId = "alpha" });
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#0F172A")!, brush.Color);
