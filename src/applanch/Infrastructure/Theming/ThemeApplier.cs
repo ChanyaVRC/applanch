@@ -14,7 +14,7 @@ internal sealed class ThemeApplier
     private readonly Func<AppSettings> _settingsProvider;
 
     public ThemeApplier()
-        : this(AppSettings.Load, ThemePaletteConfigurationLoader.Load())
+        : this(() => AppSettingsProvider.Current, ThemePaletteConfigurationLoader.Load())
     {
     }
 
@@ -22,7 +22,7 @@ internal sealed class ThemeApplier
         Func<AppSettings>? settingsProvider = null,
         ThemePaletteConfiguration? configuration = null)
     {
-        _settingsProvider = settingsProvider ?? AppSettings.Load;
+        _settingsProvider = settingsProvider ?? (() => AppSettingsProvider.Current);
         _configuration = configuration ?? ThemePaletteConfigurationLoader.Load();
         _themesById = _configuration.Themes.ToDictionary(static x => x.Id);
     }
