@@ -640,6 +640,32 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
+    public void ApplySettings_WhenLanguageChanges_RebuildsCategoryCollectionsEvenWhenValuesMatch()
+    {
+        using (new CultureScope("ja"))
+        {
+            var store = new FakeStore(
+            [
+                new LauncherEntry(@"C:\Tools\A.exe", Category.FromInput("Dev"), string.Empty, "A")
+            ]);
+
+            var vm = CreateViewModel(store: store);
+            var categoryChanges = 0;
+            var filterCategoryChanges = 0;
+            vm.CategoryNames.CollectionChanged += (_, _) => categoryChanges++;
+            vm.FilterCategoryNames.CollectionChanged += (_, _) => filterCategoryChanges++;
+
+            using (new CultureScope("en"))
+            {
+                vm.ApplySettings(new AppSettings { Language = LanguageOption.English });
+            }
+
+            Assert.True(categoryChanges > 0);
+            Assert.True(filterCategoryChanges > 0);
+        }
+    }
+
+    [Fact]
     public void TryAddQuickItem_EmptyInput_SetsInformationMessage()
     {
         var vm = CreateViewModel();

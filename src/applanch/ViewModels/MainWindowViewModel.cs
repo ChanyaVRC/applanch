@@ -257,7 +257,7 @@ public sealed class MainWindowViewModel : ObservableObject
             OnPropertyChanged(nameof(IsLaunchItemIconOnlyMode));
         }
 
-        RebuildCategoryLists();
+        RebuildCategoryLists(forceReplace: languageChanged);
         ApplyLaunchItemSort();
         FilteredLaunchItems.Refresh();
         OnPropertyChanged(nameof(EmptyMessageVisibility));
@@ -402,11 +402,11 @@ public sealed class MainWindowViewModel : ObservableObject
         OnPropertyChanged(nameof(QuickAddCategory));
     }
 
-    private void RebuildCategoryLists()
+    private void RebuildCategoryLists(bool forceReplace = false)
     {
         var categories = LaunchCategoryCatalog.BuildCategoryNames(LaunchItems, _settings.CategorySortMode);
-        ReplaceCollection(CategoryNames, categories);
-        ReplaceCollection(FilterCategoryNames, [Category.All, .. categories]);
+        ReplaceCollection(CategoryNames, categories, forceReplace);
+        ReplaceCollection(FilterCategoryNames, [Category.All, .. categories], forceReplace);
         EnsureSelectedCategoryIsValid();
     }
 
@@ -510,9 +510,9 @@ public sealed class MainWindowViewModel : ObservableObject
     private void EnsureSelectedItem() =>
         SelectedLaunchItem ??= FilteredLaunchItems.Cast<LaunchItemViewModel>().FirstOrDefault();
 
-    private static void ReplaceCollection<T>(ObservableCollection<T> target, IEnumerable<T> values) where T : IEquatable<T>
+    private static void ReplaceCollection<T>(ObservableCollection<T> target, IEnumerable<T> values, bool forceReplace = false) where T : IEquatable<T>
     {
-        if (target.SequenceEqual(values))
+        if (!forceReplace && target.SequenceEqual(values))
         {
             return;
         }
