@@ -36,9 +36,8 @@ public sealed partial class App : Application
     {
         base.OnStartup(e);
 
-        RegisterLifecycleEventHandlers();
+        RegisterApplicationObservers();
         RegisterGlobalExceptionHandlers();
-        RegisterDataBindingTraceLogging();
 
         AppLogger.Instance.Info("Application starting");
         var settings = AppSettingsProvider.Load();
@@ -60,13 +59,21 @@ public sealed partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         AppLogger.Instance.Info("Application exiting");
-        AppSettingsProvider.Unregister(Events);
-        Events.Unregister(AppEvents.Commit, OnSettingsCommitted);
-        Events.Unregister(AppEvents.Refresh, Refresh);
-        SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
-        UnregisterDataBindingTraceLogging();
+        UnregisterApplicationObservers();
         AppLogger.Instance.Dispose();
         base.OnExit(e);
+    }
+
+    private void RegisterApplicationObservers()
+    {
+        RegisterLifecycleEventHandlers();
+        RegisterDataBindingTraceLogging();
+    }
+
+    private void UnregisterApplicationObservers()
+    {
+        UnregisterLifecycleEventHandlers();
+        UnregisterDataBindingTraceLogging();
     }
 
     private void RegisterDataBindingTraceLogging()
@@ -93,6 +100,15 @@ public sealed partial class App : Application
         AppSettingsProvider.Register(Events);
         Events.Register(AppEvents.Commit, OnSettingsCommitted);
         Events.Register(AppEvents.Refresh, Refresh);
+        SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
+    }
+
+    private void UnregisterLifecycleEventHandlers()
+    {
+        AppSettingsProvider.Unregister(Events);
+        Events.Unregister(AppEvents.Commit, OnSettingsCommitted);
+        Events.Unregister(AppEvents.Refresh, Refresh);
+        SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
     }
 
     private void RegisterGlobalExceptionHandlers()
@@ -132,7 +148,6 @@ public sealed partial class App : Application
     private void InitializeEnvironment()
     {
         _themeApplier.ApplyTheme(Resources, Windows.Cast<Window>());
-        SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
 
         LauncherStore.EnsureStorageDirectory();
         if (!_sparsePackageRegistrar.IsAlreadyRegistered())
