@@ -1,6 +1,6 @@
 namespace applanch.Infrastructure.Resolution;
 
-internal sealed class AppResolverAdapter : IAppResolver
+public sealed class AppResolverAdapter : IAppResolver
 {
     public bool TryResolve(string input, out ResolvedApp resolvedApp) =>
         AppResolver.TryResolve(input, out resolvedApp);

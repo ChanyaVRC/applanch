@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace applanch.Infrastructure.Utilities;
 
-internal sealed class AppLogger : IDisposable
+public sealed class AppLogger : IDisposable
 {
     private const string LogDirectoryOverrideEnvironmentVariable = "APPLANCH_LOG_DIRECTORY";
 
@@ -12,8 +12,8 @@ internal sealed class AppLogger : IDisposable
     private static readonly string LogFilePath = Path.Combine(LogDirectory, "app.log");
     private static readonly long MaxLogSize = 1024 * 1024; // 1 MB
 
-    internal static string LogDirectoryPath => LogDirectory;
-    internal static string LogFilePathValue => LogFilePath;
+    public static string LogDirectoryPath => LogDirectory;
+    public static string LogFilePathValue => LogFilePath;
 
     private readonly Lock _lock = new();
     private StreamWriter? _writer;

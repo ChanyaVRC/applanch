@@ -4,12 +4,12 @@ using Microsoft.Win32;
 
 namespace applanch.Infrastructure.Utilities;
 
-internal static class PathNormalization
+public static class PathNormalization
 {
     private static readonly ConcurrentDictionary<string, bool> RegisteredUriSchemeCache =
         new(StringComparer.OrdinalIgnoreCase);
 
-    internal static string NormalizeForComparison(string path)
+    public static string NormalizeForComparison(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
         {
@@ -27,7 +27,7 @@ internal static class PathNormalization
         }
     }
 
-    internal static string NormalizeDirectoryPath(string path)
+    public static string NormalizeDirectoryPath(string path)
     {
         if (IsDriveLetterSpecifier(path))
         {
@@ -37,12 +37,12 @@ internal static class PathNormalization
         return Path.TrimEndingDirectorySeparator(path);
     }
 
-    internal static PathType GetPathType(string path)
+    public static PathType GetPathType(string path)
     {
         return GetPathType(path, out _);
     }
 
-    internal static PathType GetPathType(string path, out Uri? uri)
+    public static PathType GetPathType(string path, out Uri? uri)
     {
         uri = null;
         if (!TryParseRegisteredUrl(path, out var parsedUri))
@@ -56,17 +56,17 @@ internal static class PathNormalization
             : PathType.RegisteredUrl;
     }
 
-    internal static bool IsUrl(string path)
+    public static bool IsUrl(string path)
     {
         return GetPathType(path) is not PathType.FileSystem;
     }
 
-    internal static bool IsHttpUrl(string path)
+    public static bool IsHttpUrl(string path)
     {
         return GetPathType(path) is PathType.HttpUrl;
     }
 
-    internal static bool TryParseHttpUrl(string path, [NotNullWhen(true)] out Uri? uri)
+    public static bool TryParseHttpUrl(string path, [NotNullWhen(true)] out Uri? uri)
     {
         if (GetPathType(path, out var parsedUri) is PathType.HttpUrl && parsedUri is not null)
         {
@@ -78,7 +78,7 @@ internal static class PathNormalization
         return false;
     }
 
-    internal static bool TryParseRegisteredUrl(string path, [NotNullWhen(true)] out Uri? uri)
+    public static bool TryParseRegisteredUrl(string path, [NotNullWhen(true)] out Uri? uri)
     {
         uri = null;
 
@@ -114,7 +114,7 @@ internal static class PathNormalization
         });
     }
 
-    internal static bool TryNormalizePersistablePath(string path, out string normalizedPath)
+    public static bool TryNormalizePersistablePath(string path, out string normalizedPath)
     {
         var candidatePath = NormalizeDriveSpecifier(path.Trim());
         if (string.IsNullOrWhiteSpace(candidatePath))
@@ -139,7 +139,7 @@ internal static class PathNormalization
         return true;
     }
 
-    internal static string NormalizeLaunchPath(string path)
+    public static string NormalizeLaunchPath(string path)
     {
         var trimmed = path.Trim();
         if (!TryNormalizePersistablePath(trimmed, out var persistablePath))

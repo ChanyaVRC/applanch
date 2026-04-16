@@ -2,14 +2,14 @@ using System.Buffers;
 
 namespace applanch.Infrastructure.Utilities;
 
-internal static class AppDataPaths
+public static class AppDataPaths
 {
-    internal const string ProductDirectoryName = "applanch";
+    public const string ProductDirectoryName = "applanch";
 
-    internal static string LocalApplicationDataDirectory =>
+    public static string LocalApplicationDataDirectory =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ProductDirectoryName);
 
-    internal static string GetUnderLocalApplicationData(params string[] relativeSegments)
+    public static string GetUnderLocalApplicationData(params string[] relativeSegments)
     {
         if (relativeSegments.Length == 0)
         {
