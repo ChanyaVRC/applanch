@@ -7,22 +7,35 @@ internal sealed class AppEvent
 {
     internal static AppEvent Instance { get; } = new();
 
+    private readonly Dictionary<AppEventType, object> _channels;
+
     private AppEvent()
     {
-    }
+        var beforeCommitChannel = new EventChannel<AppSettings>();
+        var refreshChannel = new EventChannel<AppRefreshPayload>();
 
-    private readonly Dictionary<AppEventType, object> _channels = new()
-    {
-        [AppEventType.Commit] = new EventChannel<AppSettings>(),
-        [AppEventType.Refresh] = new EventChannel<AppRefreshPayload>(),
-        [AppEventType.UpdateCheckRequested] = new EventChannel(),
-        [AppEventType.UpdateAvailabilityChanged] = new EventChannel<AppUpdateInfo?>(),
-        [AppEventType.ApplyUpdateRequested] = new EventChannel<AppUpdateInfo>(),
-        [AppEventType.UpdateAvailabilityEvaluated] = new EventChannel<UpdateAvailabilityEvaluation>(),
-        [AppEventType.UpdateAutomaticApplyFailed] = new EventChannel(),
-        [AppEventType.UpdateApplyFailed] = new EventChannel<UpdateApplyResult>(),
-        [AppEventType.UpdateApplySucceeded] = new EventChannel(),
-    };
+        _channels = new Dictionary<AppEventType, object>
+        {
+            [AppEventType.BeforeCommit] = beforeCommitChannel,
+            [AppEventType.Commit] = new EventChannel<AppSettings>(
+                (settings, next) =>
+                {
+                    var previousSettings = AppSettingsProvider.Current;
+
+                    beforeCommitChannel.Invoke(settings);
+                    next(settings);
+                    refreshChannel.Invoke(new AppRefreshPayload(previousSettings, settings));
+                }),
+            [AppEventType.Refresh] = refreshChannel,
+            [AppEventType.UpdateCheckRequested] = new EventChannel(),
+            [AppEventType.UpdateAvailabilityChanged] = new EventChannel<AppUpdateInfo?>(),
+            [AppEventType.ApplyUpdateRequested] = new EventChannel<AppUpdateInfo>(),
+            [AppEventType.UpdateAvailabilityEvaluated] = new EventChannel<UpdateAvailabilityEvaluation>(),
+            [AppEventType.UpdateAutomaticApplyFailed] = new EventChannel(),
+            [AppEventType.UpdateApplyFailed] = new EventChannel<UpdateApplyResult>(),
+            [AppEventType.UpdateApplySucceeded] = new EventChannel(),
+        };
+    }
 
     internal void Register<TPayload>(AppEventKey<TPayload> eventKey, Action<TPayload> handler)
         => GetChannel(eventKey).Register(handler);
@@ -97,12 +110,24 @@ internal sealed class AppEvent
 
     private sealed class EventChannel<TPayload>
     {
+        private readonly Action<TPayload, Action<TPayload>> _invokePipeline;
         private event Action<TPayload>? Handlers;
+
+        internal bool HasHandlers => Handlers is not null;
+
+        internal EventChannel(Action<TPayload, Action<TPayload>>? invokePipeline = null)
+        {
+            _invokePipeline = invokePipeline ?? (static (payload, next) => next(payload));
+        }
 
         internal void Register(Action<TPayload> handler) => Handlers += handler;
 
         internal void Unregister(Action<TPayload> handler) => Handlers -= handler;
 
-        internal void Invoke(TPayload payload) => Handlers?.Invoke(payload);
+        internal void Invoke(TPayload payload)
+            => _invokePipeline(payload, InvokeHandlers);
+
+        private void InvokeHandlers(TPayload payload)
+            => Handlers?.Invoke(payload);
     }
 }

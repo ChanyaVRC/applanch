@@ -9,6 +9,32 @@ namespace applanch.Tests.Application;
 public class AppEventTests
 {
     [Fact]
+    public void InvokeCommit_NotifiesBeforeCommitHandlersBeforeCommitHandlers()
+    {
+        var appEvent = AppEventFactory.Create();
+        var calls = new List<string>();
+        appEvent.Register(AppEvents.BeforeCommit, _ => calls.Add("before"));
+        appEvent.Register(AppEvents.Commit, _ => calls.Add("commit"));
+
+        appEvent.Invoke(AppEvents.Commit, new AppSettings());
+
+        Assert.Equal(["before", "commit"], calls);
+    }
+
+    [Fact]
+    public void InvokeCommit_ForwardsPayloadToBeforeCommitHandlers()
+    {
+        var appEvent = AppEventFactory.Create();
+        AppSettings? notified = null;
+        appEvent.Register(AppEvents.BeforeCommit, settings => notified = settings);
+        var settings = new AppSettings { DebugUpdate = true };
+
+        appEvent.Invoke(AppEvents.Commit, settings);
+
+        Assert.Same(settings, notified);
+    }
+
+    [Fact]
     public void InvokeCommit_NotifiesRegisteredHandlers()
     {
         var appEvent = AppEventFactory.Create();
@@ -19,6 +45,19 @@ public class AppEventTests
         appEvent.Invoke(AppEvents.Commit, settings);
 
         Assert.Same(settings, committed);
+    }
+
+    [Fact]
+    public void InvokeCommit_NotifiesRefreshHandlersAfterCommitHandlers()
+    {
+        var appEvent = AppEventFactory.Create();
+        var calls = new List<string>();
+        appEvent.Register(AppEvents.Commit, _ => calls.Add("commit"));
+        appEvent.Register(AppEvents.Refresh, _ => calls.Add("refresh"));
+
+        appEvent.Invoke(AppEvents.Commit, new AppSettings());
+
+        Assert.Equal(["commit", "refresh"], calls);
     }
 
     [Fact]

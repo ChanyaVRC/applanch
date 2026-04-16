@@ -5,6 +5,8 @@ namespace applanch.Events;
 
 internal static class AppEvents
 {
+    internal static AppEventKey<AppSettings> BeforeCommit { get; } = new(AppEventType.BeforeCommit);
+
     internal static AppEventKey<AppSettings> Commit { get; } = new(AppEventType.Commit);
 
     internal static AppEventKey<AppRefreshPayload> Refresh { get; } = new(AppEventType.Refresh);

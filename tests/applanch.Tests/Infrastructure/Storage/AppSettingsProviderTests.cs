@@ -8,7 +8,7 @@ namespace applanch.Tests.Infrastructure.Storage;
 public class AppSettingsProviderTests
 {
     [Fact]
-    public void Register_WhenRefreshInvoked_StoresNormalizedCurrentSettings()
+    public void Register_WhenBeforeCommitInvoked_StoresNormalizedCurrentSettings()
     {
         var previousCurrent = AppSettingsProvider.Current;
         var appEvent = AppEventFactory.Create();
@@ -16,15 +16,13 @@ public class AppSettingsProviderTests
         try
         {
             AppSettingsProvider.Register(appEvent);
-            var payload = new AppRefreshPayload(
-                new AppSettings(),
-                new AppSettings
-                {
-                    ThemeId = "  monochrome  ",
-                    QuickAddSuggestionLimit = 0,
-                });
+            var settings = new AppSettings
+            {
+                ThemeId = "  monochrome  ",
+                QuickAddSuggestionLimit = 0,
+            };
 
-            appEvent.Invoke(AppEvents.Refresh, payload);
+            appEvent.Invoke(AppEvents.BeforeCommit, settings);
 
             Assert.Equal("monochrome", AppSettingsProvider.Current.ThemeId);
             Assert.Equal(AppSettings.MinQuickAddSuggestionLimit, AppSettingsProvider.Current.QuickAddSuggestionLimit);
@@ -61,12 +59,12 @@ public class AppSettingsProviderTests
     private static AppSettings UpdateCurrent(AppEvent appEvent, AppSettings settings)
     {
         var normalized = settings.Normalize();
-        appEvent.Invoke(AppEvents.Refresh, new AppRefreshPayload(AppSettingsProvider.Current, normalized));
+        appEvent.Invoke(AppEvents.BeforeCommit, normalized);
         return normalized;
     }
 
     private static void ResetCurrent(AppEvent appEvent, AppSettings settings)
     {
-        appEvent.Invoke(AppEvents.Refresh, new AppRefreshPayload(AppSettingsProvider.Current, settings));
+        appEvent.Invoke(AppEvents.BeforeCommit, settings);
     }
 }

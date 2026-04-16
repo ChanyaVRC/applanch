@@ -129,10 +129,8 @@ public sealed partial class App : Application
 
     private void OnSettingsCommitted(AppSettings settings)
     {
-        var previousSettings = AppSettingsProvider.Current;
         var refreshedSettings = settings.Normalize();
         refreshedSettings.Save();
-        Events.Invoke(AppEvents.Refresh, new AppRefreshPayload(previousSettings, refreshedSettings));
     }
 
     private void InitializeEnvironment()

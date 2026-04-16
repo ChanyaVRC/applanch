@@ -19,19 +19,19 @@ internal static class AppSettingsProvider
         Debug.Assert(_registeredEvent == null);
 
         _registeredEvent = appEvent;
-        _registeredEvent.Register(AppEvents.Refresh, OnRefresh);
+        _registeredEvent.Register(AppEvents.BeforeCommit, OnBeforeCommit);
     }
 
     internal static void Unregister(AppEvent appEvent)
     {
         Debug.Assert(_registeredEvent == appEvent);
 
-        _registeredEvent.Unregister(AppEvents.Refresh, OnRefresh);
+        _registeredEvent.Unregister(AppEvents.BeforeCommit, OnBeforeCommit);
         _registeredEvent = null;
     }
 
-    private static void OnRefresh(AppRefreshPayload payload)
+    private static void OnBeforeCommit(AppSettings settings)
     {
-        Current = payload.CurrentSettings.Normalize();
+        Current = settings.Normalize();
     }
 }
