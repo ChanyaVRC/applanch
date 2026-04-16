@@ -2,15 +2,14 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Resources;
 using System.Windows.Data;
+using applanch.Infrastructure.Localization;
 
 namespace applanch;
 
 internal sealed class LocalizedStrings : INotifyPropertyChanged
 {
     private static readonly ResourceManager ResourceManager =
-        new(
-            typeof(AppResources).FullName ?? throw new InvalidOperationException("AppResources type name is unavailable."),
-            typeof(AppResources).Assembly);
+        AppResourceManagerProvider.Instance;
 
     public static LocalizedStrings Instance { get; } = new();
 

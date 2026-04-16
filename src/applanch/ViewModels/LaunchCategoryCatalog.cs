@@ -1,4 +1,4 @@
-using System.Resources;
+using applanch.Infrastructure.Localization;
 using applanch.Infrastructure.Storage;
 
 namespace applanch.ViewModels;
@@ -51,9 +51,7 @@ internal static class LaunchCategoryCatalog
 
     private static HashSet<string> BuildKnownAllCategoriesLabels()
     {
-        var resourceManager = new ResourceManager(
-            typeof(AppResources).FullName ?? throw new InvalidOperationException("AppResources type name is unavailable."),
-            typeof(AppResources).Assembly);
+        var resourceManager = AppResourceManagerProvider.Instance;
         var labels = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var culture in LanguageOption.EnumerateSupportedCultures(includeInvariantCulture: true))
