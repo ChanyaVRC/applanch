@@ -36,7 +36,8 @@ public sealed partial class App : Application
     {
         base.OnStartup(e);
 
-        RegisterApplicationObservers();
+        RegisterLifecycleEventHandlers();
+        RegisterDataBindingTraceLogging();
         RegisterGlobalExceptionHandlers();
 
         AppLogger.Instance.Info("Application starting");
@@ -59,21 +60,10 @@ public sealed partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         AppLogger.Instance.Info("Application exiting");
-        UnregisterApplicationObservers();
-        AppLogger.Instance.Dispose();
-        base.OnExit(e);
-    }
-
-    private void RegisterApplicationObservers()
-    {
-        RegisterLifecycleEventHandlers();
-        RegisterDataBindingTraceLogging();
-    }
-
-    private void UnregisterApplicationObservers()
-    {
         UnregisterLifecycleEventHandlers();
         UnregisterDataBindingTraceLogging();
+        AppLogger.Instance.Dispose();
+        base.OnExit(e);
     }
 
     private void RegisterDataBindingTraceLogging()
