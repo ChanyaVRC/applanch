@@ -10,6 +10,16 @@
       },
       "applanch.core": {
         "type": "Project"
+      },
+      "applanch.serialization": {
+        "type": "Project"
+      },
+      "applanch.theming": {
+        "type": "Project",
+        "dependencies": {
+          "applanch.Core": "[1.0.0, )",
+          "applanch.Serialization": "[1.0.0, )"
+        }
       }
     },
     "net10.0-windows10.0.22000/win-x64": {},

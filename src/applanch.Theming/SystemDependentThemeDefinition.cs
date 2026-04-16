@@ -1,5 +1,10 @@
-namespace applanch.Infrastructure.Theming;
+using applanch.Core.Localization;
 
+namespace applanch.Theming;
+
+/// <summary>
+/// A theme definition that adapts its inherited theme based on system light/dark mode preference.
+/// </summary>
 internal sealed class SystemDependentThemeDefinition(
     string id,
     LocalizedText displayName,
@@ -8,6 +13,9 @@ internal sealed class SystemDependentThemeDefinition(
 {
     private static readonly IReadOnlyDictionary<string, ThemeColor> EmptyColors = new Dictionary<string, ThemeColor>();
 
+    /// <summary>
+    /// Gets the mapping of system theme modes to their corresponding source theme IDs.
+    /// </summary>
     internal IReadOnlyDictionary<SystemThemeMode, string> SourcesByMode { get; } = sourcesByMode;
 
     internal override IReadOnlyDictionary<string, ThemeColor> ColorsByKey => EmptyColors;

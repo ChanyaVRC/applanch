@@ -1,5 +1,4 @@
-using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Theming;
+using applanch.Theming;
 using applanch.Tests.TestSupport;
 using System.Text.Json;
 using Xunit;

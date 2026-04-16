@@ -1,8 +1,7 @@
 using Microsoft.Win32;
 using System.Windows;
-using applanch.Infrastructure.Storage;
 
-namespace applanch.Infrastructure.Theming;
+namespace applanch.Theming;
 
 internal sealed class ThemeApplier
 {
@@ -23,10 +22,10 @@ internal sealed class ThemeApplier
         _themesById = _configuration.Themes.ToDictionary(static x => x.Id);
     }
 
-    public void ApplyTheme(ResourceDictionary resources, AppSettings settings)
+    public void ApplyTheme(ResourceDictionary resources, string selectedThemeId)
     {
         var preferredMode = ReadWindowsThemePreference();
-        var selectedTheme = ResolveTheme(settings);
+        var selectedTheme = ResolveTheme(selectedThemeId);
         var brushMap = selectedTheme.CreateBrushMap(_themesById, preferredMode);
 
         foreach (var (key, brush) in brushMap)
@@ -35,9 +34,9 @@ internal sealed class ThemeApplier
         }
     }
 
-    public void ApplyTheme(ResourceDictionary resources, AppSettings settings, IEnumerable<Window> windows)
+    public void ApplyTheme(ResourceDictionary resources, string selectedThemeId, IEnumerable<Window> windows)
     {
-        ApplyTheme(resources, settings);
+        ApplyTheme(resources, selectedThemeId);
 
         foreach (var window in windows)
         {
@@ -46,9 +45,9 @@ internal sealed class ThemeApplier
         }
     }
 
-    private ThemeDefinition ResolveTheme(AppSettings settings)
+    private ThemeDefinition ResolveTheme(string selectedThemeId)
     {
-        var selectedThemeId = settings.ThemeId.Trim();
+        selectedThemeId = selectedThemeId.Trim();
 
         if (_themesById.TryGetValue(selectedThemeId, out var selectedTheme))
         {
@@ -67,4 +66,3 @@ internal sealed class ThemeApplier
         return value is int intValue && intValue == 0 ? SystemThemeMode.Dark : SystemThemeMode.Light;
     }
 }
-

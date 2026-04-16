@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace applanch.Infrastructure.Theming;
+namespace applanch.Theming;
 
 internal sealed class EntriesFromSpecJsonConverter : JsonConverter<EntriesFromSpec>
 {

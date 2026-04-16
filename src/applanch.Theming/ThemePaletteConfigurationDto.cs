@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
+using applanch.Core.Localization;
 
-namespace applanch.Infrastructure.Theming;
+namespace applanch.Theming;
 
 /// <summary>
 /// Intermediate DTO for deserializing theme-palette.json.
@@ -19,4 +20,3 @@ internal sealed record ThemeDto(
 internal sealed record ThemeEntryDto(
     string Key,
     [property: JsonConverter(typeof(ThemeColorJsonConverter))] ThemeColor Hex);
-

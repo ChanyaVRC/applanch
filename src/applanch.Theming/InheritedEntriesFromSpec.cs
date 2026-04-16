@@ -1,3 +1,3 @@
-namespace applanch.Infrastructure.Theming;
+namespace applanch.Theming;
 
 internal sealed record InheritedEntriesFromSpec(string SourceThemeId) : EntriesFromSpec;

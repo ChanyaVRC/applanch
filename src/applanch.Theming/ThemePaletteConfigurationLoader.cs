@@ -1,9 +1,10 @@
 using System.Buffers;
 using System.IO;
+using System.Reflection;
 using System.Text.Json;
-using applanch.Infrastructure.Utilities;
+using applanch.Core.Localization;
 
-namespace applanch.Infrastructure.Theming;
+namespace applanch.Theming;
 
 internal static class ThemePaletteConfigurationLoader
 {
@@ -12,7 +13,16 @@ internal static class ThemePaletteConfigurationLoader
     internal const string LightThemeId = "light";
     internal const string DarkThemeId = "dark";
 
+    private const string ConfigDirectoryName = "Config";
+    private const string UserDefinedDirectoryName = "UserDefined";
     private const string UserDefinedThemePaletteDirectoryName = "theme-palette";
+
+    private static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        AllowTrailingCommas = true,
+    };
 
     private static readonly ThemePaletteConfiguration EmptyConfiguration = new([]);
     private static readonly Lazy<ThemePaletteConfiguration> CachedConfiguration = new(LoadCore);
@@ -36,7 +46,7 @@ internal static class ThemePaletteConfigurationLoader
     {
         ArgumentNullException.ThrowIfNull(appBaseDirectory);
 
-        var userDefinedDirectory = ConfigJsonPathResolver.GetUserDefinedDirectory(appBaseDirectory, UserDefinedThemePaletteDirectoryName);
+        var userDefinedDirectory = GetUserDefinedDirectory(appBaseDirectory, UserDefinedThemePaletteDirectoryName);
 
         if (!Directory.Exists(userDefinedDirectory))
         {
@@ -46,18 +56,19 @@ internal static class ThemePaletteConfigurationLoader
 
         ThemePaletteConfiguration? merged = null;
 
-        ConfigJsonLoadHelper.LoadAndMerge(
-            ConfigJsonPathResolver
-                .EnumerateUserDefinedJsonPaths(appBaseDirectory, UserDefinedThemePaletteDirectoryName)
-                .Select(static path => new ConfigJsonPathCandidate(path, IsBundled: false)),
-            ConfigDescription,
-            LoadThemePaletteConfiguration,
-            parsed =>
+        foreach (var path in EnumerateUserDefinedJsonPaths(appBaseDirectory, UserDefinedThemePaletteDirectoryName))
+        {
+            try
             {
+                var parsed = LoadThemePaletteConfiguration(path);
                 merged = merged is null
                     ? parsed
                     : Merge(merged, parsed);
-            });
+            }
+            catch (Exception)
+            {
+            }
+        }
 
         if (merged is null)
         {
@@ -113,23 +124,40 @@ internal static class ThemePaletteConfigurationLoader
     {
         ArgumentNullException.ThrowIfNull(appBaseDirectory);
 
-        var path = ConfigJsonPathResolver.GetBundledPath(appBaseDirectory, "theme-palette.json");
+        var path = GetBundledPath(appBaseDirectory, "theme-palette.json");
         try
         {
-            var loadedConfiguration = ConfigJsonLoadHelper.Load(
-                new ConfigJsonPathCandidate(path, IsBundled: true),
-                ConfigDescription,
-                LoadThemePaletteConfiguration);
-
+            var loadedConfiguration = LoadThemePaletteConfiguration(path);
             configuration = loadedConfiguration;
             return true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            ReportBundledFailure(path, ex);
         }
 
         configuration = EmptyConfiguration;
         return false;
+    }
+
+    private static void ReportBundledFailure(string path, Exception exception)
+    {
+        var notificationCenterType = Type.GetType(
+            "applanch.Infrastructure.Utilities.BundledConfigLoadNotificationCenter, applanch",
+            throwOnError: false);
+        if (notificationCenterType is null)
+        {
+            return;
+        }
+
+        var methodName = exception is FileNotFoundException ? "ReportMissing" : "ReportInvalidFormat";
+        var method = notificationCenterType.GetMethod(
+            methodName,
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
+            binder: null,
+            types: [typeof(string)],
+            modifiers: null);
+        method?.Invoke(null, [path]);
     }
 
     private static ThemePaletteConfiguration LoadThemePaletteConfiguration(string path)
@@ -137,9 +165,7 @@ internal static class ThemePaletteConfigurationLoader
         ArgumentNullException.ThrowIfNull(path);
 
         using var stream = File.OpenRead(path);
-        var dto = JsonSerializer.Deserialize<ThemePaletteConfigurationDto>(
-            stream,
-            ConfigJsonLoadHelper.SerializerOptions)
+        var dto = JsonSerializer.Deserialize<ThemePaletteConfigurationDto>(stream, SerializerOptions)
             ?? throw new InvalidDataException("Theme palette config is null or invalid.");
 
         var themes = BuildThemesFromDto(dto);
@@ -170,7 +196,6 @@ internal static class ThemePaletteConfigurationLoader
                 themeDto.EntriesFrom,
                 themeDto.Enabled);
 
-            // Apply entries from theme DTO if present
             if (themeDto.Entries is not null && themeDef is FixedThemeDefinition fixedTheme)
             {
                 var colorsByKey = new Dictionary<string, ThemeColor>();
@@ -237,8 +262,6 @@ internal static class ThemePaletteConfigurationLoader
             return displayNames;
         }
 
-        // All themes use title-case name as fallback if not defined in config.
-        // Built-in themes (light, dark, system) have display names in theme-palette.json.
         return new LocalizedText(ToTitleCase(themeId));
     }
 
@@ -303,5 +326,28 @@ internal static class ThemePaletteConfigurationLoader
                 ArrayPool<char>.Shared.Return(rented);
             }
         }
+    }
+
+    private static string GetBundledPath(string appBaseDirectory, string bundledFileName)
+    {
+        return Path.Combine(appBaseDirectory, ConfigDirectoryName, bundledFileName);
+    }
+
+    private static string GetUserDefinedDirectory(string appBaseDirectory, string userDefinedSubDirectoryName)
+    {
+        return Path.Combine(appBaseDirectory, ConfigDirectoryName, UserDefinedDirectoryName, userDefinedSubDirectoryName);
+    }
+
+    private static IEnumerable<string> EnumerateUserDefinedJsonPaths(string appBaseDirectory, string userDefinedSubDirectoryName)
+    {
+        var userDefinedDirectory = GetUserDefinedDirectory(appBaseDirectory, userDefinedSubDirectoryName);
+        if (!Directory.Exists(userDefinedDirectory))
+        {
+            return [];
+        }
+
+        return Directory
+            .EnumerateFiles(userDefinedDirectory, "*.json", SearchOption.TopDirectoryOnly)
+            .OrderBy(static path => path, StringComparer.OrdinalIgnoreCase);
     }
 }

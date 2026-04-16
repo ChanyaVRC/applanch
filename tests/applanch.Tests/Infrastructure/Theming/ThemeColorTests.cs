@@ -1,5 +1,5 @@
 using System.Windows.Media;
-using applanch.Infrastructure.Theming;
+using applanch.Theming;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Theming;

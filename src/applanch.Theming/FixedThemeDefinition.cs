@@ -1,5 +1,10 @@
-namespace applanch.Infrastructure.Theming;
+using applanch.Core.Localization;
 
+namespace applanch.Theming;
+
+/// <summary>
+/// A theme definition with fixed color values and optional theme inheritance.
+/// </summary>
 internal sealed class FixedThemeDefinition(
     string id,
     LocalizedText displayName,
@@ -7,6 +12,9 @@ internal sealed class FixedThemeDefinition(
     IReadOnlyDictionary<string, ThemeColor>? colorsByKey = null,
     bool isVisibleInThemeList = true) : ThemeDefinition(id, displayName, isVisibleInThemeList)
 {
+    /// <summary>
+    /// Gets the ID of the theme this theme inherits colors from (if any).
+    /// </summary>
     internal string? InheritedThemeId { get; } = inheritedThemeId;
 
     internal override IReadOnlyDictionary<string, ThemeColor> ColorsByKey { get; } =

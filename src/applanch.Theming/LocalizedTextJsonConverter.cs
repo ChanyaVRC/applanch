@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using applanch.Infrastructure.Storage;
+using applanch.Core.Localization;
 
-namespace applanch.Infrastructure.Theming;
+namespace applanch.Theming;
 
 internal sealed class LocalizedTextJsonConverter : JsonConverter<LocalizedText>
 {

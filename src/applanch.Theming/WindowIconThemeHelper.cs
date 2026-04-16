@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Media;
 
-namespace applanch.Infrastructure.Theming;
+namespace applanch.Theming;
 
 internal static class WindowIconThemeHelper
 {

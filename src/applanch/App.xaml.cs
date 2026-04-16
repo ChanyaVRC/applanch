@@ -9,7 +9,7 @@ using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Launch;
 using applanch.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Theming;
+using applanch.Theming;
 using applanch.Infrastructure.Updates;
 using applanch.Infrastructure.Utilities;
 using applanch.ViewModels;
@@ -135,7 +135,7 @@ public sealed partial class App : Application
 
     private void InitializeEnvironment()
     {
-        _themeApplier.ApplyTheme(Resources, AppSettingsProvider.Current, Windows.Cast<Window>());
+        _themeApplier.ApplyTheme(Resources, AppSettingsProvider.Current.ThemeId, Windows.Cast<Window>());
 
         LauncherStore.EnsureStorageDirectory();
         if (!_sparsePackageRegistrar.IsAlreadyRegistered())
@@ -151,7 +151,7 @@ public sealed partial class App : Application
         ApplyStartupRegistration(currentSettings);
         ApplyContextMenuRegistration(currentSettings);
         LocalizedStrings.Instance.NotifyLanguageChanged();
-        _themeApplier.ApplyTheme(Resources, currentSettings, Windows.Cast<Window>());
+        _themeApplier.ApplyTheme(Resources, currentSettings.ThemeId, Windows.Cast<Window>());
     }
 
     private void ApplyContextMenuRegistration(AppSettings settings)
@@ -172,7 +172,7 @@ public sealed partial class App : Application
     private void ShowMainWindow(AppSettings settings)
     {
         MainWindow = CreateMainWindow(settings);
-        _themeApplier.ApplyTheme(Resources, settings, [MainWindow]);
+        _themeApplier.ApplyTheme(Resources, settings.ThemeId, [MainWindow]);
 
         if (settings.StartMinimizedOnLaunch)
         {
@@ -248,7 +248,7 @@ public sealed partial class App : Application
         {
             Dispatcher.Invoke(() =>
             {
-                _themeApplier.ApplyTheme(Resources, AppSettingsProvider.Current, Windows.Cast<Window>());
+                _themeApplier.ApplyTheme(Resources, AppSettingsProvider.Current.ThemeId, Windows.Cast<Window>());
             });
         }
     }

@@ -1,4 +1,4 @@
-namespace applanch.Infrastructure.Theming;
+namespace applanch.Theming;
 
 internal sealed record ParsedThemePalette(
     ThemeDefinition[] Themes,

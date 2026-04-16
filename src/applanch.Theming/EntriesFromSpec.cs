@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace applanch.Infrastructure.Theming;
+namespace applanch.Theming;
 
 [JsonConverter(typeof(EntriesFromSpecJsonConverter))]
 internal abstract record EntriesFromSpec;

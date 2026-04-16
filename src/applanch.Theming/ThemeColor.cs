@@ -2,8 +2,11 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Windows.Media;
 
-namespace applanch.Infrastructure.Theming;
+namespace applanch.Theming;
 
+/// <summary>
+/// Represents a theme color with ARGB components.
+/// </summary>
 [StructLayout(LayoutKind.Explicit)]
 internal readonly record struct ThemeColor
 {
@@ -30,6 +33,9 @@ internal readonly record struct ThemeColor
     [FieldOffset(0)]
     private readonly uint _littleEndianArgb;
 
+    /// <summary>
+    /// Gets the color as ARGB uint value.
+    /// </summary>
     internal uint Argb
     {
         get
@@ -42,12 +48,21 @@ internal readonly record struct ThemeColor
         }
     }
 
+    /// <summary>
+    /// Gets the color in hex format (#RRGGBB or #AARRGGBB).
+    /// </summary>
     internal string Hex => A == byte.MaxValue
         ? $"#{R:X2}{G:X2}{B:X2}"
         : $"#{A:X2}{R:X2}{G:X2}{B:X2}";
 
+    /// <summary>
+    /// Converts to WPF Media Color.
+    /// </summary>
     internal Color ToMediaColor() => Color.FromArgb(A, R, G, B);
 
+    /// <summary>
+    /// Parses a color from a string (hex format).
+    /// </summary>
     public static ThemeColor Parse(string value)
     {
         if (TryParse(value, out var color))
@@ -58,9 +73,15 @@ internal readonly record struct ThemeColor
         throw new FormatException($"Invalid theme color format: '{value}'.");
     }
 
+    /// <summary>
+    /// Tries to parse a color from a string.
+    /// </summary>
     public static bool TryParse(string? value, out ThemeColor color) =>
         TryParse(value.AsSpan(), out color);
 
+    /// <summary>
+    /// Tries to parse a color from a span of characters.
+    /// </summary>
     public static bool TryParse(ReadOnlySpan<char> value, out ThemeColor color)
     {
         color = default;

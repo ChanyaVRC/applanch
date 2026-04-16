@@ -1,6 +1,7 @@
 using System.ComponentModel;
+using applanch.Core.Localization;
 
-namespace applanch.Infrastructure.Theming;
+namespace applanch.Theming;
 
 internal sealed class ThemeOption : INotifyPropertyChanged
 {

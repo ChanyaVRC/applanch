@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:applanch"
+    xmlns:core="clr-namespace:applanch.Core.Localization;assembly=applanch.Core"
     xmlns:res="clr-namespace:applanch.Properties"
     xmlns:storage="clr-namespace:applanch.Infrastructure.Storage"
     Title="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Window_Settings]}"
@@ -289,9 +290,9 @@
                             SelectedValue="{Binding SelectedLanguage}"
                             SelectedValuePath="Tag"
                             Style="{StaticResource SettingsComboBoxStyle}">
-                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Language_System]}" Tag="{x:Static storage:LanguageOption.System}" />
-                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Language_English]}" Tag="{x:Static storage:LanguageOption.English}" />
-                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Language_Japanese]}" Tag="{x:Static storage:LanguageOption.Japanese}" />
+                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Language_System]}" Tag="{x:Static core:LanguageOption.System}" />
+                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Language_English]}" Tag="{x:Static core:LanguageOption.English}" />
+                            <ComboBoxItem Content="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[Language_Japanese]}" Tag="{x:Static core:LanguageOption.Japanese}" />
                         </ComboBox>
                     </Grid>
                 </Border>

@@ -5,7 +5,7 @@ using System.Windows;
 using System.Globalization;
 using applanch.Events;
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Theming;
+using applanch.Theming;
 using applanch.Tests.TestSupport;
 using applanch.ViewModels;
 using Xunit;

@@ -1,5 +1,8 @@
-namespace applanch.Infrastructure.Theming;
+namespace applanch.Theming;
 
+/// <summary>
+/// Extension methods for <see cref="SystemThemeMode"/>.
+/// </summary>
 internal static class SystemThemeModeExtensions
 {
     /// <summary>

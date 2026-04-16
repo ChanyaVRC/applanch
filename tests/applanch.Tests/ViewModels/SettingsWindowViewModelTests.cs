@@ -2,7 +2,7 @@ using Xunit;
 using System.Globalization;
 using applanch.Events;
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Theming;
+using applanch.Theming;
 using applanch.Infrastructure.Updates;
 using applanch.Tests.TestSupport;
 using applanch.ViewModels;

@@ -1,7 +1,6 @@
 using System.Windows;
 using System.Windows.Media;
-using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Theming;
+using applanch.Theming;
 using applanch.Tests.TestSupport;
 using Xunit;
 
@@ -29,7 +28,7 @@ public class ThemeApplierTests
         var resources = new ResourceDictionary();
         var manager = new ThemeApplier(BuildConfiguration());
 
-        manager.ApplyTheme(resources, new AppSettings { ThemeId = themeId });
+        manager.ApplyTheme(resources, themeId);
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
         var expectedIconColor = (Color)ColorConverter.ConvertFromString(expectedIconColorHex)!;
@@ -46,7 +45,7 @@ public class ThemeApplierTests
             var manager = new ThemeApplier(BuildConfiguration());
             var window = new Window();
 
-            manager.ApplyTheme(resources, new AppSettings { ThemeId = ThemePaletteConfigurationLoader.LightThemeId }, [window]);
+            manager.ApplyTheme(resources, ThemePaletteConfigurationLoader.LightThemeId, [window]);
 
             Assert.NotNull(window.Icon);
             Assert.Equal(WindowIconThemeHelper.LightPaletteIconColor, WindowIconThemeHelper.ResolveIconColor(resources));
@@ -62,7 +61,7 @@ public class ThemeApplierTests
             [new ThemePaletteEntry("Brush.Custom", new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = ThemeColor.Parse("#AABBCC") })]);
         var manager = new ThemeApplier(configuration);
 
-        manager.ApplyTheme(resources, new AppSettings { ThemeId = "sunset" });
+        manager.ApplyTheme(resources, "sunset");
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.Custom"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#AABBCC")!, brush.Color);
@@ -98,7 +97,7 @@ public class ThemeApplierTests
             ]);
         var manager = new ThemeApplier(configuration);
 
-        manager.ApplyTheme(resources, new AppSettings { ThemeId = ThemePaletteConfigurationLoader.SystemThemeId });
+        manager.ApplyTheme(resources, ThemePaletteConfigurationLoader.SystemThemeId);
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#1A1A1A")!, brush.Color);
@@ -125,7 +124,7 @@ public class ThemeApplierTests
             ]);
         var manager = new ThemeApplier(configuration);
 
-        manager.ApplyTheme(resources, new AppSettings { ThemeId = "ocean" });
+        manager.ApplyTheme(resources, "ocean");
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#1A1A1A")!, brush.Color);
@@ -151,7 +150,7 @@ public class ThemeApplierTests
             ]);
         var manager = new ThemeApplier(configuration);
 
-        manager.ApplyTheme(resources, new AppSettings { ThemeId = "alpha" });
+        manager.ApplyTheme(resources, "alpha");
 
         var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#0F172A")!, brush.Color);

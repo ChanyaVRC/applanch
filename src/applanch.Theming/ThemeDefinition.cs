@@ -1,9 +1,17 @@
 using System.Windows.Media;
+using applanch.Core.Localization;
 
-namespace applanch.Infrastructure.Theming;
+namespace applanch.Theming;
 
+/// <summary>
+/// Base class for theme definitions.
+/// Handles color resolution with inheritance and fallback mechanisms.
+/// </summary>
 internal abstract class ThemeDefinition
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ThemeDefinition"/> class.
+    /// </summary>
     protected ThemeDefinition(
         string id,
         LocalizedText displayName,
@@ -14,14 +22,29 @@ internal abstract class ThemeDefinition
         IsVisibleInThemeList = isVisibleInThemeList;
     }
 
+    /// <summary>
+    /// Gets the unique identifier for this theme.
+    /// </summary>
     internal string Id { get; }
 
+    /// <summary>
+    /// Gets the localized display name.
+    /// </summary>
     internal LocalizedText DisplayName { get; }
 
+    /// <summary>
+    /// Gets a value indicating whether this theme should appear in theme selection lists.
+    /// </summary>
     internal bool IsVisibleInThemeList { get; }
 
+    /// <summary>
+    /// Gets the color definitions by key.
+    /// </summary>
     internal abstract IReadOnlyDictionary<string, ThemeColor> ColorsByKey { get; }
 
+    /// <summary>
+    /// Creates a map of brush keys to SolidColorBrush instances.
+    /// </summary>
     internal Dictionary<string, SolidColorBrush> CreateBrushMap(
         IReadOnlyDictionary<string, ThemeDefinition> themesById,
         SystemThemeMode preferredSystemMode)
@@ -48,6 +71,9 @@ internal abstract class ThemeDefinition
         return brushMap;
     }
 
+    /// <summary>
+    /// Gets the related theme IDs that this theme depends on for color resolution.
+    /// </summary>
     protected abstract IEnumerable<string> GetRelatedThemeIds(SystemThemeMode preferredSystemMode);
 
     private ThemeColor ResolveColor(
