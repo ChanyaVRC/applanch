@@ -2,7 +2,6 @@ using System.Windows;
 using System.Windows.Controls;
 using applanch.Infrastructure.Storage;
 using applanch.Tests.TestSupport;
-using applanch.Infrastructure.Utilities;
 using applanch.ViewModels;
 using Xunit;
 
@@ -16,8 +15,8 @@ public class LaunchListDragDropResolverTests
     {
         WpfTestHost.RunInSta(() =>
         {
-            var first = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("a"), Category.FromInput("Dev"), string.Empty, "A");
-            var second = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("b"), Category.FromInput("Dev"), string.Empty, "B");
+            var first = new LaunchItemViewModel(new applanch.Core.Infrastructure.Utilities.LaunchPath("a"), Category.FromInput("Dev"), string.Empty, "A");
+            var second = new LaunchItemViewModel(new applanch.Core.Infrastructure.Utilities.LaunchPath("b"), Category.FromInput("Dev"), string.Empty, "B");
             var items = new List<LaunchItemViewModel> { first, second };
             var data = new DataObject(typeof(LaunchItemViewModel), second);
             var sut = new LaunchListDragDropResolver();
@@ -59,7 +58,7 @@ public class LaunchListDragDropResolverTests
             {
                 new(new LaunchPath("a"), Category.FromInput("Dev"), string.Empty, "A")
             };
-            var outside = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath("x"), Category.FromInput("Dev"), string.Empty, "X");
+            var outside = new LaunchItemViewModel(new applanch.Core.Infrastructure.Utilities.LaunchPath("x"), Category.FromInput("Dev"), string.Empty, "X");
             var data = new DataObject(typeof(LaunchItemViewModel), outside);
             var sut = new LaunchListDragDropResolver();
 

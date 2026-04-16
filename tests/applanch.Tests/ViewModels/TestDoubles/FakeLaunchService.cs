@@ -1,5 +1,4 @@
 using applanch.Infrastructure.Launch;
-using applanch.Infrastructure.Utilities;
 
 namespace applanch.Tests.ViewModels.TestDoubles;
 

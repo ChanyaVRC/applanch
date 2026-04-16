@@ -1,6 +1,5 @@
 using Microsoft.Win32;
 using applanch.Infrastructure.Launch.AppIdResolvers;
-using applanch.Infrastructure.Utilities;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Launch.AppIdResolvers;

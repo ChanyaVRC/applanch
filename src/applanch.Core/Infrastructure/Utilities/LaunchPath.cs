@@ -1,4 +1,4 @@
-namespace applanch.Infrastructure.Utilities;
+namespace applanch.Core.Infrastructure.Utilities;
 
 public readonly struct LaunchPath : IEquatable<LaunchPath>
 {

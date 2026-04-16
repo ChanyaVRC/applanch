@@ -1,7 +1,6 @@
 using System.IO;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Utilities;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Runtime.CompilerServices;

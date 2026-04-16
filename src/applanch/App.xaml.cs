@@ -7,11 +7,10 @@ using applanch.Events;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Launch;
-using applanch.Infrastructure.Resolution;
+using applanch.Core.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
 using applanch.Theming;
 using applanch.Infrastructure.Updates;
-using applanch.Infrastructure.Utilities;
 using applanch.ViewModels;
 
 namespace applanch;

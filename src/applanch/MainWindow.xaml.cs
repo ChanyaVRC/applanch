@@ -14,7 +14,6 @@ using applanch.Infrastructure.Items;
 using applanch.Infrastructure.Launch;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Updates;
-using applanch.Infrastructure.Utilities;
 using applanch.Theming;
 using applanch.ViewModels;
 using Strings = applanch.Properties.Resources;

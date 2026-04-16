@@ -8,7 +8,6 @@ using System.Windows.Media.Animation;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Presentation;
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Utilities;
 using applanch.ViewModels;
 using Strings = applanch.Properties.Resources;
 

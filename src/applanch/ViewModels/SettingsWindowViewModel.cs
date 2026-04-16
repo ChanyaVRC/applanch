@@ -6,7 +6,6 @@ using applanch.Events;
 using applanch.Infrastructure.Storage;
 using applanch.Theming;
 using applanch.Infrastructure.Updates;
-using applanch.Infrastructure.Utilities;
 
 namespace applanch.ViewModels;
 

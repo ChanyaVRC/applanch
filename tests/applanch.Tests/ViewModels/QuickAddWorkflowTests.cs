@@ -1,6 +1,5 @@
-using applanch.Infrastructure.Resolution;
+using applanch.Core.Infrastructure.Resolution;
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Utilities;
 using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;
 using Xunit;

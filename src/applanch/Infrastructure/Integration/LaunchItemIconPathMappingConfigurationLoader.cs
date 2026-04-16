@@ -1,5 +1,3 @@
-using applanch.Infrastructure.Utilities;
-
 namespace applanch.Infrastructure.Integration;
 
 internal static class LaunchItemIconPathMappingConfigurationLoader

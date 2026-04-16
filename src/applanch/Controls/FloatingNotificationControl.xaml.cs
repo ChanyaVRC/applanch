@@ -2,7 +2,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
-using applanch.Infrastructure.Utilities;
 using applanch.ViewModels;
 
 namespace applanch.Controls;

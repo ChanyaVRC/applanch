@@ -2,7 +2,6 @@ using Xunit;
 using System.ComponentModel;
 using System.Diagnostics;
 using applanch.Infrastructure.Launch;
-using applanch.Infrastructure.Utilities;
 using applanch.Tests.Infrastructure.Launch.TestDoubles;
 using applanch.Tests.TestSupport;
 using applanch.ViewModels;

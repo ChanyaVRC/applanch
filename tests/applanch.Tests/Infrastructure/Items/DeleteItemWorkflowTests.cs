@@ -1,6 +1,5 @@
 using applanch.Infrastructure.Items;
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Utilities;
 using applanch.ViewModels;
 using Xunit;
 
@@ -52,8 +51,8 @@ public class DeleteItemWorkflowTests
     {
         var workflow = new DeleteItemWorkflow();
         var settings = new AppSettings();
-        var existing = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\Tools\a.exe"), Category.FromInput("Dev"), string.Empty, "A");
-        var target = new LaunchItemViewModel(new applanch.Infrastructure.Utilities.LaunchPath(@"C:\Tools\x.exe"), Category.FromInput("Dev"), string.Empty, "X");
+        var existing = new LaunchItemViewModel(new applanch.Core.Infrastructure.Utilities.LaunchPath(@"C:\Tools\a.exe"), Category.FromInput("Dev"), string.Empty, "A");
+        var target = new LaunchItemViewModel(new applanch.Core.Infrastructure.Utilities.LaunchPath(@"C:\Tools\x.exe"), Category.FromInput("Dev"), string.Empty, "X");
         var items = new List<LaunchItemViewModel> { existing };
 
         var result = workflow.TryDelete(target, settings, () => true, items, x => items.Remove(x));

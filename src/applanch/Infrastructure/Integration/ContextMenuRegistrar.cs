@@ -4,7 +4,6 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Security;
 using applanch.ShellIntegration;
-using applanch.Infrastructure.Utilities;
 using RegistryCommandWriter = System.Action<string, string, string, string, bool>;
 using ExplorerCommandRegistrar = System.Action<string>;
 using RegistrySubKeyTreeDeleter = System.Action<string>;

@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using applanch.Infrastructure.Utilities;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Utilities;

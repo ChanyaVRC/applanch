@@ -1,5 +1,4 @@
 using applanch.Infrastructure.Launch.AppIdResolvers;
-using applanch.Infrastructure.Utilities;
 using applanch.Tests.TestSupport;
 using Xunit;
 

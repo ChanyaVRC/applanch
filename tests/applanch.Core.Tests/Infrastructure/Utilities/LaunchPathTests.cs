@@ -1,4 +1,4 @@
-using applanch.Infrastructure.Utilities;
+using applanch.Core.Infrastructure.Utilities;
 using Xunit;
 using System.Reflection;
 

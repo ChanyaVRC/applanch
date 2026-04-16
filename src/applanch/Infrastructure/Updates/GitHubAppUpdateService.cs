@@ -7,7 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Utilities;
 
 namespace applanch.Infrastructure.Updates;
 
