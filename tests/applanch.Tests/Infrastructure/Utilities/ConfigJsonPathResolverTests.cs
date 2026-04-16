@@ -1,4 +1,5 @@
 using Xunit;
+using applanch.Serialization;
 
 namespace applanch.Tests.Infrastructure.Utilities;
 

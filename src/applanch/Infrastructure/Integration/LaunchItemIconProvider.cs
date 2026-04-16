@@ -10,7 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using applanch.Infrastructure.Storage;
 using applanch.Core.Utilities;
-using applanch.Infrastructure.Utilities;
+using applanch.Serialization;
 
 namespace applanch.Infrastructure.Integration;
 

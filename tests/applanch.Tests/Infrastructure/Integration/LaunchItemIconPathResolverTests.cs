@@ -1,4 +1,5 @@
 using applanch.Infrastructure.Integration;
+using applanch.Serialization;
 using applanch.Tests.TestSupport;
 using Xunit;
 

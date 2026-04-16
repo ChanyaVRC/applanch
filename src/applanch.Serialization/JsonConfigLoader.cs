@@ -1,18 +1,18 @@
 namespace applanch.Serialization;
 
 /// <summary>
-/// JSON ファイルから型安全にデシリアライズするためのユーティリティクラス。
+/// Utility class for type-safe deserialization of JSON files.
 /// </summary>
 public static class JsonConfigLoader
 {
     /// <summary>
-    /// 指定されたパスから JSON ファイルをデシリアライズします。
+    /// Deserializes a JSON file from the specified path.
     /// </summary>
-    /// <typeparam name="T">デシリアライズ対象の型</typeparam>
-    /// <param name="path">JSON ファイルのパス</param>
-    /// <returns>デシリアライズされたオブジェクト</returns>
-    /// <exception cref="FileNotFoundException">ファイルが見つからない場合</exception>
-    /// <exception cref="InvalidOperationException">デシリアライズに失敗した場合</exception>
+    /// <typeparam name="T">The target type to deserialize to.</typeparam>
+    /// <param name="path">Path to the JSON file.</param>
+    /// <returns>The deserialized object.</returns>
+    /// <exception cref="FileNotFoundException">Thrown when the file cannot be found.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when deserialization fails.</exception>
     public static T DeserializeFile<T>(string path)
     {
         if (!File.Exists(path))
@@ -25,12 +25,34 @@ public static class JsonConfigLoader
     }
 
     /// <summary>
-    /// JSON 文字列をデシリアライズします。
+    /// Deserializes a JSON file from the specified path using the provided serializer options.
     /// </summary>
-    /// <typeparam name="T">デシリアライズ対象の型</typeparam>
-    /// <param name="json">JSON 文字列</param>
-    /// <returns>デシリアライズされたオブジェクト</returns>
-    /// <exception cref="InvalidOperationException">デシリアライズに失敗した場合</exception>
+    /// <typeparam name="T">The target type to deserialize to.</typeparam>
+    /// <param name="path">Path to the JSON file.</param>
+    /// <param name="options">Serializer options to apply.</param>
+    /// <returns>The deserialized object.</returns>
+    /// <exception cref="FileNotFoundException">Thrown when the file cannot be found.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when deserialization fails.</exception>
+    public static T DeserializeFile<T>(string path, System.Text.Json.JsonSerializerOptions options)
+    {
+        if (!File.Exists(path))
+        {
+            throw new FileNotFoundException("Config file not found.", path);
+        }
+
+        var json = File.ReadAllText(path);
+        return System.Text.Json.JsonSerializer.Deserialize<T>(json, options)
+            ?? throw new InvalidOperationException(
+                $"Failed to deserialize JSON to type '{typeof(T).Name}'.");
+    }
+
+    /// <summary>
+    /// Deserializes a JSON string.
+    /// </summary>
+    /// <typeparam name="T">The target type to deserialize to.</typeparam>
+    /// <param name="json">JSON string content.</param>
+    /// <returns>The deserialized object.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when deserialization fails.</exception>
     public static T Deserialize<T>(string json)
     {
         return System.Text.Json.JsonSerializer.Deserialize<T>(
@@ -41,11 +63,11 @@ public static class JsonConfigLoader
     }
 
     /// <summary>
-    /// JSON ファイルをドキュメントとして読み込みます（要素カウントやマージなど）。
+    /// Parses a JSON file as a document (for scenarios such as counting elements or merging).
     /// </summary>
-    /// <param name="path">JSON ファイルのパス</param>
-    /// <returns>JSON ドキュメント</returns>
-    /// <exception cref="FileNotFoundException">ファイルが見つからない場合</exception>
+    /// <param name="path">Path to the JSON file.</param>
+    /// <returns>The parsed JSON document.</returns>
+    /// <exception cref="FileNotFoundException">Thrown when the file cannot be found.</exception>
     public static System.Text.Json.JsonDocument ParseFile(string path)
     {
         if (!File.Exists(path))
@@ -60,8 +82,8 @@ public static class JsonConfigLoader
     }
 
     /// <summary>
-    /// デフォルトの JsonSerializerOptions。
-    /// コメント、末尾カンマ、大文字小文字を区別しない設定を含みます。
+    /// Default <see cref="System.Text.Json.JsonSerializerOptions"/>.
+    /// Includes support for comments, trailing commas, and case-insensitive property names.
     /// </summary>
     public static System.Text.Json.JsonSerializerOptions DefaultSerializerOptions { get; } = new()
     {
@@ -71,8 +93,8 @@ public static class JsonConfigLoader
     };
 
     /// <summary>
-    /// デフォルトの JsonDocumentOptions。
-    /// コメントと末尾カンマの処理を含みます。
+    /// Default <see cref="System.Text.Json.JsonDocumentOptions"/>.
+    /// Includes support for comments and trailing commas.
     /// </summary>
     public static System.Text.Json.JsonDocumentOptions DefaultDocumentOptions { get; } = new()
     {

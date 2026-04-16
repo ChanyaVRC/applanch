@@ -1,10 +1,8 @@
-using System.IO;
+namespace applanch.Serialization;
 
-namespace applanch.Infrastructure.Utilities;
-
-internal static class JsonPathTemplateResolver
+public static class JsonPathTemplateResolver
 {
-    internal static string ResolveExistingFilePath(string templatePath, string basePath)
+    public static string ResolveExistingFilePath(string templatePath, string basePath)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(templatePath);
         ArgumentException.ThrowIfNullOrWhiteSpace(basePath);

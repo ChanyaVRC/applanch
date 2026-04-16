@@ -2,23 +2,15 @@ using System.IO;
 using System.Text.Json;
 using applanch.Core.Configuration;
 using applanch.Core.Utilities;
+using applanch.Serialization;
 
 namespace applanch.Infrastructure.Utilities;
 
 internal static class ConfigJsonLoadHelper
 {
-    internal static JsonSerializerOptions SerializerOptions { get; } = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true,
-    };
+    internal static JsonSerializerOptions SerializerOptions => JsonConfigLoader.DefaultSerializerOptions;
 
-    internal static JsonDocumentOptions DocumentOptions { get; } = new()
-    {
-        CommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true,
-    };
+    internal static JsonDocumentOptions DocumentOptions => JsonConfigLoader.DefaultDocumentOptions;
 
     internal static T Load<T>(ConfigJsonPathCandidate candidate, string configDescription)
     {
@@ -72,14 +64,7 @@ internal static class ConfigJsonLoadHelper
 
     internal static T DeserializeFile<T>(string path, JsonSerializerOptions options)
     {
-        if (!File.Exists(path))
-        {
-            throw new FileNotFoundException("Config file not found.", path);
-        }
-
-        var json = File.ReadAllText(path);
-        return JsonSerializer.Deserialize<T>(json, options)
-            ?? throw new InvalidDataException("Config file has an invalid format.");
+        return JsonConfigLoader.DeserializeFile<T>(path, options);
     }
 
     internal static void LogLoadFailure(string configDescription, string path, Exception exception, bool isBundled)
