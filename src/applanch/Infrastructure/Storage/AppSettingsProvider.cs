@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using applanch.Events;
 
 namespace applanch.Infrastructure.Storage;
@@ -16,24 +17,14 @@ internal static class AppSettingsProvider
             return Current;
         }
 
-        Current = AppSettings.Load();
-        _isLoaded = true;
+        SetCurrent(AppSettings.Load());
         return Current;
     }
 
     internal static void Register(AppEvent appEvent)
     {
         ArgumentNullException.ThrowIfNull(appEvent);
-
-        if (ReferenceEquals(_registeredEvent, appEvent))
-        {
-            return;
-        }
-
-        if (_registeredEvent is not null)
-        {
-            _registeredEvent.Unregister(AppEvents.Refresh, OnRefresh);
-        }
+        Debug.Assert(_registeredEvent == null);
 
         _registeredEvent = appEvent;
         _registeredEvent.Register(AppEvents.Refresh, OnRefresh);
@@ -41,24 +32,20 @@ internal static class AppSettingsProvider
 
     internal static void Unregister(AppEvent appEvent)
     {
-        if (!ReferenceEquals(_registeredEvent, appEvent))
-        {
-            return;
-        }
+        Debug.Assert(_registeredEvent == appEvent);
 
         _registeredEvent.Unregister(AppEvents.Refresh, OnRefresh);
         _registeredEvent = null;
     }
 
-    internal static AppSettings ApplyCurrent(AppSettings settings)
+    private static void OnRefresh(AppRefreshPayload payload)
+    {
+        SetCurrent(payload.CurrentSettings);
+    }
+
+    private static void SetCurrent(AppSettings settings)
     {
         Current = settings.Normalize();
         _isLoaded = true;
-        return Current;
-    }
-
-    private static void OnRefresh(AppRefreshPayload payload)
-    {
-        ApplyCurrent(payload.CurrentSettings);
     }
 }
