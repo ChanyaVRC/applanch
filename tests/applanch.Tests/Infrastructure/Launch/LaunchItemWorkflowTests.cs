@@ -13,7 +13,7 @@ public class LaunchItemWorkflowTests
         var launchService = new FakeItemLaunchService();
         var workflow = new LaunchItemWorkflow(launchService);
         var settings = new AppSettings { ConfirmBeforeLaunch = true };
-        var item = new LaunchItemViewModel(new applanch.Core.Infrastructure.Utilities.LaunchPath(@"C:\Tools\app.exe"), Category.FromInput("Dev"), string.Empty, "App");
+        var item = new LaunchItemViewModel(new applanch.Core.Utilities.LaunchPath(@"C:\Tools\app.exe"), Category.FromInput("Dev"), string.Empty, "App");
 
         var result = workflow.TryLaunch(item, settings, confirmLaunch: () => false);
 
@@ -30,7 +30,7 @@ public class LaunchItemWorkflowTests
         };
         var workflow = new LaunchItemWorkflow(launchService);
         var settings = new AppSettings();
-        var item = new LaunchItemViewModel(new applanch.Core.Infrastructure.Utilities.LaunchPath(@"C:\Tools\app.exe"), Category.FromInput("Dev"), string.Empty, "App");
+        var item = new LaunchItemViewModel(new applanch.Core.Utilities.LaunchPath(@"C:\Tools\app.exe"), Category.FromInput("Dev"), string.Empty, "App");
 
         var result = workflow.TryLaunch(item, settings, confirmLaunch: () => true);
 
@@ -51,7 +51,7 @@ public class LaunchItemWorkflowTests
         {
             PostLaunchBehavior = PostLaunchBehavior.MinimizeWindow
         };
-        var item = new LaunchItemViewModel(new applanch.Core.Infrastructure.Utilities.LaunchPath(@"C:\Tools\app.exe"), Category.FromInput("Dev"), string.Empty, "App");
+        var item = new LaunchItemViewModel(new applanch.Core.Utilities.LaunchPath(@"C:\Tools\app.exe"), Category.FromInput("Dev"), string.Empty, "App");
 
         var result = workflow.TryLaunch(item, settings, confirmLaunch: () => true);
 
@@ -70,7 +70,7 @@ public class LaunchItemWorkflowTests
         };
         var workflow = new LaunchItemWorkflow(launchService);
         var settings = new AppSettings { RunAsAdministrator = true };
-        var item = new LaunchItemViewModel(new applanch.Core.Infrastructure.Utilities.LaunchPath(@"C:\Tools\app.exe"), Category.FromInput("Dev"), string.Empty, "App");
+        var item = new LaunchItemViewModel(new applanch.Core.Utilities.LaunchPath(@"C:\Tools\app.exe"), Category.FromInput("Dev"), string.Empty, "App");
 
         var result = workflow.TryLaunch(item, settings, confirmLaunch: () => true);
 

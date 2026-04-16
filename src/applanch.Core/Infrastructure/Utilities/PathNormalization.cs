@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Win32;
 
-namespace applanch.Core.Infrastructure.Utilities;
+namespace applanch.Core.Utilities;
 
 public static class PathNormalization
 {

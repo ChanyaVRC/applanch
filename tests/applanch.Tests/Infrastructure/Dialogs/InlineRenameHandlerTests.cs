@@ -16,7 +16,7 @@ public class InlineRenameHandlerTests
     {
         WpfTestHost.RunInSta(() =>
         {
-            var item = new LaunchItemViewModel(new applanch.Core.Infrastructure.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "Old")
+            var item = new LaunchItemViewModel(new applanch.Core.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "Old")
             {
                 EditingName = "New",
                 IsRenaming = true,
@@ -37,7 +37,7 @@ public class InlineRenameHandlerTests
     {
         WpfTestHost.RunInSta(() =>
         {
-            var item = new LaunchItemViewModel(new applanch.Core.Infrastructure.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "Old")
+            var item = new LaunchItemViewModel(new applanch.Core.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "Old")
             {
                 EditingName = "New",
                 IsRenaming = true,
@@ -58,7 +58,7 @@ public class InlineRenameHandlerTests
     {
         WpfTestHost.RunInSta(() =>
         {
-            var item = new LaunchItemViewModel(new applanch.Core.Infrastructure.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "Old")
+            var item = new LaunchItemViewModel(new applanch.Core.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "Old")
             {
                 EditingName = "New",
                 IsRenaming = true,
@@ -79,7 +79,7 @@ public class InlineRenameHandlerTests
     {
         WpfTestHost.RunInSta(() =>
         {
-            var item = new LaunchItemViewModel(new applanch.Core.Infrastructure.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "Old")
+            var item = new LaunchItemViewModel(new applanch.Core.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "Old")
             {
                 EditingName = "New",
                 IsRenaming = true,
@@ -99,7 +99,7 @@ public class InlineRenameHandlerTests
     {
         WpfTestHost.RunInSta(() =>
         {
-            var item = new LaunchItemViewModel(new applanch.Core.Infrastructure.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "Old")
+            var item = new LaunchItemViewModel(new applanch.Core.Utilities.LaunchPath("path"), Category.FromInput("Dev"), string.Empty, "Old")
             {
                 EditingName = "New",
                 IsRenaming = false,

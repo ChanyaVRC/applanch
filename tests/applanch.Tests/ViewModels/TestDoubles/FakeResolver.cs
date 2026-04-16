@@ -1,4 +1,4 @@
-using applanch.Core.Infrastructure.Resolution;
+using applanch.Core.Resolution;
 
 namespace applanch.Tests.ViewModels.TestDoubles;
 

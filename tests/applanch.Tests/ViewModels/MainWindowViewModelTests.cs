@@ -2,7 +2,7 @@ using Xunit;
 using System.Windows;
 using System.Windows.Media;
 using applanch.Infrastructure.Integration;
-using applanch.Core.Infrastructure.Resolution;
+using applanch.Core.Resolution;
 using applanch.Infrastructure.Storage;
 using applanch.Tests.TestSupport;
 using applanch.Tests.ViewModels.TestDoubles;

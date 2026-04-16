@@ -7,7 +7,7 @@ using applanch.Events;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Launch;
-using applanch.Core.Infrastructure.Resolution;
+using applanch.Core.Resolution;
 using applanch.Infrastructure.Storage;
 using applanch.Theming;
 using applanch.Infrastructure.Updates;

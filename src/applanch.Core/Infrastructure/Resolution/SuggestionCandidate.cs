@@ -1,4 +1,4 @@
-namespace applanch.Core.Infrastructure.Resolution;
+namespace applanch.Core.Resolution;
 
 internal readonly record struct SuggestionCandidate(string Text, int Score, int SourcePriority);
 

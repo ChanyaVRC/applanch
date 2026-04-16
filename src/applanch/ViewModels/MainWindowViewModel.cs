@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Data;
 using applanch.Helpers;
 using applanch.Infrastructure.Integration;
-using applanch.Core.Infrastructure.Resolution;
+using applanch.Core.Resolution;
 using applanch.Infrastructure.Storage;
 
 namespace applanch.ViewModels;

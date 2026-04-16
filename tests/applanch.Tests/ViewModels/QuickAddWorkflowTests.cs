@@ -1,4 +1,4 @@
-using applanch.Core.Infrastructure.Resolution;
+using applanch.Core.Resolution;
 using applanch.Infrastructure.Storage;
 using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;

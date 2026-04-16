@@ -1,9 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Win32;
 using System.Security;
-using applanch.Core.Infrastructure.Utilities;
+using applanch.Core.Utilities;
 
-namespace applanch.Core.Infrastructure.Resolution;
+namespace applanch.Core.Resolution;
 
 internal static partial class AppResolver
 {

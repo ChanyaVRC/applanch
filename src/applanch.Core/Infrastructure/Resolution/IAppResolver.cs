@@ -1,4 +1,4 @@
-namespace applanch.Core.Infrastructure.Resolution;
+namespace applanch.Core.Resolution;
 
 public interface IAppResolver
 {

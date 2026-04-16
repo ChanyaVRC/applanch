@@ -2,7 +2,7 @@ using Xunit;
 using System.Reflection;
 using System.Collections;
 using Microsoft.Win32;
-using applanch.Core.Infrastructure.Resolution;
+using applanch.Core.Resolution;
 
 namespace applanch.Tests.Infrastructure.Resolution;
 
