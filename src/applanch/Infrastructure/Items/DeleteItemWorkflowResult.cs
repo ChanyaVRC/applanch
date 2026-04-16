@@ -1,4 +1,4 @@
-namespace applanch.Infrastructure.Items;
+namespace applanch.Workflows.Items;
 
 internal readonly record struct DeleteItemWorkflowResult(bool IsCancelled, int DeletedIndex)
 {

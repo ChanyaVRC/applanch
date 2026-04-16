@@ -3,7 +3,6 @@ using System.Windows;
 using System.Windows.Data;
 using applanch.Controls;
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Wpf;
 using applanch.Tests.TestSupport;
 using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;

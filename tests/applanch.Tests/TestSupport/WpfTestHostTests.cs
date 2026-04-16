@@ -14,7 +14,7 @@ public sealed class WpfTestHostTests
 
             Assert.NotNull(System.Windows.Application.Current);
             Assert.IsType<System.Windows.Application>(System.Windows.Application.Current);
-            Assert.IsNotType<applanch.App>(System.Windows.Application.Current);
+            Assert.IsNotType<App>(System.Windows.Application.Current);
             Assert.NotNull(System.Windows.Application.Current.Resources["RoundedTextBoxStyle"]);
         });
     }

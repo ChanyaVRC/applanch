@@ -1,4 +1,4 @@
-namespace applanch.Infrastructure.Utilities;
+namespace applanch.Infrastructure.Wpf;
 
 internal static class DragReorderIndexCalculator
 {

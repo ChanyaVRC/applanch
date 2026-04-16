@@ -1,6 +1,7 @@
+using applanch.Infrastructure.Launch;
 using applanch.Infrastructure.Storage;
 
-namespace applanch.Infrastructure.Launch;
+namespace applanch.Workflows.Launch;
 
 internal readonly record struct LaunchItemWorkflowResult(
     bool IsCancelled,

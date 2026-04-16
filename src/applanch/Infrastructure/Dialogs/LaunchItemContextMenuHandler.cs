@@ -1,9 +1,10 @@
 using System.Windows;
 using System.Windows.Controls;
+using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Storage;
 using applanch.ViewModels;
 
-namespace applanch.Infrastructure.Dialogs;
+namespace applanch.Workflows.Items;
 
 internal sealed class LaunchItemContextMenuHandler(IUserInteractionService interactionService, Window owner)
 {

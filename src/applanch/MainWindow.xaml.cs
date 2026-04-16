@@ -10,12 +10,13 @@ using System.Windows.Threading;
 using applanch.Core.Configuration;
 using applanch.Events;
 using applanch.Infrastructure.Dialogs;
-using applanch.Infrastructure.Items;
 using applanch.Infrastructure.Launch;
 using applanch.Infrastructure.Storage;
 using applanch.Infrastructure.Updates;
 using applanch.Theming;
 using applanch.ViewModels;
+using applanch.Workflows.Items;
+using applanch.Workflows.Launch;
 using Strings = applanch.Properties.Resources;
 
 namespace applanch;

@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Media;
 
-namespace applanch.Infrastructure.Utilities;
+namespace applanch.Infrastructure.Wpf;
 
 internal static class VisualTreeUtilities
 {

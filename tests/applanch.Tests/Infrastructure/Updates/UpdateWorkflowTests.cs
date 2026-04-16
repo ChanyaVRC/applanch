@@ -185,7 +185,7 @@ public class UpdateWorkflowTests
         internal bool ThrowHttpOnApply { get; init; }
         internal bool ThrowIoOnApply { get; init; }
 
-        public Task<IReadOnlyList<AppUpdateInfo>> GetAvailableUpdatesAsync(System.Threading.CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<AppUpdateInfo>> GetAvailableUpdatesAsync(CancellationToken cancellationToken = default)
         {
             if (ThrowOnAvailableUpdates)
             {
@@ -195,7 +195,7 @@ public class UpdateWorkflowTests
             return Task.FromResult(AvailableUpdatesResult);
         }
 
-        public Task<AppUpdateInfo?> CheckForUpdateAsync(System.Threading.CancellationToken cancellationToken = default)
+        public Task<AppUpdateInfo?> CheckForUpdateAsync(CancellationToken cancellationToken = default)
         {
             if (ThrowCanceledOnCheck)
             {
@@ -210,7 +210,7 @@ public class UpdateWorkflowTests
             return Task.FromResult(CheckResult);
         }
 
-        public Task ApplyUpdateAsync(AppUpdateInfo update, System.Threading.CancellationToken cancellationToken = default)
+        public Task ApplyUpdateAsync(AppUpdateInfo update, CancellationToken cancellationToken = default)
         {
             if (ThrowCanceledOnApply)
             {

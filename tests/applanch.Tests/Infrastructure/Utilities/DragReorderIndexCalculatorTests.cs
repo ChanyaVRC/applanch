@@ -1,6 +1,6 @@
 using Xunit;
 
-namespace applanch.Tests.Infrastructure.Utilities;
+namespace applanch.Tests.Infrastructure.Wpf;
 
 public class DragReorderIndexCalculatorTests
 {

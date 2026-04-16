@@ -1,6 +1,5 @@
 using System.Globalization;
 using applanch.Infrastructure.Storage;
-using applanch.Infrastructure.Wpf;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Wpf;

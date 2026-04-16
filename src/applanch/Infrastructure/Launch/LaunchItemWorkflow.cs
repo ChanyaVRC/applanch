@@ -1,7 +1,8 @@
+using applanch.Infrastructure.Launch;
 using applanch.Infrastructure.Storage;
 using applanch.ViewModels;
 
-namespace applanch.Infrastructure.Launch;
+namespace applanch.Workflows.Launch;
 
 internal sealed class LaunchItemWorkflow(IItemLaunchService itemLaunchService)
 {

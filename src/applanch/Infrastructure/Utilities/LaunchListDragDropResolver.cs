@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using applanch.ViewModels;
 
-namespace applanch.Infrastructure.Utilities;
+namespace applanch.Infrastructure.Wpf;
 
 internal sealed class LaunchListDragDropResolver
 {

@@ -1,7 +1,7 @@
 using applanch.Infrastructure.Storage;
 using applanch.ViewModels;
 
-namespace applanch.Infrastructure.Items;
+namespace applanch.Workflows.Items;
 
 internal sealed class DeleteItemWorkflow
 {

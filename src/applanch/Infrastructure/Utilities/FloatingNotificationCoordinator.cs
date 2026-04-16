@@ -1,7 +1,7 @@
 using System.Windows;
 using applanch.ViewModels;
 
-namespace applanch.Infrastructure.Utilities;
+namespace applanch.Infrastructure.Wpf;
 
 internal sealed class FloatingNotificationCoordinator
 {

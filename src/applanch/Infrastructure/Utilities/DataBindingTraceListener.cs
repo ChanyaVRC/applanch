@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace applanch.Infrastructure.Utilities;
+namespace applanch.Infrastructure.Wpf;
 
 internal sealed class DataBindingTraceListener : TraceListener
 {

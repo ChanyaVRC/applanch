@@ -2,7 +2,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using applanch.ViewModels;
 
-namespace applanch.Infrastructure.Dialogs;
+namespace applanch.Workflows.Items;
 
 internal sealed class InlineRenameHandler
 {
