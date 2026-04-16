@@ -176,7 +176,7 @@ public sealed partial class SettingsWindow : Window
 
     private void OnAppRefreshRequested(AppRefreshPayload payload)
     {
-        Dispatcher.InvokeIfRequired(() => ViewModel.ApplyExternalSettings(payload.CurrentSettings));
+        Dispatcher.InvokeIfRequired(() => ViewModel.ApplyExternalSettings(payload));
     }
 
     public bool SettingsChanged => ViewModel.SettingsChanged;

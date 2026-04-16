@@ -550,7 +550,7 @@ public class SettingsWindowViewModelTests
             Language = LanguageOption.Japanese,
         };
 
-        vm.ApplyExternalSettings(refreshed);
+        vm.ApplyExternalSettings(new AppRefreshPayload(new AppSettings(), refreshed));
 
         Assert.Equal(2, vm.ThemeIndex);
         Assert.Equal(PostLaunchBehavior.MinimizeWindow, vm.SelectedPostLaunchBehavior);
@@ -603,7 +603,9 @@ public class SettingsWindowViewModelTests
         CultureInfo.CurrentUICulture = japaneseCulture;
         CultureInfo.CurrentCulture = japaneseCulture;
 
-        vm.ApplyExternalSettings(new AppSettings { Language = LanguageOption.Japanese });
+        vm.ApplyExternalSettings(new AppRefreshPayload(
+            new AppSettings { Language = LanguageOption.English },
+            new AppSettings { Language = LanguageOption.Japanese }));
 
         Assert.Equal(1, providerCallCount);
         Assert.Equal("システム", vm.ThemeOptions.First().DisplayName);

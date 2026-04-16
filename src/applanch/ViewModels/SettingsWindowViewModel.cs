@@ -249,13 +249,13 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         private set => SetField(ref _availableUpdatesStatusMessage, value);
     }
 
-    internal void ApplyExternalSettings(AppSettings settings)
+    internal void ApplyExternalSettings(AppRefreshPayload payload)
     {
-        var previousLanguage = _draft.Language;
-        _current = settings;
-        _draft = settings;
+        var previousLanguage = payload.PreviousSettings.Language;
+        _current = payload.CurrentSettings;
+        _draft = payload.CurrentSettings;
 
-        RefreshThemeOptionsIfLanguageChanged(previousLanguage, _draft.Language);
+        RefreshThemeOptionsIfLanguageChanged(previousLanguage, payload.CurrentSettings.Language);
 
         OnPropertyChanged(string.Empty);
     }
