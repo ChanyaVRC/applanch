@@ -5,13 +5,13 @@ using System.Windows.Media;
 
 namespace applanch.Infrastructure.Theming;
 
-internal static class WindowCaptionThemeHelper
+internal static partial class WindowCaptionThemeHelper
 {
     private const int DwmaUseImmersiveDarkMode = 20;
     private const int DwmaUseImmersiveDarkModeLegacy = 19;
 
-    [DllImport("dwmapi.dll")]
-    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref int pvAttribute, int cbAttribute);
+    [LibraryImport("dwmapi.dll")]
+    private static partial int DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref int pvAttribute, int cbAttribute);
 
     public static void Apply(Window window)
     {
