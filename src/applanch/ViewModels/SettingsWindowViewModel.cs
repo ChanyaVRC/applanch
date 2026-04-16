@@ -19,7 +19,6 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     private readonly Func<AppSettings, IAppUpdateService> _updateServiceFactory;
     private IReadOnlyDictionary<string, ThemeOption> _themeOptionsMap;
     private readonly UpdateWorkflow _updateWorkflow;
-    private AppSettings _current;
     private AppSettings _draft;
     private IAppUpdateService _updateService;
     private IDisposable? _ownedUpdateService;
@@ -38,7 +37,6 @@ internal sealed class SettingsWindowViewModel : ObservableObject
         _themeOptionsProvider = themeOptionsProvider ?? ThemeOptionsProvider.Load;
         _updateServiceFactory = updateServiceFactory ?? (static settings => new GitHubAppUpdateService(settings.DebugUpdate, settings.AllowPrereleaseUpdates));
         _themeOptionsMap = _themeOptionsProvider();
-        _current = settings;
         _draft = settings;
         _updateService = _updateServiceFactory(settings);
         _ownedUpdateService = _updateService as IDisposable;
@@ -83,11 +81,12 @@ internal sealed class SettingsWindowViewModel : ObservableObject
                 return;
             }
 
+            var previousDraft = _draft;
             _draft = _draft with { ThemeId = value };
             OnPropertyChanged();
             OnPropertyChanged(nameof(ThemeIndex));
             OnPropertyChanged(nameof(SelectedThemeDisplayName));
-            Commit();
+            Commit(previousDraft, _draft);
         }
     }
 
@@ -252,7 +251,6 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     internal void ApplyExternalSettings(AppRefreshPayload payload)
     {
         var previousLanguage = payload.PreviousSettings.Language;
-        _current = payload.CurrentSettings;
         _draft = payload.CurrentSettings;
 
         RefreshThemeOptionsIfLanguageChanged(previousLanguage, payload.CurrentSettings.Language);
@@ -263,13 +261,11 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     internal void ResetToDefaults()
     {
         var defaults = new AppSettings();
-        var previousLanguage = _draft.Language;
+        var previousDraft = _draft;
         _draft = defaults;
 
-        RefreshThemeOptionsIfLanguageChanged(previousLanguage, _draft.Language);
-
         OnPropertyChanged(string.Empty);
-        Commit();
+        Commit(previousDraft, _draft);
     }
 
     internal async Task RefreshAvailableUpdatesAsync(CancellationToken cancellationToken = default)
@@ -355,23 +351,20 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             return false;
         }
 
+        var previousDraft = _draft;
         _draft = nextDraft;
         OnPropertyChanged(propertyName);
 
-        Commit();
+        Commit(previousDraft, _draft);
         return true;
     }
 
-    private void Commit()
+    private void Commit(AppSettings previousSettings, AppSettings currentSettings)
     {
-        var previousLanguage = _current.Language;
-
-        _current = _draft;
-
         SettingsChanged = true;
-        _appEvent.Invoke(AppEvents.Commit, _current);
+        _appEvent.Invoke(AppEvents.Commit, currentSettings);
 
-        RefreshThemeOptionsIfLanguageChanged(previousLanguage, _current.Language);
+        RefreshThemeOptionsIfLanguageChanged(previousSettings.Language, currentSettings.Language);
     }
 
     private void ReplaceUpdateService(IAppUpdateService updateService)
