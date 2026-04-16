@@ -7,7 +7,7 @@ internal static class AppEvents
 {
     internal static AppEventKey<AppSettings> Commit { get; } = new(AppEventType.Commit);
 
-    internal static AppEventKey<AppSettings> Refresh { get; } = new(AppEventType.Refresh);
+    internal static AppEventKey<AppRefreshPayload> Refresh { get; } = new(AppEventType.Refresh);
 
     internal static AppSignalEventKey UpdateCheckRequested { get; } = new(AppEventType.UpdateCheckRequested);
 

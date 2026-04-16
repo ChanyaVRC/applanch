@@ -39,13 +39,17 @@ public class AppEventTests
     public void InvokeRefresh_NotifiesRegisteredHandlers()
     {
         var appEvent = AppEventFactory.Create();
-        AppSettings? refreshed = null;
-        appEvent.Register(AppEvents.Refresh, settings => refreshed = settings);
-        var settings = new AppSettings { LaunchAtWindowsStartup = true };
+        AppRefreshPayload? refreshed = null;
+        appEvent.Register(AppEvents.Refresh, payload => refreshed = payload);
+        var previousSettings = new AppSettings { LaunchAtWindowsStartup = false };
+        var currentSettings = new AppSettings { LaunchAtWindowsStartup = true };
+        var payload = new AppRefreshPayload(previousSettings, currentSettings);
 
-        appEvent.Invoke(AppEvents.Refresh, settings);
+        appEvent.Invoke(AppEvents.Refresh, payload);
 
-        Assert.Same(settings, refreshed);
+        Assert.True(refreshed.HasValue);
+        Assert.Same(previousSettings, refreshed.Value.PreviousSettings);
+        Assert.Same(currentSettings, refreshed.Value.CurrentSettings);
     }
 
     [Fact]
@@ -53,11 +57,11 @@ public class AppEventTests
     {
         var appEvent = AppEventFactory.Create();
         var callCount = 0;
-        void Handler(AppSettings _) => callCount++;
+        void Handler(AppRefreshPayload _) => callCount++;
         appEvent.Register(AppEvents.Refresh, Handler);
         appEvent.Unregister(AppEvents.Refresh, Handler);
 
-        appEvent.Invoke(AppEvents.Refresh, new AppSettings());
+        appEvent.Invoke(AppEvents.Refresh, new AppRefreshPayload(new AppSettings(), new AppSettings()));
 
         Assert.Equal(0, callCount);
     }

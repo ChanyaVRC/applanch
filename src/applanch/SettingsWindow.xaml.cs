@@ -174,9 +174,9 @@ public sealed partial class SettingsWindow : Window
         Arguments = $"/select,\"{AppLogger.LogFilePathValue}\"",
     };
 
-    private void OnAppRefreshRequested(AppSettings settings)
+    private void OnAppRefreshRequested(AppRefreshPayload payload)
     {
-        Dispatcher.InvokeIfRequired(() => ViewModel.ApplyExternalSettings(settings));
+        Dispatcher.InvokeIfRequired(() => ViewModel.ApplyExternalSettings(payload.CurrentSettings));
     }
 
     public bool SettingsChanged => ViewModel.SettingsChanged;

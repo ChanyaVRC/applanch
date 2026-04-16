@@ -14,7 +14,7 @@ internal sealed class AppEvent
     private readonly Dictionary<AppEventType, object> _channels = new()
     {
         [AppEventType.Commit] = new EventChannel<AppSettings>(),
-        [AppEventType.Refresh] = new EventChannel<AppSettings>(),
+        [AppEventType.Refresh] = new EventChannel<AppRefreshPayload>(),
         [AppEventType.UpdateCheckRequested] = new EventChannel(),
         [AppEventType.UpdateAvailabilityChanged] = new EventChannel<AppUpdateInfo?>(),
         [AppEventType.ApplyUpdateRequested] = new EventChannel<AppUpdateInfo>(),

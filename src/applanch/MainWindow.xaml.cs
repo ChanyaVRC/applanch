@@ -230,9 +230,9 @@ public sealed partial class MainWindow : Window
         ApplyCategorySidebarPinnedSetting(settings.CategorySidebarPinned, animate: false);
     }
 
-    private void OnAppRefreshRequested(AppSettings settings)
+    private void OnAppRefreshRequested(AppRefreshPayload payload)
     {
-        Dispatcher.InvokeIfRequired(() => ApplySettingsFromAppRefresh(settings));
+        Dispatcher.InvokeIfRequired(() => ApplySettingsFromAppRefresh(payload.CurrentSettings));
     }
 
     private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

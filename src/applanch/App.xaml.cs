@@ -122,8 +122,10 @@ public sealed partial class App : Application
 
     private void OnSettingsCommitted(AppSettings settings)
     {
-        settings.Save();
-        Events.Invoke(AppEvents.Refresh, settings);
+        var previousSettings = _settings;
+        var refreshedSettings = settings.Normalize();
+        refreshedSettings.Save();
+        Events.Invoke(AppEvents.Refresh, new AppRefreshPayload(previousSettings, refreshedSettings));
     }
 
     private void InitializeEnvironment()
@@ -138,12 +140,12 @@ public sealed partial class App : Application
         }
     }
 
-    internal void Refresh(AppSettings settings)
+    internal void Refresh(AppRefreshPayload payload)
     {
-        _settings = settings;
-        ApplyLanguage(settings.Language);
-        ApplyStartupRegistration(settings);
-        ApplyContextMenuRegistration(settings);
+        _settings = payload.CurrentSettings;
+        ApplyLanguage(_settings.Language);
+        ApplyStartupRegistration(_settings);
+        ApplyContextMenuRegistration(_settings);
         LocalizedStrings.Instance.NotifyLanguageChanged();
         _themeApplier.ApplyTheme(Resources, Windows.Cast<Window>());
     }
