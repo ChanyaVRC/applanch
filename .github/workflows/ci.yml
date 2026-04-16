@@ -26,9 +26,12 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.x
+          global-json-file: global.json
           cache: true
           cache-dependency-path: '**/packages.lock.json'
+
+      - name: Show .NET SDK info
+        run: dotnet --info
 
       - name: Restore
         run: dotnet restore applanch.slnx
@@ -60,9 +63,12 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.x
+          global-json-file: global.json
           cache: true
           cache-dependency-path: '**/packages.lock.json'
+
+      - name: Show .NET SDK info
+        run: dotnet --info
 
       - name: Download prepared workspace
         uses: actions/download-artifact@v4
@@ -91,9 +97,12 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.x
+          global-json-file: global.json
           cache: true
           cache-dependency-path: '**/packages.lock.json'
+
+      - name: Show .NET SDK info
+        run: dotnet --info
 
       - name: Download prepared workspace
         uses: actions/download-artifact@v4
@@ -116,9 +125,12 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.x
+          global-json-file: global.json
           cache: true
           cache-dependency-path: '**/packages.lock.json'
+
+      - name: Show .NET SDK info
+        run: dotnet --info
 
       - name: Download prepared workspace
         uses: actions/download-artifact@v4
