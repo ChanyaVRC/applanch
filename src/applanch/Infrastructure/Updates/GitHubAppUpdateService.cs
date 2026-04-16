@@ -32,7 +32,7 @@ internal sealed class GitHubAppUpdateService : IAppUpdateService
     private readonly bool _allowPrereleaseUpdates;
 
     public GitHubAppUpdateService()
-        : this(AppSettings.Load())
+        : this(AppSettingsProvider.Load())
     {
     }
 
