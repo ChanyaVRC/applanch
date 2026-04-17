@@ -37,11 +37,11 @@ public class LaunchItemIconProviderTests
             faviconCache: new ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>(StringComparer.OrdinalIgnoreCase),
             networkPolicy: new NetworkPolicyResolver(),
             diskCache: new FaviconCacheResolver(),
-            iconPathResolver: path =>
+            iconPathResolver: new DelegateIconPathResolver(path =>
             {
                 calledWith = path;
                 return expectedPath;
-            });
+            }));
 
         var input = @"C:\Program Files\Discord\Update.exe";
         _ = provider.GetInitialIcon(new LaunchPath(input));
@@ -57,7 +57,7 @@ public class LaunchItemIconProviderTests
             faviconCache: new ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>(StringComparer.OrdinalIgnoreCase),
             networkPolicy: new NetworkPolicyResolver(),
             diskCache: new FaviconCacheResolver(),
-            iconPathResolver: _ => throw new JsonPathResolutionException("invalid path"));
+            iconPathResolver: new DelegateIconPathResolver(_ => throw new JsonPathResolutionException("invalid path")));
 
         var input = @"C:\Program Files\Discord\Update.exe";
         var exception = Record.Exception(() => provider.GetInitialIcon(new LaunchPath(input)));
@@ -330,10 +330,14 @@ public class LaunchItemIconProviderTests
         Func<string, CancellationToken, Task<IReadOnlyList<IPAddress>>>? hostAddressResolver = null,
         string? cacheDirectory = null)
     {
+        IHostAddressResolver? resolver = hostAddressResolver is null
+            ? null
+            : new DelegateHostAddressResolver(hostAddressResolver);
+
         return new LaunchItemIconProvider(
             httpClient,
             new ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>(StringComparer.OrdinalIgnoreCase),
-            new NetworkPolicyResolver(hostAddressResolver),
+            new NetworkPolicyResolver(resolver),
             cacheDirectory is not null ? new FaviconCacheResolver(cacheDirectory) : null);
     }
 
@@ -375,5 +379,16 @@ public class LaunchItemIconProviderTests
             RequestedUris.Add(request.RequestUri!);
             return Task.FromResult(responder(request));
         }
+    }
+
+    private sealed class DelegateHostAddressResolver(Func<string, CancellationToken, Task<IReadOnlyList<IPAddress>>> resolver) : IHostAddressResolver
+    {
+        public Task<IReadOnlyList<IPAddress>> ResolveHostAddressesAsync(string host, CancellationToken cancellationToken)
+            => resolver(host, cancellationToken);
+    }
+
+    private sealed class DelegateIconPathResolver(Func<string, string> resolver) : IIconPathResolver
+    {
+        public string Resolve(string launchPath) => resolver(launchPath);
     }
 }

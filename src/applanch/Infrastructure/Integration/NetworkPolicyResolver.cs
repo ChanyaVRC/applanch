@@ -17,12 +17,12 @@ internal sealed class NetworkPolicyResolver : INetworkPolicyResolver
         IPNetwork.Parse("fec0::/10"),
     ];
 
-    private readonly Func<string, CancellationToken, Task<IReadOnlyList<IPAddress>>> _hostAddressResolver;
+    private readonly IHostAddressResolver _hostAddressResolver;
     private AppSettings _settings = new();
 
-    internal NetworkPolicyResolver(Func<string, CancellationToken, Task<IReadOnlyList<IPAddress>>>? hostAddressResolver = null)
+    internal NetworkPolicyResolver(IHostAddressResolver? hostAddressResolver = null)
     {
-        _hostAddressResolver = hostAddressResolver ?? DefaultResolveHostAddressesAsync;
+        _hostAddressResolver = hostAddressResolver ?? new DnsHostAddressResolver();
     }
 
     public void ApplySettings(AppSettings settings)
@@ -59,7 +59,7 @@ internal sealed class NetworkPolicyResolver : INetworkPolicyResolver
 
         try
         {
-            var addresses = await _hostAddressResolver(uri.IdnHost, CancellationToken.None).ConfigureAwait(false);
+            var addresses = await _hostAddressResolver.ResolveHostAddressesAsync(uri.IdnHost, CancellationToken.None).ConfigureAwait(false);
             return addresses.Count == 0 || addresses.All(static address => !IsPrivateOrLoopbackAddress(address));
         }
         catch (Exception ex)
@@ -123,10 +123,5 @@ internal sealed class NetworkPolicyResolver : INetworkPolicyResolver
         }
 
         return PrivateNetworks.Any(network => network.Contains(address));
-    }
-
-    private static async Task<IReadOnlyList<IPAddress>> DefaultResolveHostAddressesAsync(string host, CancellationToken cancellationToken)
-    {
-        return await Dns.GetHostAddressesAsync(host, cancellationToken).ConfigureAwait(false);
     }
 }

@@ -29,20 +29,20 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
     private readonly ConcurrentDictionary<string, Lazy<Task<ImageSource?>>> _faviconCache;
     private readonly INetworkPolicyResolver _networkPolicy;
     private readonly IFaviconCacheResolver _diskCache;
-    private readonly Func<string, string> _iconPathResolver;
+    private readonly IIconPathResolver _iconPathResolver;
 
     internal LaunchItemIconProvider(
         HttpClient? httpClient = null,
         ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>? faviconCache = null,
         INetworkPolicyResolver? networkPolicy = null,
         IFaviconCacheResolver? diskCache = null,
-        Func<string, string>? iconPathResolver = null)
+        IIconPathResolver? iconPathResolver = null)
     {
         _httpClient = httpClient ?? SharedHttpClient;
         _faviconCache = faviconCache ?? new ConcurrentDictionary<string, Lazy<Task<ImageSource?>>>(StringComparer.OrdinalIgnoreCase);
         _networkPolicy = networkPolicy ?? new NetworkPolicyResolver();
         _diskCache = diskCache ?? new FaviconCacheResolver();
-        _iconPathResolver = iconPathResolver ?? LaunchItemIconPathResolver.ResolveForRuntime;
+        _iconPathResolver = iconPathResolver ?? new RuntimeIconPathResolver();
     }
 
     public void ApplySettings(AppSettings settings)
@@ -56,7 +56,7 @@ internal sealed class LaunchItemIconProvider : ILaunchItemIconProvider
         {
             try
             {
-                return GetShellIcon(_iconPathResolver(path.Value));
+                return GetShellIcon(_iconPathResolver.Resolve(path.Value));
             }
             catch (JsonPathResolutionException ex)
             {
