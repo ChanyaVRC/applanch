@@ -4,23 +4,20 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Security;
 using applanch.ShellIntegration;
-using RegistryCommandWriter = System.Action<string, string, string, string, bool>;
-using ExplorerCommandRegistrar = System.Action<string>;
-using RegistrySubKeyTreeDeleter = System.Action<string>;
-using ExplorerCommandAllowedChecker = System.Func<bool>;
 using applanch.Utilities;
 
 namespace applanch.Infrastructure.Integration;
 
-internal sealed class ContextMenuRegistrar(
-    Func<string?> executablePathProvider,
-    Func<string, string?> shellExtensionComHostPathResolver,
-    RegistryCommandWriter writeRegistryCommand,
-    ExplorerCommandRegistrar registerExplorerCommandServer,
-    bool enableLegacyCleanup = true,
-    RegistrySubKeyTreeDeleter? deleteRegistrySubKeyTree = null,
-    ExplorerCommandAllowedChecker? isExplorerCommandAllowed = null)
+internal sealed class ContextMenuRegistrar
 {
+    private readonly Func<string?> _executablePathProvider;
+    private readonly Func<string, string?> _shellExtensionComHostPathResolver;
+    private readonly Action<string, string, string, string, bool> _writeRegistryCommand;
+    private readonly Action<string> _registerExplorerCommandServer;
+    private readonly bool _enableLegacyCleanup;
+    private readonly Action<string> _deleteRegistrySubKeyTree;
+    private readonly Func<bool>? _isExplorerCommandAllowed;
+
     private const string BasePath = @"Software\Classes";
     private const string MenuKeyName = "applanch.register";
     private const string ShellExtensionAssemblyName = "applanch.ShellExtension";
@@ -39,22 +36,39 @@ internal sealed class ContextMenuRegistrar(
         new("Directory\\Background", "%V", false)
     ];
 
-    private static readonly RegistrySubKeyTreeDeleter DefaultDeleteSubKeyTree =
+    private static readonly Action<string> DefaultDeleteSubKeyTree =
         static keyPath => Registry.CurrentUser.DeleteSubKeyTree(keyPath, throwOnMissingSubKey: false);
 
     public ContextMenuRegistrar()
-        : this(static () => Environment.ProcessPath, ResolveShellExtensionComHostPath, WriteRegistryCommand, RegisterExplorerCommandServer, enableLegacyCleanup: true, deleteRegistrySubKeyTree: null, isExplorerCommandAllowed: SparsePackageRegistrar.IsPackageRegistered)
     {
+        _executablePathProvider = static () => Environment.ProcessPath;
+        _shellExtensionComHostPathResolver = ResolveShellExtensionComHostPath;
+        _writeRegistryCommand = WriteRegistryCommand;
+        _registerExplorerCommandServer = RegisterExplorerCommandServer;
+        _enableLegacyCleanup = true;
+        _deleteRegistrySubKeyTree = DefaultDeleteSubKeyTree;
+        _isExplorerCommandAllowed = SparsePackageRegistrar.IsPackageRegistered;
+    }
+
+    internal ContextMenuRegistrar(ContextMenuRegistrarOptions options)
+    {
+        _executablePathProvider = options.ExecutablePathProvider ?? (static () => Environment.ProcessPath);
+        _shellExtensionComHostPathResolver = options.ShellExtensionComHostPathResolver ?? ResolveShellExtensionComHostPath;
+        _writeRegistryCommand = options.WriteRegistryCommand ?? WriteRegistryCommand;
+        _registerExplorerCommandServer = options.RegisterExplorerCommandServer ?? RegisterExplorerCommandServer;
+        _enableLegacyCleanup = options.EnableLegacyCleanup;
+        _deleteRegistrySubKeyTree = options.DeleteRegistrySubKeyTree ?? DefaultDeleteSubKeyTree;
+        _isExplorerCommandAllowed = options.IsExplorerCommandAllowed;
     }
 
     public void EnsureRegistered()
     {
-        if (enableLegacyCleanup)
+        if (_enableLegacyCleanup)
         {
             CleanupLegacyRegistrationSafely();
         }
 
-        var exePath = executablePathProvider();
+        var exePath = _executablePathProvider();
         if (string.IsNullOrWhiteSpace(exePath))
         {
             return;
@@ -71,14 +85,12 @@ internal sealed class ContextMenuRegistrar(
 
     public void Unregister()
     {
-        var delete = deleteRegistrySubKeyTree ?? DefaultDeleteSubKeyTree;
-
-        DeleteRegistrySafely(delete, GetExplorerCommandClassKeyPath());
-        DeleteRegistrySafely(delete, GetExplorerCommandProgIdKeyPath());
+        DeleteRegistrySafely(_deleteRegistrySubKeyTree, GetExplorerCommandClassKeyPath());
+        DeleteRegistrySafely(_deleteRegistrySubKeyTree, GetExplorerCommandProgIdKeyPath());
 
         foreach (var target in RegistrationTargets)
         {
-            DeleteRegistrySafely(delete, GetTargetMenuKeyPath(target));
+            DeleteRegistrySafely(_deleteRegistrySubKeyTree, GetTargetMenuKeyPath(target));
         }
     }
 
@@ -86,20 +98,20 @@ internal sealed class ContextMenuRegistrar(
     {
         try
         {
-            if (!(isExplorerCommandAllowed?.Invoke() ?? true))
+            if (!(_isExplorerCommandAllowed?.Invoke() ?? true))
             {
                 AppLogger.Instance.Info("Windows 11 explorer command registration skipped: sparse package identity is not registered.");
                 return false;
             }
 
-            var shellExtensionComHostPath = shellExtensionComHostPathResolver(exePath);
+            var shellExtensionComHostPath = _shellExtensionComHostPathResolver(exePath);
             if (string.IsNullOrWhiteSpace(shellExtensionComHostPath))
             {
                 AppLogger.Instance.Info("Windows 11 explorer command registration skipped because shell-extension artifacts were not found.");
                 return false;
             }
 
-            registerExplorerCommandServer(shellExtensionComHostPath);
+            _registerExplorerCommandServer(shellExtensionComHostPath);
             return true;
         }
         catch (Exception ex) when (TryLogKnownRegistryFailure("Explorer command registration", ex))
@@ -131,7 +143,7 @@ internal sealed class ContextMenuRegistrar(
         }
     }
 
-    private static void DeleteRegistrySafely(RegistrySubKeyTreeDeleter delete, string keyPath)
+    private static void DeleteRegistrySafely(Action<string> delete, string keyPath)
     {
         try
         {
@@ -146,7 +158,7 @@ internal sealed class ContextMenuRegistrar(
     {
         var keyPath = GetTargetMenuKeyPath(target);
         var command = $"\"{exePath}\" {App.RegisterArgument} \"{target.ArgumentToken}\"";
-        writeRegistryCommand(keyPath, MenuText, exePath, command, enableExplorerCommand);
+        _writeRegistryCommand(keyPath, MenuText, exePath, command, enableExplorerCommand);
     }
 
     private static string GetTargetMenuKeyPath(RegistrationTarget target)
