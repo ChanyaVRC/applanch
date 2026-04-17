@@ -23,12 +23,11 @@ public class ContextMenuRegistrarTests
     {
         var writer = new RecordingRegistryCommandWriter();
         var explorerRegistrar = new RecordingExplorerCommandRegistrar();
-        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarOptions
+        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarTestRuntime
         {
             ExecutablePathProvider = () => null,
-            WriteRegistryCommand = writer.WriteCommand,
-            RegisterExplorerCommandServer = explorerRegistrar.Register,
-            EnableLegacyCleanup = false
+            WriteRegistryCommandAction = writer.WriteCommand,
+            RegisterExplorerCommandServerAction = explorerRegistrar.Register,
         });
 
         registrar.EnsureRegistered();
@@ -42,13 +41,12 @@ public class ContextMenuRegistrarTests
     {
         var writer = new RecordingRegistryCommandWriter();
         var explorerRegistrar = new RecordingExplorerCommandRegistrar();
-        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarOptions
+        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarTestRuntime
         {
             ExecutablePathProvider = () => @"C:\Apps\applanch.exe",
             ShellExtensionComHostPathResolver = static _ => null,
-            WriteRegistryCommand = writer.WriteCommand,
-            RegisterExplorerCommandServer = explorerRegistrar.Register,
-            EnableLegacyCleanup = false
+            WriteRegistryCommandAction = writer.WriteCommand,
+            RegisterExplorerCommandServerAction = explorerRegistrar.Register,
         });
 
         registrar.EnsureRegistered();
@@ -70,13 +68,12 @@ public class ContextMenuRegistrarTests
     {
         var writer = new RecordingRegistryCommandWriter();
         var explorerRegistrar = new RecordingExplorerCommandRegistrar();
-        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarOptions
+        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarTestRuntime
         {
             ExecutablePathProvider = () => @"C:\Apps\applanch.exe",
             ShellExtensionComHostPathResolver = static _ => @"C:\Apps\applanch.ShellExtension.comhost.dll",
-            WriteRegistryCommand = writer.WriteCommand,
-            RegisterExplorerCommandServer = explorerRegistrar.Register,
-            EnableLegacyCleanup = false
+            WriteRegistryCommandAction = writer.WriteCommand,
+            RegisterExplorerCommandServerAction = explorerRegistrar.Register,
         });
 
         registrar.EnsureRegistered();
@@ -97,13 +94,12 @@ public class ContextMenuRegistrarTests
     {
         // precondition: shell extension is available
         var writer = new RecordingRegistryCommandWriter();
-        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarOptions
+        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarTestRuntime
         {
             ExecutablePathProvider = () => @"C:\Apps\applanch.exe",
             ShellExtensionComHostPathResolver = static _ => @"C:\Apps\applanch.ShellExtension.comhost.dll",
-            WriteRegistryCommand = writer.WriteCommand,
-            RegisterExplorerCommandServer = static _ => throw new UnauthorizedAccessException("Simulated explorer command registration failure"),
-            EnableLegacyCleanup = false
+            WriteRegistryCommandAction = writer.WriteCommand,
+            RegisterExplorerCommandServerAction = static _ => throw new UnauthorizedAccessException("Simulated explorer command registration failure"),
         });
 
         var exception = Record.Exception(registrar.EnsureRegistered);
@@ -118,14 +114,13 @@ public class ContextMenuRegistrarTests
     {
         var writer = new RecordingRegistryCommandWriter();
         var explorerRegistrar = new RecordingExplorerCommandRegistrar();
-        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarOptions
+        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarTestRuntime
         {
             ExecutablePathProvider = () => @"C:\Apps\applanch.exe",
             ShellExtensionComHostPathResolver = static _ => @"C:\Apps\applanch.ShellExtension.comhost.dll",
-            WriteRegistryCommand = writer.WriteCommand,
-            RegisterExplorerCommandServer = explorerRegistrar.Register,
-            EnableLegacyCleanup = false,
-            IsExplorerCommandAllowed = static () => false
+            WriteRegistryCommandAction = writer.WriteCommand,
+            RegisterExplorerCommandServerAction = explorerRegistrar.Register,
+            IsExplorerCommandAllowedProvider = static () => false
         });
 
         registrar.EnsureRegistered();
@@ -139,12 +134,11 @@ public class ContextMenuRegistrarTests
     public void EnsureRegistered_WhenWriterThrows_DoesNotThrow()
     {
         var writer = new ThrowingRegistryCommandWriter(new UnauthorizedAccessException("Simulated registry permission error"));
-        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarOptions
+        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarTestRuntime
         {
             ExecutablePathProvider = () => @"C:\Apps\applanch.exe",
             ShellExtensionComHostPathResolver = static _ => null,
-            WriteRegistryCommand = writer.WriteCommand,
-            EnableLegacyCleanup = false
+            WriteRegistryCommandAction = writer.WriteCommand,
         });
 
         var exception = Record.Exception(registrar.EnsureRegistered);
@@ -157,12 +151,11 @@ public class ContextMenuRegistrarTests
     public void EnsureRegistered_WhenWriterThrowsSecurityException_DoesNotThrow()
     {
         var writer = new ThrowingRegistryCommandWriter(new System.Security.SecurityException("Simulated security policy error"));
-        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarOptions
+        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarTestRuntime
         {
             ExecutablePathProvider = () => @"C:\Apps\applanch.exe",
             ShellExtensionComHostPathResolver = static _ => null,
-            WriteRegistryCommand = writer.WriteCommand,
-            EnableLegacyCleanup = false
+            WriteRegistryCommandAction = writer.WriteCommand,
         });
 
         var exception = Record.Exception(registrar.EnsureRegistered);
@@ -175,12 +168,11 @@ public class ContextMenuRegistrarTests
     public void EnsureRegistered_WhenWriterThrowsIOException_DoesNotThrow()
     {
         var writer = new ThrowingRegistryCommandWriter(new IOException("Simulated IO error"));
-        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarOptions
+        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarTestRuntime
         {
             ExecutablePathProvider = () => @"C:\Apps\applanch.exe",
             ShellExtensionComHostPathResolver = static _ => null,
-            WriteRegistryCommand = writer.WriteCommand,
-            EnableLegacyCleanup = false
+            WriteRegistryCommandAction = writer.WriteCommand,
         });
 
         var exception = Record.Exception(registrar.EnsureRegistered);
@@ -193,12 +185,11 @@ public class ContextMenuRegistrarTests
     public void EnsureRegistered_WhenWriterThrowsUnexpected_Throws()
     {
         var writer = new ThrowingRegistryCommandWriter(new InvalidOperationException("Simulated registry write failure"));
-        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarOptions
+        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarTestRuntime
         {
             ExecutablePathProvider = () => @"C:\Apps\applanch.exe",
             ShellExtensionComHostPathResolver = static _ => null,
-            WriteRegistryCommand = writer.WriteCommand,
-            EnableLegacyCleanup = false
+            WriteRegistryCommandAction = writer.WriteCommand,
         });
 
         Assert.Throws<InvalidOperationException>(registrar.EnsureRegistered);
@@ -310,9 +301,9 @@ public class ContextMenuRegistrarTests
     public void Unregister_DeletesAllExpectedKeys()
     {
         var deleter = new RecordingRegistryKeyDeleter();
-        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarOptions
+        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarTestRuntime
         {
-            DeleteRegistrySubKeyTree = deleter.Delete
+            DeleteRegistrySubKeyTreeAction = deleter.Delete
         });
 
         registrar.Unregister();
@@ -330,9 +321,9 @@ public class ContextMenuRegistrarTests
     [Fact]
     public void Unregister_WhenDeleterThrowsUnauthorizedAccess_DoesNotThrow()
     {
-        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarOptions
+        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarTestRuntime
         {
-            DeleteRegistrySubKeyTree = static _ => throw new UnauthorizedAccessException("Simulated denial")
+            DeleteRegistrySubKeyTreeAction = static _ => throw new UnauthorizedAccessException("Simulated denial")
         });
 
         var exception = Record.Exception(registrar.Unregister);
@@ -343,9 +334,9 @@ public class ContextMenuRegistrarTests
     [Fact]
     public void Unregister_WhenDeleterThrowsSecurityException_DoesNotThrow()
     {
-        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarOptions
+        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarTestRuntime
         {
-            DeleteRegistrySubKeyTree = static _ => throw new System.Security.SecurityException("Simulated security error")
+            DeleteRegistrySubKeyTreeAction = static _ => throw new System.Security.SecurityException("Simulated security error")
         });
 
         var exception = Record.Exception(registrar.Unregister);
@@ -356,9 +347,9 @@ public class ContextMenuRegistrarTests
     [Fact]
     public void Unregister_WhenDeleterThrowsIOException_DoesNotThrow()
     {
-        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarOptions
+        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarTestRuntime
         {
-            DeleteRegistrySubKeyTree = static _ => throw new IOException("Simulated IO error")
+            DeleteRegistrySubKeyTreeAction = static _ => throw new IOException("Simulated IO error")
         });
 
         var exception = Record.Exception(registrar.Unregister);
@@ -369,9 +360,9 @@ public class ContextMenuRegistrarTests
     [Fact]
     public void Unregister_WhenDeleterThrowsUnexpected_Throws()
     {
-        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarOptions
+        var registrar = new ContextMenuRegistrar(new ContextMenuRegistrarTestRuntime
         {
-            DeleteRegistrySubKeyTree = static _ => throw new InvalidOperationException("Simulated unexpected error")
+            DeleteRegistrySubKeyTreeAction = static _ => throw new InvalidOperationException("Simulated unexpected error")
         });
 
         Assert.Throws<InvalidOperationException>(registrar.Unregister);
@@ -464,5 +455,14 @@ public class ContextMenuRegistrarTests
         }
     }
 }
+
+
+
+
+
+
+
+
+
 
 
