@@ -10,24 +10,24 @@ internal sealed class ItemLaunchService : IItemLaunchService
 {
     private static readonly string[] AccessDeniedMessageTokens = ["access is denied", "アクセスが拒否"];
 
-    private readonly Func<ProcessStartInfo, Process?> _startProcess;
+    private readonly IProcessStarter _processStarter;
     private readonly ILaunchFallbackResolver _fallbackResolver;
 
     public ItemLaunchService()
-        : this(Process.Start, LaunchFallbackResolver.CreateDefault())
+        : this(new ProcessStarter(), LaunchFallbackResolver.CreateDefault())
     {
     }
 
-    internal ItemLaunchService(Func<ProcessStartInfo, Process?> startProcess)
-        : this(startProcess, LaunchFallbackResolver.CreateDefault())
+    internal ItemLaunchService(IProcessStarter processStarter)
+        : this(processStarter, LaunchFallbackResolver.CreateDefault())
     {
     }
 
     internal ItemLaunchService(
-        Func<ProcessStartInfo, Process?> startProcess,
+        IProcessStarter processStarter,
         ILaunchFallbackResolver fallbackResolver)
     {
-        _startProcess = startProcess;
+        _processStarter = processStarter;
         _fallbackResolver = fallbackResolver;
     }
 
@@ -51,7 +51,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
             try
             {
                 AppLogger.Instance.Info($"Using preferred fallback for '{path}' via {preferredFallback.Name}.");
-                var preferredProcess = _startProcess(preferredFallback.StartInfo);
+                var preferredProcess = _processStarter.Start(preferredFallback.StartInfo);
                 if (preferredProcess is null)
                 {
                     return LaunchExecutionResult.Failed(AppResources.Error_LaunchFailed, NotificationIconType.Error);
@@ -85,7 +85,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
 
         try
         {
-            var process = _startProcess(startInfo);
+            var process = _processStarter.Start(startInfo);
             if (process is null)
                 return LaunchExecutionResult.Failed(AppResources.Error_LaunchFailed, NotificationIconType.Error);
 
@@ -98,7 +98,7 @@ internal sealed class ItemLaunchService : IItemLaunchService
                 try
                 {
                     AppLogger.Instance.Warn($"Primary launch denied for '{path}'. Trying fallback: {fallback.Name}.");
-                    var fallbackProcess = _startProcess(fallback.StartInfo);
+                    var fallbackProcess = _processStarter.Start(fallback.StartInfo);
                     if (fallbackProcess is not null)
                     {
                         AppLogger.Instance.Info($"Fallback launch succeeded for '{path}' via {fallback.Name}.");

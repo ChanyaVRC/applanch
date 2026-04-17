@@ -1,8 +1,9 @@
 using System.Diagnostics;
+using applanch.Infrastructure.Launch;
 
 namespace applanch.Tests.Infrastructure.Launch.TestDoubles;
 
-internal sealed class FakeProcessLauncher
+internal sealed class FakeProcessLauncher : IProcessStarter
 {
     public bool ThrowOnStart { get; set; }
     public bool ReturnNull { get; set; }

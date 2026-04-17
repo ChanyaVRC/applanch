@@ -50,7 +50,7 @@ public class ItemLaunchServiceTests
     public void TryLaunch_MissingPath_ReturnsWarningFailure()
     {
         var launcher = new FakeProcessLauncher();
-        var service = new ItemLaunchService(launcher.Start);
+        var service = new ItemLaunchService(launcher);
 
         var result = service.TryLaunch(new LaunchPath(@"C:\missing\file.exe"), string.Empty);
 
@@ -64,7 +64,7 @@ public class ItemLaunchServiceTests
     public void TryLaunch_Url_LaunchesDirectlyWithShellExecute(string url)
     {
         var launcher = new FakeProcessLauncher();
-        var service = new ItemLaunchService(launcher.Start);
+        var service = new ItemLaunchService(launcher);
 
         var result = service.TryLaunch(new LaunchPath(url), string.Empty);
 
@@ -82,7 +82,7 @@ public class ItemLaunchServiceTests
         File.WriteAllText(filePath, string.Empty);
 
         var launcher = new FakeProcessLauncher();
-        var service = new ItemLaunchService(launcher.Start);
+        var service = new ItemLaunchService(launcher);
 
         var result = service.TryLaunch(new LaunchPath(filePath), "--flag");
 
@@ -98,7 +98,7 @@ public class ItemLaunchServiceTests
     {
         using var tempDirectory = TemporaryDirectory.Create();
         var launcher = new FakeProcessLauncher();
-        var service = new ItemLaunchService(launcher.Start);
+        var service = new ItemLaunchService(launcher);
 
         var result = service.TryLaunch(new LaunchPath(tempDirectory.Path), string.Empty);
 
@@ -116,7 +116,7 @@ public class ItemLaunchServiceTests
         File.WriteAllText(filePath, string.Empty);
 
         var launcher = new FakeProcessLauncher { ThrowOnStart = true };
-        var service = new ItemLaunchService(launcher.Start);
+        var service = new ItemLaunchService(launcher);
 
         var result = service.TryLaunch(new LaunchPath(filePath), string.Empty);
 
@@ -133,7 +133,7 @@ public class ItemLaunchServiceTests
         File.WriteAllText(filePath, string.Empty);
 
         var launcher = new FakeProcessLauncher { ReturnNull = true };
-        var service = new ItemLaunchService(launcher.Start);
+        var service = new ItemLaunchService(launcher);
 
         var result = service.TryLaunch(new LaunchPath(filePath), string.Empty);
 
@@ -149,7 +149,7 @@ public class ItemLaunchServiceTests
         File.WriteAllText(filePath, string.Empty);
 
         var launcher = new FakeProcessLauncher();
-        var service = new ItemLaunchService(launcher.Start);
+        var service = new ItemLaunchService(launcher);
 
         var result = service.TryLaunch(new LaunchPath(filePath), string.Empty, runAsAdministrator: true);
 
@@ -176,7 +176,7 @@ public class ItemLaunchServiceTests
             return new Process();
         }
 
-        var service = new ItemLaunchService(Launcher);
+        var service = new ItemLaunchService(new DelegateProcessStarter(Launcher));
 
         var result = service.TryLaunch(new LaunchPath(valorantPath), string.Empty);
 
@@ -206,7 +206,7 @@ public class ItemLaunchServiceTests
 
         var configuration = CreateSteamAccessDeniedFallbackConfiguration();
 
-        var service = new ItemLaunchService(Launcher, new LaunchFallbackResolver(configuration));
+        var service = new ItemLaunchService(new DelegateProcessStarter(Launcher), new LaunchFallbackResolver(configuration));
 
         var result = service.TryLaunch(new LaunchPath(gamePath), string.Empty);
 
@@ -237,7 +237,7 @@ public class ItemLaunchServiceTests
 
         var configuration = CreateSteamAccessDeniedFallbackConfiguration();
 
-        var service = new ItemLaunchService(Launcher, new LaunchFallbackResolver(configuration));
+        var service = new ItemLaunchService(new DelegateProcessStarter(Launcher), new LaunchFallbackResolver(configuration));
 
         var result = service.TryLaunch(new LaunchPath(gamePath), string.Empty);
 
@@ -277,7 +277,7 @@ public class ItemLaunchServiceTests
             return new Process();
         }
 
-        var service = new ItemLaunchService(Launcher, new LaunchFallbackResolver(configuration));
+        var service = new ItemLaunchService(new DelegateProcessStarter(Launcher), new LaunchFallbackResolver(configuration));
 
         var result = service.TryLaunch(new LaunchPath(gamePath), string.Empty);
 
