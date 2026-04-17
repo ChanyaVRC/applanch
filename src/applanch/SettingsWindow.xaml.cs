@@ -34,7 +34,9 @@ public sealed partial class SettingsWindow : Window
         ViewModel = new SettingsWindowViewModel(
             settings,
             _appEvent,
-            updateServiceFactory: updateServiceFactory);
+            updateServiceFactory is null
+                ? null
+                : new SettingsWindowViewModelRuntime(updateServiceFactory));
         _appEvent.Subscribe(AppEvents.Refresh, OnAppRefreshRequested);
         DataContext = ViewModel;
     }

@@ -7,6 +7,7 @@ using applanch.Events;
 using applanch.Settings;
 using applanch.Theming;
 using applanch.Tests.TestSupport;
+using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;
 using Xunit;
 
@@ -60,7 +61,10 @@ public sealed class SettingsThemeSelectionUiTests
             var vm = new SettingsWindowViewModel(
                 new AppSettings { Language = LanguageOption.English, ThemeId = ThemePaletteConfigurationLoader.SystemThemeId },
                 appEvent,
-                ThemeOptionsProvider);
+                new SettingsWindowViewModelTestRuntime
+                {
+                    ThemeOptionsMapProvider = ThemeOptionsProvider,
+                });
 
             var comboBox = new ComboBox
             {

@@ -3,8 +3,10 @@ using System.Globalization;
 using applanch.Events;
 using applanch.Settings;
 using applanch.Theming;
+using applanch.Infrastructure.Updates;
 using applanch.Updates;
 using applanch.Tests.TestSupport;
+using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;
 
 namespace applanch.Tests;
@@ -33,11 +35,17 @@ public class SettingsWindowViewModelTests
             appEvent.Subscribe(AppEvents.Commit, onCommit);
         }
 
+        Func<AppSettings, IAppUpdateService> effectiveUpdateServiceFactory =
+            updateServiceFactory ?? ((Func<AppSettings, IAppUpdateService>)(static settings => new GitHubAppUpdateService(settings.DebugUpdate, settings.AllowPrereleaseUpdates)));
+
         return new SettingsWindowViewModel(
             settings ?? new AppSettings(),
             appEvent,
-            () => ThemeOptions,
-            updateServiceFactory);
+            new SettingsWindowViewModelTestRuntime
+            {
+                ThemeOptionsMapProvider = () => ThemeOptions,
+                UpdateServiceFactory = effectiveUpdateServiceFactory
+            });
     }
 
     // ── Initial state ──────────────────────────────────────
@@ -378,7 +386,13 @@ public class SettingsWindowViewModelTests
 
         using var cultureScope = new CultureScope("en-US");
 
-        var vm = new SettingsWindowViewModel(new AppSettings { Language = LanguageOption.English }, appEvent, ThemeOptionsProvider);
+        var vm = new SettingsWindowViewModel(
+            new AppSettings { Language = LanguageOption.English },
+            appEvent,
+            new SettingsWindowViewModelTestRuntime
+            {
+                ThemeOptionsMapProvider = ThemeOptionsProvider,
+            });
 
         vm.SelectedLanguage = LanguageOption.Japanese;
 
@@ -597,7 +611,13 @@ public class SettingsWindowViewModelTests
 
         using var cultureScope = new CultureScope("en-US");
 
-        var vm = new SettingsWindowViewModel(new AppSettings { Language = LanguageOption.English }, appEvent, ThemeOptionsProvider);
+        var vm = new SettingsWindowViewModel(
+            new AppSettings { Language = LanguageOption.English },
+            appEvent,
+            new SettingsWindowViewModelTestRuntime
+            {
+                ThemeOptionsMapProvider = ThemeOptionsProvider,
+            });
 
         var japaneseCulture = new CultureInfo("ja-JP");
         CultureInfo.CurrentUICulture = japaneseCulture;

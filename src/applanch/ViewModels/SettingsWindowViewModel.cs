@@ -3,9 +3,9 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 using applanch.Events;
+using applanch.Infrastructure.Updates;
 using applanch.Settings;
 using applanch.Theming;
-using applanch.Infrastructure.Updates;
 using applanch.Updates;
 using applanch.Utilities;
 using applanch.Localization;
@@ -18,8 +18,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     private static readonly int[] QuickAddSuggestionLimitOptionsValues = [10, 20, 30, 50, 100];
 
     private readonly AppEvent _appEvent;
-    private readonly Func<IReadOnlyDictionary<string, ThemeOption>> _themeOptionsProvider;
-    private readonly Func<AppSettings, IAppUpdateService> _updateServiceFactory;
+    private readonly ISettingsWindowViewModelRuntime _runtime;
     private IReadOnlyDictionary<string, ThemeOption> _themeOptionsMap;
     private readonly UpdateWorkflow _updateWorkflow;
     private AppSettings _draft;
@@ -33,15 +32,13 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     internal SettingsWindowViewModel(
         AppSettings settings,
         AppEvent appEvent,
-        Func<IReadOnlyDictionary<string, ThemeOption>>? themeOptionsProvider = null,
-        Func<AppSettings, IAppUpdateService>? updateServiceFactory = null)
+        ISettingsWindowViewModelRuntime? runtime = null)
     {
         _appEvent = appEvent;
-        _themeOptionsProvider = themeOptionsProvider ?? ThemeOptionsProvider.Load;
-        _updateServiceFactory = updateServiceFactory ?? (static settings => new GitHubAppUpdateService(settings.DebugUpdate, settings.AllowPrereleaseUpdates));
-        _themeOptionsMap = _themeOptionsProvider();
+        _runtime = runtime ?? new SettingsWindowViewModelRuntime();
+        _themeOptionsMap = _runtime.LoadThemeOptions();
         _draft = settings;
-        _updateService = _updateServiceFactory(settings);
+        _updateService = _runtime.CreateUpdateService(settings);
         _ownedUpdateService = _updateService as IDisposable;
         _updateWorkflow = new UpdateWorkflow(_updateService);
         AvailableUpdates = [];
@@ -273,7 +270,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
 
     internal async Task RefreshAvailableUpdatesAsync(CancellationToken cancellationToken = default)
     {
-        ReplaceUpdateService(_updateServiceFactory(_draft));
+        ReplaceUpdateService(_runtime.CreateUpdateService(_draft));
         _isRefreshingAvailableUpdates = true;
         AvailableUpdatesStatusMessage = AppResources.UpdateVersions_Loading;
         OnPropertyChanged(nameof(CanApplySelectedUpdate));
@@ -306,7 +303,7 @@ internal sealed class SettingsWindowViewModel : ObservableObject
             return null;
         }
 
-        ReplaceUpdateService(_updateServiceFactory(_draft));
+        ReplaceUpdateService(_runtime.CreateUpdateService(_draft));
         _isApplyingSelectedUpdate = true;
         OnPropertyChanged(nameof(CanApplySelectedUpdate));
         OnPropertyChanged(nameof(ApplySelectedVersionButtonText));
