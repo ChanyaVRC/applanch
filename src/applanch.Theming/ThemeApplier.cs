@@ -1,5 +1,5 @@
-using Microsoft.Win32;
 using System.Windows;
+using applanch.Infrastructure.Registry;
 
 namespace applanch.Theming;
 
@@ -10,16 +10,18 @@ public sealed class ThemeApplier
 
     private readonly ThemePaletteConfiguration _configuration;
     private readonly Dictionary<string, ThemeDefinition> _themesById;
+    private readonly IRegistryRuntime _registryRuntime;
 
     public ThemeApplier()
-        : this(ThemePaletteConfigurationLoader.Load())
+        : this(ThemePaletteConfigurationLoader.Load(), new RegistryRuntime())
     {
     }
 
-    internal ThemeApplier(ThemePaletteConfiguration? configuration = null)
+    internal ThemeApplier(ThemePaletteConfiguration? configuration = null, IRegistryRuntime? registryRuntime = null)
     {
         _configuration = configuration ?? ThemePaletteConfigurationLoader.Load();
         _themesById = _configuration.Themes.ToDictionary(static x => x.Id);
+        _registryRuntime = registryRuntime ?? new RegistryRuntime();
     }
 
     public void ApplyTheme(ResourceDictionary resources, string selectedThemeId)
@@ -59,9 +61,9 @@ public sealed class ThemeApplier
             : _themesById.Values.First();
     }
 
-    private static SystemThemeMode ReadWindowsThemePreference()
+    private SystemThemeMode ReadWindowsThemePreference()
     {
-        using var key = Registry.CurrentUser.OpenSubKey(PersonalizeRegistryPath);
+        using var key = _registryRuntime.OpenSubKey(Microsoft.Win32.Registry.CurrentUser, PersonalizeRegistryPath, writable: false);
         var value = key?.GetValue(AppsUseLightTheme);
         return value is int intValue && intValue == 0 ? SystemThemeMode.Dark : SystemThemeMode.Light;
     }

@@ -203,7 +203,12 @@ public class ContextMenuRegistrarTests
 
         try
         {
-            var method = typeof(ContextMenuRegistrar).GetMethod("WriteRegistryCommand", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            var method = typeof(ContextMenuRegistrar).GetMethod(
+                "WriteRegistryCommand",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static,
+                binder: null,
+                [typeof(string), typeof(string), typeof(string), typeof(string), typeof(bool)],
+                modifiers: null);
             Assert.NotNull(method);
 
             method!.Invoke(null,
@@ -239,7 +244,12 @@ public class ContextMenuRegistrarTests
 
         try
         {
-            var method = typeof(ContextMenuRegistrar).GetMethod("WriteRegistryCommand", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            var method = typeof(ContextMenuRegistrar).GetMethod(
+                "WriteRegistryCommand",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static,
+                binder: null,
+                [typeof(string), typeof(string), typeof(string), typeof(string), typeof(bool)],
+                modifiers: null);
             Assert.NotNull(method);
 
             method!.Invoke(null,
@@ -271,7 +281,12 @@ public class ContextMenuRegistrarTests
 
         try
         {
-            var method = typeof(ContextMenuRegistrar).GetMethod("RegisterExplorerCommandServer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            var method = typeof(ContextMenuRegistrar).GetMethod(
+                "RegisterExplorerCommandServer",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static,
+                binder: null,
+                [typeof(string)],
+                modifiers: null);
             Assert.NotNull(method);
 
             method!.Invoke(null, [shellExtensionComHostPath]);

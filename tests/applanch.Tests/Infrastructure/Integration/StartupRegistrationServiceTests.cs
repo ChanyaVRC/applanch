@@ -1,4 +1,5 @@
 using applanch.Infrastructure.Integration;
+using applanch.Infrastructure.Registry;
 using Microsoft.Win32;
 using Xunit;
 
@@ -10,7 +11,7 @@ public class StartupRegistrationServiceTests
     public void Apply_Enabled_WritesQuotedExecutablePath()
     {
         var runKey = new FakeRunKey();
-        var sut = new StartupRegistrationService(new FakeRuntime(runKey));
+        var sut = new StartupRegistrationService(new FakeRegistryRuntime(runKey));
 
         sut.Apply(enabled: true, executablePath: @"C:\Tools\applanch.exe");
 
@@ -23,7 +24,7 @@ public class StartupRegistrationServiceTests
     public void Apply_Disabled_WithExistingValue_DeletesEntry()
     {
         var runKey = new FakeRunKey(existingValue: "existing");
-        var sut = new StartupRegistrationService(new FakeRuntime(runKey));
+        var sut = new StartupRegistrationService(new FakeRegistryRuntime(runKey));
 
         sut.Apply(enabled: false, executablePath: @"C:\Tools\applanch.exe");
 
@@ -35,7 +36,7 @@ public class StartupRegistrationServiceTests
     public void Apply_Disabled_WithoutExistingValue_DoesNotDelete()
     {
         var runKey = new FakeRunKey(existingValue: null);
-        var sut = new StartupRegistrationService(new FakeRuntime(runKey));
+        var sut = new StartupRegistrationService(new FakeRegistryRuntime(runKey));
 
         sut.Apply(enabled: false, executablePath: @"C:\Tools\applanch.exe");
 
@@ -43,12 +44,20 @@ public class StartupRegistrationServiceTests
         Assert.True(runKey.DisposeCalled);
     }
 
-    private sealed class FakeRuntime(IStartupRunKey? runKey) : IStartupRegistrationRuntime
+    private sealed class FakeRegistryRuntime(IRegistryKey? runKey) : IRegistryRuntime
     {
-        public IStartupRunKey? OpenRunKey() => runKey;
+        public IRegistryKey CurrentUser => runKey ?? new FakeRunKey();
+
+        public IRegistryKey? OpenSubKey(IRegistryKey rootKey, string keyPath, bool writable) => runKey;
+
+        public IRegistryKey? CreateSubKey(IRegistryKey rootKey, string keyPath, bool writable) => runKey;
+
+        public void DeleteSubKeyTree(IRegistryKey rootKey, string keyPath, bool throwOnMissingSubKey)
+        {
+        }
     }
 
-    private sealed class FakeRunKey(object? existingValue = null) : IStartupRunKey
+    private sealed class FakeRunKey(object? existingValue = null) : IRegistryKey
     {
         private object? _value = existingValue;
 
@@ -67,6 +76,14 @@ public class StartupRegistrationServiceTests
         {
             DeleteCalled = true;
             _value = null;
+        }
+
+        public IRegistryKey? OpenSubKey(string keyPath, bool writable) => null;
+
+        public IRegistryKey? CreateSubKey(string keyPath, bool writable) => null;
+
+        public void DeleteSubKeyTree(string keyPath, bool throwOnMissingSubKey)
+        {
         }
 
         public void Dispose()

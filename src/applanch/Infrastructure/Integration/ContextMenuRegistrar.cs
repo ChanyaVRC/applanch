@@ -265,55 +265,70 @@ internal sealed class ContextMenuRegistrar
     }
 
     internal static void RegisterExplorerCommandServer(string shellExtensionComHostPath)
+        => RegisterExplorerCommandServer(shellExtensionComHostPath, new Registry.RegistryRuntime());
+
+    internal static void RegisterExplorerCommandServer(
+        string shellExtensionComHostPath,
+        Registry.IRegistryRuntime registry)
     {
+        var currentUser = WinRegistry.CurrentUser;
         var classKeyPath = GetExplorerCommandClassKeyPath();
-        using (var classKey = Registry.CurrentUser.CreateSubKey(classKeyPath))
+        using (var classKey = registry.CreateSubKey(currentUser, classKeyPath, writable: true))
         {
             if (classKey is null)
             {
                 return;
             }
 
-            classKey.SetValue(string.Empty, ShellExtensionDisplayName);
-            classKey.SetValue("ProgId", ExplorerCommandIds.ProgId);
+            classKey.SetValue(string.Empty, ShellExtensionDisplayName, RegistryValueKind.String);
+            classKey.SetValue("ProgId", ExplorerCommandIds.ProgId, RegistryValueKind.String);
         }
 
-        using (var inProcServerKey = Registry.CurrentUser.CreateSubKey(classKeyPath + "\\InprocServer32"))
+        using (var inProcServerKey = registry.CreateSubKey(currentUser, classKeyPath + "\\InprocServer32", writable: true))
         {
             if (inProcServerKey is null)
             {
                 return;
             }
 
-            inProcServerKey.SetValue(string.Empty, shellExtensionComHostPath);
-            inProcServerKey.SetValue("ThreadingModel", "Both");
+            inProcServerKey.SetValue(string.Empty, shellExtensionComHostPath, RegistryValueKind.String);
+            inProcServerKey.SetValue("ThreadingModel", "Both", RegistryValueKind.String);
         }
 
-        using var progIdKey = Registry.CurrentUser.CreateSubKey(GetExplorerCommandProgIdKeyPath());
+        using var progIdKey = registry.CreateSubKey(currentUser, GetExplorerCommandProgIdKeyPath(), writable: true);
         if (progIdKey is null)
         {
             return;
         }
 
-        progIdKey.SetValue(string.Empty, ShellExtensionDisplayName);
-        progIdKey.SetValue("CLSID", $"{{{ExplorerCommandIds.ClassId}}}");
+        progIdKey.SetValue(string.Empty, ShellExtensionDisplayName, RegistryValueKind.String);
+        progIdKey.SetValue("CLSID", $"{{{ExplorerCommandIds.ClassId}}}", RegistryValueKind.String);
     }
 
     internal static void WriteRegistryCommand(string keyPath, string menuText, string iconPath, string command, bool enableExplorerCommand)
+        => WriteRegistryCommand(keyPath, menuText, iconPath, command, enableExplorerCommand, new Registry.RegistryRuntime());
+
+    internal static void WriteRegistryCommand(
+        string keyPath,
+        string menuText,
+        string iconPath,
+        string command,
+        bool enableExplorerCommand,
+        Registry.IRegistryRuntime registry)
     {
-        using var shellKey = Registry.CurrentUser.CreateSubKey(keyPath);
+        using var shellKey = registry.CreateSubKey(WinRegistry.CurrentUser, keyPath, writable: true);
         if (shellKey is null)
         {
             return;
         }
 
-        shellKey.SetValue(string.Empty, menuText);
-        shellKey.SetValue("Icon", iconPath);
+        shellKey.SetValue(string.Empty, menuText, RegistryValueKind.String);
+        shellKey.SetValue("Icon", iconPath, RegistryValueKind.String);
 
         if (enableExplorerCommand)
         {
-            shellKey.SetValue("ExplorerCommandHandler", $"{{{ExplorerCommandIds.ClassId}}}");
-            shellKey.SetValue("MultiSelectModel", "Single");
+            shellKey.SetValue("ExplorerCommandHandler", $"{{{ExplorerCommandIds.ClassId}}}", RegistryValueKind.String);
+            shellKey.SetValue("MultiSelectModel", "Single", RegistryValueKind.String);
         }
         else
         {
@@ -321,8 +336,8 @@ internal sealed class ContextMenuRegistrar
             shellKey.DeleteValue("MultiSelectModel", throwOnMissingValue: false);
         }
 
-        using var commandKey = shellKey.CreateSubKey("command");
-        commandKey?.SetValue(string.Empty, command);
+        using var commandKey = shellKey.CreateSubKey("command", writable: true);
+        commandKey?.SetValue(string.Empty, command, RegistryValueKind.String);
     }
 
     private readonly record struct RegistrationTarget(string ClassKeyPath, string ArgumentToken, bool SupportsExplorerCommand);
