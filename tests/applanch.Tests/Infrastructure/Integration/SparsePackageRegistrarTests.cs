@@ -1,5 +1,6 @@
-using Xunit;
 using applanch.Infrastructure.Integration;
+using applanch.Tests.Infrastructure.Integration.TestDoubles;
+using Xunit;
 
 namespace applanch.Tests.Infrastructure.Integration;
 
@@ -8,12 +9,14 @@ public class SparsePackageRegistrarTests
     [Fact]
     public void IsAlreadyRegistered_ReturnsFalse_WhenCheckerReportsNotRegistered()
     {
-        var registrar = new SparsePackageRegistrar(
-            msixPathProvider: () => @"C:\App\applanch.msix",
-            externalLocationProvider: () => @"C:\App",
-            isPackageRegisteredChecker: (_, _) => false,
-            shouldAttemptRegistration: () => true,
-            registerPackageAsync: (_, _) => Task.FromResult(false));
+        var registrar = new SparsePackageRegistrar(new SparsePackageRuntimeTestDouble
+        {
+            ResolveMsixPathHandler = () => @"C:\App\applanch.msix",
+            ResolveExternalLocationHandler = () => @"C:\App",
+            IsPackageRegisteredHandler = (_, _) => false,
+            ShouldAttemptRegistrationHandler = () => true,
+            RegisterPackageAsyncHandler = (_, _) => Task.FromResult(false)
+        });
 
         Assert.False(registrar.IsAlreadyRegistered());
     }
@@ -21,12 +24,14 @@ public class SparsePackageRegistrarTests
     [Fact]
     public void IsAlreadyRegistered_ReturnsTrue_WhenCheckerReportsRegistered()
     {
-        var registrar = new SparsePackageRegistrar(
-            msixPathProvider: () => @"C:\App\applanch.msix",
-            externalLocationProvider: () => @"C:\App",
-            isPackageRegisteredChecker: (_, _) => true,
-            shouldAttemptRegistration: () => true,
-            registerPackageAsync: (_, _) => Task.FromResult(false));
+        var registrar = new SparsePackageRegistrar(new SparsePackageRuntimeTestDouble
+        {
+            ResolveMsixPathHandler = () => @"C:\App\applanch.msix",
+            ResolveExternalLocationHandler = () => @"C:\App",
+            IsPackageRegisteredHandler = (_, _) => true,
+            ShouldAttemptRegistrationHandler = () => true,
+            RegisterPackageAsyncHandler = (_, _) => Task.FromResult(false)
+        });
 
         Assert.True(registrar.IsAlreadyRegistered());
     }
@@ -34,12 +39,14 @@ public class SparsePackageRegistrarTests
     [Fact]
     public async Task TryEnsureRegistered_ReturnsFalse_WhenMsixPathIsNull()
     {
-        var registrar = new SparsePackageRegistrar(
-            msixPathProvider: () => null,
-            externalLocationProvider: () => @"C:\App",
-            isPackageRegisteredChecker: (_, _) => false,
-            shouldAttemptRegistration: () => true,
-            registerPackageAsync: (_, _) => Task.FromResult(true));
+        var registrar = new SparsePackageRegistrar(new SparsePackageRuntimeTestDouble
+        {
+            ResolveMsixPathHandler = () => null,
+            ResolveExternalLocationHandler = () => @"C:\App",
+            IsPackageRegisteredHandler = (_, _) => false,
+            ShouldAttemptRegistrationHandler = () => true,
+            RegisterPackageAsyncHandler = (_, _) => Task.FromResult(true)
+        });
 
         var result = await registrar.TryEnsureRegisteredAsync();
 
@@ -49,12 +56,14 @@ public class SparsePackageRegistrarTests
     [Fact]
     public async Task TryEnsureRegistered_ReturnsFalse_WhenExternalLocationIsNull()
     {
-        var registrar = new SparsePackageRegistrar(
-            msixPathProvider: () => @"C:\App\applanch.msix",
-            externalLocationProvider: () => null,
-            isPackageRegisteredChecker: (_, _) => false,
-            shouldAttemptRegistration: () => true,
-            registerPackageAsync: (_, _) => Task.FromResult(true));
+        var registrar = new SparsePackageRegistrar(new SparsePackageRuntimeTestDouble
+        {
+            ResolveMsixPathHandler = () => @"C:\App\applanch.msix",
+            ResolveExternalLocationHandler = () => null,
+            IsPackageRegisteredHandler = (_, _) => false,
+            ShouldAttemptRegistrationHandler = () => true,
+            RegisterPackageAsyncHandler = (_, _) => Task.FromResult(true)
+        });
 
         var result = await registrar.TryEnsureRegisteredAsync();
 
@@ -69,17 +78,19 @@ public class SparsePackageRegistrarTests
         string? capturedMsix = null;
         string? capturedLocation = null;
 
-        var registrar = new SparsePackageRegistrar(
-            msixPathProvider: () => expectedMsix,
-            externalLocationProvider: () => expectedLocation,
-            isPackageRegisteredChecker: (_, _) => false,
-            shouldAttemptRegistration: () => true,
-            registerPackageAsync: (msix, location) =>
+        var registrar = new SparsePackageRegistrar(new SparsePackageRuntimeTestDouble
+        {
+            ResolveMsixPathHandler = () => expectedMsix,
+            ResolveExternalLocationHandler = () => expectedLocation,
+            IsPackageRegisteredHandler = (_, _) => false,
+            ShouldAttemptRegistrationHandler = () => true,
+            RegisterPackageAsyncHandler = (msix, location) =>
             {
                 capturedMsix = msix;
                 capturedLocation = location;
                 return Task.FromResult(true);
-            });
+            }
+        });
 
         var result = await registrar.TryEnsureRegisteredAsync();
 
@@ -91,12 +102,14 @@ public class SparsePackageRegistrarTests
     [Fact]
     public async Task TryEnsureRegistered_ReturnsFalse_WhenRegistrationFails()
     {
-        var registrar = new SparsePackageRegistrar(
-            msixPathProvider: () => @"C:\App\applanch.msix",
-            externalLocationProvider: () => @"C:\App",
-            isPackageRegisteredChecker: (_, _) => false,
-            shouldAttemptRegistration: () => true,
-            registerPackageAsync: (_, _) => Task.FromResult(false));
+        var registrar = new SparsePackageRegistrar(new SparsePackageRuntimeTestDouble
+        {
+            ResolveMsixPathHandler = () => @"C:\App\applanch.msix",
+            ResolveExternalLocationHandler = () => @"C:\App",
+            IsPackageRegisteredHandler = (_, _) => false,
+            ShouldAttemptRegistrationHandler = () => true,
+            RegisterPackageAsyncHandler = (_, _) => Task.FromResult(false)
+        });
 
         var result = await registrar.TryEnsureRegisteredAsync();
 
@@ -106,12 +119,14 @@ public class SparsePackageRegistrarTests
     [Fact]
     public async Task TryEnsureRegistered_ReturnsFalse_WhenAttemptIsSuppressed()
     {
-        var registrar = new SparsePackageRegistrar(
-            msixPathProvider: () => @"C:\App\applanch.msix",
-            externalLocationProvider: () => @"C:\App",
-            isPackageRegisteredChecker: (_, _) => false,
-            shouldAttemptRegistration: () => false,
-            registerPackageAsync: (_, _) => Task.FromResult(true));
+        var registrar = new SparsePackageRegistrar(new SparsePackageRuntimeTestDouble
+        {
+            ResolveMsixPathHandler = () => @"C:\App\applanch.msix",
+            ResolveExternalLocationHandler = () => @"C:\App",
+            IsPackageRegisteredHandler = (_, _) => false,
+            ShouldAttemptRegistrationHandler = () => false,
+            RegisterPackageAsyncHandler = (_, _) => Task.FromResult(true)
+        });
 
         var result = await registrar.TryEnsureRegisteredAsync();
 
@@ -122,19 +137,25 @@ public class SparsePackageRegistrarTests
     public async Task TryEnsureRegistered_DoesNotInvokeRegister_WhenAttemptIsSuppressed()
     {
         var wasInvoked = false;
-        var registrar = new SparsePackageRegistrar(
-            msixPathProvider: () => @"C:\App\applanch.msix",
-            externalLocationProvider: () => @"C:\App",
-            isPackageRegisteredChecker: (_, _) => false,
-            shouldAttemptRegistration: () => false,
-            registerPackageAsync: (_, _) =>
+        var registrar = new SparsePackageRegistrar(new SparsePackageRuntimeTestDouble
+        {
+            ResolveMsixPathHandler = () => @"C:\App\applanch.msix",
+            ResolveExternalLocationHandler = () => @"C:\App",
+            IsPackageRegisteredHandler = (_, _) => false,
+            ShouldAttemptRegistrationHandler = () => false,
+            RegisterPackageAsyncHandler = (_, _) =>
             {
                 wasInvoked = true;
                 return Task.FromResult(true);
-            });
+            }
+        });
 
         _ = await registrar.TryEnsureRegisteredAsync();
 
         Assert.False(wasInvoked);
     }
 }
+
+
+
+
