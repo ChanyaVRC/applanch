@@ -16,36 +16,26 @@ public sealed class ApplanchExplorerCommand : IExplorerCommand
     private const int ENotImpl = unchecked((int)0x80004001);
     private const string RegisterArgument = "--register";
     private const string MenuRegistryPath = @"Software\Classes\*\shell\applanch.register";
-    private readonly Func<string> _menuTextProvider;
-    private readonly Func<string?> _executablePathProvider;
-    private readonly Func<IShellItemArray?, string?> _selectedPathProvider;
-    private readonly Func<ProcessStartInfo, Process?> _startProcess;
+    private readonly IApplanchExplorerCommandRuntime _runtime;
 
     public ApplanchExplorerCommand()
-        : this(GetMenuTextFromRegistry, ResolveExecutablePath, GetSelectedPath, static startInfo => Process.Start(startInfo))
+        : this(new ApplanchExplorerCommandRuntime())
     {
     }
 
-    internal ApplanchExplorerCommand(
-        Func<string> menuTextProvider,
-        Func<string?> executablePathProvider,
-        Func<IShellItemArray?, string?> selectedPathProvider,
-        Func<ProcessStartInfo, Process?> startProcess)
+    internal ApplanchExplorerCommand(IApplanchExplorerCommandRuntime runtime)
     {
-        _menuTextProvider = menuTextProvider;
-        _executablePathProvider = executablePathProvider;
-        _selectedPathProvider = selectedPathProvider;
-        _startProcess = startProcess;
+        _runtime = runtime;
     }
 
     public void GetTitle(IShellItemArray? itemArray, out string name)
     {
-        name = _menuTextProvider();
+        name = _runtime.GetMenuText();
     }
 
     public void GetIcon(IShellItemArray? itemArray, out string icon)
     {
-        icon = _executablePathProvider() ?? string.Empty;
+        icon = _runtime.ResolveExecutablePath() ?? string.Empty;
     }
 
     public void GetToolTip(IShellItemArray? itemArray, out string infoTip)
@@ -60,15 +50,15 @@ public sealed class ApplanchExplorerCommand : IExplorerCommand
 
     public void GetState(IShellItemArray? itemArray, bool okToBeSlow, out ExplorerCommandState commandState)
     {
-        commandState = string.IsNullOrWhiteSpace(_executablePathProvider()) || string.IsNullOrWhiteSpace(_selectedPathProvider(itemArray))
+        commandState = string.IsNullOrWhiteSpace(_runtime.ResolveExecutablePath()) || string.IsNullOrWhiteSpace(_runtime.GetSelectedPath(itemArray))
             ? ExplorerCommandState.Hidden
             : ExplorerCommandState.Enabled;
     }
 
     public void Invoke(IShellItemArray? itemArray, System.Runtime.InteropServices.ComTypes.IBindCtx? bindContext)
     {
-        var executablePath = _executablePathProvider();
-        var selectedPath = _selectedPathProvider(itemArray);
+        var executablePath = _runtime.ResolveExecutablePath();
+        var selectedPath = _runtime.GetSelectedPath(itemArray);
         if (string.IsNullOrWhiteSpace(executablePath) || string.IsNullOrWhiteSpace(selectedPath))
         {
             throw new COMException("Unable to resolve applanch command target.", EFail);
@@ -81,7 +71,7 @@ public sealed class ApplanchExplorerCommand : IExplorerCommand
         startInfo.ArgumentList.Add(RegisterArgument);
         startInfo.ArgumentList.Add(selectedPath);
 
-        if (_startProcess(startInfo) is null)
+        if (_runtime.StartProcess(startInfo) is null)
         {
             throw new COMException("Unable to launch applanch.", EFail);
         }
@@ -98,13 +88,13 @@ public sealed class ApplanchExplorerCommand : IExplorerCommand
         throw new COMException("Subcommands are not supported.", ENotImpl);
     }
 
-    private static string GetMenuTextFromRegistry()
+    internal static string GetMenuTextFromRegistry()
     {
         using var key = Registry.CurrentUser.OpenSubKey(MenuRegistryPath, writable: false);
         return key?.GetValue(string.Empty) as string ?? string.Empty;
     }
 
-    private static string? ResolveExecutablePath()
+    internal static string? ResolveExecutablePath()
     {
         var assemblyDirectory = Path.GetDirectoryName(typeof(ApplanchExplorerCommand).Assembly.Location);
         if (string.IsNullOrWhiteSpace(assemblyDirectory))
@@ -116,7 +106,7 @@ public sealed class ApplanchExplorerCommand : IExplorerCommand
         return File.Exists(executablePath) ? executablePath : null;
     }
 
-    private static string? GetSelectedPath(IShellItemArray? itemArray)
+    internal static string? GetSelectedPath(IShellItemArray? itemArray)
     {
         if (itemArray is null)
         {
