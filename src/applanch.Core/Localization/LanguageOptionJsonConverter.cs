@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace applanch.Core.Localization;
+namespace applanch.Localization;
 
 internal sealed class LanguageOptionJsonConverter : JsonConverter<LanguageOption>
 {

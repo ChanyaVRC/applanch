@@ -9,7 +9,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using applanch.Settings;
-using applanch.Core.Utilities;
+using applanch.Utilities;
 using applanch.Serialization;
 
 namespace applanch.Infrastructure.Integration;

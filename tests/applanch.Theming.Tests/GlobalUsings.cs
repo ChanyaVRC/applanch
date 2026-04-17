@@ -1,2 +1,2 @@
-global using applanch.Core.Localization;
+global using applanch.Localization;
 

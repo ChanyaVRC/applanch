@@ -1,5 +1,5 @@
 using System.Windows.Media;
-using applanch.Core.Localization;
+using applanch.Localization;
 
 namespace applanch.Theming;
 

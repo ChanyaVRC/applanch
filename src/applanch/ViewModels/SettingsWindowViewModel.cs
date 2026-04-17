@@ -7,8 +7,8 @@ using applanch.Settings;
 using applanch.Theming;
 using applanch.Infrastructure.Updates;
 using applanch.Updates;
-using applanch.Core.Utilities;
-using applanch.Core.Localization;
+using applanch.Utilities;
+using applanch.Localization;
 using applanch.Infrastructure.Utilities;
 
 namespace applanch.ViewModels;

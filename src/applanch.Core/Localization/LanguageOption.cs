@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.Json.Serialization;
 
-namespace applanch.Core.Localization;
+namespace applanch.Localization;
 
 /// <summary>
 /// Represents a language option for the application.

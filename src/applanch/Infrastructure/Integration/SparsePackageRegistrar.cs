@@ -1,7 +1,7 @@
 using System.IO;
 using System.Runtime.Versioning;
 using Windows.Management.Deployment;
-using applanch.Core.Utilities;
+using applanch.Utilities;
 
 namespace applanch.Infrastructure.Integration;
 

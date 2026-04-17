@@ -1,5 +1,5 @@
 using applanch.Settings;
-using applanch.Core.Configuration;
+using applanch.Configuration;
 using applanch.Tests.TestSupport;
 using applanch.Tests.ViewModels.TestDoubles;
 using applanch.ViewModels;

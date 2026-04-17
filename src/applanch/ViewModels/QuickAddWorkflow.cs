@@ -1,4 +1,4 @@
-using applanch.Core.Resolution;
+using applanch.Resolution;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Storage;
 

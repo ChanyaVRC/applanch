@@ -7,15 +7,15 @@ using applanch.Events;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Integration;
 using applanch.Infrastructure.Launch;
-using applanch.Core.Resolution;
+using applanch.Resolution;
 using applanch.Infrastructure.Storage;
 using applanch.Settings;
 using applanch.Theming;
 using applanch.Infrastructure.Updates;
 using applanch.Updates;
 using applanch.ViewModels;
-using applanch.Core.Utilities;
-using applanch.Core.Localization;
+using applanch.Utilities;
+using applanch.Localization;
 using applanch.Infrastructure.Wpf;
 
 namespace applanch;

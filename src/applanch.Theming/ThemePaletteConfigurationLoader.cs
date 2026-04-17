@@ -1,8 +1,8 @@
 using System.Buffers;
 using System.IO;
 using System.Text.Json;
-using applanch.Core.Configuration;
-using applanch.Core.Localization;
+using applanch.Configuration;
+using applanch.Localization;
 
 namespace applanch.Theming;
 

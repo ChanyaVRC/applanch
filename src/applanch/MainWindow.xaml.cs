@@ -7,7 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
-using applanch.Core.Configuration;
+using applanch.Configuration;
 using applanch.Events;
 using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Launch;
@@ -19,7 +19,7 @@ using applanch.Theming;
 using applanch.ViewModels;
 using applanch.Workflows.Items;
 using applanch.Workflows.Launch;
-using applanch.Core.Utilities;
+using applanch.Utilities;
 using applanch.Infrastructure.Wpf;
 
 namespace applanch;

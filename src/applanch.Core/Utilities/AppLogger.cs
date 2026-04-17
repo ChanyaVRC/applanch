@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
 
-namespace applanch.Core.Utilities;
+namespace applanch.Utilities;
 
 public sealed class AppLogger : IDisposable
 {

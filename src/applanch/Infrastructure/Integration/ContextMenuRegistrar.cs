@@ -8,7 +8,7 @@ using RegistryCommandWriter = System.Action<string, string, string, string, bool
 using ExplorerCommandRegistrar = System.Action<string>;
 using RegistrySubKeyTreeDeleter = System.Action<string>;
 using ExplorerCommandAllowedChecker = System.Func<bool>;
-using applanch.Core.Utilities;
+using applanch.Utilities;
 
 namespace applanch.Infrastructure.Integration;
 

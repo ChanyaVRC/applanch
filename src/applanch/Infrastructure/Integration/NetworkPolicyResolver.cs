@@ -1,6 +1,6 @@
 using System.Net;
 using applanch.Settings;
-using applanch.Core.Utilities;
+using applanch.Utilities;
 
 namespace applanch.Infrastructure.Integration;
 

@@ -1,4 +1,4 @@
-namespace applanch.Core.Utilities;
+namespace applanch.Utilities;
 
 public enum PathType
 {

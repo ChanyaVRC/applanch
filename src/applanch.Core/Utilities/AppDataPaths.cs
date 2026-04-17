@@ -1,6 +1,6 @@
 using System.Buffers;
 
-namespace applanch.Core.Utilities;
+namespace applanch.Utilities;
 
 public static class AppDataPaths
 {

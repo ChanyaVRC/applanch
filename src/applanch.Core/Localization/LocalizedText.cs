@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace applanch.Core.Localization;
+namespace applanch.Localization;
 
 /// <summary>
 /// Manages localized text with support for multiple language options.

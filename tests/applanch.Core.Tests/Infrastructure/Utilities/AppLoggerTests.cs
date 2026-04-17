@@ -1,4 +1,4 @@
-using applanch.Core.Utilities;
+using applanch.Utilities;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Utilities;

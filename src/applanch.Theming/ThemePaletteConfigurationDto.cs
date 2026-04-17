@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using applanch.Core.Localization;
+using applanch.Localization;
 
 namespace applanch.Theming;
 

@@ -1,7 +1,7 @@
 using System.IO;
 using System.Text.Json;
-using applanch.Core.Configuration;
-using applanch.Core.Utilities;
+using applanch.Configuration;
+using applanch.Utilities;
 using applanch.Serialization;
 
 namespace applanch.Infrastructure.Utilities;

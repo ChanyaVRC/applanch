@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using applanch.Infrastructure.Storage;
 using applanch.Settings;
-using applanch.Core.Utilities;
+using applanch.Utilities;
 using applanch.Infrastructure.Utilities;
 
 using applanch.Updates;

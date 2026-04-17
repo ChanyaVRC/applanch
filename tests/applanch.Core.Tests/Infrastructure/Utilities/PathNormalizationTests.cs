@@ -1,4 +1,4 @@
-using applanch.Core.Utilities;
+using applanch.Utilities;
 using Microsoft.Win32;
 using Xunit;
 

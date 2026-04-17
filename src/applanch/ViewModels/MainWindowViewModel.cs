@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Data;
 using applanch.Helpers;
 using applanch.Infrastructure.Integration;
-using applanch.Core.Resolution;
+using applanch.Resolution;
 using applanch.Infrastructure.Storage;
 using applanch.Settings;
 

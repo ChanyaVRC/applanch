@@ -1,4 +1,4 @@
-namespace applanch.Core.Configuration;
+namespace applanch.Configuration;
 
 public static class BundledConfigLoadNotificationCenter
 {

@@ -1,6 +1,6 @@
 using System.Text.Json;
-using applanch.Core.Localization;
-using applanch.Core.Utilities;
+using applanch.Localization;
+using applanch.Utilities;
 
 namespace applanch.Settings;
 

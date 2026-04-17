@@ -10,7 +10,7 @@ using applanch.Settings;
 using applanch.Theming;
 using applanch.Updates;
 using applanch.ViewModels;
-using applanch.Core.Utilities;
+using applanch.Utilities;
 using applanch.Infrastructure.Utilities;
 using applanch.Infrastructure.Wpf;
 

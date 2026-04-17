@@ -1,5 +1,5 @@
 using System.IO;
-using applanch.Core.Localization;
+using applanch.Localization;
 
 namespace applanch.Infrastructure.Storage;
 

@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.ComponentModel;
 using System.IO;
 using applanch.ViewModels;
-using applanch.Core.Utilities;
+using applanch.Utilities;
 
 namespace applanch.Infrastructure.Launch;
 

@@ -1,6 +1,6 @@
-using applanch.Core.Utilities;
+using applanch.Utilities;
 
-namespace applanch.Core.Resolution;
+namespace applanch.Resolution;
 
 public readonly record struct ResolvedApp(LaunchPath Path, string DisplayName);
 

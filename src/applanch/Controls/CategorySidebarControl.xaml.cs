@@ -9,7 +9,7 @@ using applanch.Infrastructure.Dialogs;
 using applanch.Infrastructure.Presentation;
 using applanch.Infrastructure.Storage;
 using applanch.ViewModels;
-using applanch.Core.Utilities;
+using applanch.Utilities;
 using applanch.Infrastructure.Wpf;
 
 namespace applanch.Controls;

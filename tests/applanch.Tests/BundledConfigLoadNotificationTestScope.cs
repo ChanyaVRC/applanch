@@ -1,4 +1,4 @@
-using applanch.Core.Configuration;
+using applanch.Configuration;
 
 namespace applanch.Tests;
 

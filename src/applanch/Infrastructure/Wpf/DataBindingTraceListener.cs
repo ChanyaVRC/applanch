@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using applanch.Core.Utilities;
+using applanch.Utilities;
 
 namespace applanch.Infrastructure.Wpf;
 
