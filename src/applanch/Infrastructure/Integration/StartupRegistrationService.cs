@@ -1,26 +1,24 @@
 using Microsoft.Win32;
-
 namespace applanch.Infrastructure.Integration;
 
 internal sealed class StartupRegistrationService
 {
-    private const string RunKeyPath = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
     private const string EntryName = "applanch";
-    private readonly Func<IStartupRunKey?> _openRunKey;
+    private readonly IStartupRegistrationRuntime _runtime;
 
     public StartupRegistrationService()
-        : this(OpenRunKey)
+        : this(new StartupRegistrationRuntime())
     {
     }
 
-    internal StartupRegistrationService(Func<IStartupRunKey?> openRunKey)
+    internal StartupRegistrationService(IStartupRegistrationRuntime runtime)
     {
-        _openRunKey = openRunKey;
+        _runtime = runtime;
     }
 
     public void Apply(bool enabled, string executablePath)
     {
-        using var runKey = _openRunKey();
+        using var runKey = _runtime.OpenRunKey();
 
         if (runKey is null)
         {
@@ -50,32 +48,4 @@ internal sealed class StartupRegistrationService
     }
 
     private static string Quote(string value) => $"\"{value}\"";
-
-    private static IStartupRunKey? OpenRunKey()
-    {
-        var key = Registry.CurrentUser.OpenSubKey(RunKeyPath, writable: true)
-            ?? Registry.CurrentUser.CreateSubKey(RunKeyPath, writable: true);
-
-        return key is null ? null : new RegistryStartupRunKey(key);
-    }
-
-    internal interface IStartupRunKey : IDisposable
-    {
-        object? GetValue(string name);
-        void SetValue(string name, object value, RegistryValueKind valueKind);
-        void DeleteValue(string name, bool throwOnMissingValue);
-    }
-
-    private sealed class RegistryStartupRunKey(RegistryKey key) : IStartupRunKey
-    {
-        public object? GetValue(string name) => key.GetValue(name);
-
-        public void SetValue(string name, object value, RegistryValueKind valueKind) =>
-            key.SetValue(name, value, valueKind);
-
-        public void DeleteValue(string name, bool throwOnMissingValue) =>
-            key.DeleteValue(name, throwOnMissingValue);
-
-        public void Dispose() => key.Dispose();
-    }
 }

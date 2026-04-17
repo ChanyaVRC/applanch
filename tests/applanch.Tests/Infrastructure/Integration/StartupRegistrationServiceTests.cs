@@ -10,7 +10,7 @@ public class StartupRegistrationServiceTests
     public void Apply_Enabled_WritesQuotedExecutablePath()
     {
         var runKey = new FakeRunKey();
-        var sut = new StartupRegistrationService(() => runKey);
+        var sut = new StartupRegistrationService(new FakeRuntime(runKey));
 
         sut.Apply(enabled: true, executablePath: @"C:\Tools\applanch.exe");
 
@@ -23,7 +23,7 @@ public class StartupRegistrationServiceTests
     public void Apply_Disabled_WithExistingValue_DeletesEntry()
     {
         var runKey = new FakeRunKey(existingValue: "existing");
-        var sut = new StartupRegistrationService(() => runKey);
+        var sut = new StartupRegistrationService(new FakeRuntime(runKey));
 
         sut.Apply(enabled: false, executablePath: @"C:\Tools\applanch.exe");
 
@@ -35,7 +35,7 @@ public class StartupRegistrationServiceTests
     public void Apply_Disabled_WithoutExistingValue_DoesNotDelete()
     {
         var runKey = new FakeRunKey(existingValue: null);
-        var sut = new StartupRegistrationService(() => runKey);
+        var sut = new StartupRegistrationService(new FakeRuntime(runKey));
 
         sut.Apply(enabled: false, executablePath: @"C:\Tools\applanch.exe");
 
@@ -43,7 +43,12 @@ public class StartupRegistrationServiceTests
         Assert.True(runKey.DisposeCalled);
     }
 
-    private sealed class FakeRunKey(object? existingValue = null) : StartupRegistrationService.IStartupRunKey
+    private sealed class FakeRuntime(IStartupRunKey? runKey) : IStartupRegistrationRuntime
+    {
+        public IStartupRunKey? OpenRunKey() => runKey;
+    }
+
+    private sealed class FakeRunKey(object? existingValue = null) : IStartupRunKey
     {
         private object? _value = existingValue;
 
