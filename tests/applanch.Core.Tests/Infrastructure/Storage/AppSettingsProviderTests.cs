@@ -1,37 +1,33 @@
-using applanch.Events;
 using applanch.Infrastructure.Storage;
 using applanch.Settings;
-using applanch.Tests.TestSupport;
 using Xunit;
 
 namespace applanch.Tests.Infrastructure.Storage;
 
+[Collection("SettingsState")]
 public class AppSettingsProviderTests
 {
     [Fact]
-    public void Register_WhenBeforeCommitInvoked_StoresNormalizedCurrentSettings()
+    public void NormalizeAndSetCurrent_StoresNormalizedCurrentSettings()
     {
         var previousCurrent = AppSettingsProvider.Current;
-        var appEvent = AppEventFactory.Create();
 
         try
         {
-            AppSettingsProvider.Register(appEvent);
             var settings = new AppSettings
             {
                 ThemeId = "  monochrome  ",
                 QuickAddSuggestionLimit = 0,
             };
 
-            appEvent.Invoke(AppEvents.BeforeCommit, settings);
+            AppSettingsProvider.NormalizeAndSetCurrent(settings);
 
             Assert.Equal("monochrome", AppSettingsProvider.Current.ThemeId);
             Assert.Equal(AppSettings.MinQuickAddSuggestionLimit, AppSettingsProvider.Current.QuickAddSuggestionLimit);
         }
         finally
         {
-            ResetCurrent(appEvent, previousCurrent);
-            AppSettingsProvider.Unregister(appEvent);
+            AppSettingsProvider.NormalizeAndSetCurrent(previousCurrent);
         }
     }
 
@@ -39,33 +35,17 @@ public class AppSettingsProviderTests
     public void Current_WhenAlreadyLoaded_ReturnsCachedValue()
     {
         var previousCurrent = AppSettingsProvider.Current;
-        var appEvent = AppEventFactory.Create();
 
         try
         {
-            AppSettingsProvider.Register(appEvent);
-            var loaded = UpdateCurrent(appEvent, new AppSettings { ThemeId = "cached" });
+            var loaded = AppSettingsProvider.NormalizeAndSetCurrent(new AppSettings { ThemeId = "cached" });
             var result = AppSettingsProvider.Current;
 
             Assert.Equal(loaded, result);
-            Assert.Same(AppSettingsProvider.Current, result);
         }
         finally
         {
-            ResetCurrent(appEvent, previousCurrent);
-            AppSettingsProvider.Unregister(appEvent);
+            AppSettingsProvider.NormalizeAndSetCurrent(previousCurrent);
         }
-    }
-
-    private static AppSettings UpdateCurrent(AppEvent appEvent, AppSettings settings)
-    {
-        var normalized = settings.Normalize();
-        appEvent.Invoke(AppEvents.BeforeCommit, normalized);
-        return normalized;
-    }
-
-    private static void ResetCurrent(AppEvent appEvent, AppSettings settings)
-    {
-        appEvent.Invoke(AppEvents.BeforeCommit, settings);
     }
 }

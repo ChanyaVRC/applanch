@@ -9,7 +9,7 @@ namespace applanch.Tests.TestSupport;
 [SupportedOSPlatform("windows")]
 internal static class WpfTestHost
 {
-    private static readonly object AppInitLock = new();
+    private static readonly Lock AppInitLock = new();
 
     internal static void RunInSta(Action action)
     {

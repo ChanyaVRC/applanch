@@ -109,11 +109,11 @@ public sealed partial class MainWindow : Window
         CategorySidebar.NotificationRequested += (message, icon) => ShowFloatingNotification(message, icon);
         DataContext = ViewModel;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
-        _appEvent.Register(AppEvents.Refresh, OnAppRefreshRequested);
-        _appEvent.Register(AppEvents.UpdateAvailabilityEvaluated, OnUpdateAvailabilityEvaluated);
-        _appEvent.Register(AppEvents.UpdateAutomaticApplyFailed, OnAutomaticApplyFailedForUi);
-        _appEvent.Register(AppEvents.UpdateApplyFailed, OnUpdateApplyFailedForUi);
-        _appEvent.Register(AppEvents.UpdateApplySucceeded, OnUpdateApplySucceededForUi);
+        _appEvent.Subscribe(AppEvents.Refresh, OnAppRefreshRequested);
+        _appEvent.Subscribe(AppEvents.UpdateAvailabilityEvaluated, OnUpdateAvailabilityEvaluated);
+        _appEvent.Subscribe(AppEvents.UpdateAutomaticApplyFailed, OnAutomaticApplyFailedForUi);
+        _appEvent.Subscribe(AppEvents.UpdateApplyFailed, OnUpdateApplyFailedForUi);
+        _appEvent.Subscribe(AppEvents.UpdateApplySucceeded, OnUpdateApplySucceededForUi);
         BundledConfigLoadNotificationCenter.Reported += OnBundledConfigLoadIssueReported;
         ViewModel.ApplySettings(_settings);
         ApplyCategorySidebarPinnedSetting(_settings.CategorySidebarPinned, animate: false);
@@ -130,11 +130,11 @@ public sealed partial class MainWindow : Window
 
     protected override void OnClosed(EventArgs e)
     {
-        _appEvent.Unregister(AppEvents.Refresh, OnAppRefreshRequested);
-        _appEvent.Unregister(AppEvents.UpdateAvailabilityEvaluated, OnUpdateAvailabilityEvaluated);
-        _appEvent.Unregister(AppEvents.UpdateAutomaticApplyFailed, OnAutomaticApplyFailedForUi);
-        _appEvent.Unregister(AppEvents.UpdateApplyFailed, OnUpdateApplyFailedForUi);
-        _appEvent.Unregister(AppEvents.UpdateApplySucceeded, OnUpdateApplySucceededForUi);
+        _appEvent.Unsubscribe(AppEvents.Refresh, OnAppRefreshRequested);
+        _appEvent.Unsubscribe(AppEvents.UpdateAvailabilityEvaluated, OnUpdateAvailabilityEvaluated);
+        _appEvent.Unsubscribe(AppEvents.UpdateAutomaticApplyFailed, OnAutomaticApplyFailedForUi);
+        _appEvent.Unsubscribe(AppEvents.UpdateApplyFailed, OnUpdateApplyFailedForUi);
+        _appEvent.Unsubscribe(AppEvents.UpdateApplySucceeded, OnUpdateApplySucceededForUi);
         _updateCoordinator.Dispose();
         BundledConfigLoadNotificationCenter.Reported -= OnBundledConfigLoadIssueReported;
 

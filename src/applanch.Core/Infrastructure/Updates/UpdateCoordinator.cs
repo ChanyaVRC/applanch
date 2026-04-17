@@ -30,18 +30,18 @@ public sealed class UpdateCoordinator : IDisposable
         _tryBeginApply = dependencies.TryBeginApply;
         _endApply = dependencies.EndApply;
 
-        _appEvent.Register(AppEvents.Commit, OnSettingsCommitted);
-        _appEvent.Register(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
-        _appEvent.Register(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
-        _appEvent.Register(AppEvents.ApplyUpdateRequested, OnApplyUpdateRequested);
+        _appEvent.Subscribe(AppEvents.Commit, OnSettingsCommitted);
+        _appEvent.Subscribe(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
+        _appEvent.Subscribe(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
+        _appEvent.Subscribe(AppEvents.ApplyUpdateRequested, OnApplyUpdateRequested);
     }
 
     public void Dispose()
     {
-        _appEvent.Unregister(AppEvents.Commit, OnSettingsCommitted);
-        _appEvent.Unregister(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
-        _appEvent.Unregister(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
-        _appEvent.Unregister(AppEvents.ApplyUpdateRequested, OnApplyUpdateRequested);
+        _appEvent.Unsubscribe(AppEvents.Commit, OnSettingsCommitted);
+        _appEvent.Unsubscribe(AppEvents.UpdateCheckRequested, OnUpdateCheckRequested);
+        _appEvent.Unsubscribe(AppEvents.UpdateAvailabilityChanged, OnUpdateAvailabilityChanged);
+        _appEvent.Unsubscribe(AppEvents.ApplyUpdateRequested, OnApplyUpdateRequested);
     }
 
     public void Reconfigure(IAppUpdateService updateService)

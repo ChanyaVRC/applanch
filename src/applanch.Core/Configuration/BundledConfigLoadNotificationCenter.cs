@@ -2,7 +2,7 @@ namespace applanch.Configuration;
 
 public static class BundledConfigLoadNotificationCenter
 {
-    private static readonly object Gate = new();
+    private static readonly Lock Gate = new();
     private static readonly List<BundledConfigLoadIssue> PendingIssues = [];
     private static readonly HashSet<BundledConfigLoadIssue> ReportedIssues = [];
 

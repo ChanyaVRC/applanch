@@ -1,6 +1,2 @@
-namespace applanch.Events;
+// This file is no longer used. AppEventKey (non-generic) has replaced AppSignalEventKey.
 
-public sealed class AppSignalEventKey(AppEventType type)
-{
-    public AppEventType Type { get; } = type;
-}

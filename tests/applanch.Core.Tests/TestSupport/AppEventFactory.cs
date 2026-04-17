@@ -10,7 +10,5 @@ internal static class AppEventFactory
         ?? throw new InvalidOperationException("AppEvent private constructor not found.");
 
     internal static AppEvent Create()
-    {
-        return (AppEvent)PrivateConstructor.Invoke(null);
-    }
+        => (AppEvent)PrivateConstructor.Invoke(null);
 }

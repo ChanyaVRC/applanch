@@ -1,94 +1,142 @@
-using applanch.Infrastructure.Storage;
-using applanch.Settings;
-using applanch.Updates;
-
 namespace applanch.Events;
 
-public sealed class AppEvent
+public sealed partial class AppEvent
 {
-    public static AppEvent Instance { get; } = new();
+    private static readonly Lazy<AppEvent> InstanceFactory =
+        new(() => new AppEvent());
+    private static readonly Lock RegistrationSync = new();
+    private static readonly Dictionary<int, ChannelRegistration> Registrations = [];
 
-    private readonly Dictionary<AppEventType, object> _channels;
+    public static AppEvent Instance => InstanceFactory.Value;
+
+    private static int _nextKeyId;
+
+    private readonly Dictionary<int, object> _channels;
 
     private AppEvent()
     {
-        var beforeCommitChannel = new EventChannel<AppSettings>();
-        var refreshChannel = new EventChannel<AppRefreshPayload>();
-
-        _channels = new Dictionary<AppEventType, object>
-        {
-            [AppEventType.BeforeCommit] = beforeCommitChannel,
-            [AppEventType.Commit] = new EventChannel<AppSettings>(
-                (settings, next) =>
-                {
-                    var previousSettings = AppSettingsProvider.Current;
-
-                    beforeCommitChannel.Invoke(settings);
-                    next(settings);
-                    refreshChannel.Invoke(new AppRefreshPayload(previousSettings, settings));
-                }),
-            [AppEventType.Refresh] = refreshChannel,
-            [AppEventType.UpdateCheckRequested] = new EventChannel(),
-            [AppEventType.UpdateAvailabilityChanged] = new EventChannel<AppUpdateInfo?>(),
-            [AppEventType.ApplyUpdateRequested] = new EventChannel<AppUpdateInfo>(),
-            [AppEventType.UpdateAvailabilityEvaluated] = new EventChannel<UpdateAvailabilityEvaluation>(),
-            [AppEventType.UpdateAutomaticApplyFailed] = new EventChannel(),
-            [AppEventType.UpdateApplyFailed] = new EventChannel<UpdateApplyResult>(),
-            [AppEventType.UpdateApplySucceeded] = new EventChannel(),
-        };
+        _channels = [];
     }
 
-    public void Register<TPayload>(AppEventKey<TPayload> eventKey, Action<TPayload> handler)
+    public static AppEventKey<TPayload> Register<TPayload>(string name)
+        => Register<TPayload>(name, SignalChannelRegistration<TPayload>.Instance);
+
+    public static AppEventKey<TPayload> Register<TPayload>(string name, InvokePipeline<TPayload>? invokePipeline = null)
+        => Register<TPayload>(name, new PayloadChannelRegistration<TPayload>(invokePipeline));
+
+    private static AppEventKey<TPayload> Register<TPayload>(string name, ChannelRegistration registration)
+    {
+        var eventKey = CreateKey<TPayload>(name);
+        RegisterChannel(eventKey.Id, eventKey.Name, registration);
+        return eventKey;
+    }
+
+    public static AppEventKey Register(string name)
+        => Register(name, SignalChannelRegistration.Instance);
+
+    public static AppEventKey Register(string name, InvokePipeline invokePipeline)
+        => Register(name, new PayloadChannelRegistration(invokePipeline));
+
+    private static AppEventKey Register(string name, ChannelRegistration registration)
+    {
+        var eventKey = CreateKey(name);
+        RegisterChannel(eventKey.Id, eventKey.Name, registration);
+        return eventKey;
+    }
+
+
+    public void Subscribe<TPayload>(AppEventKey<TPayload> eventKey, Action<TPayload> handler)
         => GetChannel(eventKey).Register(handler);
 
-    public void Unregister<TPayload>(AppEventKey<TPayload> eventKey, Action<TPayload> handler)
+    public void Unsubscribe<TPayload>(AppEventKey<TPayload> eventKey, Action<TPayload> handler)
         => GetChannel(eventKey).Unregister(handler);
 
     public void Invoke<TPayload>(AppEventKey<TPayload> eventKey, TPayload payload)
         => GetChannel(eventKey).Invoke(payload);
 
-    public void Register(AppSignalEventKey eventKey, Action handler)
+    public void Subscribe(AppEventKey eventKey, Action handler)
         => GetSignalChannel(eventKey).Register(handler);
 
-    public void Unregister(AppSignalEventKey eventKey, Action handler)
+    public void Unsubscribe(AppEventKey eventKey, Action handler)
         => GetSignalChannel(eventKey).Unregister(handler);
 
-    public void Invoke(AppSignalEventKey eventKey)
+    public void Invoke(AppEventKey eventKey)
         => GetSignalChannel(eventKey).Invoke();
 
     private EventChannel<TPayload> GetChannel<TPayload>(AppEventKey<TPayload> eventKey)
     {
-        var channel = GetChannelOrThrow(eventKey.Type, nameof(eventKey));
+        var channel = GetChannelOrThrow(eventKey.Id, nameof(eventKey), eventKey.Name);
 
         if (channel is not EventChannel<TPayload> typedChannel)
         {
-            throw new ArgumentException($"Event type {eventKey.Type} expects payload {GetPayloadName(channel)}; received {eventKey.PayloadName}.", nameof(eventKey));
+            throw new ArgumentException($"Event key {GetKeyLabel(eventKey.Name, eventKey.Id)} expects payload {GetPayloadName(channel)}; received {eventKey.PayloadName}.", nameof(eventKey));
         }
 
         return typedChannel;
     }
 
-    private EventChannel GetSignalChannel(AppSignalEventKey eventKey)
+    private EventChannel GetSignalChannel(AppEventKey eventKey)
     {
-        var channel = GetChannelOrThrow(eventKey.Type, nameof(eventKey));
+        var channel = GetChannelOrThrow(eventKey.Id, nameof(eventKey), eventKey.Name);
 
         if (channel is not EventChannel noPayloadChannel)
         {
-            throw new ArgumentException($"Event type {eventKey.Type} expects payload {GetPayloadName(channel)}.", nameof(eventKey));
+            throw new ArgumentException($"Event key {GetKeyLabel(eventKey.Name, eventKey.Id)} expects payload {GetPayloadName(channel)}.", nameof(eventKey));
         }
 
         return noPayloadChannel;
     }
 
-    private object GetChannelOrThrow(AppEventType eventType, string parameterName)
+    private object GetChannelOrThrow(int eventId, string parameterName, string? name)
     {
-        if (!_channels.TryGetValue(eventType, out var channel))
+        if (_channels.TryGetValue(eventId, out var channel))
         {
-            throw new ArgumentException($"Unknown event type: {eventType}", parameterName);
+            return channel;
         }
 
+        channel = GetRegistrationOrThrow(eventId, parameterName, name).CreateChannel(this);
+        _channels[eventId] = channel;
         return channel;
     }
+
+    private static ChannelRegistration GetRegistrationOrThrow(int eventId, string parameterName, string? name)
+    {
+        lock (RegistrationSync)
+        {
+            if (Registrations.TryGetValue(eventId, out var registration))
+            {
+                return registration;
+            }
+        }
+
+        throw new ArgumentException($"Unknown event key: {GetKeyLabel(name, eventId)}", parameterName);
+    }
+
+    private static void RegisterChannel(int eventId, string? name, ChannelRegistration registration)
+    {
+        lock (RegistrationSync)
+        {
+            if (!Registrations.TryAdd(eventId, registration))
+            {
+                throw new InvalidOperationException($"Event key {GetKeyLabel(name, eventId)} is already registered.");
+            }
+        }
+    }
+
+    private static AppEventKey<TPayload> CreateKey<TPayload>(string? name)
+    {
+        var id = Interlocked.Increment(ref _nextKeyId);
+        return new AppEventKey<TPayload>(id, name);
+    }
+
+    private static AppEventKey CreateKey(string? name)
+    {
+        var id = Interlocked.Increment(ref _nextKeyId);
+        return new AppEventKey(id, name);
+    }
+
+    private static string GetKeyLabel(string? name, int id)
+        => string.IsNullOrWhiteSpace(name) ? id.ToString() : $"{name} ({id})";
 
     private static string GetPayloadName(object channel)
     {
@@ -96,37 +144,5 @@ public sealed class AppEvent
         return channelType.IsGenericType
             ? channelType.GenericTypeArguments[0].Name
             : "no payload";
-    }
-
-    private sealed class EventChannel
-    {
-        private event Action? Handlers;
-
-        internal void Register(Action handler) => Handlers += handler;
-
-        internal void Unregister(Action handler) => Handlers -= handler;
-
-        internal void Invoke() => Handlers?.Invoke();
-    }
-
-    private sealed class EventChannel<TPayload>
-    {
-        private readonly Action<TPayload, Action<TPayload>> _invokePipeline;
-        private event Action<TPayload>? Handlers;
-
-        internal EventChannel(Action<TPayload, Action<TPayload>>? invokePipeline = null)
-        {
-            _invokePipeline = invokePipeline ?? (static (payload, next) => next(payload));
-        }
-
-        internal void Register(Action<TPayload> handler) => Handlers += handler;
-
-        internal void Unregister(Action<TPayload> handler) => Handlers -= handler;
-
-        internal void Invoke(TPayload payload)
-            => _invokePipeline(payload, InvokeHandlers);
-
-        private void InvokeHandlers(TPayload payload)
-            => Handlers?.Invoke(payload);
     }
 }

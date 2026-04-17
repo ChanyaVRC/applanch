@@ -35,13 +35,13 @@ public sealed partial class SettingsWindow : Window
             settings,
             _appEvent,
             updateServiceFactory: updateServiceFactory);
-        _appEvent.Register(AppEvents.Refresh, OnAppRefreshRequested);
+        _appEvent.Subscribe(AppEvents.Refresh, OnAppRefreshRequested);
         DataContext = ViewModel;
     }
 
     protected override void OnClosed(EventArgs e)
     {
-        _appEvent.Unregister(AppEvents.Refresh, OnAppRefreshRequested);
+        _appEvent.Unsubscribe(AppEvents.Refresh, OnAppRefreshRequested);
         ViewModel.Dispose();
         base.OnClosed(e);
     }

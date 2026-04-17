@@ -21,7 +21,7 @@ public sealed class SettingsThemeSelectionUiTests
         WpfTestHost.RunInSta(() =>
         {
             var appEvent = AppEventFactory.Create();
-            appEvent.Register(AppEvents.Commit, payload =>
+            appEvent.Subscribe(AppEvents.Commit, payload =>
             {
                 var settings = Assert.IsType<AppSettings>(payload);
                 var cultureName = settings.Language == LanguageOption.Japanese ? "ja-JP" : "en-US";

@@ -30,7 +30,7 @@ public class SettingsWindowViewModelTests
         var appEvent = AppEventFactory.Create();
         if (onCommit is not null)
         {
-            appEvent.Register(AppEvents.Commit, onCommit);
+            appEvent.Subscribe(AppEvents.Commit, onCommit);
         }
 
         return new SettingsWindowViewModel(
@@ -341,7 +341,7 @@ public class SettingsWindowViewModelTests
         var appEvent = AppEventFactory.Create();
         var providerCallCount = 0;
 
-        appEvent.Register(AppEvents.Commit, payload =>
+        appEvent.Subscribe(AppEvents.Commit, payload =>
         {
             var settings = Assert.IsType<AppSettings>(payload);
             var cultureName = settings.Language == LanguageOption.Japanese ? "ja-JP" : "en-US";

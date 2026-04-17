@@ -91,17 +91,15 @@ public sealed partial class App : Application
 
     private void RegisterLifecycleEventHandlers()
     {
-        AppSettingsProvider.Register(Events);
-        Events.Register(AppEvents.Commit, OnSettingsCommitted);
-        Events.Register(AppEvents.Refresh, Refresh);
+        Events.Subscribe(AppEvents.Commit, OnSettingsCommitted);
+        Events.Subscribe(AppEvents.Refresh, Refresh);
         SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
     }
 
     private void UnregisterLifecycleEventHandlers()
     {
-        AppSettingsProvider.Unregister(Events);
-        Events.Unregister(AppEvents.Commit, OnSettingsCommitted);
-        Events.Unregister(AppEvents.Refresh, Refresh);
+        Events.Unsubscribe(AppEvents.Commit, OnSettingsCommitted);
+        Events.Unsubscribe(AppEvents.Refresh, Refresh);
         SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
     }
 

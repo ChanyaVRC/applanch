@@ -7,6 +7,7 @@ using Xunit;
 
 namespace applanch.Tests.Infrastructure.Updates;
 
+[Collection("SettingsState")]
 public class UpdateCoordinatorTests
 {
     [Fact]
@@ -17,7 +18,7 @@ public class UpdateCoordinatorTests
         var service = new FakeAppUpdateService { CheckResult = update };
         var callback = new TaskCompletionSource<AppUpdateInfo?>(TaskCreationOptions.RunContinuationsAsynchronously);
         using var coordinator = CreateCoordinator(appEvent, service);
-        appEvent.Register(AppEvents.UpdateAvailabilityEvaluated, availability => callback.TrySetResult(availability.Update));
+        appEvent.Subscribe(AppEvents.UpdateAvailabilityEvaluated, availability => callback.TrySetResult(availability.Update));
 
         appEvent.Invoke(AppEvents.UpdateCheckRequested);
 
