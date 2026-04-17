@@ -54,3 +54,4 @@ public class AppLoggerTests
         Assert.Contains("Inner: Exception: inner", log, StringComparison.Ordinal);
     }
 }
+

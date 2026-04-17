@@ -52,3 +52,4 @@ public readonly struct LaunchPath : IEquatable<LaunchPath>
 
     public static bool operator !=(LaunchPath left, LaunchPath right) => !left.Equals(right);
 }
+

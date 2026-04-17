@@ -9,3 +9,4 @@ public sealed class AppResolverAdapter : IAppResolver
         AppResolver.GetSuggestions(input, maxResults);
 }
 
+

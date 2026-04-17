@@ -144,3 +144,4 @@ internal abstract class ThemeDefinition
         }
     }
 }
+

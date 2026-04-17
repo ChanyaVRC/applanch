@@ -6,3 +6,4 @@ public enum PathType
     RegisteredUrl,
     HttpUrl,
 }
+

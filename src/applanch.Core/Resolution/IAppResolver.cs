@@ -6,3 +6,4 @@ public interface IAppResolver
     IReadOnlyList<string> GetSuggestions(string input, int maxResults = 8);
 }
 
+

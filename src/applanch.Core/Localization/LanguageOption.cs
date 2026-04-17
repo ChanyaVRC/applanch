@@ -98,3 +98,4 @@ public sealed record LanguageOption
 
     public override string ToString() => Code;
 }
+

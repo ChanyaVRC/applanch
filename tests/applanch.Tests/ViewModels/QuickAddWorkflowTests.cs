@@ -202,3 +202,4 @@ public class QuickAddWorkflowTests
         return new LaunchItemViewModel(new LaunchPath(path), Category.FromInput(category), arguments, displayName);
     }
 }
+

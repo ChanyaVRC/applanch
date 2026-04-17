@@ -5,7 +5,7 @@ namespace applanch.Theming;
 
 public sealed class ThemeOption : INotifyPropertyChanged
 {
-    internal ThemeOption(string themeId, LocalizedText displayNameText, bool IsSystemOption = false)
+    public ThemeOption(string themeId, LocalizedText displayNameText, bool IsSystemOption = false)
     {
         ArgumentNullException.ThrowIfNull(themeId);
         ArgumentNullException.ThrowIfNull(displayNameText);
@@ -17,7 +17,7 @@ public sealed class ThemeOption : INotifyPropertyChanged
 
     public string ThemeId { get; }
 
-    internal LocalizedText DisplayNameText { get; }
+    public LocalizedText DisplayNameText { get; }
 
     public bool IsSystemOption { get; }
 
@@ -30,3 +30,4 @@ public sealed class ThemeOption : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayName)));
     }
 }
+

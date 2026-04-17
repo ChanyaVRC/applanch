@@ -197,3 +197,4 @@ internal static partial class AppResolver
         out IntPtr lpFilePart);
 }
 
+

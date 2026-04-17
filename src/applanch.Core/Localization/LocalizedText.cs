@@ -96,3 +96,4 @@ public sealed record LocalizedText
         return normalized;
     }
 }
+

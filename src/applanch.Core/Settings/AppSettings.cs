@@ -112,3 +112,4 @@ public sealed record AppSettings
         return DefaultThemeId;
     }
 }
+

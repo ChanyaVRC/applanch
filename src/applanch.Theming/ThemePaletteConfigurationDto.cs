@@ -20,3 +20,4 @@ internal sealed record ThemeDto(
 internal sealed record ThemeEntryDto(
     string Key,
     [property: JsonConverter(typeof(ThemeColorJsonConverter))] ThemeColor Hex);
+

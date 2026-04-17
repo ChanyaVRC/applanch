@@ -78,3 +78,4 @@ internal sealed class LocalizedTextJsonConverter : JsonConverter<LocalizedText>
         writer.WriteEndObject();
     }
 }
+

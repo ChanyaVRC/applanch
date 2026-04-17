@@ -28,3 +28,4 @@ internal sealed class FixedThemeDefinition(
         }
     }
 }
+

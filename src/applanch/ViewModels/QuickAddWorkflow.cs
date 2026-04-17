@@ -53,3 +53,4 @@ internal sealed class QuickAddWorkflow(IAppResolver appResolver, ILaunchItemIcon
         return QuickAddResult.Success();
     }
 }
+

@@ -29,3 +29,4 @@ internal sealed class FakeResolver : IAppResolver
         return ShouldResolve;
     }
 }
+

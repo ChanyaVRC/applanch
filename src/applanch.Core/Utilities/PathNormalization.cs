@@ -183,3 +183,4 @@ public static class PathNormalization
             ? path
             : path + Path.DirectorySeparatorChar;
 }
+

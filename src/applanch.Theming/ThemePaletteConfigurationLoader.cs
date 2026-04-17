@@ -342,3 +342,4 @@ public static class ThemePaletteConfigurationLoader
             .OrderBy(static path => path, StringComparer.OrdinalIgnoreCase);
     }
 }
+

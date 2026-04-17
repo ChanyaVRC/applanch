@@ -56,3 +56,4 @@ public class LaunchPathTests
         Assert.False(hasImplicit);
     }
 }
+

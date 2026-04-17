@@ -32,3 +32,4 @@ internal sealed class SystemDependentThemeDefinition(
             : ThemePaletteConfigurationLoader.DarkThemeId;
     }
 }
+
