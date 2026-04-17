@@ -7,15 +7,16 @@ namespace applanch.Tests.Infrastructure.Integration;
 
 public class StartupRegistrationServiceTests
 {
+    private const string ExecutablePath = @"C:\Tools\applanch.exe";
+
     [Fact]
     public void Apply_Enabled_WritesQuotedExecutablePath()
     {
-        var runKey = new FakeRunKey();
-        var sut = new StartupRegistrationService(new FakeRegistryRuntime(runKey));
+        var (sut, runKey) = CreateSut(existingValue: null);
 
-        sut.Apply(enabled: true, executablePath: @"C:\Tools\applanch.exe");
+        sut.Apply(enabled: true, executablePath: ExecutablePath);
 
-        Assert.Equal("\"C:\\Tools\\applanch.exe\"", runKey.StoredValue);
+        Assert.Equal("\"C:\\Tools\\applanch.exe\"", runKey!.StoredValue);
         Assert.False(runKey.DeleteCalled);
         Assert.True(runKey.DisposeCalled);
     }
@@ -23,11 +24,11 @@ public class StartupRegistrationServiceTests
     [Fact]
     public void Apply_Disabled_WithExistingValue_DeletesEntry()
     {
-        var runKey = new FakeRunKey(existingValue: "existing");
-        var sut = new StartupRegistrationService(new FakeRegistryRuntime(runKey));
+        var (sut, runKey) = CreateSut(existingValue: "existing");
 
-        sut.Apply(enabled: false, executablePath: @"C:\Tools\applanch.exe");
+        sut.Apply(enabled: false, executablePath: ExecutablePath);
 
+        Assert.NotNull(runKey);
         Assert.True(runKey.DeleteCalled);
         Assert.True(runKey.DisposeCalled);
     }
@@ -35,13 +36,31 @@ public class StartupRegistrationServiceTests
     [Fact]
     public void Apply_Disabled_WithoutExistingValue_DoesNotDelete()
     {
-        var runKey = new FakeRunKey(existingValue: null);
-        var sut = new StartupRegistrationService(new FakeRegistryRuntime(runKey));
+        var (sut, runKey) = CreateSut(existingValue: null);
 
-        sut.Apply(enabled: false, executablePath: @"C:\Tools\applanch.exe");
+        sut.Apply(enabled: false, executablePath: ExecutablePath);
 
+        Assert.NotNull(runKey);
         Assert.False(runKey.DeleteCalled);
         Assert.True(runKey.DisposeCalled);
+    }
+
+    [Fact]
+    public void Apply_WhenRunKeyIsUnavailable_DoesNothing()
+    {
+        var (sut, runKey) = CreateSut(existingValue: null, keyAvailable: false);
+
+        var exception = Record.Exception(() => sut.Apply(enabled: true, executablePath: ExecutablePath));
+
+        Assert.Null(exception);
+        Assert.Null(runKey);
+    }
+
+    private static (StartupRegistrationService Sut, FakeRunKey? RunKey) CreateSut(object? existingValue, bool keyAvailable = true)
+    {
+        var runKey = keyAvailable ? new FakeRunKey(existingValue) : null;
+        var sut = new StartupRegistrationService(new FakeRegistryRuntime(runKey));
+        return (sut, runKey);
     }
 
     private sealed class FakeRegistryRuntime(IRegistryKey? runKey) : IRegistryRuntime
