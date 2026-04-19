@@ -2,6 +2,28 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Debug Applanch",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "applanch: Build App",
+            "program": "${workspaceFolder}/src/applanch/bin/Debug/net10.0-windows10.0.22000.0/applanch.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Debug Docs",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "& \"$env:LOCALAPPDATA\\Programs\\Python\\Python314\\python.exe\" -m mkdocs serve",
+            "cwd": "${workspaceFolder}/docs",
+            "serverReadyAction": {
+                "pattern": "Serving on (https?://\\S+)",
+                "uriFormat": "%s",
+                "action": "openExternally"
+            }
+        },
+        {
             "name": "Smart: Docs or applanch",
             "type": "node-terminal",
             "request": "launch",

@@ -20,6 +20,24 @@
             },
             "isBackground": true,
             "problemMatcher": []
+        },
+        {
+            "label": "applanch: Build App",
+            "type": "shell",
+            "command": "dotnet build src/applanch/applanch.csproj",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "dotnet build",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
         }
     ]
 }
