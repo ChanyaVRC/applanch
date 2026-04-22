@@ -1,6 +1,5 @@
 using System.Buffers;
 using System.IO;
-using System.Text.Json;
 using applanch.Configuration;
 using applanch.Localization;
 
@@ -16,13 +15,6 @@ public static class ThemePaletteConfigurationLoader
     private const string ConfigDirectoryName = "Config";
     private const string UserDefinedDirectoryName = "UserDefined";
     private const string UserDefinedThemePaletteDirectoryName = "theme-palette";
-
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true,
-    };
 
     private static readonly ThemePaletteConfiguration EmptyConfiguration = new([]);
     private static readonly Lazy<ThemePaletteConfiguration> CachedConfiguration = new(LoadCore);
@@ -155,8 +147,7 @@ public static class ThemePaletteConfigurationLoader
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        using var stream = File.OpenRead(path);
-        var dto = JsonSerializer.Deserialize<ThemePaletteConfigurationDto>(stream, SerializerOptions)
+        var dto = ThemePaletteConfigurationJsonSerializer.DeserializeFile(path)
             ?? throw new InvalidDataException("Theme palette config is null or invalid.");
 
         var themes = BuildThemesFromDto(dto);

@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows10.0.22000.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\applanch.Theming\applanch.Theming.csproj" />
+    <ProjectReference Include="..\applanch.CodeAnalysis\applanch.CodeAnalysis.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+
+    <AdditionalFiles Include="Properties\Resources.resx" />
+
+    <Compile Remove="Properties\Resources.Designer.cs" />
+
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator></Generator>
+      <LastGenOutput></LastGenOutput>
+    </EmbeddedResource>
+
+    <EmbeddedResource Update="Properties\Resources.ja.resx">
+      <Generator></Generator>
+      <LastGenOutput></LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

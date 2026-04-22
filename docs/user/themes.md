@@ -19,6 +19,34 @@ Add your own themes under `Config/UserDefined/theme-palette/*.json`.
 
 For the full JSON field reference, see [Theme JSON Format](theme-format.md).
 
+### Editing Themes With Theme Creator
+
+Distribute `applanch.ThemeCreator` together with applanch when you want end users to adjust colors themselves.
+The tool now works as a simple theme editor:
+
+1. Open Theme Creator without arguments.
+2. Choose a base theme such as `light` or `dark`.
+3. Enter a theme ID and display names.
+4. Edit colors in the **Theme Colors** table.
+5. Save the file to the suggested `Config/UserDefined/theme-palette/<theme-id>.json` path.
+
+The saved file is still a normal JSON file, so users can fine-tune it later in any text editor.
+
+#### Representative Brush Keys
+
+| Brush key | Used for |
+|-----------|----------|
+| `Brush.AppBackground` | Main window background |
+| `Brush.Surface` | Cards, menus, and dialog surfaces |
+| `Brush.TextPrimary` | Primary text and prominent monochrome icons |
+| `Brush.TextSecondary` | Secondary text and metadata |
+| `Brush.ItemBackground` | Launcher item cards and list rows |
+| `Brush.ItemBorder` | Borders around cards, inputs, and list items |
+| `Brush.NotificationWarningBorder` | Warning notification accents |
+| `Brush.DialogError` | Error dialog icon color |
+
+Start with these keys when building a user-facing theme, then refine the remaining brushes if needed.
+
 ### Adding a Custom Theme
 
 1. Create a JSON file under `Config/UserDefined/theme-palette/` (for example `my-theme.json`).

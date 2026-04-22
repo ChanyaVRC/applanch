@@ -31,6 +31,15 @@
             "problemMatcher": []
         },
         {
+            "label": "applanch.ThemeCreator: Build Theme Creator",
+            "type": "shell",
+            "command": "dotnet build src/applanch.ThemeCreator/applanch.ThemeCreator.csproj",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "build",
             "type": "shell",
             "command": "dotnet build",

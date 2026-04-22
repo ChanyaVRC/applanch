@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="WindowTitle" xml:space="preserve"><value>Applanch Theme Creator</value></data>
+  <data name="SourcePaletteLabel" xml:space="preserve"><value>Source Palette</value></data>
+  <data name="BaseThemeLabel" xml:space="preserve"><value>Base Theme</value></data>
+  <data name="ThemeIdLabel" xml:space="preserve"><value>Theme ID</value></data>
+  <data name="NameEnLabel" xml:space="preserve"><value>Display Name (EN)</value></data>
+  <data name="NameJaLabel" xml:space="preserve"><value>Display Name (JA)</value></data>
+  <data name="OutputPathLabel" xml:space="preserve"><value>Output Path</value></data>
+  <data name="IncludeEntriesLabel" xml:space="preserve"><value>Copy entries from base theme</value></data>
+  <data name="PreviewLabel" xml:space="preserve"><value>Preview</value></data>
+  <data name="BrowseButton" xml:space="preserve"><value>Browse</value></data>
+  <data name="ReloadButton" xml:space="preserve"><value>Reload</value></data>
+  <data name="CreateButton" xml:space="preserve"><value>Create Theme File</value></data>
+  <data name="SourceFileFilter" xml:space="preserve"><value>JSON files (*.json)|*.json|All files (*.*)|*.*</value></data>
+  <data name="OutputFileFilter" xml:space="preserve"><value>JSON files (*.json)|*.json|All files (*.*)|*.*</value></data>
+  <data name="SuccessCaption" xml:space="preserve"><value>Theme Creator</value></data>
+  <data name="ErrorCaption" xml:space="preserve"><value>Theme Creator Error</value></data>
+  <data name="GuiSuccessMessageFormat" xml:space="preserve"><value>Theme file created: {0}</value></data>
+  <data name="GuiThemeIdRequired" xml:space="preserve"><value>Theme ID is required.</value></data>
+  <data name="GuiOutputRequired" xml:space="preserve"><value>Output path is required.</value></data>
+  <data name="GuiSourceNotFoundFormat" xml:space="preserve"><value>Source palette file was not found: {0}</value></data>
+  <data name="GuiPreviewUnavailable" xml:space="preserve"><value>Preview is unavailable until the source palette can be loaded.</value></data>
+  <data name="CliUsageHeader" xml:space="preserve"><value>Usage:</value></data>
+  <data name="CliUsageCommand" xml:space="preserve"><value>  dotnet run --project src/applanch.ThemeCreator -- --id &lt;theme-id&gt; --output &lt;path&gt; [options]</value></data>
+  <data name="CliOptionsHeader" xml:space="preserve"><value>Options:</value></data>
+  <data name="CliOptionBase" xml:space="preserve"><value>  --base &lt;id&gt;        Base theme id to copy from (default: light)</value></data>
+  <data name="CliOptionSource" xml:space="preserve"><value>  --source &lt;path&gt;    Source palette json path (default: src/applanch/Config/theme-palette.json)</value></data>
+  <data name="CliOptionNameEn" xml:space="preserve"><value>  --name-en &lt;text&gt;   English display name</value></data>
+  <data name="CliOptionNameJa" xml:space="preserve"><value>  --name-ja &lt;text&gt;   Japanese display name</value></data>
+  <data name="CliOptionNoEntries" xml:space="preserve"><value>  --no-entries       Do not copy entries from base theme</value></data>
+  <data name="CliCreatedMessageFormat" xml:space="preserve"><value>Theme template created: {0}</value></data>
+  <data name="CliFailedMessageFormat" xml:space="preserve"><value>Failed to create theme template: {0}</value></data>
+  <data name="CliUnknownArgumentFormat" xml:space="preserve"><value>Unknown argument '{0}'.</value></data>
+  <data name="CliMissingArgumentValueFormat" xml:space="preserve"><value>Missing value for argument '{0}'.</value></data>
+  <data name="CliThemeIdRequired" xml:space="preserve"><value>--id is required.</value></data>
+  <data name="CliOutputRequired" xml:space="preserve"><value>--output is required.</value></data>
+</root>

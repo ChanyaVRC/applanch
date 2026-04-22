@@ -8,9 +8,9 @@ namespace applanch.Theming;
 /// Represents a theme color with ARGB components.
 /// </summary>
 [StructLayout(LayoutKind.Explicit)]
-internal readonly record struct ThemeColor
+public readonly record struct ThemeColor
 {
-    private ThemeColor(byte a, byte r, byte g, byte b)
+    public ThemeColor(byte a, byte r, byte g, byte b)
     {
         A = a;
         R = r;
@@ -19,16 +19,16 @@ internal readonly record struct ThemeColor
     }
 
     [field: FieldOffset(3)]
-    internal byte A { get; }
+    public byte A { get; }
 
     [field: FieldOffset(2)]
-    internal byte R { get; }
+    public byte R { get; }
 
     [field: FieldOffset(1)]
-    internal byte G { get; }
+    public byte G { get; }
 
     [field: FieldOffset(0)]
-    internal byte B { get; }
+    public byte B { get; }
 
     [FieldOffset(0)]
     private readonly uint _littleEndianArgb;
@@ -51,14 +51,14 @@ internal readonly record struct ThemeColor
     /// <summary>
     /// Gets the color in hex format (#RRGGBB or #AARRGGBB).
     /// </summary>
-    internal string Hex => A == byte.MaxValue
+    public string Hex => A == byte.MaxValue
         ? $"#{R:X2}{G:X2}{B:X2}"
         : $"#{A:X2}{R:X2}{G:X2}{B:X2}";
 
     /// <summary>
     /// Converts to WPF Media Color.
     /// </summary>
-    internal Color ToMediaColor() => Color.FromArgb(A, R, G, B);
+    public Color ToMediaColor() => Color.FromArgb(A, R, G, B);
 
     /// <summary>
     /// Parses a color from a string (hex format).

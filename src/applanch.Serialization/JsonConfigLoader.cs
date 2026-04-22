@@ -47,6 +47,21 @@ public static class JsonConfigLoader
     }
 
     /// <summary>
+    /// Deserializes a JSON string using the provided serializer options.
+    /// </summary>
+    /// <typeparam name="T">The target type to deserialize to.</typeparam>
+    /// <param name="json">JSON string content.</param>
+    /// <param name="options">Serializer options to apply.</param>
+    /// <returns>The deserialized object.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when deserialization fails.</exception>
+    public static T Deserialize<T>(string json, System.Text.Json.JsonSerializerOptions options)
+    {
+        return System.Text.Json.JsonSerializer.Deserialize<T>(json, options)
+            ?? throw new InvalidOperationException(
+                $"Failed to deserialize JSON to type '{typeof(T).Name}'.");
+    }
+
+    /// <summary>
     /// Deserializes a JSON string.
     /// </summary>
     /// <typeparam name="T">The target type to deserialize to.</typeparam>
@@ -55,11 +70,55 @@ public static class JsonConfigLoader
     /// <exception cref="InvalidOperationException">Thrown when deserialization fails.</exception>
     public static T Deserialize<T>(string json)
     {
-        return System.Text.Json.JsonSerializer.Deserialize<T>(
-            json,
-            DefaultSerializerOptions)
-            ?? throw new InvalidOperationException(
-                $"Failed to deserialize JSON to type '{typeof(T).Name}'.");
+        return Deserialize<T>(json, DefaultSerializerOptions);
+    }
+
+    /// <summary>
+    /// Serializes a value to a JSON string.
+    /// </summary>
+    /// <typeparam name="T">The value type.</typeparam>
+    /// <param name="value">The value to serialize.</param>
+    /// <returns>The serialized JSON string.</returns>
+    public static string Serialize<T>(T value)
+        => Serialize(value, DefaultSerializerOptions);
+
+    /// <summary>
+    /// Serializes a value to a JSON string using the provided serializer options.
+    /// </summary>
+    /// <typeparam name="T">The value type.</typeparam>
+    /// <param name="value">The value to serialize.</param>
+    /// <param name="options">Serializer options to apply.</param>
+    /// <returns>The serialized JSON string.</returns>
+    public static string Serialize<T>(T value, System.Text.Json.JsonSerializerOptions options)
+        => System.Text.Json.JsonSerializer.Serialize(value, options);
+
+    /// <summary>
+    /// Serializes a value to a JSON file at the specified path.
+    /// </summary>
+    /// <typeparam name="T">The value type.</typeparam>
+    /// <param name="path">Path to the JSON file.</param>
+    /// <param name="value">The value to serialize.</param>
+    public static void SerializeFile<T>(string path, T value)
+        => SerializeFile(path, value, DefaultSerializerOptions);
+
+    /// <summary>
+    /// Serializes a value to a JSON file at the specified path using the provided serializer options.
+    /// </summary>
+    /// <typeparam name="T">The value type.</typeparam>
+    /// <param name="path">Path to the JSON file.</param>
+    /// <param name="value">The value to serialize.</param>
+    /// <param name="options">Serializer options to apply.</param>
+    public static void SerializeFile<T>(string path, T value, System.Text.Json.JsonSerializerOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+
+        var directoryPath = Path.GetDirectoryName(path);
+        if (!string.IsNullOrWhiteSpace(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+
+        File.WriteAllText(path, Serialize(value, options));
     }
 
     /// <summary>

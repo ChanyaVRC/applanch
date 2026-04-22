@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="WindowTitle" xml:space="preserve"><value>Applanch テーマ クリエーター</value></data>
+  <data name="Step1CreationModeHeader" xml:space="preserve"><value>1. 作成モードを選択</value></data>
+  <data name="Step1CreationModeHint" xml:space="preserve"><value>既存のソースパレットを元にするか、ゼロから作成するかを選択します。</value></data>
+  <data name="CreationModeUseSourceOption" xml:space="preserve"><value>ソースパレットを使って作成する</value></data>
+  <data name="CreationModeNoSourceOption" xml:space="preserve"><value>ソースパレットを使わずに作成する（ゼロから作成）</value></data>
+  <data name="Step2SourceHeader" xml:space="preserve"><value>2. ソースパレットを選択</value></data>
+  <data name="Step2SourceSkippedHeader" xml:space="preserve"><value>2. ソースパレット（スキップ）</value></data>
+  <data name="Step2SourceHint" xml:space="preserve"><value>ソースなしモードを選択した場合、このステップはスキップされます。</value></data>
+  <data name="Step3ThemeBasicsHeader" xml:space="preserve"><value>3. テーマ基本設定</value></data>
+  <data name="Step4DisplayNamesHeader" xml:space="preserve"><value>4. 表示名を設定（任意）</value></data>
+  <data name="Step5OutputHeader" xml:space="preserve"><value>5. 保存先を選択</value></data>
+  <data name="WizardProgressNeedSource" xml:space="preserve"><value>次の操作: ステップ2で有効なソースパレットファイルを選択してください。</value></data>
+  <data name="WizardProgressNeedThemeBasics" xml:space="preserve"><value>次の操作: ステップ3でテーマ ID を入力してください。</value></data>
+  <data name="WizardProgressNeedOutput" xml:space="preserve"><value>次の操作: ステップ5で保存先を選択してください。</value></data>
+  <data name="WizardProgressReady" xml:space="preserve"><value>保存できます。テーマカラーを編集するか、そのまま保存してください。</value></data>
+  <data name="WizardBackButton" xml:space="preserve"><value>前へ</value></data>
+  <data name="WizardNextButton" xml:space="preserve"><value>次へ</value></data>
+  <data name="WizardStepIndicatorFormat" xml:space="preserve"><value>ステップ {0}/{1}: {2}</value></data>
+  <data name="WizardStepCreationModeTitle" xml:space="preserve"><value>作成モードを選択</value></data>
+  <data name="WizardStepSourceTitle" xml:space="preserve"><value>ソースパレットを選択</value></data>
+  <data name="WizardStepThemeBasicsTitle" xml:space="preserve"><value>テーマ基本設定</value></data>
+  <data name="WizardStepDisplayNamesTitle" xml:space="preserve"><value>表示名を設定</value></data>
+  <data name="WizardStepOutputTitle" xml:space="preserve"><value>保存先を選択</value></data>
+  <data name="WizardStepColorsTitle" xml:space="preserve"><value>テーマカラーを編集</value></data>
+  <data name="SourcePaletteLabel" xml:space="preserve"><value>ソースパレット</value></data>
+  <data name="BaseThemeLabel" xml:space="preserve"><value>ベーステーマ</value></data>
+  <data name="BaseThemeNoneOption" xml:space="preserve"><value>選択しない（ゼロから作成）</value></data>
+  <data name="ThemeIdLabel" xml:space="preserve"><value>テーマ ID</value></data>
+  <data name="DisplayNamesLabel" xml:space="preserve"><value>表示名</value></data>
+  <data name="DisplayNameLabelFormat" xml:space="preserve"><value>{0} ({1})</value></data>
+  <data name="NameEnLabel" xml:space="preserve"><value>表示名 (英語)</value></data>
+  <data name="NameJaLabel" xml:space="preserve"><value>表示名 (日本語)</value></data>
+  <data name="OutputPathLabel" xml:space="preserve"><value>出力パス</value></data>
+  <data name="OutputPathHint" xml:space="preserve"><value>配布ユーザー向けの保存場所: Config/UserDefined/theme-palette/&lt;theme-id&gt;.json</value></data>
+  <data name="IncludeEntriesLabel" xml:space="preserve"><value>ベーステーマのエントリをコピーする</value></data>
+  <data name="EditorLabel" xml:space="preserve"><value>テーマカラー</value></data>
+  <data name="EditorHint" xml:space="preserve"><value>保存前にここで色を編集してください。結果は通常の JSON ファイルなので、配布後もユーザーがテキストエディターで微調整できます。</value></data>
+  <data name="ReferenceLabel" xml:space="preserve"><value>代表的なブラシキー</value></data>
+  <data name="ReferenceHint" xml:space="preserve"><value>これらのキーは通常、UI の全体的な雰囲気を決定します。エンドユーザー向けにテーマをカスタマイズする際はここから始めてください。</value></data>
+  <data name="PreviewLabel" xml:space="preserve"><value>プレビュー</value></data>
+  <data name="EntryPreviewHeader" xml:space="preserve"><value>プレビュー</value></data>
+  <data name="EntryKeyHeader" xml:space="preserve"><value>ブラシキー</value></data>
+  <data name="EntryUsageHeader" xml:space="preserve"><value>用途</value></data>
+  <data name="EntryHexHeader" xml:space="preserve"><value>Hex</value></data>
+  <data name="EntryPickHeader" xml:space="preserve"><value>選択</value></data>
+  <data name="BrowseButton" xml:space="preserve"><value>参照</value></data>
+  <data name="ReloadButton" xml:space="preserve"><value>再読み込み</value></data>
+  <data name="OpenPreviewButton" xml:space="preserve"><value>プレビューウィンドウ</value></data>
+  <data name="OpenAppPreviewButton" xml:space="preserve"><value>applanch でプレビュー</value></data>
+  <data name="PreviewWindowTitle" xml:space="preserve"><value>テーマプレビュー</value></data>
+  <data name="PickColorButton" xml:space="preserve"><value>選択</value></data>
+    <data name="ColorPickerTitle" xml:space="preserve"><value>カラーピッカー</value></data>
+    <data name="ColorPickerPreviewLabel" xml:space="preserve"><value>変更前 / 変更後</value></data>
+    <data name="ColorPickerOkButton" xml:space="preserve"><value>OK</value></data>
+    <data name="ColorPickerCancelButton" xml:space="preserve"><value>キャンセル</value></data>
+  <data name="CreateButton" xml:space="preserve"><value>テーマファイルを保存</value></data>
+  <data name="SourceFileFilter" xml:space="preserve"><value>JSON ファイル (*.json)|*.json|すべてのファイル (*.*)|*.*</value></data>
+  <data name="OutputFileFilter" xml:space="preserve"><value>JSON ファイル (*.json)|*.json|すべてのファイル (*.*)|*.*</value></data>
+  <data name="SuccessCaption" xml:space="preserve"><value>テーマ クリエーター</value></data>
+  <data name="ErrorCaption" xml:space="preserve"><value>テーマ クリエーター エラー</value></data>
+  <data name="GuiSuccessMessageFormat" xml:space="preserve"><value>テーマファイルを保存しました: {0}</value></data>
+  <data name="GuiThemeIdRequired" xml:space="preserve"><value>テーマ ID は必須です。</value></data>
+  <data name="GuiOutputRequired" xml:space="preserve"><value>出力パスは必須です。</value></data>
+  <data name="GuiSourceNotFoundFormat" xml:space="preserve"><value>ソースパレットファイルが見つかりませんでした: {0}</value></data>
+  <data name="GuiInvalidHexFormat" xml:space="preserve"><value>{0} の色が無効です: {1}</value></data>
+  <data name="GuiNoEditableEntries" xml:space="preserve"><value>選択したベーステーマには、直接編集できるカラーエントリがありません。</value></data>
+  <data name="AppPreviewWorkspaceNotFoundError" xml:space="preserve"><value>ワークスペース ルートを特定できませんでした。リポジトリのワークスペースから Theme Creator を起動してください。</value></data>
+  <data name="AppPreviewLaunchFailed" xml:space="preserve"><value>applanch プレビューの起動に失敗しました: {0}</value></data>
+  <data name="AppPreviewStarted" xml:space="preserve"><value>一時テーマ '{0}' (ベース: {1}) で applanch プレビューを起動しました。</value></data>
+  <data name="CliUsageHeader" xml:space="preserve"><value>使用方法:</value></data>
+  <data name="CliUsageCommand" xml:space="preserve"><value>  dotnet run --project src/applanch.ThemeCreator -- --id &lt;theme-id&gt; --output &lt;path&gt; [options]</value></data>
+  <data name="CliOptionsHeader" xml:space="preserve"><value>オプション:</value></data>
+  <data name="CliOptionBase" xml:space="preserve"><value>  --base &lt;id&gt;        コピー元のベーステーマ ID (デフォルト: light、継承しない場合は 'none')</value></data>
+  <data name="CliOptionSource" xml:space="preserve"><value>  --source &lt;path&gt;    ソースパレット JSON のパス (デフォルト: src/applanch/Config/theme-palette.json)</value></data>
+  <data name="CliOptionNameGeneric" xml:space="preserve"><value>  --name-&lt;code&gt; &lt;text&gt;  ローカライズ表示名 (例: --name-en, --name-ja)</value></data>
+  <data name="CliOptionNameEn" xml:space="preserve"><value>  --name-en &lt;text&gt;   英語の表示名</value></data>
+  <data name="CliOptionNameJa" xml:space="preserve"><value>  --name-ja &lt;text&gt;   日本語の表示名</value></data>
+  <data name="CliOptionNoEntries" xml:space="preserve"><value>  --no-entries       ベーステーマのエントリをコピーしない</value></data>
+  <data name="CliCreatedMessageFormat" xml:space="preserve"><value>テーマテンプレートを作成しました: {0}</value></data>
+  <data name="CliFailedMessageFormat" xml:space="preserve"><value>テーマテンプレートの作成に失敗しました: {0}</value></data>
+  <data name="CliUnknownArgumentFormat" xml:space="preserve"><value>不明な引数 '{0}'。</value></data>
+  <data name="CliMissingArgumentValueFormat" xml:space="preserve"><value>引数 '{0}' の値がありません。</value></data>
+  <data name="CliThemeIdRequired" xml:space="preserve"><value>--id は必須です。</value></data>
+  <data name="CliOutputRequired" xml:space="preserve"><value>--output は必須です。</value></data>
+  <data name="BrushDesc_AppBackground" xml:space="preserve"><value>メインウィンドウの背景。</value></data>
+  <data name="BrushDesc_Surface" xml:space="preserve"><value>カード、メニュー、ダイアログのサーフェス。</value></data>
+  <data name="BrushDesc_SurfaceBorder" xml:space="preserve"><value>サーフェスの枠線とフォーカスされたパネルの境界線。</value></data>
+  <data name="BrushDesc_TextPrimary" xml:space="preserve"><value>主要なテキストと目立つモノクロアイコン。</value></data>
+  <data name="BrushDesc_SidebarPinSlash" xml:space="preserve"><value>サイドバーのピンアイコンのスラッシュオーバーレイ。</value></data>
+  <data name="BrushDesc_TextSecondary" xml:space="preserve"><value>補助テキスト、説明、メタデータ。</value></data>
+  <data name="BrushDesc_TextTertiary" xml:space="preserve"><value>控えめなラベル、キャプション、ヒントテキスト。</value></data>
+  <data name="BrushDesc_ScrollbarThumb" xml:space="preserve"><value>スクロールバーのつまみの色。</value></data>
+  <data name="BrushDesc_PrereleaseBadgeBackground" xml:space="preserve"><value>プレリリースバッジの背景。</value></data>
+  <data name="BrushDesc_PrereleaseBadgeBorder" xml:space="preserve"><value>プレリリースバッジの境界線。</value></data>
+  <data name="BrushDesc_PrereleaseBadgeText" xml:space="preserve"><value>プレリリースバッジのテキスト。</value></data>
+  <data name="BrushDesc_ItemBackground" xml:space="preserve"><value>ランチャーアイテムカードとリストアイテムの背景。</value></data>
+  <data name="BrushDesc_ItemBorder" xml:space="preserve"><value>カード、入力フィールド、リストアイテムの枠線。</value></data>
+  <data name="BrushDesc_IconBackground" xml:space="preserve"><value>アイテムアイコンの背景タイル。</value></data>
+  <data name="BrushDesc_NotificationInfoBackground" xml:space="preserve"><value>情報通知の背景。</value></data>
+  <data name="BrushDesc_NotificationInfoBorder" xml:space="preserve"><value>情報通知の境界線とアクセントアイコン。</value></data>
+  <data name="BrushDesc_NotificationActionHover" xml:space="preserve"><value>通知内でホバーされたアクションテキスト。</value></data>
+  <data name="BrushDesc_NotificationWarningBackground" xml:space="preserve"><value>警告通知の背景。</value></data>
+  <data name="BrushDesc_NotificationWarningBorder" xml:space="preserve"><value>警告通知の境界線とアクセントアイコン。</value></data>
+  <data name="BrushDesc_MissingPathWarningBadge" xml:space="preserve"><value>アイテムのパス欠落警告バッジ。</value></data>
+  <data name="BrushDesc_NotificationErrorBackground" xml:space="preserve"><value>エラー通知の背景。</value></data>
+  <data name="BrushDesc_NotificationErrorBorder" xml:space="preserve"><value>エラー通知の境界線とアクセントアイコン。</value></data>
+  <data name="BrushDesc_NotificationProgressTrack" xml:space="preserve"><value>通知プログレスバーのトラック。</value></data>
+  <data name="BrushDesc_NotificationProgressValue" xml:space="preserve"><value>通知プログレスバーの塗りつぶし。</value></data>
+  <data name="BrushDesc_QuickAddInfoText" xml:space="preserve"><value>情報クイック追加テキスト。</value></data>
+  <data name="BrushDesc_QuickAddWarningText" xml:space="preserve"><value>警告クイック追加テキスト。</value></data>
+  <data name="BrushDesc_DialogInfo" xml:space="preserve"><value>情報ダイアログのアイコン。</value></data>
+  <data name="BrushDesc_DialogQuestion" xml:space="preserve"><value>確認ダイアログのアイコン。</value></data>
+  <data name="BrushDesc_DialogWarning" xml:space="preserve"><value>警告ダイアログのアイコン。</value></data>
+  <data name="BrushDesc_DialogError" xml:space="preserve"><value>エラーダイアログのアイコン。</value></data>
+  <data name="BrushDesc_Custom" xml:space="preserve"><value>カスタムブラシのオーバーライド。</value></data>
+  <data name="ServiceBaseThemeNotFoundFormat" xml:space="preserve"><value>ベーステーマ '{0}' がソースパレットに見つかりませんでした。</value></data>
+  <data name="ServiceThemesArrayMissing" xml:space="preserve"><value>ソーステーマパレットにテーマ配列が含まれていません。</value></data>
+</root>

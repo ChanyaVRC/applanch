@@ -1,4 +1,4 @@
 namespace applanch.Theming;
 
-internal sealed record SystemDependentEntriesFromSpec(
+public sealed record SystemDependentEntriesFromSpec(
     IReadOnlyDictionary<SystemThemeMode, string> SourcesByMode) : EntriesFromSpec;

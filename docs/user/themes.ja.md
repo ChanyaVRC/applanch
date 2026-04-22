@@ -19,6 +19,34 @@ applanch には 3 つの組み込みテーマがあり、カスタムテーマ�
 
 JSON の項目一覧や型は [テーマ JSON 形式](theme-format.ja.md) を参照してください。
 
+### Theme Creator でテーマを編集する
+
+ユーザー自身が色を調整できるように配布する場合は、applanch と一緒に `applanch.ThemeCreator` を配布します。
+このツールは現在、ひな形作成だけでなく簡易テーマエディタとして使えます。
+
+1. Theme Creator を引数なしで起動します。
+2. `light` や `dark` などのベーステーマを選びます。
+3. テーマ ID と表示名を入力します。
+4. **Theme Colors** テーブルで色を編集します。
+5. 提案される `Config/UserDefined/theme-palette/<theme-id>.json` に保存します。
+
+保存されるのは通常の JSON ファイルなので、配布後もユーザーがテキストエディタで微調整できます。
+
+#### 代表的な Brush キー
+
+| Brush キー | 主な用途 |
+|------------|----------|
+| `Brush.AppBackground` | メインウィンドウ全体の背景 |
+| `Brush.Surface` | カード、メニュー、ダイアログ面 |
+| `Brush.TextPrimary` | 主要テキストと目立つ単色アイコン |
+| `Brush.TextSecondary` | 補助テキストやメタ情報 |
+| `Brush.ItemBackground` | ランチャー項目カードや行背景 |
+| `Brush.ItemBorder` | カード、入力欄、項目の枠線 |
+| `Brush.NotificationWarningBorder` | 警告通知のアクセント |
+| `Brush.DialogError` | エラーダイアログのアイコン色 |
+
+まずはこのあたりを調整すると、ユーザーに見える印象を大きく変えやすいです。
+
 ### カスタムテーマを追加する
 
 1. `Config/UserDefined/theme-palette/` 配下に JSON ファイルを作成します（例: `my-theme.json`）。

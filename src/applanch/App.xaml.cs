@@ -22,14 +22,14 @@ namespace applanch;
 
 public sealed partial class App : Application
 {
-    internal const string RegisterArgument = "--register";
-    internal const string UnregisterContextMenuArgument = "--unregister-context-menu";
     internal AppEvent Events { get; } = AppEvent.Instance;
     private readonly ThemeApplier _themeApplier;
     private readonly ContextMenuRegistrar _contextMenuRegistrar = new();
     private readonly SparsePackageRegistrar _sparsePackageRegistrar = new();
     private readonly StartupRegistrationService _startupRegistrationService = new();
     private readonly DataBindingTraceListener _dataBindingTraceListener = new(AppLogger.Instance);
+    private string? _startupThemeOverrideId;
+    private string? _startupConfiguredThemeId;
 
     public App()
     {
@@ -45,12 +45,18 @@ public sealed partial class App : Application
         RegisterGlobalExceptionHandlers();
 
         AppLogger.Instance.Info("Application starting");
-        var settings = AppSettingsProvider.Current;
-        InitializeEnvironment();
+        var configuredSettings = AppSettingsProvider.Current;
+        var startupArguments = AppStartupArguments.Parse(e.Args);
+        var overrideThemeId = startupArguments.ThemeOverrideId;
+        _startupThemeOverrideId = overrideThemeId;
+        _startupConfiguredThemeId = configuredSettings.ThemeId;
+
+        var settings = CreateStartupSettings(configuredSettings, overrideThemeId);
+        InitializeEnvironment(settings.ThemeId);
         ApplyLanguage(settings.Language);
         ApplyStartupRegistration(settings);
 
-        if (TryHandleStartupArgument(e.Args))
+        if (TryHandleStartupArgument(startupArguments))
         {
             Shutdown();
             return;
@@ -124,20 +130,60 @@ public sealed partial class App : Application
         };
     }
 
-    private bool TryHandleStartupArgument(string[] args)
+    private bool TryHandleStartupArgument(AppStartupArguments startupArguments)
     {
-        return TryHandleRegisterArgument(args) || TryHandleUnregisterContextMenuArgument(args);
+        var registerPath = startupArguments.RegisterPath;
+        if (!string.IsNullOrWhiteSpace(registerPath) && (File.Exists(registerPath) || Directory.Exists(registerPath)))
+        {
+            LauncherStore.Add(registerPath);
+            return true;
+        }
+
+        if (startupArguments.IsContextMenuUnregisterRequested)
+        {
+            _contextMenuRegistrar.Unregister();
+            return true;
+        }
+
+        return false;
+    }
+
+    private static AppSettings CreateStartupSettings(AppSettings settings, string? overrideThemeId)
+    {
+        if (string.IsNullOrWhiteSpace(overrideThemeId))
+        {
+            return settings;
+        }
+
+        return settings with { ThemeId = overrideThemeId };
     }
 
     private void OnSettingsCommitted(AppSettings settings)
     {
-        var refreshedSettings = settings.Normalize();
+        var refreshedSettings = CreatePersistedSettings(settings, _startupThemeOverrideId, _startupConfiguredThemeId);
         refreshedSettings.Save();
     }
 
-    private void InitializeEnvironment()
+    private static AppSettings CreatePersistedSettings(
+        AppSettings settings,
+        string? startupThemeOverrideId,
+        string? startupConfiguredThemeId)
     {
-        _themeApplier.ApplyTheme(Resources, AppSettingsProvider.Current.ThemeId, Windows.Cast<Window>());
+        var normalized = settings.Normalize();
+
+        if (string.IsNullOrWhiteSpace(startupThemeOverrideId) || string.IsNullOrWhiteSpace(startupConfiguredThemeId))
+        {
+            return normalized;
+        }
+
+        return string.Equals(normalized.ThemeId, startupThemeOverrideId, StringComparison.OrdinalIgnoreCase)
+            ? normalized with { ThemeId = startupConfiguredThemeId }
+            : normalized;
+    }
+
+    private void InitializeEnvironment(string themeId)
+    {
+        _themeApplier.ApplyTheme(Resources, themeId, Windows.Cast<Window>());
 
         LauncherStore.EnsureStorageDirectory();
         if (!_sparsePackageRegistrar.IsAlreadyRegistered())
@@ -255,30 +301,4 @@ public sealed partial class App : Application
         }
     }
 
-    private static bool TryHandleRegisterArgument(string[] args)
-    {
-        if (args.Length < 2 || !string.Equals(args[0], RegisterArgument, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        var path = args[1];
-        if (File.Exists(path) || Directory.Exists(path))
-        {
-            LauncherStore.Add(path);
-        }
-
-        return true;
-    }
-
-    private bool TryHandleUnregisterContextMenuArgument(string[] args)
-    {
-        if (args.Length < 1 || !string.Equals(args[0], UnregisterContextMenuArgument, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        _contextMenuRegistrar.Unregister();
-        return true;
-    }
 }
