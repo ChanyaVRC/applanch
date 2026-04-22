@@ -17,12 +17,9 @@ public class ThemeCreatorAppTests
 
         Directory.CreateDirectory(logDirectory);
         File.WriteAllText(sourcePath, SourcePalette);
-        var previousOverride = Environment.GetEnvironmentVariable("APPLANCH_THEME_CREATOR_LOG_DIRECTORY");
 
         try
         {
-            Environment.SetEnvironmentVariable("APPLANCH_THEME_CREATOR_LOG_DIRECTORY", logDirectory);
-
             var exitCode = ThemeCreatorApp.Run(
                 [
                     "--id", "ocean",
@@ -39,16 +36,17 @@ public class ThemeCreatorAppTests
             Assert.Contains(outputPath, output.ToString(), StringComparison.Ordinal);
             Assert.True(File.Exists(outputPath));
 
-            var logPath = ThemeCreatorLogger.ResolveLogFilePath(logDirectory);
+            var logPath = ThemeCreatorLogger.LogFilePath;
             Assert.True(File.Exists(logPath));
 
-            var logContents = File.ReadAllText(logPath);
+            using var stream = new FileStream(logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+            using var reader = new StreamReader(stream);
+            var logContents = reader.ReadToEnd();
             Assert.Contains("Theme creator started. Mode=CLI", logContents, StringComparison.Ordinal);
             Assert.Contains("CLI theme created successfully.", logContents, StringComparison.Ordinal);
         }
         finally
         {
-            Environment.SetEnvironmentVariable("APPLANCH_THEME_CREATOR_LOG_DIRECTORY", previousOverride);
             if (Directory.Exists(logDirectory))
             {
                 Directory.Delete(logDirectory, recursive: true);

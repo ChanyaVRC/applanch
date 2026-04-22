@@ -1,84 +1,37 @@
 using System.IO;
-using System.Text;
+using applanch.Utilities;
 
 namespace applanch.ThemeCreator;
 
 internal static class ThemeCreatorLogger
 {
-    private const string LogDirectoryOverrideEnvironmentVariable = "APPLANCH_THEME_CREATOR_LOG_DIRECTORY";
-    private const string ProductDirectoryName = "applanch";
-    private const string LogFileName = "theme-creator.log";
+    private const string AppLogFileName = "theme-creator.log";
 
-    private static readonly Lock SyncLock = new();
+    private static AppLogger? _logger;
 
-    internal static string LogFilePath => ResolveLogFilePath();
-
-    internal static void Info(string message)
-        => Write("INFO", message);
-
-    internal static void Warn(string message)
-        => Write("WARN", message);
-
-    internal static void Warn(Exception ex, string message)
-        => WriteException("WARN", ex, message);
-
-    internal static void Error(Exception ex, string message)
-        => WriteException("ERROR", ex, message);
-
-    internal static string ResolveLogDirectory(string? overrideDirectory = null)
+    private static AppLogger Logger
     {
-        if (!string.IsNullOrWhiteSpace(overrideDirectory))
+        get
         {
-            return overrideDirectory;
-        }
-
-        var configuredDirectory = Environment.GetEnvironmentVariable(LogDirectoryOverrideEnvironmentVariable);
-        if (!string.IsNullOrWhiteSpace(configuredDirectory))
-        {
-            return configuredDirectory;
-        }
-
-        return Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            ProductDirectoryName,
-            "logs");
-    }
-
-    internal static string ResolveLogFilePath(string? overrideDirectory = null)
-        => Path.Combine(ResolveLogDirectory(overrideDirectory), LogFileName);
-
-    private static void Write(string level, string message)
-    {
-        try
-        {
-            var logPath = ResolveLogFilePath();
-            Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
-
-            lock (SyncLock)
+            if (_logger is null)
             {
-                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [{level}] {message}{Environment.NewLine}", Encoding.UTF8);
+                var logFilePath = LogFilePath;
+                _logger = new AppLogger(logFilePath);
             }
-        }
-        catch
-        {
-            // Logging must never crash the tool.
+
+            return _logger;
         }
     }
 
-    private static void WriteException(string level, Exception ex, string message)
-    {
-        var details = new StringBuilder()
-            .Append(message)
-            .Append(" | ")
-            .Append(ex.GetType().Name)
-            .Append(": ")
-            .Append(ex.Message);
+    internal static string LogDirectoryPath => AppLogger.LogDirectoryPath;
 
-        if (!string.IsNullOrWhiteSpace(ex.StackTrace))
-        {
-            details.Append(" | StackTrace: ").Append(ex.StackTrace);
-        }
+    internal static string LogFilePath => Path.Combine(AppLogger.LogDirectoryPath, AppLogFileName);
 
-        Write(level, details.ToString());
-    }
+    internal static void Info(string message) => Logger.Info(message);
+
+    internal static void Warn(string message) => Logger.Warn(message);
+
+    internal static void Warn(Exception ex, string message) => Logger.Warn(ex, message);
+
+    internal static void Error(Exception ex, string message) => Logger.Error(ex, message);
 }
