@@ -1,4 +1,5 @@
 using System.Windows;
+using applanch.Theming;
 
 namespace applanch.Infrastructure.Dialogs;
 
@@ -6,11 +7,11 @@ internal static class MessageDialogVisuals
 {
     public static MessageDialogVisual Resolve(MessageBoxImage icon) => icon switch
     {
-        MessageBoxImage.Error => new("\uEA39", "Brush.DialogError", true),
-        MessageBoxImage.Warning => new("\uE7BA", "Brush.DialogWarning", true),
-        MessageBoxImage.Information => new("\uE946", "Brush.DialogInfo", true),
-        MessageBoxImage.Question => new("\uE897", "Brush.DialogQuestion", true),
-        _ => new(string.Empty, "Brush.TextSecondary", false)
+        MessageBoxImage.Error => new("\uEA39", ThemeBrushKey.DialogError.ToResourceKey(), true),
+        MessageBoxImage.Warning => new("\uE7BA", ThemeBrushKey.DialogWarning.ToResourceKey(), true),
+        MessageBoxImage.Information => new("\uE946", ThemeBrushKey.DialogInfo.ToResourceKey(), true),
+        MessageBoxImage.Question => new("\uE897", ThemeBrushKey.DialogQuestion.ToResourceKey(), true),
+        _ => new(string.Empty, ThemeBrushKey.TextSecondary.ToResourceKey(), false)
     };
 }
 

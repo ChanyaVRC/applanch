@@ -89,13 +89,16 @@ public sealed class ThemeCreatorService
         var baseThemeId = string.IsNullOrWhiteSpace(options.BaseThemeId)
             ? null
             : options.BaseThemeId.Trim();
-        var sourceTheme = baseThemeId is null
-            ? null
-            : FindTheme(sourceDocument, baseThemeId)
+
+        ThemeDto? sourceTheme = null;
+        InheritedEntriesFromSpec? entriesFrom = null;
+
+        if (baseThemeId is not null)
+        {
+            sourceTheme = FindTheme(sourceDocument, baseThemeId)
                 ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, AppResources.ServiceBaseThemeNotFoundFormat, baseThemeId));
-        var entriesFrom = baseThemeId is null
-            ? null
-            : new InheritedEntriesFromSpec(baseThemeId);
+            entriesFrom = new InheritedEntriesFromSpec(baseThemeId);
+        }
 
         return new ThemePaletteConfigurationDto(
         [
@@ -114,7 +117,6 @@ public sealed class ThemeCreatorService
         return themes
             .Select(static theme => theme.Id)
             .Where(static id => !string.IsNullOrWhiteSpace(id))
-            .Cast<string>()
             .ToArray();
     }
 

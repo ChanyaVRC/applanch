@@ -34,7 +34,7 @@ public static partial class WindowCaptionThemeHelper
 
     private static bool IsDarkTheme(FrameworkElement element)
     {
-        if (element.TryFindResource("Brush.AppBackground") is not SolidColorBrush brush)
+        if (element.TryFindResource(ThemeBrushKey.AppBackground.ToResourceKey()) is not SolidColorBrush brush)
         {
             return false;
         }

@@ -95,7 +95,7 @@ public static class ThemePaletteConfigurationLoader
         if (@base is FixedThemeDefinition baseFixedTheme &&
             overlay is FixedThemeDefinition overlayFixedTheme)
         {
-            var mergedColors = new Dictionary<string, ThemeColor>(baseFixedTheme.ColorsByKey);
+            var mergedColors = new Dictionary<ThemeBrushKey, ThemeColor>(baseFixedTheme.ColorsByKey);
             foreach (var (key, color) in overlayFixedTheme.ColorsByKey)
             {
                 mergedColors[key] = color;
@@ -180,12 +180,12 @@ public static class ThemePaletteConfigurationLoader
 
             if (themeDto.Entries is not null && themeDef is FixedThemeDefinition fixedTheme)
             {
-                var colorsByKey = new Dictionary<string, ThemeColor>();
+                var colorsByKey = new Dictionary<ThemeBrushKey, ThemeColor>();
                 foreach (var entry in themeDto.Entries)
                 {
-                    if (!string.IsNullOrWhiteSpace(entry.Key))
+                    if (ThemeBrushKeyExtensions.TryParseResourceKey(entry.Key, out var brushKey))
                     {
-                        colorsByKey[entry.Key] = entry.Hex;
+                        colorsByKey[brushKey] = entry.Hex;
                     }
                 }
 
