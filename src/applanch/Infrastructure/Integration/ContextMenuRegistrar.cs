@@ -133,7 +133,7 @@ internal sealed class ContextMenuRegistrar
     private void RegisterTarget(string exePath, RegistrationTarget target, bool enableExplorerCommand)
     {
         var keyPath = GetTargetMenuKeyPath(target);
-        var command = $"\"{exePath}\" {App.RegisterArgument} \"{target.ArgumentToken}\"";
+        var command = $"\"{exePath}\" {AppStartupArguments.RegisterArgument} \"{target.ArgumentToken}\"";
         _runtime.WriteRegistryCommand(keyPath, MenuText, exePath, command, enableExplorerCommand);
     }
 

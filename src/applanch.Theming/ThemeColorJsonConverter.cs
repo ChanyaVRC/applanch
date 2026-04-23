@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace applanch.Theming;
 
-internal sealed class ThemeColorJsonConverter : JsonConverter<ThemeColor>
+public sealed class ThemeColorJsonConverter : JsonConverter<ThemeColor>
 {
     public override ThemeColor Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

@@ -1,5 +1,5 @@
 namespace applanch.Theming;
 
 internal sealed record ThemePaletteEntry(
-    string Key,
+    ThemeBrushKey Key,
     IReadOnlyDictionary<string, ThemeColor> ColorsByThemeId);

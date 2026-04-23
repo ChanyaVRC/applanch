@@ -58,7 +58,7 @@ public class ContextMenuRegistrarTests
         Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\Directory\\shell\\applanch.register", StringComparison.Ordinal));
         Assert.Contains(writer.Calls, static c => c.KeyPath.Contains("Classes\\Directory\\Background\\shell\\applanch.register", StringComparison.Ordinal));
 
-        Assert.All(writer.Calls, static c => Assert.Contains(App.RegisterArgument, c.Command));
+        Assert.All(writer.Calls, static c => Assert.Contains(AppStartupArguments.RegisterArgument, c.Command));
         Assert.All(writer.Calls, static c => Assert.False(c.EnableExplorerCommand));
         Assert.Empty(explorerRegistrar.Calls);
     }

@@ -6,27 +6,38 @@ namespace applanch.Utilities;
 public sealed class AppLogger : IDisposable
 {
     private const string LogDirectoryOverrideEnvironmentVariable = "APPLANCH_LOG_DIRECTORY";
-
-    private static readonly string LogDirectory = ResolveLogDirectory();
-
-    private static readonly string LogFilePath = Path.Combine(LogDirectory, "app.log");
     private static readonly long MaxLogSize = 1024 * 1024; // 1 MB
 
-    public static string LogDirectoryPath => LogDirectory;
-    public static string LogFilePathValue => LogFilePath;
+    private static readonly string DefaultLogDirectory = ResolveLogDirectory();
+    private static readonly string DefaultLogFilePath = Path.Combine(DefaultLogDirectory, "app.log");
+
+    public static string LogDirectoryPath => DefaultLogDirectory;
+    public static string LogFilePathValue => DefaultLogFilePath;
 
     private readonly Lock _lock = new();
+    private readonly string _logFilePath;
     private StreamWriter? _writer;
 
     public static AppLogger Instance { get; } = new();
 
     private AppLogger()
+        : this(DefaultLogFilePath)
     {
-        Directory.CreateDirectory(LogDirectory);
+        _writer!.WriteLine();
+        _writer.WriteLine($"===== App started at {DateTime.Now:yyyy-MM-dd HH:mm:ss} =====");
+    }
+
+    public AppLogger(string logFilePath)
+    {
+        _logFilePath = logFilePath ?? throw new ArgumentNullException(nameof(logFilePath));
+        var logDirectory = Path.GetDirectoryName(_logFilePath);
+        if (logDirectory is not null)
+        {
+            Directory.CreateDirectory(logDirectory);
+        }
+
         RotateIfNeeded();
         _writer = CreateWriter();
-        _writer.WriteLine();
-        _writer.WriteLine($"===== App started at {DateTime.Now:yyyy-MM-dd HH:mm:ss} =====");
     }
 
     [Conditional("DEBUG")]
@@ -84,26 +95,26 @@ public sealed class AppLogger : IDisposable
         }
     }
 
-    private static StreamWriter CreateWriter()
+    private StreamWriter CreateWriter()
     {
-        var stream = new FileStream(LogFilePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete);
+        var stream = new FileStream(_logFilePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete);
         return new StreamWriter(stream) { AutoFlush = true };
     }
 
     private void RotateIfNeeded()
     {
-        if (!File.Exists(LogFilePath))
+        if (!File.Exists(_logFilePath))
         {
             return;
         }
 
         try
         {
-            if (new FileInfo(LogFilePath).Length > MaxLogSize)
+            if (new FileInfo(_logFilePath).Length > MaxLogSize)
             {
-                var backupPath = LogFilePath + ".old";
+                var backupPath = _logFilePath + ".old";
                 File.Delete(backupPath);
-                File.Move(LogFilePath, backupPath);
+                File.Move(_logFilePath, backupPath);
             }
         }
         catch

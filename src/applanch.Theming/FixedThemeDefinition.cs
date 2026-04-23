@@ -9,7 +9,7 @@ internal sealed class FixedThemeDefinition(
     string id,
     LocalizedText displayName,
     string? inheritedThemeId = null,
-    IReadOnlyDictionary<string, ThemeColor>? colorsByKey = null,
+    IReadOnlyDictionary<ThemeBrushKey, ThemeColor>? colorsByKey = null,
     bool isVisibleInThemeList = true) : ThemeDefinition(id, displayName, isVisibleInThemeList)
 {
     /// <summary>
@@ -17,8 +17,8 @@ internal sealed class FixedThemeDefinition(
     /// </summary>
     internal string? InheritedThemeId { get; } = inheritedThemeId;
 
-    internal override IReadOnlyDictionary<string, ThemeColor> ColorsByKey { get; } =
-        colorsByKey ?? new Dictionary<string, ThemeColor>();
+    internal override IReadOnlyDictionary<ThemeBrushKey, ThemeColor> ColorsByKey { get; } =
+        colorsByKey ?? new Dictionary<ThemeBrushKey, ThemeColor>();
 
     protected override IEnumerable<string> GetRelatedThemeIds(SystemThemeMode preferredSystemMode)
     {

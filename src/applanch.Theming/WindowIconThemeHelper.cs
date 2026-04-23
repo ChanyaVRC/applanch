@@ -21,7 +21,7 @@ public static class WindowIconThemeHelper
 
     internal static Color ResolveIconColor(ResourceDictionary resources)
     {
-        if (resources["Brush.TextPrimary"] is SolidColorBrush textBrush && ThemeColorLuminance.IsDark(textBrush.Color))
+        if (resources[ThemeBrushKey.TextPrimary.ToResourceKey()] is SolidColorBrush textBrush && ThemeColorLuminance.IsDark(textBrush.Color))
         {
             return LightPaletteIconColor;
         }

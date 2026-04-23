@@ -23,7 +23,7 @@ internal sealed class ThemePaletteConfiguration
         IEnumerable<ThemeDefinition> themes,
         IEnumerable<ThemePaletteEntry> entries)
     {
-        var colorsByThemeId = new Dictionary<string, Dictionary<string, ThemeColor>>();
+        var colorsByThemeId = new Dictionary<string, Dictionary<ThemeBrushKey, ThemeColor>>();
 
         foreach (var entry in entries)
         {
@@ -47,7 +47,7 @@ internal sealed class ThemePaletteConfiguration
 
     private static ThemeDefinition ApplyColors(
         ThemeDefinition theme,
-        IReadOnlyDictionary<string, ThemeColor> colorsByKey)
+        IReadOnlyDictionary<ThemeBrushKey, ThemeColor> colorsByKey)
     {
         return theme switch
         {
@@ -55,7 +55,7 @@ internal sealed class ThemePaletteConfiguration
                 fixedTheme.Id,
                 fixedTheme.DisplayName,
                 fixedTheme.InheritedThemeId,
-                new Dictionary<string, ThemeColor>(colorsByKey),
+                new Dictionary<ThemeBrushKey, ThemeColor>(colorsByKey),
                 fixedTheme.IsVisibleInThemeList),
             _ => theme,
         };
@@ -63,7 +63,7 @@ internal sealed class ThemePaletteConfiguration
 
     private static List<ThemePaletteEntry> BuildEntries(IEnumerable<ThemeDefinition> themes)
     {
-        var colorsByEntryKey = new Dictionary<string, Dictionary<string, ThemeColor>>();
+        var colorsByEntryKey = new Dictionary<ThemeBrushKey, Dictionary<string, ThemeColor>>();
 
         foreach (var theme in themes)
         {

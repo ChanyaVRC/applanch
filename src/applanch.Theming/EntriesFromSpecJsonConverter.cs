@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace applanch.Theming;
 
-internal sealed class EntriesFromSpecJsonConverter : JsonConverter<EntriesFromSpec>
+public sealed class EntriesFromSpecJsonConverter : JsonConverter<EntriesFromSpec>
 {
     public override EntriesFromSpec? Read(
         ref Utf8JsonReader reader,

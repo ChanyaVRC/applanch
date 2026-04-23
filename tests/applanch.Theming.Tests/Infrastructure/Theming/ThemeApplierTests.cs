@@ -58,12 +58,12 @@ public class ThemeApplierTests
         var resources = new ResourceDictionary();
         var configuration = new ThemePaletteConfiguration(
             [new FixedThemeDefinition("sunset", new LocalizedText("Sunset"))],
-            [new ThemePaletteEntry("Brush.Custom", new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = ThemeColor.Parse("#AABBCC") })]);
+            [new ThemePaletteEntry(ThemeBrushKey.AppBackground, new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase) { ["sunset"] = ThemeColor.Parse("#AABBCC") })]);
         var manager = new ThemeApplier(configuration);
 
         manager.ApplyTheme(resources, "sunset");
 
-        var brush = Assert.IsType<SolidColorBrush>(resources["Brush.Custom"]);
+        var brush = Assert.IsType<SolidColorBrush>(resources[ThemeBrushKey.AppBackground.ToResourceKey()]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#AABBCC")!, brush.Color);
     }
 
@@ -87,7 +87,7 @@ public class ThemeApplierTests
             ],
             [
                 new ThemePaletteEntry(
-                    "Brush.TextPrimary",
+                    ThemeBrushKey.TextPrimary,
                     new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase)
                     {
                         [ThemePaletteConfigurationLoader.LightThemeId] = ThemeColor.Parse("#0F172A"),
@@ -99,7 +99,7 @@ public class ThemeApplierTests
 
         manager.ApplyTheme(resources, ThemePaletteConfigurationLoader.SystemThemeId);
 
-        var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
+        var brush = Assert.IsType<SolidColorBrush>(resources[ThemeBrushKey.TextPrimary.ToResourceKey()]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#1A1A1A")!, brush.Color);
     }
 
@@ -115,7 +115,7 @@ public class ThemeApplierTests
             ],
             [
                 new ThemePaletteEntry(
-                    "Brush.TextPrimary",
+                    ThemeBrushKey.TextPrimary,
                     new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase)
                     {
                         ["light"] = ThemeColor.Parse("#0F172A"),
@@ -126,7 +126,7 @@ public class ThemeApplierTests
 
         manager.ApplyTheme(resources, "ocean");
 
-        var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
+        var brush = Assert.IsType<SolidColorBrush>(resources[ThemeBrushKey.TextPrimary.ToResourceKey()]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#1A1A1A")!, brush.Color);
     }
 
@@ -142,7 +142,7 @@ public class ThemeApplierTests
             ],
             [
                 new ThemePaletteEntry(
-                    "Brush.TextPrimary",
+                    ThemeBrushKey.TextPrimary,
                     new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase)
                     {
                         ["light"] = ThemeColor.Parse("#0F172A"),
@@ -152,7 +152,7 @@ public class ThemeApplierTests
 
         manager.ApplyTheme(resources, "alpha");
 
-        var brush = Assert.IsType<SolidColorBrush>(resources["Brush.TextPrimary"]);
+        var brush = Assert.IsType<SolidColorBrush>(resources[ThemeBrushKey.TextPrimary.ToResourceKey()]);
         Assert.Equal((Color)ColorConverter.ConvertFromString("#0F172A")!, brush.Color);
     }
 
@@ -165,7 +165,7 @@ public class ThemeApplierTests
             ],
             [
                 new ThemePaletteEntry(
-                    "Brush.TextPrimary",
+                    ThemeBrushKey.TextPrimary,
                     new Dictionary<string, ThemeColor>(StringComparer.OrdinalIgnoreCase)
                     {
                         ["light"] = ThemeColor.Parse("#0F172A"),

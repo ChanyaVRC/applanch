@@ -5,7 +5,7 @@ using applanch.Localization;
 
 namespace applanch.Theming;
 
-internal sealed class LocalizedTextJsonConverter : JsonConverter<LocalizedText>
+public sealed class LocalizedTextJsonConverter : JsonConverter<LocalizedText>
 {
     public override LocalizedText Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

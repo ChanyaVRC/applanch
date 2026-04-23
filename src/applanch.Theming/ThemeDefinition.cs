@@ -40,7 +40,7 @@ internal abstract class ThemeDefinition
     /// <summary>
     /// Gets the color definitions by key.
     /// </summary>
-    internal abstract IReadOnlyDictionary<string, ThemeColor> ColorsByKey { get; }
+    internal abstract IReadOnlyDictionary<ThemeBrushKey, ThemeColor> ColorsByKey { get; }
 
     /// <summary>
     /// Creates a map of brush keys to SolidColorBrush instances.
@@ -49,7 +49,7 @@ internal abstract class ThemeDefinition
         IReadOnlyDictionary<string, ThemeDefinition> themesById,
         SystemThemeMode preferredSystemMode)
     {
-        var allKeys = new HashSet<string>(StringComparer.Ordinal);
+        var allKeys = new HashSet<ThemeBrushKey>();
         foreach (var (_, theme) in themesById)
         {
             foreach (var (key, _) in theme.ColorsByKey)
@@ -65,7 +65,7 @@ internal abstract class ThemeDefinition
             var color = ResolveColor(key, themesById, preferredSystemMode);
             var brush = new SolidColorBrush(color.ToMediaColor());
             brush.Freeze();
-            brushMap[key] = brush;
+            brushMap[key.ToResourceKey()] = brush;
         }
 
         return brushMap;
@@ -77,7 +77,7 @@ internal abstract class ThemeDefinition
     protected abstract IEnumerable<string> GetRelatedThemeIds(SystemThemeMode preferredSystemMode);
 
     private ThemeColor ResolveColor(
-        string key,
+        ThemeBrushKey key,
         IReadOnlyDictionary<string, ThemeDefinition> themesById,
         SystemThemeMode preferredSystemMode)
     {
@@ -103,11 +103,11 @@ internal abstract class ThemeDefinition
             }
         }
 
-        throw new InvalidOperationException($"No color value found for key '{key}'.");
+        throw new InvalidOperationException($"No color value found for key '{key.ToResourceKey()}'.");
     }
 
     private bool TryResolveColorInGraph(
-        string key,
+        ThemeBrushKey key,
         IReadOnlyDictionary<string, ThemeDefinition> themesById,
         SystemThemeMode preferredSystemMode,
         HashSet<string> visited,

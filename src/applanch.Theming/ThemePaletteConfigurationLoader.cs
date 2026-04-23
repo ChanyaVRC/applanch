@@ -1,6 +1,5 @@
 using System.Buffers;
 using System.IO;
-using System.Text.Json;
 using applanch.Configuration;
 using applanch.Localization;
 
@@ -16,13 +15,6 @@ public static class ThemePaletteConfigurationLoader
     private const string ConfigDirectoryName = "Config";
     private const string UserDefinedDirectoryName = "UserDefined";
     private const string UserDefinedThemePaletteDirectoryName = "theme-palette";
-
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true,
-    };
 
     private static readonly ThemePaletteConfiguration EmptyConfiguration = new([]);
     private static readonly Lazy<ThemePaletteConfiguration> CachedConfiguration = new(LoadCore);
@@ -103,7 +95,7 @@ public static class ThemePaletteConfigurationLoader
         if (@base is FixedThemeDefinition baseFixedTheme &&
             overlay is FixedThemeDefinition overlayFixedTheme)
         {
-            var mergedColors = new Dictionary<string, ThemeColor>(baseFixedTheme.ColorsByKey);
+            var mergedColors = new Dictionary<ThemeBrushKey, ThemeColor>(baseFixedTheme.ColorsByKey);
             foreach (var (key, color) in overlayFixedTheme.ColorsByKey)
             {
                 mergedColors[key] = color;
@@ -155,9 +147,7 @@ public static class ThemePaletteConfigurationLoader
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        using var stream = File.OpenRead(path);
-        var dto = JsonSerializer.Deserialize<ThemePaletteConfigurationDto>(stream, SerializerOptions)
-            ?? throw new InvalidDataException("Theme palette config is null or invalid.");
+        var dto = ThemePaletteConfigurationJsonSerializer.DeserializeFile(path);
 
         var themes = BuildThemesFromDto(dto);
         if (themes.Count == 0)
@@ -189,13 +179,15 @@ public static class ThemePaletteConfigurationLoader
 
             if (themeDto.Entries is not null && themeDef is FixedThemeDefinition fixedTheme)
             {
-                var colorsByKey = new Dictionary<string, ThemeColor>();
+                var colorsByKey = new Dictionary<ThemeBrushKey, ThemeColor>();
                 foreach (var entry in themeDto.Entries)
                 {
-                    if (!string.IsNullOrWhiteSpace(entry.Key))
+                    if (!ThemeBrushKeyExtensions.TryParseResourceKey(entry.Key, out var brushKey))
                     {
-                        colorsByKey[entry.Key] = entry.Hex;
+                        throw new InvalidDataException($"Theme '{themeId}' has an unknown brush key '{entry.Key}'.");
                     }
+
+                    colorsByKey[brushKey] = entry.Hex;
                 }
 
                 if (colorsByKey.Count > 0)

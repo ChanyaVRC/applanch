@@ -16,7 +16,7 @@ public class StartupRegistrationServiceTests
 
         sut.Apply(enabled: true, executablePath: ExecutablePath);
 
-        Assert.Equal("\"C:\\Tools\\applanch.exe\"", runKey!.StoredValue);
+        Assert.Equal("\"C:\\Tools\\applanch.exe\"", runKey.StoredValue);
         Assert.False(runKey.DeleteCalled);
         Assert.True(runKey.DisposeCalled);
     }
@@ -28,7 +28,6 @@ public class StartupRegistrationServiceTests
 
         sut.Apply(enabled: false, executablePath: ExecutablePath);
 
-        Assert.NotNull(runKey);
         Assert.True(runKey.DeleteCalled);
         Assert.True(runKey.DisposeCalled);
     }
@@ -40,7 +39,6 @@ public class StartupRegistrationServiceTests
 
         sut.Apply(enabled: false, executablePath: ExecutablePath);
 
-        Assert.NotNull(runKey);
         Assert.False(runKey.DeleteCalled);
         Assert.True(runKey.DisposeCalled);
     }
@@ -48,28 +46,32 @@ public class StartupRegistrationServiceTests
     [Fact]
     public void Apply_WhenRunKeyIsUnavailable_DoesNothing()
     {
-        var (sut, runKey) = CreateSut(existingValue: null, keyAvailable: false);
+        var (sut, runKey) = CreateSut(existingValue: null, runKeyAvailable: false);
 
         var exception = Record.Exception(() => sut.Apply(enabled: true, executablePath: ExecutablePath));
 
         Assert.Null(exception);
-        Assert.Null(runKey);
+        Assert.False(runKey.DeleteCalled);
+        Assert.False(runKey.DisposeCalled);
+        Assert.Null(runKey.StoredValue);
     }
 
-    private static (StartupRegistrationService Sut, FakeRunKey? RunKey) CreateSut(object? existingValue, bool keyAvailable = true)
+    private static (StartupRegistrationService Sut, FakeRunKey RunKey) CreateSut(object? existingValue, bool runKeyAvailable = true)
     {
-        var runKey = keyAvailable ? new FakeRunKey(existingValue) : null;
-        var sut = new StartupRegistrationService(new FakeRegistryRuntime(runKey));
+        var runKey = new FakeRunKey(existingValue);
+        var sut = new StartupRegistrationService(new FakeRegistryRuntime(runKey, runKeyAvailable));
         return (sut, runKey);
     }
 
-    private sealed class FakeRegistryRuntime(IRegistryKey? runKey) : IRegistryRuntime
+    private sealed class FakeRegistryRuntime(FakeRunKey runKey, bool runKeyAvailable) : IRegistryRuntime
     {
-        public IRegistryKey CurrentUser => runKey ?? new FakeRunKey();
+        public IRegistryKey CurrentUser => runKey;
 
-        public IRegistryKey? OpenSubKey(IRegistryKey rootKey, string keyPath, bool writable) => runKey;
+        public IRegistryKey? OpenSubKey(IRegistryKey rootKey, string keyPath, bool writable)
+            => runKeyAvailable ? runKey : null;
 
-        public IRegistryKey? CreateSubKey(IRegistryKey rootKey, string keyPath, bool writable) => runKey;
+        public IRegistryKey? CreateSubKey(IRegistryKey rootKey, string keyPath, bool writable)
+            => runKeyAvailable ? runKey : null;
 
         public void DeleteSubKeyTree(IRegistryKey rootKey, string keyPath, bool throwOnMissingSubKey)
         {

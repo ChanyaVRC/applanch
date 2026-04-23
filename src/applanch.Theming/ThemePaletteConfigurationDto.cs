@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using applanch.Localization;
 
 namespace applanch.Theming;
 
@@ -7,17 +6,7 @@ namespace applanch.Theming;
 /// Intermediate DTO for deserializing theme-palette.json.
 /// Maps directly to the JSON structure.
 /// </summary>
-internal sealed record ThemePaletteConfigurationDto(
+public sealed record ThemePaletteConfigurationDto(
+    [property: JsonPropertyName("themes")]
     IReadOnlyList<ThemeDto> Themes);
-
-internal sealed record ThemeDto(
-    string Id,
-    [property: JsonConverter(typeof(LocalizedTextJsonConverter))] LocalizedText? DisplayNames = null,
-    EntriesFromSpec? EntriesFrom = null,
-    IReadOnlyList<ThemeEntryDto>? Entries = null,
-    bool Enabled = true);
-
-internal sealed record ThemeEntryDto(
-    string Key,
-    [property: JsonConverter(typeof(ThemeColorJsonConverter))] ThemeColor Hex);
 

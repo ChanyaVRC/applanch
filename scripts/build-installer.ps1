@@ -25,6 +25,12 @@ if (-not (Test-Path -Path $PublishDir -PathType Container)) {
     exit 1
 }
 
+$themeCreatorExePath = Join-Path $PublishDir 'applanch.ThemeCreator.exe'
+if (-not (Test-Path -Path $themeCreatorExePath -PathType Leaf)) {
+    Write-Error "ThemeCreator executable not found: '$themeCreatorExePath'. Publish applanch and ThemeCreator before packaging."
+    exit 1
+}
+
 $resolvedPublishDir = (Resolve-Path $PublishDir).Path
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 $resolvedOutputDir = (Resolve-Path $OutputDir).Path
