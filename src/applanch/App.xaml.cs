@@ -56,7 +56,7 @@ public sealed partial class App : Application
         ApplyLanguage(settings.Language);
         ApplyStartupRegistration(settings);
 
-        if (TryHandleStartupArgument(startupArguments))
+        if (TryHandleStartupArgument(startupArguments, _contextMenuRegistrar))
         {
             Shutdown();
             return;
@@ -130,7 +130,7 @@ public sealed partial class App : Application
         };
     }
 
-    private bool TryHandleStartupArgument(AppStartupArguments startupArguments)
+    internal static bool TryHandleStartupArgument(AppStartupArguments startupArguments, ContextMenuRegistrar contextMenuRegistrar)
     {
         if (startupArguments.Contains(AppStartupArguments.RegisterArgument))
         {
@@ -145,7 +145,7 @@ public sealed partial class App : Application
 
         if (startupArguments.IsContextMenuUnregisterRequested)
         {
-            _contextMenuRegistrar.Unregister();
+            contextMenuRegistrar.Unregister();
             return true;
         }
 

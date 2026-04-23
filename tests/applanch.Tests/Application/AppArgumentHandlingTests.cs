@@ -1,6 +1,6 @@
 using System.Reflection;
+using applanch.Infrastructure.Integration;
 using applanch.Settings;
-using applanch.Tests.TestSupport;
 using Xunit;
 
 namespace applanch.Tests.Application;
@@ -145,16 +145,8 @@ public class AppArgumentHandlingTests
     public void TryHandleStartupArgument_WithRegisterArgumentOnly_ReturnsTrue()
     {
         var startupArguments = AppStartupArguments.Parse([AppStartupArguments.RegisterArgument]);
-        bool handled = false;
 
-        WpfTestHost.RunInSta(() =>
-        {
-            var app = new App();
-            var method = typeof(App).GetMethod("TryHandleStartupArgument", BindingFlags.NonPublic | BindingFlags.Instance);
-            Assert.NotNull(method);
-            handled = Assert.IsType<bool>(method.Invoke(app, [startupArguments]));
-            app.Shutdown();
-        });
+        var handled = App.TryHandleStartupArgument(startupArguments, new ContextMenuRegistrar());
 
         Assert.True(handled);
     }
