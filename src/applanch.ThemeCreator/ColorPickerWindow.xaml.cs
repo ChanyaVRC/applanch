@@ -39,7 +39,7 @@ public partial class ColorPickerWindow : Window
         if (ThemeColor.TryParse(initialHex, out var color))
         {
             var brush = new SolidColorBrush(color.ToMediaColor());
-            RgbToHsv(color.R, color.G, color.B, out _hue, out _sat, out _val);
+            (_hue, _sat, _val) = RgbToHsv(color.R, color.G, color.B);
             BeforePreview.Background = brush;
         }
         else
@@ -182,7 +182,7 @@ public partial class ColorPickerWindow : Window
 
         if (ThemeColor.TryParse(text, out var color))
         {
-            RgbToHsv(color.R, color.G, color.B, out _hue, out _sat, out _val);
+            (_hue, _sat, _val) = RgbToHsv(color.R, color.G, color.B);
             _updatingUi = true;
             try
             {
@@ -204,8 +204,7 @@ public partial class ColorPickerWindow : Window
             return;
         }
 
-        RgbToHsv((byte)RedSlider.Value, (byte)GreenSlider.Value, (byte)BlueSlider.Value,
-            out _hue, out _sat, out _val);
+        (_hue, _sat, _val) = RgbToHsv((byte)RedSlider.Value, (byte)GreenSlider.Value, (byte)BlueSlider.Value);
         UpdateAllUi();
     }
 
@@ -233,7 +232,7 @@ public partial class ColorPickerWindow : Window
             return;
         }
 
-        RgbToHsv(r, g, b, out _hue, out _sat, out _val);
+        (_hue, _sat, _val) = RgbToHsv(r, g, b);
         UpdateAllUi();
     }
 
@@ -271,7 +270,7 @@ public partial class ColorPickerWindow : Window
             return MediaColor.FromRgb(gray, gray, gray);
         }
 
-        double hh = (h % 360.0) / 60.0;
+        double hh = h % 360.0 / 60.0;
         int i = (int)hh;
         double f = hh - i;
         double p = v * (1 - s);
@@ -291,7 +290,7 @@ public partial class ColorPickerWindow : Window
         return MediaColor.FromRgb((byte)(r * 255), (byte)(g * 255), (byte)(b * 255));
     }
 
-    private static void RgbToHsv(byte r, byte g, byte b, out double h, out double s, out double v)
+    private static (double H, double S, double V) RgbToHsv(byte r, byte g, byte b)
     {
         double rf = r / 255.0;
         double gf = g / 255.0;
@@ -301,15 +300,15 @@ public partial class ColorPickerWindow : Window
         double min = Math.Min(rf, Math.Min(gf, bf));
         double delta = max - min;
 
-        v = max;
-        s = max == 0 ? 0 : delta / max;
-        h = 0;
+        var v = max;
+        var s = max == 0 ? 0 : delta / max;
+        var h = 0.0;
 
         if (delta != 0)
         {
             if (max == rf)
             {
-                h = 60.0 * (((gf - bf) / delta) % 6);
+                h = 60.0 * ((gf - bf) / delta % 6);
             }
             else if (max == gf)
             {
@@ -325,5 +324,7 @@ public partial class ColorPickerWindow : Window
         {
             h += 360;
         }
+
+        return (h, s, v);
     }
 }
