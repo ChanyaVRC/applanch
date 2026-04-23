@@ -14,9 +14,8 @@ internal static partial class Program
     [STAThread]
     private static int Main(string[] args)
     {
-        if (args.Length > 0)
+        if (args.Length > 0 && AttachConsole(AttachParentProcess))
         {
-            AttachConsole(AttachParentProcess);
             Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
             Console.SetError(new StreamWriter(Console.OpenStandardError()) { AutoFlush = true });
         }
