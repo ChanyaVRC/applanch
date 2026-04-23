@@ -8,13 +8,14 @@ public static class ThemeBrushKeyExtensions
 
     public static bool TryParseResourceKey(string? resourceKey, out ThemeBrushKey key)
     {
-        if (string.IsNullOrWhiteSpace(resourceKey) || !resourceKey.StartsWith(BrushPrefix, StringComparison.Ordinal))
+        if (string.IsNullOrWhiteSpace(resourceKey) ||
+            !resourceKey.StartsWith(BrushPrefix, StringComparison.OrdinalIgnoreCase))
         {
             key = default;
             return false;
         }
 
         var keyName = resourceKey[BrushPrefix.Length..];
-        return Enum.TryParse(keyName, ignoreCase: false, out key);
+        return Enum.TryParse(keyName, ignoreCase: true, out key);
     }
 }

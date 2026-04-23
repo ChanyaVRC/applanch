@@ -183,10 +183,12 @@ public static class ThemePaletteConfigurationLoader
                 var colorsByKey = new Dictionary<ThemeBrushKey, ThemeColor>();
                 foreach (var entry in themeDto.Entries)
                 {
-                    if (ThemeBrushKeyExtensions.TryParseResourceKey(entry.Key, out var brushKey))
+                    if (!ThemeBrushKeyExtensions.TryParseResourceKey(entry.Key, out var brushKey))
                     {
-                        colorsByKey[brushKey] = entry.Hex;
+                        throw new InvalidDataException($"Theme '{themeId}' has an unknown brush key '{entry.Key}'.");
                     }
+
+                    colorsByKey[brushKey] = entry.Hex;
                 }
 
                 if (colorsByKey.Count > 0)

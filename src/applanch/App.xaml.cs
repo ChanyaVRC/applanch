@@ -132,10 +132,14 @@ public sealed partial class App : Application
 
     private bool TryHandleStartupArgument(AppStartupArguments startupArguments)
     {
-        var registerPath = startupArguments.RegisterPath;
-        if (!string.IsNullOrWhiteSpace(registerPath) && (File.Exists(registerPath) || Directory.Exists(registerPath)))
+        if (startupArguments.Contains(AppStartupArguments.RegisterArgument))
         {
-            LauncherStore.Add(registerPath);
+            var registerPath = startupArguments.RegisterPath;
+            if (!string.IsNullOrWhiteSpace(registerPath) && (File.Exists(registerPath) || Directory.Exists(registerPath)))
+            {
+                LauncherStore.Add(registerPath);
+            }
+
             return true;
         }
 

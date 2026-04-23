@@ -102,6 +102,44 @@ public sealed class ThemePaletteConfigurationLoaderTests
     }
 
     [Fact]
+    public void TryLoadFromDirectory_WhenThemeContainsUnknownBrushKey_ReturnsFalseAndReportsInvalidFormat()
+    {
+        using var scope = BundledConfigLoadNotificationTestScope.Enter();
+        var root = CreateTempDirectory();
+        var appBase = Path.Combine(root, "appbase");
+        Directory.CreateDirectory(Path.Combine(appBase, "Config"));
+        File.WriteAllText(
+            Path.Combine(appBase, "Config", "theme-palette.json"),
+            """
+            {
+                "themes": [
+                    {
+                        "id": "light",
+                        "entries": [
+                            { "key": "Brush.NotDefined", "hex": "#112233" }
+                        ]
+                    }
+                ]
+            }
+            """);
+
+        try
+        {
+            var loaded = ThemePaletteConfigurationLoader.TryLoadFromDirectory(appBase, out var configuration);
+
+            Assert.False(loaded);
+            Assert.Empty(configuration.Themes);
+            Assert.Contains(
+                BundledConfigLoadNotificationCenter.DrainPending(),
+                static issue => issue == new BundledConfigLoadIssue("theme-palette.json", IsInvalidFormat: true));
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
     public void TryLoadFromDirectory_WhenConfigMissing_ReturnsFalse()
     {
         using var scope = BundledConfigLoadNotificationTestScope.Enter();

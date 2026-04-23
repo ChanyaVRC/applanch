@@ -1,19 +1,20 @@
 using applanch.Theming;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows.Media;
-
 namespace applanch.ThemeCreator;
 
 internal sealed class ThemeCreatorEditableEntry : INotifyPropertyChanged
 {
     private string _hex;
+    private string _previewBrushHex = string.Empty;
+    private System.Windows.Media.Brush _previewBrush = System.Windows.Media.Brushes.Transparent;
 
     internal ThemeCreatorEditableEntry(string key, string description, string hex)
     {
         Key = key;
         Description = description;
         _hex = hex;
+        RefreshPreviewBrush();
     }
 
     public string Key { get; }
@@ -31,6 +32,7 @@ internal sealed class ThemeCreatorEditableEntry : INotifyPropertyChanged
             }
 
             _hex = value;
+            RefreshPreviewBrush();
             OnPropertyChanged();
             OnPropertyChanged(nameof(PreviewBrush));
         }
@@ -40,15 +42,35 @@ internal sealed class ThemeCreatorEditableEntry : INotifyPropertyChanged
     {
         get
         {
-            if (ThemeColor.TryParse(Hex, out var color))
-            {
-                return new SolidColorBrush(color.ToMediaColor());
-            }
-            return System.Windows.Media.Brushes.Transparent;
+            RefreshPreviewBrush();
+            return _previewBrush;
         }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void RefreshPreviewBrush()
+    {
+        if (string.Equals(_previewBrushHex, _hex, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _previewBrushHex = _hex;
+        _previewBrush = CreateFrozenPreviewBrush(_hex);
+    }
+
+    private static System.Windows.Media.SolidColorBrush CreateFrozenPreviewBrush(string hex)
+    {
+        if (!ThemeColor.TryParse(hex, out var color))
+        {
+            return System.Windows.Media.Brushes.Transparent;
+        }
+
+        var brush = new System.Windows.Media.SolidColorBrush(color.ToMediaColor());
+        brush.Freeze();
+        return brush;
+    }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
