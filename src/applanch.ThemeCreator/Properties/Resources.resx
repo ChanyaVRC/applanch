@@ -65,6 +65,7 @@
   <data name="PickColorButton" xml:space="preserve"><value>Pick</value></data>
     <data name="ColorPickerTitle" xml:space="preserve"><value>Color Picker</value></data>
     <data name="ColorPickerPreviewLabel" xml:space="preserve"><value>Before / After</value></data>
+    <data name="ColorPickerHexLabel" xml:space="preserve"><value>Hex</value></data>
     <data name="ColorPickerOkButton" xml:space="preserve"><value>OK</value></data>
     <data name="ColorPickerCancelButton" xml:space="preserve"><value>Cancel</value></data>
   <data name="CreateButton" xml:space="preserve"><value>Save Theme File</value></data>

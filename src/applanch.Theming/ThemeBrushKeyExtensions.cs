@@ -16,6 +16,6 @@ public static class ThemeBrushKeyExtensions
         }
 
         var keyName = resourceKey[BrushPrefix.Length..];
-        return Enum.TryParse(keyName, ignoreCase: true, out key);
+        return Enum.TryParse(keyName, ignoreCase: true, out key) && Enum.IsDefined(key);
     }
 }

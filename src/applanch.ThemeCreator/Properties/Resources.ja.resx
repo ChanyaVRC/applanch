@@ -65,6 +65,7 @@
   <data name="PickColorButton" xml:space="preserve"><value>選択</value></data>
     <data name="ColorPickerTitle" xml:space="preserve"><value>カラーピッカー</value></data>
     <data name="ColorPickerPreviewLabel" xml:space="preserve"><value>変更前 / 変更後</value></data>
+    <data name="ColorPickerHexLabel" xml:space="preserve"><value>Hex</value></data>
     <data name="ColorPickerOkButton" xml:space="preserve"><value>OK</value></data>
     <data name="ColorPickerCancelButton" xml:space="preserve"><value>キャンセル</value></data>
   <data name="CreateButton" xml:space="preserve"><value>テーマファイルを保存</value></data>

@@ -5,6 +5,7 @@ using System.IO;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using System.Globalization;
 using applanch.Localization;
 using applanch.Theming;
@@ -219,6 +220,7 @@ public partial class ThemeCreatorWindow : Window
     private string? _defaultEditableEntriesSourcePath;
     private Dictionary<string, string>? _defaultEditableHexByKey;
     private ThemePreviewWindow? _previewWindow;
+    private DispatcherTimer? _previewDebounceTimer;
 
     public ThemeCreatorWindow()
     {
@@ -599,6 +601,24 @@ public partial class ThemeCreatorWindow : Window
             return;
         }
 
+        _previewDebounceTimer ??= new DispatcherTimer(DispatcherPriority.Background)
+        {
+            Interval = TimeSpan.FromMilliseconds(300),
+        };
+        _previewDebounceTimer.Tick -= OnPreviewDebounceElapsed;
+        _previewDebounceTimer.Tick += OnPreviewDebounceElapsed;
+        _previewDebounceTimer.Stop();
+        _previewDebounceTimer.Start();
+    }
+
+    private void OnPreviewDebounceElapsed(object? sender, EventArgs e)
+    {
+        _previewDebounceTimer?.Stop();
+        ExecutePreviewRefresh();
+    }
+
+    private void ExecutePreviewRefresh()
+    {
         if (!TryBuildOptions(out var options, out var errorMessage))
         {
             UpdatePreviewText(errorMessage);

@@ -147,8 +147,7 @@ public static class ThemePaletteConfigurationLoader
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        var dto = ThemePaletteConfigurationJsonSerializer.DeserializeFile(path)
-            ?? throw new InvalidDataException("Theme palette config is null or invalid.");
+        var dto = ThemePaletteConfigurationJsonSerializer.DeserializeFile(path);
 
         var themes = BuildThemesFromDto(dto);
         if (themes.Count == 0)

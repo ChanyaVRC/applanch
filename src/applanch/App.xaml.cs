@@ -165,6 +165,8 @@ public sealed partial class App : Application
     private void OnSettingsCommitted(AppSettings settings)
     {
         var refreshedSettings = CreatePersistedSettings(settings, _startupThemeOverrideId, _startupConfiguredThemeId);
+        _startupThemeOverrideId = null;
+        _startupConfiguredThemeId = null;
         refreshedSettings.Save();
     }
 
