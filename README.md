@@ -35,6 +35,7 @@ A lightweight Windows launcher for quickly starting apps, files, and folders.
   - Installer: `applanch-<version>-<rid>-installer.exe`
 3. For ZIP, extract to any folder and run `applanch.exe`.
 4. For installer EXE, run it and follow the setup wizard.
+5. Both distribution formats include `ThemeCreator/applanch.ThemeCreator.exe` for theme authoring.
 
 ## Usage
 
@@ -202,6 +203,7 @@ the context menu entry under *Show more options* (classic context menu).
 - Release artifacts are published in two formats per runtime:
   - Portable ZIP package
   - Installer EXE package
+- Both packages include the Theme Creator tool under `ThemeCreator/`.
 - Typical release flow:
 
 ```powershell

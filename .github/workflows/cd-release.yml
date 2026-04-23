@@ -99,6 +99,9 @@ jobs:
       - name: Publish app
         run: dotnet publish src/applanch/applanch.csproj --configuration Release --framework net10.0-windows10.0.22000.0 --runtime ${{ matrix.runtime }} --self-contained false --no-restore -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output artifacts/publish/${{ matrix.runtime }}
 
+      - name: Publish ThemeCreator
+        run: dotnet publish src/applanch.ThemeCreator/applanch.ThemeCreator.csproj --configuration Release --framework net10.0-windows10.0.22000.0 --runtime ${{ matrix.runtime }} --self-contained false --output artifacts/publish/${{ matrix.runtime }}
+
       - name: Install Inno Setup
         run: choco install innosetup --yes --no-progress
 

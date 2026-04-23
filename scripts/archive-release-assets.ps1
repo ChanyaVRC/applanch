@@ -9,6 +9,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $publishDir = "artifacts/publish/$Runtime"
+$themeCreatorExePath = Join-Path $publishDir 'applanch.ThemeCreator.exe'
 $distDir = 'dist'
 $archiveName = "applanch-$AppVersion-$Runtime.zip"
 $archivePath = Join-Path $distDir $archiveName
@@ -16,6 +17,11 @@ $checksumPath = "$archivePath.sha256"
 
 if (-not (Test-Path -Path $publishDir -PathType Container)) {
     Write-Error "Publish directory not found: '$publishDir'"
+    exit 1
+}
+
+if (-not (Test-Path -Path $themeCreatorExePath -PathType Leaf)) {
+    Write-Error "ThemeCreator executable not found: '$themeCreatorExePath'. Publish applanch and ThemeCreator before packaging."
     exit 1
 }
 

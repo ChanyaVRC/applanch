@@ -35,6 +35,7 @@ applanch は、カテゴリ管理、クイック追加サジェスト、更新�
   - インストーラー版: `applanch-<version>-<rid>-installer.exe`
 3. ZIP の場合は任意フォルダに展開して applanch.exe を実行
 4. インストーラー EXE の場合は起動してセットアップウィザードに従う
+5. どちらの配布形式にも、テーマ作成ツール `ThemeCreator/applanch.ThemeCreator.exe` が同梱されます
 
 ## 使い方
 
@@ -202,6 +203,7 @@ IT 管理者に Intune（または非管理端末ではローカルグループ�
 - リリース成果物はランタイムごとに 2 形式で公開
   - ポータブル ZIP
   - インストーラー EXE
+- いずれの配布形式にも `ThemeCreator/` 配下に Theme Creator ツールを同梱
 - 通常のリリース手順
 
 ```powershell
