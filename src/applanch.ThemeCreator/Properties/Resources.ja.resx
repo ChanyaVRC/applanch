@@ -78,6 +78,7 @@
   <data name="GuiSourceNotFoundFormat" xml:space="preserve"><value>ソースパレットファイルが見つかりませんでした: {0}</value></data>
   <data name="GuiInvalidHexFormat" xml:space="preserve"><value>{0} の色が無効です: {1}</value></data>
   <data name="GuiNoEditableEntries" xml:space="preserve"><value>選択したベーステーマには、直接編集できるカラーエントリがありません。</value></data>
+  <data name="GuiFrameworkResolutionFailed" xml:space="preserve"><value>アプリ プレビューのパス解決に必要なターゲット フレームワークを特定できませんでした。</value></data>
   <data name="AppPreviewWorkspaceNotFoundError" xml:space="preserve"><value>ワークスペース ルートを特定できませんでした。リポジトリのワークスペースから Theme Creator を起動してください。</value></data>
   <data name="AppPreviewLaunchFailed" xml:space="preserve"><value>applanch プレビューの起動に失敗しました: {0}</value></data>
   <data name="AppPreviewStarted" xml:space="preserve"><value>一時テーマ '{0}' (ベース: {1}) で applanch プレビューを起動しました。</value></data>

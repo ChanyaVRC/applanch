@@ -161,7 +161,7 @@ public partial class ThemeCreatorWindow : Window
 
         if (string.IsNullOrWhiteSpace(targetFramework))
         {
-            throw new InvalidOperationException("Could not determine target framework for app preview path resolution.");
+            throw new InvalidOperationException(AppResources.GuiFrameworkResolutionFailed);
         }
 
         return targetFramework.Trim();

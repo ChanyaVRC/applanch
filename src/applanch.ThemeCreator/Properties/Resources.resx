@@ -78,6 +78,7 @@
   <data name="GuiSourceNotFoundFormat" xml:space="preserve"><value>Source palette file was not found: {0}</value></data>
   <data name="GuiInvalidHexFormat" xml:space="preserve"><value>Invalid color for {0}: {1}</value></data>
   <data name="GuiNoEditableEntries" xml:space="preserve"><value>The selected base theme does not provide direct color entries to edit.</value></data>
+  <data name="GuiFrameworkResolutionFailed" xml:space="preserve"><value>Could not determine target framework for app preview path resolution.</value></data>
   <data name="AppPreviewWorkspaceNotFoundError" xml:space="preserve"><value>Workspace root could not be resolved. Launch Theme Creator from the repository workspace.</value></data>
   <data name="AppPreviewLaunchFailed" xml:space="preserve"><value>Failed to start applanch preview: {0}</value></data>
   <data name="AppPreviewStarted" xml:space="preserve"><value>Started applanch preview with temporary theme '{0}' (base: {1}).</value></data>
