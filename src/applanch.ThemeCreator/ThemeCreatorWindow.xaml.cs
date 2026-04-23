@@ -2,8 +2,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Reflection;
-using System.Runtime.Versioning;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
@@ -133,14 +131,14 @@ public partial class ThemeCreatorWindow : Window
     internal static string ResolveAppPreviewThemeDirectory(string workspaceRoot)
     {
 #if DEBUG
-        var frameworkName = GetCurrentTargetFrameworkMoniker();
+        var frameworkDirectory = GetCurrentFrameworkDirectory();
         return Path.Combine(
             workspaceRoot,
             "src",
             "applanch",
             "bin",
             "Debug",
-            frameworkName,
+            frameworkDirectory,
             "Config",
             "UserDefined",
             "theme-palette");
@@ -153,18 +151,17 @@ public partial class ThemeCreatorWindow : Window
 #endif
     }
 
-    private static string GetCurrentTargetFrameworkMoniker()
+    private static string GetCurrentFrameworkDirectory()
     {
-        var targetFramework = typeof(ThemeCreatorWindow).Assembly
-            .GetCustomAttribute<TargetFrameworkAttribute>()
-            ?.FrameworkName;
+        var baseDir = AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        var tfmDir = Path.GetFileName(baseDir);
 
-        if (string.IsNullOrWhiteSpace(targetFramework))
+        if (string.IsNullOrWhiteSpace(tfmDir))
         {
             throw new InvalidOperationException(AppResources.GuiFrameworkResolutionFailed);
         }
 
-        return targetFramework.Trim();
+        return tfmDir;
     }
 
     private List<ThemeEntryDto>? CollectPreviewEntries()

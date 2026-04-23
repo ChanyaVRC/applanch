@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Runtime.Versioning;
 using System.Windows;
 using applanch.Tests.ThemeCreator.TestSupport;
 using applanch.ThemeCreator;
@@ -43,21 +42,18 @@ public sealed class ThemeCreatorWindowTests
     public void ResolveAppPreviewThemeDirectory_UsesApplanchRuntimeDirectory()
     {
         var workspaceRoot = Path.Combine("C:", "repo", "applanch-pr-theme-palette");
-        var targetFramework = typeof(ThemeCreatorWindow).Assembly
-            .GetCustomAttribute<TargetFrameworkAttribute>()
-            ?.FrameworkName;
-        Assert.False(string.IsNullOrWhiteSpace(targetFramework));
-
         var resolved = ThemeCreatorWindow.ResolveAppPreviewThemeDirectory(workspaceRoot);
 
 #if DEBUG
+        var tfmDir = Path.GetFileName(
+            AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
         var expected = Path.Combine(
             workspaceRoot,
             "src",
             "applanch",
             "bin",
             "Debug",
-            targetFramework!,
+            tfmDir!,
             "Config",
             "UserDefined",
             "theme-palette");
