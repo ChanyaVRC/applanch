@@ -4,7 +4,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
-using applanch.Helpers;
 using applanch.Infrastructure.Integration;
 using applanch.Resolution;
 using applanch.Infrastructure.Storage;
