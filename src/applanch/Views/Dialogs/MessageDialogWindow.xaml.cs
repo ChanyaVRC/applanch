@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Media;
 using applanch.Infrastructure.Dialogs;
+using applanch.Theming;
 
 namespace applanch.Views.Dialogs;
 

@@ -12,7 +12,7 @@ using applanch.Theming;
 
 namespace applanch.ThemeCreator;
 
-public partial class ThemeCreatorWindow : Window
+public partial class ThemeCreatorWindow : DialogWindowBase
 {
     private const string DefaultEditableBaseThemeId = "light";
     private const string FallbackEditableHex = "#808080";

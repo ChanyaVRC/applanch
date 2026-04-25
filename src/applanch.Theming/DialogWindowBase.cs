@@ -1,8 +1,10 @@
 using System.Windows;
-using applanch.Theming;
 
-namespace applanch.Views.Dialogs;
+namespace applanch.Theming;
 
+/// <summary>
+/// Base class for WPF windows that automatically applies the application's caption theme.
+/// </summary>
 public class DialogWindowBase : Window
 {
     protected DialogWindowBase()
@@ -11,6 +13,9 @@ public class DialogWindowBase : Window
         Loaded += HandleLoaded;
     }
 
+    /// <summary>
+    /// Configures the window title, owner, and startup position.
+    /// </summary>
     protected void InitializeDialogWindow(string title, Window? owner)
     {
         Title = title;
@@ -20,6 +25,9 @@ public class DialogWindowBase : Window
             : WindowStartupLocation.CenterOwner;
     }
 
+    /// <summary>
+    /// Override to set keyboard focus to an initial element when the window loads.
+    /// </summary>
     protected virtual void FocusInitialElement()
     {
     }

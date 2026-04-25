@@ -11,7 +11,7 @@ using WpfPoint = System.Windows.Point;
 
 namespace applanch.ThemeCreator;
 
-public partial class ColorPickerWindow : Window
+public partial class ColorPickerWindow : DialogWindowBase
 {
     private const double SvWidth = 258.0;
     private const double SvHeight = 218.0;

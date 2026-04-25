@@ -1,6 +1,8 @@
+using applanch.Theming;
+
 namespace applanch.ThemeCreator;
 
-public partial class ThemePreviewWindow : System.Windows.Window
+public partial class ThemePreviewWindow : DialogWindowBase
 {
     public ThemePreviewWindow()
     {

@@ -1,4 +1,5 @@
 using System.Windows;
+using applanch.Theming;
 
 namespace applanch.Views.Dialogs;
 
