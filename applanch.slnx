@@ -10,6 +10,7 @@
   <Project Path="tests/applanch.Theming.Tests/applanch.Theming.Tests.csproj" />
   <Project Path="tests/applanch.Serialization.Tests/applanch.Serialization.Tests.csproj" />
   <Project Path="tests/applanch.ShellExtension.Tests/applanch.ShellExtension.Tests.csproj" />
+  <Project Path="tests/applanch.Tests.Support/applanch.Tests.Support.csproj" />
   <Project Path="tests/applanch.Tests/applanch.Tests.csproj" />
   <Project Path="tests/applanch.ThemeCreator.Tests/applanch.ThemeCreator.Tests.csproj" />
 </Solution>

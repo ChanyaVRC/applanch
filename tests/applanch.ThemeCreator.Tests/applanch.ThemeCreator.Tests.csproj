@@ -18,5 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\applanch.ThemeCreator\applanch.ThemeCreator.csproj" />
+    <ProjectReference Include="..\applanch.Tests.Support\applanch.Tests.Support.csproj" />
   </ItemGroup>
 </Project>
