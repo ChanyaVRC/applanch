@@ -1,4 +1,3 @@
-using System.IO;
 using applanch.Utilities;
 
 namespace applanch.ThemeCreator;
@@ -7,25 +6,11 @@ internal static class ThemeCreatorLogger
 {
     private const string AppLogFileName = "theme-creator.log";
 
-    private static AppLogger? _logger;
-
-    private static AppLogger Logger
-    {
-        get
-        {
-            if (_logger is null)
-            {
-                var logFilePath = LogFilePath;
-                _logger = new AppLogger(logFilePath);
-            }
-
-            return _logger;
-        }
-    }
+    private static readonly AppLogger Logger = AppLogger.CreateNamed(AppLogFileName);
 
     internal static string LogDirectoryPath => AppLogger.LogDirectoryPath;
 
-    internal static string LogFilePath => Path.Combine(AppLogger.LogDirectoryPath, AppLogFileName);
+    internal static string LogFilePath => Logger.LogFilePath;
 
     internal static void Info(string message) => Logger.Info(message);
 

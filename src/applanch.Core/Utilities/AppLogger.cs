@@ -14,11 +14,21 @@ public sealed class AppLogger : IDisposable
     public static string LogDirectoryPath => DefaultLogDirectory;
     public static string LogFilePathValue => DefaultLogFilePath;
 
+    /// <summary>Gets the full path of the log file this instance writes to.</summary>
+    public string LogFilePath => _logFilePath;
+
     private readonly Lock _lock = new();
     private readonly string _logFilePath;
     private StreamWriter? _writer;
 
     public static AppLogger Instance { get; } = new();
+
+    /// <summary>
+    /// Creates a new <see cref="AppLogger"/> that writes to a file named
+    /// <paramref name="logFileName"/> inside <see cref="LogDirectoryPath"/>.
+    /// </summary>
+    public static AppLogger CreateNamed(string logFileName) =>
+        new(Path.Combine(LogDirectoryPath, logFileName));
 
     private AppLogger()
         : this(DefaultLogFilePath)
