@@ -11,7 +11,7 @@ using applanch.Theming;
 using applanch.Updates;
 using applanch.ViewModels;
 using applanch.Utilities;
-using applanch.Infrastructure.Utilities;
+using applanch.Core.Utilities;
 using applanch.Infrastructure.Wpf;
 
 namespace applanch;

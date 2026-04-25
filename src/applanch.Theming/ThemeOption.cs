@@ -1,9 +1,9 @@
-using System.ComponentModel;
+using applanch.Core.ViewModels;
 using applanch.Localization;
 
 namespace applanch.Theming;
 
-public sealed class ThemeOption : INotifyPropertyChanged
+public sealed class ThemeOption : ObservableObject
 {
     public ThemeOption(string themeId, LocalizedText displayNameText, bool IsSystemOption = false)
     {
@@ -23,11 +23,9 @@ public sealed class ThemeOption : INotifyPropertyChanged
 
     public string DisplayName => DisplayNameText.ResolveCurrentCulture();
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-
     public void NotifyDisplayNameChanged()
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayName)));
+        OnPropertyChanged(nameof(DisplayName));
     }
 }
 

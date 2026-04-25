@@ -9,7 +9,7 @@ using applanch.Theming;
 using applanch.Updates;
 using applanch.Utilities;
 using applanch.Localization;
-using applanch.Infrastructure.Utilities;
+using applanch.Core.Utilities;
 
 namespace applanch.ViewModels;
 

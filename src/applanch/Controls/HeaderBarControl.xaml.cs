@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using applanch.Updates;
-using applanch.Infrastructure.Utilities;
+using applanch.Core.Utilities;
 
 namespace applanch.Controls;
 

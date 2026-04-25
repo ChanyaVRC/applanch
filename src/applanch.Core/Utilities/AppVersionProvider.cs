@@ -1,10 +1,16 @@
 using System.Reflection;
 using applanch.Updates;
 
-namespace applanch.Infrastructure.Utilities;
+namespace applanch.Core.Utilities;
 
-internal static class AppVersionProvider
+/// <summary>
+/// Provides the current application version from assembly metadata.
+/// </summary>
+public static class AppVersionProvider
 {
+    /// <summary>
+    /// Gets the current application version.
+    /// </summary>
     public static SemanticVersion CurrentVersion { get; } = GetVersion();
 
     private static SemanticVersion GetVersion()
