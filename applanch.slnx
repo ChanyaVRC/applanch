@@ -2,6 +2,7 @@
   <Project Path="src/applanch.Core/applanch.Core.csproj" />
   <Project Path="src/applanch.Serialization/applanch.Serialization.csproj" />
   <Project Path="src/applanch.Theming/applanch.Theming.csproj" />
+  <Project Path="src/applanch.Theming.Wpf/applanch.Theming.Wpf.csproj" />
   <Project Path="src/applanch.ShellExtension/applanch.ShellExtension.csproj" />
   <Project Path="src/applanch.CodeAnalysis/applanch.CodeAnalysis.csproj" />
   <Project Path="src/applanch.ThemeCreator/applanch.ThemeCreator.csproj" />

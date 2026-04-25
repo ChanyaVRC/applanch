@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Runtime.InteropServices;
-using System.Windows.Media;
 
 namespace applanch.Theming;
 
@@ -54,11 +53,6 @@ public readonly record struct ThemeColor
     public string Hex => A == byte.MaxValue
         ? $"#{R:X2}{G:X2}{B:X2}"
         : $"#{A:X2}{R:X2}{G:X2}{B:X2}";
-
-    /// <summary>
-    /// Converts to WPF Media Color.
-    /// </summary>
-    public Color ToMediaColor() => Color.FromArgb(A, R, G, B);
 
     /// <summary>
     /// Parses a color from a string (hex format).

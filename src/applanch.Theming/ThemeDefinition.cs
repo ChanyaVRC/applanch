@@ -1,4 +1,3 @@
-using System.Windows.Media;
 using applanch.Localization;
 
 namespace applanch.Theming;
@@ -43,9 +42,9 @@ internal abstract class ThemeDefinition
     internal abstract IReadOnlyDictionary<ThemeBrushKey, ThemeColor> ColorsByKey { get; }
 
     /// <summary>
-    /// Creates a map of brush keys to SolidColorBrush instances.
+    /// Resolves the full color map for this theme, merging all inherited colors and fallbacks.
     /// </summary>
-    internal Dictionary<string, SolidColorBrush> CreateBrushMap(
+    internal IReadOnlyDictionary<string, ThemeColor> ResolveColors(
         IReadOnlyDictionary<string, ThemeDefinition> themesById,
         SystemThemeMode preferredSystemMode)
     {
@@ -58,17 +57,15 @@ internal abstract class ThemeDefinition
             }
         }
 
-        var brushMap = new Dictionary<string, SolidColorBrush>(allKeys.Count);
+        var colorMap = new Dictionary<string, ThemeColor>(allKeys.Count);
 
         foreach (var key in allKeys)
         {
             var color = ResolveColor(key, themesById, preferredSystemMode);
-            var brush = new SolidColorBrush(color.ToMediaColor());
-            brush.Freeze();
-            brushMap[key.ToResourceKey()] = brush;
+            colorMap[key.ToResourceKey()] = color;
         }
 
-        return brushMap;
+        return colorMap;
     }
 
     /// <summary>

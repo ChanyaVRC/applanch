@@ -11,7 +11,7 @@ public static partial class WindowCaptionThemeHelper
     private const int DwmaUseImmersiveDarkModeLegacy = 19;
 
     [LibraryImport("dwmapi.dll")]
-    private static partial int DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref int pvAttribute, int cbAttribute);
+    private static partial int DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref int darkMode, int cbAttribute);
 
     public static void Apply(Window window)
     {

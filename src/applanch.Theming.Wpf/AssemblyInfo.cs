@@ -1,4 +1,3 @@
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("applanch.Theming.Tests")]
-[assembly: InternalsVisibleTo("applanch.Theming.Wpf")]

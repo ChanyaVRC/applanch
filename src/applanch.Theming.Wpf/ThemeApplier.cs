@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Media;
 using applanch.Infrastructure.Registry;
 
 namespace applanch.Theming;
@@ -28,10 +29,12 @@ public sealed class ThemeApplier
     {
         var preferredMode = ReadWindowsThemePreference();
         var selectedTheme = ResolveTheme(selectedThemeId);
-        var brushMap = selectedTheme.CreateBrushMap(_themesById, preferredMode);
+        var colorMap = selectedTheme.ResolveColors(_themesById, preferredMode);
 
-        foreach (var (key, brush) in brushMap)
+        foreach (var (key, color) in colorMap)
         {
+            var brush = new SolidColorBrush(color.ToMediaColor());
+            brush.Freeze();
             resources[key] = brush;
         }
     }

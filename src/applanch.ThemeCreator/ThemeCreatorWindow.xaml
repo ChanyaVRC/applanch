@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:res="clr-namespace:applanch.ThemeCreator.Properties"
-    xmlns:theming="clr-namespace:applanch.Theming;assembly=applanch.Theming"
+    xmlns:theming="clr-namespace:applanch.Theming;assembly=applanch.Theming.Wpf"
     Title="{x:Static res:Resources.WindowTitle}"
     Width="1100"
     Height="720"

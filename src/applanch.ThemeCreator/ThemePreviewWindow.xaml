@@ -3,7 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:res="clr-namespace:applanch.ThemeCreator.Properties"
-    xmlns:theming="clr-namespace:applanch.Theming;assembly=applanch.Theming"
+    xmlns:theming="clr-namespace:applanch.Theming;assembly=applanch.Theming.Wpf"
     Title="{x:Static res:Resources.PreviewWindowTitle}"
     Width="760"
     Height="820"

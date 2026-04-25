@@ -2,7 +2,7 @@
     x:Class="applanch.Views.Dialogs.MessageDialogWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:applanch.Theming;assembly=applanch.Theming"
+    xmlns:local="clr-namespace:applanch.Theming;assembly=applanch.Theming.Wpf"
     Width="452"
     MinWidth="360"
     Background="{DynamicResource Brush.AppBackground}"

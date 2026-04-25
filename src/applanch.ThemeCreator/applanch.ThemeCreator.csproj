@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\applanch.Core\applanch.Core.csproj" />
     <ProjectReference Include="..\applanch.Theming\applanch.Theming.csproj" />
+    <ProjectReference Include="..\applanch.Theming.Wpf\applanch.Theming.Wpf.csproj" />
     <ProjectReference Include="..\applanch.CodeAnalysis\applanch.CodeAnalysis.csproj"
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false" />
