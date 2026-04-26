@@ -15,7 +15,7 @@ namespace applanch.ThemeCreator;
 public partial class ThemeCreatorWindow : DialogWindowBase
 {
     private const string DefaultEditableBaseThemeId = "light";
-    private const string FallbackEditableHex = "#808080";
+    private static readonly ThemeColor FallbackEditableColor = ThemeColor.Parse("#808080");
     private const string PreviewThemeId = "themecreator-preview";
     private const string PreviewThemeFileName = "themecreator-preview.theme-palette.json";
     private const string WorkspaceMarkerFileName = "applanch.slnx";
@@ -171,17 +171,13 @@ public partial class ThemeCreatorWindow : DialogWindowBase
         foreach (var editableEntry in _editableEntries)
         {
             if (string.IsNullOrWhiteSpace(editableEntry.Hex))
-            {
                 continue;
-            }
 
-            if (!ThemeColor.TryParse(editableEntry.Hex, out var _color))
-            {
+            if (editableEntry.Color is not { } color)
                 throw new InvalidOperationException(string.Format(AppResources.GuiInvalidHexFormat, editableEntry.Key, editableEntry.Hex));
-            }
 
             entries ??= [];
-            entries.Add(new ThemeEntryDto(editableEntry.Key, ThemeColor.Parse(_color.Hex)));
+            entries.Add(new ThemeEntryDto(editableEntry.Key, color));
         }
 
         return entries;
@@ -218,7 +214,7 @@ public partial class ThemeCreatorWindow : DialogWindowBase
     private bool _isOutputPathCustomized;
     private string? _lastSuggestedOutputPath;
     private string? _defaultEditableEntriesSourcePath;
-    private Dictionary<string, string>? _defaultEditableHexByKey;
+    private Dictionary<string, ThemeColor>? _defaultEditableHexByKey;
     private ThemePreviewWindow? _previewWindow;
     private DispatcherTimer? _previewDebounceTimer;
 
@@ -577,7 +573,7 @@ public partial class ThemeCreatorWindow : DialogWindowBase
                 _editableEntries.Add(new ThemeCreatorEditableEntry(
                     entry.Key,
                     ThemeBrushReferenceCatalog.GetDescription(entry.Key),
-                    entry.Hex.Hex));
+                    entry.Hex));
             }
 
             if (_editableEntries.Count == 0 && IncludeEntriesCheckBox.IsChecked != false)
@@ -697,18 +693,16 @@ public partial class ThemeCreatorWindow : DialogWindowBase
             foreach (var editableEntry in _editableEntries)
             {
                 if (string.IsNullOrWhiteSpace(editableEntry.Hex))
-                {
                     continue;
-                }
 
-                if (!ThemeColor.TryParse(editableEntry.Hex, out var _color))
+                if (editableEntry.Color is not { } color)
                 {
                     errorMessage = string.Format(AppResources.GuiInvalidHexFormat, editableEntry.Key, editableEntry.Hex);
                     options = null!;
                     return false;
                 }
 
-                entries.Add(new ThemeEntryDto(editableEntry.Key, ThemeColor.Parse(_color.Hex)));
+                entries.Add(new ThemeEntryDto(editableEntry.Key, color));
             }
 
             if (entries.Count == 0)
@@ -837,13 +831,11 @@ public partial class ThemeCreatorWindow : DialogWindowBase
             _editableEntries.Add(new ThemeCreatorEditableEntry(
                 key,
                 ThemeBrushReferenceCatalog.GetDescription(key),
-                defaultHexByKey.TryGetValue(key, out var hex)
-                    ? hex
-                    : FallbackEditableHex));
+                defaultHexByKey.TryGetValue(key, out var color) ? color : FallbackEditableColor));
         }
     }
 
-    private Dictionary<string, string> ResolveDefaultEditableHexByKey()
+    private Dictionary<string, ThemeColor> ResolveDefaultEditableHexByKey()
     {
         var sourcePalettePath = ResolveSourcePalettePathForDefaultEntries();
 
@@ -861,9 +853,9 @@ public partial class ThemeCreatorWindow : DialogWindowBase
         try
         {
             var themeIds = _service.GetThemeIdsFromFile(sourcePalettePath);
-            var preferredThemeId = themeIds.FirstOrDefault(themeId =>
-                                     string.Equals(themeId, DefaultEditableBaseThemeId, StringComparison.OrdinalIgnoreCase))
-                                 ?? themeIds.FirstOrDefault();
+            var preferredThemeId = themeIds.Contains(DefaultEditableBaseThemeId)
+                                     ? DefaultEditableBaseThemeId
+                                     : null;
 
             if (string.IsNullOrWhiteSpace(preferredThemeId))
             {
@@ -877,7 +869,7 @@ public partial class ThemeCreatorWindow : DialogWindowBase
                 .GroupBy(static entry => entry.Key, StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(
                     static group => group.Key,
-                    static group => group.First().Hex.Hex,
+                    static group => group.First().Hex,
                     StringComparer.OrdinalIgnoreCase);
 
             return _defaultEditableHexByKey;

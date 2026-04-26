@@ -8,35 +8,48 @@ namespace applanch.ThemeCreator;
 
 internal sealed class ThemeCreatorEditableEntry : ObservableObject
 {
-    private string _hex;
-    private string _previewBrushHex = string.Empty;
+    private ThemeColor? _color;
+    private ThemeColor? _cachedBrushColor;
     private Brush _previewBrush = Brushes.Transparent;
 
-    internal ThemeCreatorEditableEntry(string key, string description, string hex)
+    internal ThemeCreatorEditableEntry(string key, string description, ThemeColor? color)
     {
         Key = key;
         Description = description;
-        _hex = hex;
-        RefreshPreviewBrush();
+        _color = color;
     }
 
     public string Key { get; }
 
     public string Description { get; }
 
-    public string Hex
+    public ThemeColor? Color
     {
-        get => _hex;
+        get => _color;
         set
         {
-            if (string.Equals(_hex, value, StringComparison.Ordinal))
-            {
+            if (_color == value)
                 return;
-            }
 
-            _hex = value;
-            RefreshPreviewBrush();
+            _color = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(Hex));
+            OnPropertyChanged(nameof(PreviewBrush));
+        }
+    }
+
+    public string Hex
+    {
+        get => _color?.Hex ?? string.Empty;
+        set
+        {
+            var newColor = ThemeColor.TryParse(value, out var parsed) ? parsed : (ThemeColor?)null;
+            if (_color == newColor)
+                return;
+
+            _color = newColor;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(Color));
             OnPropertyChanged(nameof(PreviewBrush));
         }
     }
@@ -45,29 +58,18 @@ internal sealed class ThemeCreatorEditableEntry : ObservableObject
     {
         get
         {
-            RefreshPreviewBrush();
+            if (_cachedBrushColor != _color)
+            {
+                _cachedBrushColor = _color;
+                _previewBrush = _color is { } c ? CreateFrozenBrush(c) : Brushes.Transparent;
+            }
+
             return _previewBrush;
         }
     }
 
-    private void RefreshPreviewBrush()
+    private static SolidColorBrush CreateFrozenBrush(ThemeColor color)
     {
-        if (string.Equals(_previewBrushHex, _hex, StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        _previewBrushHex = _hex;
-        _previewBrush = CreateFrozenPreviewBrush(_hex);
-    }
-
-    private static SolidColorBrush CreateFrozenPreviewBrush(string hex)
-    {
-        if (!ThemeColor.TryParse(hex, out var color))
-        {
-            return Brushes.Transparent;
-        }
-
         var brush = new SolidColorBrush(color.ToMediaColor());
         brush.Freeze();
         return brush;
