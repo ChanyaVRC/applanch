@@ -329,16 +329,16 @@ internal sealed class SettingsWindowViewModel : ObservableObject
     internal string CreateDiagnosticsText()
     {
         var builder = new StringBuilder(256);
-        builder.AppendLine($"App version: {AppVersionProvider.CurrentVersion}");
-        builder.AppendLine($"OS: {RuntimeInformation.OSDescription.Trim()}");
-        builder.AppendLine($".NET: {RuntimeInformation.FrameworkDescription}");
-        builder.AppendLine($"UI culture: {CultureInfo.CurrentUICulture.Name}");
-        builder.AppendLine($"Culture: {CultureInfo.CurrentCulture.Name}");
-        builder.AppendLine($"Log folder: {AppLogger.LogDirectoryPath}");
-        builder.AppendLine($"Update check on startup: {CheckForUpdatesOnStartup}");
-        builder.AppendLine($"Update install behavior: {SelectedUpdateInstallBehavior}");
-        builder.AppendLine($"Allow prerelease updates: {AllowPrereleaseUpdates}");
-        builder.AppendLine($"Debug update mode: {DebugUpdate}");
+        builder.AppendLine($"App version: {AppVersionProvider.CurrentVersion}")
+            .AppendLine($"OS: {RuntimeInformation.OSDescription.Trim()}")
+            .AppendLine($".NET: {RuntimeInformation.FrameworkDescription}")
+            .AppendLine($"UI culture: {CultureInfo.CurrentUICulture.Name}")
+            .AppendLine($"Culture: {CultureInfo.CurrentCulture.Name}")
+            .AppendLine($"Log folder: {AppLogger.LogDirectoryPath}")
+            .AppendLine($"Update check on startup: {CheckForUpdatesOnStartup}")
+            .AppendLine($"Update install behavior: {SelectedUpdateInstallBehavior}")
+            .AppendLine($"Allow prerelease updates: {AllowPrereleaseUpdates}")
+            .AppendLine($"Debug update mode: {DebugUpdate}");
         return builder.ToString();
     }
 
