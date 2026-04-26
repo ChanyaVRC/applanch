@@ -741,43 +741,39 @@
                                                         <ColumnDefinition Width="*" />
                                                     </Grid.ColumnDefinitions>
 
-                                                    <Border
+                                                    <Grid
                                                         Grid.RowSpan="2"
                                                         Grid.Column="0"
                                                         Width="28"
                                                         Height="28"
-                                                        VerticalAlignment="Center"
-                                                        Background="{DynamicResource Brush.IconBackground}"
-                                                        CornerRadius="5">
-                                                        <Grid>
-                                                            <Image
-                                                                Width="16"
-                                                                Height="16"
-                                                                HorizontalAlignment="Center"
-                                                                VerticalAlignment="Center"
-                                                                Source="{Binding IconSource}" />
-                                                            <TextBlock
-                                                                Margin="0,0,-1,-1"
-                                                                HorizontalAlignment="Right"
-                                                                VerticalAlignment="Bottom"
-                                                                FontFamily="Segoe MDL2 Assets"
-                                                                FontSize="10"
-                                                                Foreground="{DynamicResource Brush.MissingPathWarningBadge}"
-                                                                Text="&#xE7BA;"
-                                                                ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
-                                                                <TextBlock.Style>
-                                                                    <Style TargetType="TextBlock">
-                                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding IsPathMissing}" Value="True">
-                                                                                <Setter Property="Visibility" Value="Visible" />
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </TextBlock.Style>
-                                                            </TextBlock>
-                                                        </Grid>
-                                                    </Border>
+                                                        VerticalAlignment="Center">
+                                                        <Image
+                                                            Width="20"
+                                                            Height="20"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            Source="{Binding IconSource}" />
+                                                        <TextBlock
+                                                            Margin="0,0,-1,-1"
+                                                            HorizontalAlignment="Right"
+                                                            VerticalAlignment="Bottom"
+                                                            FontFamily="Segoe MDL2 Assets"
+                                                            FontSize="10"
+                                                            Foreground="{DynamicResource Brush.MissingPathWarningBadge}"
+                                                            Text="&#xE7BA;"
+                                                            ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsPathMissing}" Value="True">
+                                                                            <Setter Property="Visibility" Value="Visible" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Grid>
 
                                                     <TextBlock
                                                         Grid.Column="2"
@@ -818,43 +814,39 @@
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
 
-                                                <Border
+                                                <Grid
                                                     Grid.RowSpan="2"
                                                     Grid.Column="0"
                                                     Width="28"
                                                     Height="28"
-                                                    VerticalAlignment="Center"
-                                                    Background="{DynamicResource Brush.IconBackground}"
-                                                    CornerRadius="5">
-                                                    <Grid>
-                                                        <Image
-                                                            Width="16"
-                                                            Height="16"
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"
-                                                            Source="{Binding IconSource}" />
-                                                        <TextBlock
-                                                            Margin="0,0,-1,-1"
-                                                            HorizontalAlignment="Right"
-                                                            VerticalAlignment="Bottom"
-                                                            FontFamily="Segoe MDL2 Assets"
-                                                            FontSize="10"
-                                                            Foreground="{DynamicResource Brush.MissingPathWarningBadge}"
-                                                            Text="&#xE7BA;"
-                                                            ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding IsPathMissing}" Value="True">
-                                                                            <Setter Property="Visibility" Value="Visible" />
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                        </TextBlock>
-                                                    </Grid>
-                                                </Border>
+                                                    VerticalAlignment="Center">
+                                                    <Image
+                                                        Width="20"
+                                                        Height="20"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        Source="{Binding IconSource}" />
+                                                    <TextBlock
+                                                        Margin="0,0,-1,-1"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Bottom"
+                                                        FontFamily="Segoe MDL2 Assets"
+                                                        FontSize="10"
+                                                        Foreground="{DynamicResource Brush.MissingPathWarningBadge}"
+                                                        Text="&#xE7BA;"
+                                                        ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsPathMissing}" Value="True">
+                                                                        <Setter Property="Visibility" Value="Visible" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Grid>
 
                                                 <TextBox
                                                     Grid.Column="2"
@@ -917,43 +909,37 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Button.Style>
-                                            <Grid>
-                                                <Border
-                                                    Width="44"
-                                                    Height="44"
+                                            <Grid
+                                                Width="44"
+                                                Height="44"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center">
+                                                <Image
+                                                    Width="32"
+                                                    Height="32"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
-                                                    Background="{DynamicResource Brush.IconBackground}"
-                                                    CornerRadius="9">
-                                                    <Grid>
-                                                        <Image
-                                                            Width="28"
-                                                            Height="28"
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"
-                                                            Source="{Binding IconSource}" />
-                                                        <TextBlock
-                                                            Margin="0,0,0,0"
-                                                            HorizontalAlignment="Right"
-                                                            VerticalAlignment="Bottom"
-                                                            FontFamily="Segoe MDL2 Assets"
-                                                            FontSize="12"
-                                                            Foreground="{DynamicResource Brush.MissingPathWarningBadge}"
-                                                            Text="&#xE7BA;"
-                                                            ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding IsPathMissing}" Value="True">
-                                                                            <Setter Property="Visibility" Value="Visible" />
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                        </TextBlock>
-                                                    </Grid>
-                                                </Border>
+                                                    Source="{Binding IconSource}" />
+                                                <TextBlock
+                                                    Margin="0,0,0,0"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    FontFamily="Segoe MDL2 Assets"
+                                                    FontSize="12"
+                                                    Foreground="{DynamicResource Brush.MissingPathWarningBadge}"
+                                                    Text="&#xE7BA;"
+                                                    ToolTip="{Binding Source={x:Static local:LocalizedStrings.Instance}, Path=[ToolTip_MissingPath]}">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsPathMissing}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
                                             </Grid>
                                         </Button>
                                     </Grid>
